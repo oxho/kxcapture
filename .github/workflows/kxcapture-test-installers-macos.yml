@@ -11,8 +11,7 @@ on:
 
 concurrency:
   group: kxcapture-test-installers-macos-${{ github.ref }}
-  # A Windows retry must not cancel an in-progress macOS build.
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 permissions:
   contents: read
