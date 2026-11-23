@@ -1,30 +1,17 @@
-# Snow Shot Homebrew tap
+# KXCapture Homebrew tap
 
-Snow Shot supports Apple Silicon and Intel Macs running macOS 15 or later when
-the release provides the corresponding package. Snow Shot Mini requires Apple
-Silicon. After the first stable cask is published:
-
-```sh
-brew update
-brew install --cask mg-chao/tap/snow-shot
-brew upgrade --cask snow-shot
-brew uninstall --cask snow-shot
-```
+KXCapture supports Apple Silicon and Intel Macs running macOS 15 or later when
+the release provides the corresponding package. KXCapture Mini requires Apple
+Silicon. No Homebrew tap is published for KXCapture. Do not install the upstream
+Snow Shot cask. After a KXCapture tap exists, its install commands belong here.
 
 If Homebrew reports that `Casks/snow-shot.rb` is missing and offers only
-`snow-shot@beta`, run `brew update` and retry the stable install. This means
-the local tap checkout has not received the published stable cask. See the
-[macOS Homebrew troubleshooting steps](https://github.com/mg-chao/snow-shot/blob/main/docs-macos-build.md#homebrew-installation)
-if it is still missing after the update.
+`snow-shot@beta`, the local tap checkout has not received a stable cask.
 
-Beta releases use a separate cask:
+Beta releases use a separate cask token (`snow-shot@beta`). No KXCapture beta
+tap is published.
 
-```sh
-brew install --cask mg-chao/tap/snow-shot@beta
-brew upgrade --cask snow-shot@beta
-```
-
-Both channels install `Snow Shot.app`. Quit the app and uninstall the current
+Both channel tokens install `KXCapture.app` once a cask exists. Quit the app and uninstall the current
 cask before switching channels; uninstall preserves user data and signing state.
 
 Project-signed releases after 1.5.8 keep the same publisher identity across DMG,
@@ -35,22 +22,20 @@ consent again. Use the current installer: historical scripts still re-sign apps.
 Self-signing does not provide Apple notarization. Legacy installer state and keys
 are left untouched for rollback, and uninstall preserves user data.
 
-For an existing manual installation, quit Snow Shot and move `Snow Shot.app` (or
+For an existing manual installation, quit KXCapture and move `KXCapture.app` (or
 legacy `snow_shot.app`) out of Applications to a backup folder before installing.
 Keep legacy signing state and keys if rollback is needed. Do not use `--force` to overwrite it.
 Delete the backup only after confirming the Homebrew installation works.
 
-Use `brew install --cask --appdir="$HOME/Applications" mg-chao/tap/snow-shot` for
-another application directory (create it first). Use the same desktop account for
-upgrades. Finish captures and recordings before upgrading or uninstalling.
+Use `--appdir="$HOME/Applications"` only after a KXCapture cask exists (create
+that directory first). Use the same desktop account for upgrades. Finish captures
+and recordings before upgrading or uninstalling.
 
-When the installed cask includes `quit:`, Homebrew asks a running Snow Shot to
+When the installed cask includes `quit:`, Homebrew asks a running KXCapture to
 quit and reopens it after a successful upgrade if it was able to quit the app.
-For the first upgrade from a cask without `quit:`, quit Snow Shot before upgrading
+For the first upgrade from a cask without `quit:`, quit KXCapture before upgrading
 and open it afterward. If Homebrew reports a quit failure during an upgrade,
 quit and reopen the app manually.
-
-Release and recovery details: [Snow Shot macOS documentation](https://github.com/mg-chao/snow-shot/blob/main/docs-macos-build.md).
 
 The publisher verifies the downloaded DMG against GitHub's asset SHA-256 digest
 and the `.sha256` sidecar when present. At least one checksum source is required;
@@ -70,4 +55,4 @@ the same tag and `repair_architectures` enabled. This permits only extending a
 single-architecture cask to both architectures when its existing archive checksum,
 URL, installer arguments, and all other settings are identical. All archives are
 verified before the tap changes. Ordinary publication still rejects same-version
-cask changes. See the [repair procedure](https://github.com/mg-chao/snow-shot/blob/main/docs-macos-build.md#repairing-an-incomplete-homebrew-publication).
+cask changes. The upstream Snow Shot repair document is not a KXCapture feed.

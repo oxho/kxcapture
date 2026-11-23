@@ -10,7 +10,7 @@ function Get-SnowShotEdition([ValidateSet('Full', 'Mini')][string]$Edition = 'Fu
     }
     return [pscustomobject]@{ Edition = 'Full'; Product = 'snow-shot'; Name = 'KXCapture';
         Executable = 'snow_shot'; Registry = 'SnowShot'; Scoop = 'snowshot';
-        Winget = 'mg-chao.snow-shot'; Feed = "latest-version$feedSuffix.json";
+        Winget = 'oxho.kxcapture'; Feed = "latest-version$feedSuffix.json";
         Variants = @('online', 'offline', 'portable'); Component = 'SnowShot'; Marker = '__data_directory' }
 }
 

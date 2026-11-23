@@ -69,10 +69,8 @@ function New-SnowShotWingetManifest([string]$Tag, [string]$OutputDirectory,
     [ValidateSet('Full')][string]$Edition = 'Full') {
     $product = Get-SnowShotEdition $Edition
     $version = Get-SnowShotWingetVersion $Tag
-    $repository = ''
-    if ([string]::IsNullOrWhiteSpace($repository)) {
-        throw 'Winget source repository is not configured.'
-    }
+    # Package-manager manifests are built from this repository. The in-app updater feed stays empty.
+    $repository = 'oxho/kxcapture'
     $release = Invoke-SnowShotWingetApi "repos/$repository/releases/tags/$Tag"
     if ($release.draft -or $release.tag_name -cne $Tag) { throw 'Expected the requested published release.' }
     $releaseDate = ([DateTimeOffset]$release.published_at).UtcDateTime.ToString('yyyy-MM-dd')
@@ -102,7 +100,7 @@ function New-SnowShotWingetManifest([string]$Tag, [string]$OutputDirectory,
     $installerEntries += "  - Architecture: $architecture`n    InstallerUrl: $url`n    InstallerSha256: $hash"
     }
     $installers = $installerEntries -join "`n"
-    $directory = Join-Path $OutputDirectory "manifests/m/mg-chao/$($product.Product)/$version"
+    $directory = Join-Path $OutputDirectory "manifests/o/oxho/$($product.Product)/$version"
     $null = New-Item -ItemType Directory -Force -Path $directory
     $common = "PackageIdentifier: $($product.Winget)`nPackageVersion: '$version'"
     $tags = @(
@@ -159,10 +157,10 @@ ManifestVersion: 1.12.0
 $common
 PackageLocale: en-US
 Publisher: oxho
-PublisherUrl: https://github.com/mg-chao
+PublisherUrl: https://github.com/oxho
 PublisherSupportUrl: https://github.com/$repository/issues
 PackageName: $($product.Name)
-PackageUrl: 
+PackageUrl: https://github.com/$repository 
 License: GPL-3.0-or-later
 LicenseUrl: https://github.com/$repository/blob/$Tag/snow_shot/COPYRIGHT
 ShortDescription: A screenshot utility for capturing, annotating, pinning, and recognizing screen content.
@@ -185,7 +183,7 @@ ManifestVersion: 1.12.0
 
 function Get-SnowShotWingetSubmission([string]$Version, [ValidateSet('Full')][string]$Edition = 'Full') {
     $product = Get-SnowShotEdition $Edition
-    $path = "manifests/m/mg-chao/$($product.Product)/$Version"
+    $path = "manifests/o/oxho/$($product.Product)/$Version"
     try {
         $null = Invoke-SnowShotWingetApi "repos/microsoft/winget-pkgs/contents/$path"
         return "Already merged: https://github.com/microsoft/winget-pkgs/tree/master/$path"

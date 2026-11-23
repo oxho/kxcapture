@@ -20,13 +20,13 @@ SCRIPT = Path(__file__).resolve().with_name('install-snow-shot-macos.sh')
 PREFLIGHT = SCRIPT.with_name('prepare-snow-shot-homebrew.sh')
 FINGERPRINT = re.search(r"PROJECT_SIGNING_CERTIFICATE_SHA1='([A-F0-9]{40})'", SCRIPT.read_text())[1]
 REQUIREMENT = 'identifier "io.github.oxho.kxcapture" and anchor = H"' + FINGERPRINT + '"'
-API = ''
-GITEE_API = ''
-GITEE_ATTACH = ''
+API = 'https://api.github.com/repos/oxho/kxcapture/releases?per_page=100&page=1'
+GITEE_API = 'https://gitee.com/api/v5/repos/oxho/kxcapture/releases?per_page=100&page=1'
+GITEE_ATTACH = 'https://gitee.com/api/v5/repos/oxho/kxcapture/releases/123/attach_files?per_page=100'
 ASSET = 'snow-shot-1.2.3-macos-arm64.dmg'
 TAG = 'v1.2.3_snow-shot'
-GITHUB = '' + TAG + '/' + ASSET
-GITEE = '' + TAG + '/' + ASSET
+GITHUB = 'https://github.com/oxho/kxcapture/releases/download/' + TAG + '/' + ASSET
+GITEE = 'https://gitee.com/oxho/kxcapture/releases/download/' + TAG + '/' + ASSET
 
 MOCK = r'''#!/usr/bin/env python3
 import hashlib, json, os, pathlib, plistlib, shutil, signal, subprocess, sys, time

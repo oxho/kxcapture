@@ -19,7 +19,7 @@ CERTIFICATE = ROOT / 'snow_shot/packaging/macos/release-signing.pem'
 INSTALLER = ROOT / 'scripts/install-snow-shot-macos.sh'
 PRODUCTS = {'kxcapture': 'io.github.oxho.kxcapture',
             'kxcapture-mini': 'io.github.oxho.kxcapture.mini'}
-REPOSITORY = ''
+REPOSITORY = 'oxho/kxcapture'
 # The last ad-hoc release is the only allowed migration boundary. These are
 # downloaded GitHub asset digests, not arbitrary unsigned predecessor exceptions.
 LEGACY_PACKAGES = {}

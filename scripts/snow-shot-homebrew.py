@@ -11,7 +11,7 @@ import subprocess
 import tarfile
 import tempfile
 
-REPOSITORY = ''
+REPOSITORY = 'oxho/kxcapture'
 STABLE = r'(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)'
 VERSION = STABLE + r'(?:-beta(?:\.(?:0|[1-9][0-9]*))?)?'
 
@@ -219,7 +219,7 @@ def cask(version, sha256, tag=None, edition='full', architecture='arm64', *, qui
   url "https://github.com/{REPOSITORY}/releases/download/{url_tag}/{slug}-#{{version}}-macos-{archive_architecture}-homebrew.tar.gz"
   name "{name}"
   desc "Screenshot and screen recording application"
-  homepage ""
+  homepage "https://github.com/oxho/kxcapture"
 
 {conflict}{architecture_requirement}  depends_on macos: :sequoia
 

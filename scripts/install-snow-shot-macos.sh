@@ -216,8 +216,8 @@ function run(argv) {
         const image = assets.filter(a => a.name === name);
         const sum = assets.filter(a => a.name === name + '.sha256');
         if (image.length !== 1 || sum.length !== 1) continue;
-        const repository = argv[2] === 'github' ? 'https://github.com/mg-chao/snow-shot' :
-            'https://gitee.com/mg-chao/snow-apps';
+        const repository = argv[2] === 'github' ? 'https://github.com/oxho/kxcapture' :
+            'https://gitee.com/oxho/kxcapture';
         const prefix = repository + '/releases/download/' + release.tag_name + '/';
         if (image[0].browser_download_url !== prefix + name || sum[0].browser_download_url !== prefix + name + '.sha256') continue;
         if (!best || compare(tag, best.tag) > 0) best = {tag: tag, version: version, image: image[0], sum: sum[0], releaseTag: release.tag_name};
@@ -288,7 +288,7 @@ discover_channel() {
         result=''
         while read -r tag id; do
             [[ -n "$tag" && "$id" =~ ^[0-9]+$ ]] || continue
-            fetch_metadata "" \
+            fetch_metadata "https://gitee.com/api/v5/repos/oxho/kxcapture/releases/$id/attach_files?per_page=100" \
                 "$work/gitee-attachments.json" || continue
             result=$(release_urls "$work/gitee-releases.json" gitee "$tag" \
                 "$work/gitee-attachments.json" 2>> "$work/diagnostic.log") && break
@@ -305,9 +305,9 @@ discover_channel() {
 
 discover_release() {
     local channel
-    discover_channel github '' &
+    discover_channel github 'https://api.github.com/repos/oxho/kxcapture/releases' &
     github_pid=$!
-    discover_channel gitee '' &
+    discover_channel gitee 'https://gitee.com/api/v5/repos/oxho/kxcapture/releases' &
     gitee_pid=$!
     while :; do
         for channel in github gitee; do
@@ -394,7 +394,7 @@ obtain_package() {
         candidate=$(release_urls "$work/gitee-releases.json" gitee-list "$tag" 2>> "$work/diagnostic.log") || die unavailable
         id=${candidate#* }
         [[ "$id" =~ ^[0-9]+$ ]] || die unavailable
-        fetch_metadata "" \
+        fetch_metadata "https://gitee.com/api/v5/repos/oxho/kxcapture/releases/$id/attach_files?per_page=100" \
             "$work/gitee-attachments.json" || die unavailable
         urls=$(release_urls "$work/gitee-releases.json" gitee "$tag" \
             "$work/gitee-attachments.json" 2>> "$work/diagnostic.log") || die unavailable

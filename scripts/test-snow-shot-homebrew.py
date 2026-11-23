@@ -65,7 +65,7 @@ class HomebrewTests(unittest.TestCase):
         self.assertIn('app "KXCapture.app"', cask)
         self.assertIn('staged_path.join("prepare-snow-shot-homebrew.sh")', cask)
         self.assertIn('installer script:', cask)
-        self.assertRegex(cask, r'uninstall quit:\s+"com\.snowshot\.snow_shot",\n\s+script:')
+        self.assertRegex(cask, r'uninstall quit:\s+"io\.github\.oxho\.kxcapture",\n\s+script:')
         self.assertIn('["-rf", "--", "#{staged_path}/KXCapture.app"]', cask)
         for forbidden in ('/main/', '/latest/', 'sha256 :no_check', 'zap ', 'preflight', '/Applications/'):
             self.assertNotIn(forbidden, cask)

@@ -5,10 +5,10 @@ cask "snow-shot" do
   sha256 arm:   "0000000000000000000000000000000000000000000000000000000000000000",
          intel: "1111111111111111111111111111111111111111111111111111111111111111"
 
-  url ""
+  url "https://github.com/oxho/kxcapture/releases/download/v#{version}_snow-shot/snow-shot-#{version}-macos-#{arch}-homebrew.tar.gz"
   name "KXCapture"
   desc "Screenshot and screen recording application"
-  homepage ""
+  homepage "https://github.com/oxho/kxcapture"
 
   depends_on macos: :sequoia
 
