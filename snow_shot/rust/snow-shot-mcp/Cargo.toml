@@ -10,6 +10,9 @@ name = "kxcapture-mcp"
 path = "src/main.rs"
 
 [features]
+default = ["ocr"]
+ocr = []
+translation = []
 mini = []
 store = []
 

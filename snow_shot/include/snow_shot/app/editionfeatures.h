@@ -2,6 +2,7 @@
 #define SNOW_SHOT_APP_EDITIONFEATURES_H
 
 #include "snow_shot/app/edition.h"
+#include "snow_shot/app/featureflags.h"
 
 #include <QString>
 
@@ -32,7 +33,9 @@ namespace snow_shot::app {
     if (id == QStringLiteral("convert-to-markdown") || id == QStringLiteral("convert-to-html"))
         return edition::imageConversion;
     if (id == QStringLiteral("text-translation"))
-        return edition::textTranslation;
+        return edition::textTranslation && features::translationEnabled();
+    if (id == QStringLiteral("text-recognition"))
+        return features::ocrEnabled();
     return true;
 }
 

@@ -10,17 +10,40 @@ pub const MCP_NAME: &str = if MINI {
 pub const REGISTRY_NAME: &str = if MINI { "KXCaptureMini" } else { "KXCapture" };
 pub const APP_NAME: &str = if MINI { "kxcapture_mini" } else { "kxcapture" };
 
+const TRANSLATION: bool = cfg!(feature = "translation");
+const OCR: bool = cfg!(feature = "ocr");
+
+fn translation_method(name: &str) -> bool {
+    matches!(
+        name,
+        "snow_shot_screenshot_translate"
+            | "snow_shot_models_list"
+            | "snow_shot_models_update"
+            | "snow_shot_credentials_set"
+            | "snow_shot_translation_catalog"
+            | "snow_shot_translation_start"
+    )
+}
+
+fn ocr_method(name: &str) -> bool {
+    matches!(
+        name,
+        "snow_shot_screenshot_recognize"
+            | "snow_shot_document_recognize"
+            | "snow_shot_screenshot_edit_recognition"
+            | "snow_shot_screenshot_export_recognition"
+            | "snow_shot_document_edit_recognition"
+    )
+}
+
 pub fn method_enabled(name: &str) -> bool {
-    !MINI
-        || !matches!(
-            name,
-            "snow_shot_screenshot_translate"
-                | "snow_shot_models_list"
-                | "snow_shot_models_update"
-                | "snow_shot_credentials_set"
-                | "snow_shot_translation_catalog"
-                | "snow_shot_translation_start"
-        )
+    if !TRANSLATION && translation_method(name) {
+        return false;
+    }
+    if !OCR && ocr_method(name) {
+        return false;
+    }
+    !MINI || !translation_method(name)
 }
 
 pub fn input_enabled(name: &str, input: &serde_json::Value) -> bool {
@@ -55,8 +78,11 @@ mod tests {
 
     #[test]
     fn retained_ids_and_recognition_modes_follow_the_compiled_edition() {
-        assert!(method_enabled("snow_shot_document_recognize"));
-        assert_eq!(method_enabled("snow_shot_translation_start"), !MINI);
+        assert_eq!(method_enabled("snow_shot_document_recognize"), OCR);
+        assert_eq!(
+            method_enabled("snow_shot_translation_start"),
+            !MINI && TRANSLATION
+        );
         for kind in ["table", "qr", "latex", "markdown", "html", "document"] {
             assert_eq!(
                 input_enabled("snow_shot_document_recognize", &json!({"kind":kind})),

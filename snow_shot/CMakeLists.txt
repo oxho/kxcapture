@@ -102,6 +102,8 @@ option(SNOW_SHOT_BUILD_IMAGE_CODEC_SMOKE_TEST
     "Build the KXCapture image-codec smoke test without the full QtTest suite." OFF)
 option(SNOW_SHOT_BUILD_BENCHMARKS "Build opt-in native KXCapture benchmarks." OFF)
 option(SNOW_SHOT_ENABLE_MCP "Build and package the local KXCapture MCP bridge." ON)
+option(KXCAPTURE_ENABLE_TRANSLATION "Show translation menus, shortcuts, settings, tray items, and MCP actions." OFF)
+option(KXCAPTURE_ENABLE_OCR "Show OCR menus, shortcuts, settings, tray items, and MCP actions." ON)
 option(SNOW_SHOT_SCROLLING_PERF_DETAIL "Compile detailed scrolling C++ and Rust timings." OFF)
 option(SNOW_SHOT_RELEASE_STATIC "Prefer static KXCapture release linkage." OFF)
 option(SNOW_SHOT_QT_STATIC "Link KXCapture against a static Qt build." OFF)
@@ -426,6 +428,12 @@ if(SNOW_SHOT_ENABLE_MCP)
     if(SNOW_SHOT_DISTRIBUTION_CHANNEL STREQUAL "store")
         list(APPEND _snow_shot_mcp_features store)
     endif()
+    if(KXCAPTURE_ENABLE_TRANSLATION)
+        list(APPEND _snow_shot_mcp_features translation)
+    endif()
+    if(KXCAPTURE_ENABLE_OCR)
+        list(APPEND _snow_shot_mcp_features ocr)
+    endif()
     snow_add_rust_executable(snow_shot_mcp
         PACKAGE snow-shot-mcp
         MANIFEST_DIR "${CMAKE_CURRENT_SOURCE_DIR}/rust/snow-shot-mcp"
@@ -433,6 +441,7 @@ if(SNOW_SHOT_ENABLE_MCP)
         PRODUCTION_PROFILE release-size
         REPRODUCIBLE
         SIZE_OPTIMIZED
+        NO_DEFAULT_FEATURES
         FEATURES ${_snow_shot_mcp_features}
     )
 endif()
@@ -2273,6 +2282,8 @@ endif()
 
 target_compile_definitions(snow_shot PRIVATE
     SNOW_SHOT_API_BASE_URL=\"${SNOW_SHOT_API_BASE_URL}\"
+    KXCAPTURE_ENABLE_TRANSLATION=$<BOOL:${KXCAPTURE_ENABLE_TRANSLATION}>
+    KXCAPTURE_ENABLE_OCR=$<BOOL:${KXCAPTURE_ENABLE_OCR}>
 )
 if(WIN32)
     target_compile_definitions(snow_shot PRIVATE

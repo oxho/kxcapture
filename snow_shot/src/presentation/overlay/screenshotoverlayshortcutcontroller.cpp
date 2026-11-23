@@ -1,3 +1,4 @@
+#include "snow_shot/app/featureflags.h"
 #include "snow_shot/presentation/canvashistoryshortcuts.h"
 #include "snow_shot/presentation/cursormovementshortcuts.h"
 #include "snow_shot/shortcuts/annotationoptionshortcut.h"
@@ -254,7 +255,7 @@ struct ScreenshotOverlayShortcutController::Impl {
                 [this, reverse] { return inputHandler.cycleRegionType(reverse); });
             screenshotBindings.insert(actionId, shortcutManager.addBinding(&q, std::move(binding)));
         }
-        const QStringList screenshotIds = {
+        QStringList screenshotIds = {
             QStringLiteral("move_tool"),
             QStringLiteral("move_cursor_up"),
             QStringLiteral("move_cursor_down"),
@@ -277,8 +278,6 @@ struct ScreenshotOverlayShortcutController::Impl {
             QStringLiteral("table_recognition"),
             QStringLiteral("qr_code_recognition"),
             QStringLiteral("video_recording"),
-            QStringLiteral("text_recognition"),
-            QStringLiteral("text_translation"),
             QStringLiteral("scrolling_screenshot"),
             QStringLiteral("quick_save"),
             QStringLiteral("print"),
@@ -289,6 +288,10 @@ struct ScreenshotOverlayShortcutController::Impl {
             QStringLiteral("cancel_screenshot"),
             QStringLiteral("copy_to_clipboard"),
         };
+        if (snow_shot::features::ocrEnabled())
+            screenshotIds.append(QStringLiteral("text_recognition"));
+        if (snow_shot::features::translationEnabled())
+            screenshotIds.append(QStringLiteral("text_translation"));
         snow_shot::presentation::CursorMovementShortcuts cursorMovement;
         for (const QString& actionId : screenshotIds) {
             ShortcutManager::Binding binding;

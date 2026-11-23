@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
+#include "snow_shot/app/featureflags.h"
 #include "snow_shot/presentation/screenshottoolpalette.h"
 #include "snow_shot/presentation/screenshotcanvastoolstyles.h"
 namespace snow_shot::presentation {
@@ -26,8 +27,8 @@ inline ScreenshotToolPalette::Options screenshotDrawingToolbarOptions() {
     options.showWatermarkTool = true;
     options.showTextTool = true;
     options.showSequenceNumberTool = true;
-    options.showOcrTool = true;
-    options.showTextTranslationTool = true;
+    options.showOcrTool = snow_shot::features::ocrEnabled();
+    options.showTextTranslationTool = snow_shot::features::translationEnabled();
     options.showTableTool = true;
     options.showQrTool = true;
     options.showImageConversionTools = true;

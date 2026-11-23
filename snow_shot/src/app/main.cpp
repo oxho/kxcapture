@@ -1,4 +1,5 @@
 #include "snow_shot/app/edition.h"
+#include "snow_shot/app/featureflags.h"
 #include "snow_shot/platform/applicationqos.h"
 #include "snow_shot/app/applicationcontroller.h"
 #include "snow_shot/app/applicationrestart.h"
@@ -127,6 +128,14 @@ std::optional<bool> updateTransactionPending(const QString& helperPath, const QS
 } // namespace
 
 int main(int argc, char* argv[]) {
+#ifndef KXCAPTURE_ENABLE_TRANSLATION
+#define KXCAPTURE_ENABLE_TRANSLATION 0
+#endif
+#ifndef KXCAPTURE_ENABLE_OCR
+#define KXCAPTURE_ENABLE_OCR 1
+#endif
+    snow_shot::features::setTranslationEnabled(KXCAPTURE_ENABLE_TRANSLATION != 0);
+    snow_shot::features::setOcrEnabled(KXCAPTURE_ENABLE_OCR != 0);
     if (argc > 1 && QByteArray(argv[1]) == "--distribution-probe") {
         if (argc != 2)
             return 64;

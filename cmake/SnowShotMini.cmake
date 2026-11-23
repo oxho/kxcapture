@@ -156,10 +156,18 @@ function(_snow_add_mini_helpers)
                 "SNOW_SHOT_ICON_PATH=${CMAKE_CURRENT_SOURCE_DIR}/resources/app-icon.ico")
     endif()
     if(SNOW_SHOT_ENABLE_MCP)
+        set(_snow_mini_mcp_features mini)
+        if(KXCAPTURE_ENABLE_TRANSLATION)
+            list(APPEND _snow_mini_mcp_features translation)
+        endif()
+        if(KXCAPTURE_ENABLE_OCR)
+            list(APPEND _snow_mini_mcp_features ocr)
+        endif()
         snow_add_rust_executable(snow_shot_mini_mcp
             PACKAGE snow-shot-mcp MANIFEST_DIR "${CMAKE_CURRENT_SOURCE_DIR}/rust/snow-shot-mcp"
             OUTPUT_NAME kxcapture-mcp PRODUCTION_PROFILE release-size
-            FEATURES mini REPRODUCIBLE SIZE_OPTIMIZED)
+            NO_DEFAULT_FEATURES
+            FEATURES ${_snow_mini_mcp_features} REPRODUCIBLE SIZE_OPTIMIZED)
     endif()
 endfunction()
 _snow_add_mini_helpers()
