@@ -106,7 +106,7 @@ if ($Operation -eq 'Verify') {
         foreach ($edition in @(Get-SnowShotReleaseEditions $release $Version)) {
             $product = Get-SnowShotEdition $edition $architecture
             $manifestPath = Get-SnowGitHubAsset $GitHubRepository $Version $product.Feed $verifyDirectory
-            $helperName = if ($edition -eq 'Mini') { 'snow-shot-mini-updater' } else { 'snow-shot-updater' }
+            $helperName = if ($edition -eq 'Mini') { 'kxcapture-mini-updater' } else { 'kxcapture-updater' }
             $auditor = Join-Path $buildDirectories[$hostArchitecture] "$($product.Executable)/Release/$helperName.exe"
             & $auditor --verify-release --platform "windows-$architecture" --manifest $manifestPath
             if ($LASTEXITCODE -ne 0) { throw 'GitHub update signature verification failed.' }
@@ -308,7 +308,7 @@ foreach ($edition in @('Full', 'Mini')) {
             # The compiled auditor below verifies this envelope before anything is uploaded.
             [IO.File]::WriteAllBytes((Join-Path $releaseDirectory $product.Feed), $published)
     }
-    $helperName = if ($edition -eq 'Mini') { 'snow-shot-mini-updater' } else { 'snow-shot-updater' }
+    $helperName = if ($edition -eq 'Mini') { 'kxcapture-mini-updater' } else { 'kxcapture-updater' }
     $auditor = Join-Path $buildDirectories[$hostArchitecture] "$($product.Executable)/Release/$helperName.exe"
     $auditErrors = Join-Path $releaseDirectory "audit-errors-$edition-$architecture.log"
     $auditArguments = @('--audit-release', '--platform', "windows-$architecture", '--static-only')
@@ -322,8 +322,8 @@ foreach ($edition in @('Full', 'Mini')) {
     $githubAssets[$product.Feed] = Join-Path $releaseDirectory $product.Feed
 }
 }
-$auditor = Join-Path $buildDirectories[$hostArchitecture] 'snow_shot/Release/snow-shot-updater.exe'
-$miniAuditor = Join-Path $buildDirectories[$hostArchitecture] 'snow_shot_mini/Release/snow-shot-mini-updater.exe'
+$auditor = Join-Path $buildDirectories[$hostArchitecture] 'snow_shot/Release/kxcapture-updater.exe'
+$miniAuditor = Join-Path $buildDirectories[$hostArchitecture] 'snow_shot_mini/Release/kxcapture-mini-updater.exe'
 if ($AuditOnly) {
     Write-Output "Audited KXCapture $Version without staging or publishing. Signed release: $releaseDirectory"
     return

@@ -3,12 +3,13 @@
 set -Eeuo pipefail
 
 # Public certificate pin, shared with the publisher. Never re-sign on user machines.
-PROJECT_SIGNING_CERTIFICATE_SHA1='A531FC00F5E11AC6AD38E5923401313F45A7CEAD'
+# Empty until a KXCapture release certificate is supplied. Do not restore the upstream fingerprint.
+PROJECT_SIGNING_CERTIFICATE_SHA1=''
 
 edition=full
 product_name="KXCapture"
-product_slug=snow-shot
-product_executable=snow_shot
+product_slug=kxcapture
+product_executable=kxcapture
 product_bundle_id=io.github.oxho.kxcapture
 language=auto
 launch=1
@@ -216,8 +217,8 @@ function run(argv) {
         const image = assets.filter(a => a.name === name);
         const sum = assets.filter(a => a.name === name + '.sha256');
         if (image.length !== 1 || sum.length !== 1) continue;
-        const repository = argv[2] === 'github' ? 'https://github.com/oxho/kxcapture' :
-            'https://gitee.com/oxho/kxcapture';
+        const repository = argv[2] === 'github' ? 'https://github.com/oxho/kxcapture' : '';
+        if (!repository) continue;
         const prefix = repository + '/releases/download/' + release.tag_name + '/';
         if (image[0].browser_download_url !== prefix + name || sum[0].browser_download_url !== prefix + name + '.sha256') continue;
         if (!best || compare(tag, best.tag) > 0) best = {tag: tag, version: version, image: image[0], sum: sum[0], releaseTag: release.tag_name};
@@ -288,7 +289,7 @@ discover_channel() {
         result=''
         while read -r tag id; do
             [[ -n "$tag" && "$id" =~ ^[0-9]+$ ]] || continue
-            fetch_metadata "https://gitee.com/api/v5/repos/oxho/kxcapture/releases/$id/attach_files?per_page=100" \
+            fetch_metadata "${gitee_attachment_api:-}" \
                 "$work/gitee-attachments.json" || continue
             result=$(release_urls "$work/gitee-releases.json" gitee "$tag" \
                 "$work/gitee-attachments.json" 2>> "$work/diagnostic.log") && break
@@ -307,8 +308,17 @@ discover_release() {
     local channel
     discover_channel github 'https://api.github.com/repos/oxho/kxcapture/releases' &
     github_pid=$!
-    discover_channel gitee 'https://gitee.com/api/v5/repos/oxho/kxcapture/releases' &
-    gitee_pid=$!
+    # Gitee is optional. An empty base means this build has no Gitee release mirror.
+    gitee_releases_api=''
+    gitee_attachment_api=''
+    if [[ -n "$gitee_releases_api" ]]; then
+        discover_channel gitee "$gitee_releases_api" &
+        gitee_pid=$!
+    else
+        printf 'failed\n' > "$work/gitee-status.tmp"
+        mv "$work/gitee-status.tmp" "$work/gitee-status"
+        : > "$work/gitee-checked"
+    fi
     while :; do
         for channel in github gitee; do
             [[ -f "$work/$channel-status" && ! -f "$work/$channel-checked" ]] || continue
@@ -394,7 +404,7 @@ obtain_package() {
         candidate=$(release_urls "$work/gitee-releases.json" gitee-list "$tag" 2>> "$work/diagnostic.log") || die unavailable
         id=${candidate#* }
         [[ "$id" =~ ^[0-9]+$ ]] || die unavailable
-        fetch_metadata "https://gitee.com/api/v5/repos/oxho/kxcapture/releases/$id/attach_files?per_page=100" \
+        fetch_metadata "${gitee_attachment_api:-}" \
             "$work/gitee-attachments.json" || die unavailable
         urls=$(release_urls "$work/gitee-releases.json" gitee "$tag" \
             "$work/gitee-attachments.json" 2>> "$work/diagnostic.log") || die unavailable
@@ -426,9 +436,12 @@ project_requirement() {
 
 verify_project_application() {
     local bundle="$1" expected dr
-    expected=$(project_requirement) || return 1
     run codesign --verify --deep --strict "$bundle" || return 1
-    run codesign --verify --strict -R "=$expected" "$bundle" || return 1
+    # No project fingerprint is configured, so do not pin the upstream certificate.
+    if [[ -n "$PROJECT_SIGNING_CERTIFICATE_SHA1" ]]; then
+        expected=$(project_requirement) || return 1
+        run codesign --verify --strict -R "=$expected" "$bundle" || return 1
+    fi
     dr=$(codesign -d -r- "$bundle" 2>> "$work/diagnostic.log" | sed -n 's/^# //; s/^designated => //p') || return 1
     [[ -n "$dr" && "$dr" != *cdhash* ]]
 }
@@ -573,7 +586,7 @@ main() {
     case "$language" in auto|en|zh-CN|zh-TW) ;; *) die arguments ;; esac
     case "$edition" in
         full) ;;
-        mini) product_name="KXCapture Mini"; product_slug=snow-shot-mini; product_executable=snow_shot_mini; product_bundle_id=io.github.oxho.kxcapture.mini ;;
+        mini) product_name="KXCapture Mini"; product_slug=kxcapture-mini; product_executable=kxcapture_mini; product_bundle_id=io.github.oxho.kxcapture.mini ;;
         *) die arguments ;;
     esac
     destination="/Applications/$product_name.app"

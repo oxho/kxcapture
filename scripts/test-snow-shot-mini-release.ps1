@@ -84,13 +84,13 @@ try {
     $mini = Get-SnowShotEdition Mini
     Require ($mini.Variants.Count -eq 2 -and $mini.Marker -ceq '__mini_data_directory') 'Mini has only online and portable variants and its own data marker.'
     $manifest = New-SnowShotScoopManifestObject '1.2.3' 'https://fixture.invalid/mini.zip' ('0' * 64) Mini
-    Require ($manifest.bin[0][0] -ceq 'bin\snow_shot_mini.exe' -and $manifest.bin[0][1] -ceq 'snowshot-mini') 'Mini Scoop executable/shim identity is independent.'
+    Require ($manifest.bin[0][0] -ceq 'bin\kxcapture_mini.exe' -and $manifest.bin[0][1] -ceq 'snowshot-mini') 'Mini Scoop executable/shim identity is independent.'
     Require (($manifest.checkver.script -join "`n") -match 'snow-shot-mini-\$version') 'Mini Scoop checks its own assets.'
     Require ($manifest.autoupdate.architecture.'64bit'.url -match '/snow-shot-mini-') 'Mini Scoop upgrades its own edition.'
     $zip = Join-Path $fixture 'portable.zip'
     $archive = [IO.Compression.ZipFile]::Open($zip, [IO.Compression.ZipArchiveMode]::Create)
     try {
-        foreach ($pair in @(@('bin/snow_shot_mini.exe', 'fixture'), @('bin/__mini_data_directory', 'portable'))) {
+        foreach ($pair in @(@('bin/kxcapture_mini.exe', 'fixture'), @('bin/__mini_data_directory', 'portable'))) {
             $writer = [IO.StreamWriter]::new($archive.CreateEntry($pair[0]).Open())
             try { $writer.Write($pair[1]) } finally { $writer.Dispose() }
         }

@@ -46,9 +46,9 @@ fn compile_windows_resources(output: &std::path::Path) {
     let mini = env::var_os("CARGO_FEATURE_MINI").is_some();
     let product = if mini { "KXCapture Mini" } else { "KXCapture" };
     let updater = if mini {
-        "snow-shot-mini-updater"
+        "kxcapture-mini-updater"
     } else {
-        "snow-shot-updater"
+        "kxcapture-updater"
     };
     let resource_path = output.join(format!("{updater}.rc"));
     // Normal startup runs --transaction-state through CreateProcess. Declare

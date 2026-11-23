@@ -164,7 +164,7 @@ $global:SnowGitHubTestEvents.Add('website')
     }
     function global:git { $global:LASTEXITCODE = 0; return ('a' * 40) }
     function global:Start-Process { param($FilePath, $ArgumentList, $WindowStyle, [switch]$PassThru, $RedirectStandardError)
-        Require ($FilePath.EndsWith('snow-shot-updater.exe') -or $FilePath.EndsWith('snow-shot-mini-updater.exe')) 'Only the local auditor can run.'
+        Require ($FilePath.EndsWith('kxcapture-updater.exe') -or $FilePath.EndsWith('kxcapture-mini-updater.exe')) 'Only the local auditor can run.'
         Require (-not $global:SnowGitHubTestEvents.Contains('upload')) 'Audit must precede every upload.'
         Require ($ArgumentList -contains '--static-only' -and $ArgumentList -contains '--platform') 'Offline cross-architecture audit must keep executable probes separate from native proof.'
         $global:SnowGitHubTestEvents.Add('audit')

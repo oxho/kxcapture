@@ -179,7 +179,7 @@ void brandingRetranslatesWithoutChangingIdentifiers() {
     };
     const QString product =
         edition::isMini ? QStringLiteral("KXCapture Mini") : QStringLiteral("KXCapture");
-    const QString windowName = edition::isMini ? product : QStringLiteral("SnowShot");
+    const QString windowName = product;
     for (const auto& test : cases) {
         QTranslator translator;
         require(translator.load(

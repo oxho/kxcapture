@@ -41,12 +41,13 @@ class ReleaseSelection(unittest.TestCase):
             signing.initialize()
 
     def test_installer_pin_must_match_the_committed_certificate(self):
-        self.assertEqual(signing.project_identity(), signing.fingerprint())
+        with self.assertRaisesRegex(ValueError, 'not configured'):
+            signing.project_identity()
         with tempfile.TemporaryDirectory() as directory:
             installer = Path(directory) / 'installer.sh'
             installer.write_text("PROJECT_SIGNING_CERTIFICATE_SHA1='" + '0' * 40 + "'\n")
             with patch.object(signing, 'INSTALLER', installer):
-                with self.assertRaisesRegex(ValueError, 'pin differs'):
+                with self.assertRaises(ValueError):
                     signing.project_identity()
 
     def test_unsafe_identifiers_are_rejected(self):
@@ -143,8 +144,8 @@ class NativeSigning(unittest.TestCase):
 
     def test_changed_builds_with_same_certificate_satisfy_each_other(self):
         a, b = self.app('old', '1.5.9'), self.app('new', '1.5.10')
-        self.assertNotEqual(signing.digest(a / 'Contents/MacOS/snow_shot'),
-                            signing.digest(b / 'Contents/MacOS/snow_shot'))
+        self.assertNotEqual(signing.digest(a / 'Contents/MacOS/kxcapture'),
+                            signing.digest(b / 'Contents/MacOS/kxcapture'))
         self.assertEqual(signing.check_previous(b, a, ID, self.identities[0])['version'], '1.5.9')
 
     def test_rejects_other_certificate_adhoc_and_wrong_product(self):
@@ -162,7 +163,7 @@ class NativeSigning(unittest.TestCase):
             signing.verify_app(app, ID, self.identities[0])
 
     def test_mini_retains_its_identity_without_accepting_full(self):
-        identifier = signing.PRODUCTS['snow-shot-mini']
+        identifier = signing.PRODUCTS['kxcapture-mini']
         old = self.app('old-mini', '1.5.9', identifier=identifier)
         new = self.app('new-mini', '1.5.10', identifier=identifier)
         self.assertEqual(signing.check_previous(new, old, identifier, self.identities[0])['version'],
@@ -181,11 +182,11 @@ class NativeSigning(unittest.TestCase):
         original = self.app('publisher', '1.5.9')
         work = self.directory / 'work'
         work.mkdir()
-        staged = work / 'snow_shot.app'
+        staged = work / 'kxcapture.app'
         shutil.copytree(original, staged)
         installer = self.directory / 'install-snow-shot-macos.sh'
         source = (ROOT / 'scripts/install-snow-shot-macos.sh').read_text()
-        source = re.sub(r"PROJECT_SIGNING_CERTIFICATE_SHA1='[A-F0-9]+'",
+        source = re.sub(r"PROJECT_SIGNING_CERTIFICATE_SHA1='[A-F0-9]*'",
                         f"PROJECT_SIGNING_CERTIFICATE_SHA1='{self.identities[0]}'", source)
         installer.write_text(source)
         wrapper = self.directory / 'prepare-snow-shot-homebrew.sh'
@@ -222,7 +223,7 @@ install_application
         with patch.object(signing, 'project_identity', return_value=self.identities[0]), \
                 patch.object(signing, 'mounted_app', side_effect=mounted):
             with self.assertRaises(ValueError):
-                signing.audit_release(new, 'snow-shot', 'arm64', '1.5.9', old)
+                signing.audit_release(new, 'kxcapture', 'arm64', '1.5.9', old)
 
     def test_exact_legacy_boundary_is_recorded_without_claiming_compatibility(self):
         a, b = self.app('old', '1.5.8', None), self.app('new', '1.5.9')
@@ -234,7 +235,7 @@ install_application
         with patch.object(signing, 'project_identity', return_value=self.identities[0]), \
                 patch.object(signing, 'mounted_app', side_effect=mounted), \
                 patch.dict(signing.LEGACY_PACKAGES, {old.name: signing.digest(old)}):
-            report = signing.audit_release(new, 'snow-shot', 'arm64', '1.5.9', old)
+            report = signing.audit_release(new, 'kxcapture', 'arm64', '1.5.9', old)
             self.assertEqual(report['continuity'], 'legacy-1.5.8-migration-requires-consent')
 
     @unittest.skipUnless(shutil.which('cmake'), 'CPack hook requires CMake')
@@ -259,7 +260,7 @@ install_application
         (fixture_repo / 'scripts/install-snow-shot-macos.sh').write_text(
             f"PROJECT_SIGNING_CERTIFICATE_SHA1='{self.identities[0]}'\n")
         variables = {
-            'CPACK_PACKAGE_FILES': packages[1], 'CPACK_PACKAGE_NAME': 'snow-shot',
+            'CPACK_PACKAGE_FILES': packages[1], 'CPACK_PACKAGE_NAME': 'kxcapture',
             'CPACK_PACKAGE_FILE_NAME': packages[1].stem,
             'CPACK_PACKAGE_DIRECTORY': self.directory,
             'CPACK_SNOW_SHOT_SIGNING_PYTHON': sys.executable,

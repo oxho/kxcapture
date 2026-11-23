@@ -1897,7 +1897,7 @@ class MacOSSigningDeployment(unittest.TestCase):
             self.assertEqual(call[call.index('--arch') + 1], 'x64')
         finalize = next(index for index, call in enumerate(calls) if 'finalize' in call)
         sign = next(index for index, call in enumerate(calls)
-                    if call[0] == 'codesign' and call[-1].endswith('snow_shot.app'))
+                    if call[0] == 'codesign' and call[-1].endswith('kxcapture.app'))
         self.assertLess(finalize, sign)
 
     def test_release_deployment_strips_both_editions_before_signing_and_ocr_hashing(self):
@@ -1917,7 +1917,7 @@ class MacOSSigningDeployment(unittest.TestCase):
                 for command in ('prepare-bundle', 'finalize', 'verify'):
                     call = next(call for call in calls if command in call)
                     self.assertEqual('--runtime-only' in call, mini)
-                product = 'snow_shot_mini.app' if mini else 'snow_shot.app'
+                product = 'kxcapture_mini.app' if mini else 'kxcapture.app'
                 self.assertTrue(all('/' + product + '/Contents/' in call[-1] for _, call in strips))
                 outer_sign = next(index for index, call in enumerate(calls)
                                   if call[0] == 'codesign' and call[-1].endswith(product))
@@ -2021,8 +2021,8 @@ if name == 'ocr' and 'verify' in sys.argv and '--app' in sys.argv:
                 tool = root / name
                 tool.write_text(mock)
                 tool.chmod(0o755)
-            product = 'snow_shot_mini' if mini else 'snow_shot'
-            bridge = 'snow-shot-mini-mcp' if mini else 'snow-shot-mcp'
+            product = 'kxcapture_mini' if mini else 'kxcapture'
+            bridge = 'kxcapture-mini-mcp' if mini else 'kxcapture-mcp'
             runtime = root / (product + '.app') / 'Contents/MacOS'
             runtime.mkdir(parents=True)
             for name in (product, bridge, 'snow-ocr-process', 'crashpad_handler'):
@@ -2033,8 +2033,8 @@ if name == 'ocr' and 'verify' in sys.argv and '--app' in sys.argv:
             (resources / 'note.txt').write_text('resource fixture')
             script = (ROOT / 'cmake/DeploySnowShotMacOS.cmake.in').read_text()
             if mini:
-                script = script.replace('snow_shot.app', 'snow_shot_mini.app')
-                script = script.replace('snow-shot-mcp', 'snow-shot-mini-mcp')
+                script = script.replace('kxcapture.app', 'kxcapture_mini.app')
+                script = script.replace('kxcapture-mcp', 'kxcapture-mini-mcp')
             values = {'SNOW_MACOS_CODESIGN_IDENTITY': identity,
                       'SNOW_MACDEPLOYQT': str(root / 'macdeployqt'),
                       'SNOW_MACOS_OCR_ASSETS_ENABLED': 'ON' if ocr else 'OFF',

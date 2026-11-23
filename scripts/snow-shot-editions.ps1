@@ -4,12 +4,12 @@ function Get-SnowShotEdition([ValidateSet('Full', 'Mini')][string]$Edition = 'Fu
     $feedSuffix = if ($Architecture -eq 'arm64') { '-windows-arm64' } else { '' }
     if ($Edition -eq 'Mini') {
         return [pscustomobject]@{ Edition = 'Mini'; Product = 'snow-shot-mini'; Name = 'KXCapture Mini';
-            Executable = 'snow_shot_mini'; Registry = 'SnowShotMini'; Scoop = 'snowshot-mini';
+            Executable = 'kxcapture_mini'; Registry = 'SnowShotMini'; Scoop = 'snowshot-mini';
             Feed = "latest-version-mini$feedSuffix.json";
             Variants = @('online', 'portable'); Component = 'SnowShotMini'; Marker = '__mini_data_directory' }
     }
     return [pscustomobject]@{ Edition = 'Full'; Product = 'snow-shot'; Name = 'KXCapture';
-        Executable = 'snow_shot'; Registry = 'SnowShot'; Scoop = 'snowshot';
+        Executable = 'kxcapture'; Registry = 'SnowShot'; Scoop = 'snowshot';
         Winget = 'oxho.kxcapture'; Feed = "latest-version$feedSuffix.json";
         Variants = @('online', 'offline', 'portable'); Component = 'SnowShot'; Marker = '__data_directory' }
 }

@@ -81,7 +81,12 @@ function Assert-SnowNativeStartup {
             } finally { $process.Dispose() }
         }
         $identity = & $probeDistribution
-        $family = 'SnowApps.SnowShot_3pp9w6ncw7bs0'
+        $storeIdentityPath = Join-Path $PSScriptRoot '../snow_shot/packaging/msix/store-identity.json'
+        $storeIdentity = Get-Content -LiteralPath $storeIdentityPath -Raw | ConvertFrom-Json
+        $family = [string]$storeIdentity.PackageFamilyName
+        if ([string]::IsNullOrWhiteSpace($family)) {
+            throw 'Store package family is not configured.'
+        }
         $localState = (Join-Path $env:LOCALAPPDATA "Packages/$family/LocalState").Replace('\', '/')
         if ($identity.packageFamily -cne $family -or
             $identity.crashCaptureDirectory.Replace('\', '/') -ine "$localState/logs/crashes" -or
@@ -480,7 +485,7 @@ if (-not $SkipBuild) {
 }
 
 $updaterSizeReporter = Join-Path $PSScriptRoot 'report-snow-shot-updater-size.ps1'
-$updaterBuildExecutable = Join-Path $buildDirectory 'snow_shot\Release\snow-shot-updater.exe'
+$updaterBuildExecutable = Join-Path $buildDirectory 'snow_shot\Release\kxcapture-updater.exe'
 $updaterCargoProfileDirectory =
     Join-Path $buildDirectory "cargo\$($windowsTarget.RustTarget)\release-size"
 $updaterSizeEvidence = Join-Path $buildDirectory 'release-evidence\snow-shot-updater-size.json'
@@ -525,7 +530,7 @@ if ($LASTEXITCODE -ne 0) {
     throw "KXCapture install step failed."
 }
 
-$mainExecutable = Join-Path $installDirectory "bin\snow_shot.exe"
+$mainExecutable = Join-Path $installDirectory "bin\kxcapture.exe"
 if (-not (Test-Path -LiteralPath $mainExecutable)) {
     throw "The staged application was not found: $mainExecutable"
 }
@@ -534,9 +539,9 @@ $versionInfo = (Get-Item -LiteralPath $mainExecutable).VersionInfo
 $expectedBinaryMetadata = @{
     CompanyName = "oxho"
     FileDescription = "KXCapture screenshot utility"
-    InternalName = "snow_shot"
+    InternalName = "kxcapture"
     LegalCopyright = "Copyright (C) 2025-2026 mg-chao. Modified by oxho, 2026."
-    OriginalFilename = "snow_shot.exe"
+    OriginalFilename = "kxcapture.exe"
     ProductName = "KXCapture"
 }
 foreach ($property in $expectedBinaryMetadata.Keys) {
@@ -545,11 +550,11 @@ foreach ($property in $expectedBinaryMetadata.Keys) {
     }
 }
 
-$mcpExecutable = Join-Path $installDirectory 'bin\snow-shot-mcp.exe'
+$mcpExecutable = Join-Path $installDirectory 'bin\kxcapture-mcp.exe'
 if (-not (Test-Path -LiteralPath $mcpExecutable -PathType Leaf)) {
     throw "The staged Rust MCP bridge was not found: $mcpExecutable"
 }
-$updaterExecutable = Join-Path $installDirectory 'bin\snow-shot-updater.exe'
+$updaterExecutable = Join-Path $installDirectory 'bin\kxcapture-updater.exe'
 if (-not $store) {
     if (-not (Test-Path -LiteralPath $updaterExecutable -PathType Leaf)) {
         throw "The staged Rust updater was not found: $updaterExecutable"
@@ -558,9 +563,9 @@ if (-not $store) {
     $expectedUpdaterMetadata = @{
         CompanyName = 'oxho'
         FileDescription = 'KXCapture update service'
-        InternalName = 'snow-shot-updater'
+        InternalName = 'kxcapture-updater'
         LegalCopyright = 'Copyright (C) 2025-2026 mg-chao. Modified by oxho, 2026.'
-        OriginalFilename = 'snow-shot-updater.exe'
+        OriginalFilename = 'kxcapture-updater.exe'
         ProductName = 'KXCapture'
         ProductVersion = $versionInfo.ProductVersion
     }
@@ -572,7 +577,7 @@ if (-not $store) {
 }
 
 $requiredStageFiles = @(
-    "bin\snow_shot.exe",
+    "bin\kxcapture.exe",
     "bin\crashpad_handler.exe",
     "bin\snow-ocr-process.exe",
     "share\snow-shot\licenses\LICENSES.txt"
@@ -607,8 +612,8 @@ if (Test-Path -LiteralPath $stagedQtPluginDirectory -PathType Container) {
 }
 
 $stagedExecutables = @(Get-ChildItem -LiteralPath $installDirectory -Recurse -File -Filter "*.exe")
-$expectedExecutables = @("snow_shot.exe", "snow-ocr-process.exe", "crashpad_handler.exe", "snow-shot-updater.exe", "snow-shot-mcp.exe")
-if ($store) { $expectedExecutables = @($expectedExecutables | Where-Object { $_ -ne 'snow-shot-updater.exe' }) }
+$expectedExecutables = @("kxcapture.exe", "snow-ocr-process.exe", "crashpad_handler.exe", "kxcapture-updater.exe", "kxcapture-mcp.exe")
+if ($store) { $expectedExecutables = @($expectedExecutables | Where-Object { $_ -ne 'kxcapture-updater.exe' }) }
 $unexpectedExecutables = @($stagedExecutables | Where-Object { $_.Name -notin $expectedExecutables })
 if ($unexpectedExecutables.Count -gt 0) {
     throw "Release staging contains unexpected executables: $($unexpectedExecutables.FullName -join ', ')"
@@ -630,14 +635,14 @@ if ($debugArtifacts.Count -gt 0) {
 $stagedBinaries = @(Get-ChildItem -LiteralPath $installDirectory -Recurse -File |
     Where-Object { $_.Extension.ToLowerInvariant() -in @(".dll", ".exe") })
 $expectedBinaryPaths = @(
-    "bin\snow_shot.exe",
-    "bin\snow-shot-updater.exe",
-    "bin\snow-shot-mcp.exe",
+    "bin\kxcapture.exe",
+    "bin\kxcapture-updater.exe",
+    "bin\kxcapture-mcp.exe",
     "bin\crashpad_handler.exe",
     "bin\snow-ocr-process.exe"
 )
 if ($store) {
-    $expectedBinaryPaths = @($expectedBinaryPaths | Where-Object { $_ -ne 'bin\snow-shot-updater.exe' })
+    $expectedBinaryPaths = @($expectedBinaryPaths | Where-Object { $_ -ne 'bin\kxcapture-updater.exe' })
     $expectedBinaryPaths += 'bin\KXCaptureExplorerCommand.dll'
 }
 $unexpectedBinaries = @($stagedBinaries | Where-Object {
@@ -647,9 +652,9 @@ $unexpectedBinaries = @($stagedBinaries | Where-Object {
 if ($unexpectedBinaries.Count -gt 0) {
     throw "Release staging contains unexpected binary files: $($unexpectedBinaries.FullName -join ', ')"
 }
-$applicationPath = Join-Path $installDirectory "bin\snow_shot.exe"
+$applicationPath = Join-Path $installDirectory "bin\kxcapture.exe"
 Assert-NoPeExports -Path $applicationPath
-Write-Output "PE export audit: snow_shot.exe has no export directory or exported symbols"
+Write-Output "PE export audit: kxcapture.exe has no export directory or exported symbols"
 $stagedBinDirectory = Join-Path $installDirectory "bin"
 $windowsSystemDirectory = [Environment]::GetFolderPath([Environment+SpecialFolder]::System)
 $debugRuntimeImports = [System.Collections.Generic.List[string]]::new()
@@ -721,9 +726,9 @@ $allowedSystemImports = @(
     "wtsapi32.dll"
 )
 $allowedLocalImports = @{
-    "snow_shot.exe" = @()
-    "snow-shot-updater.exe" = @()
-    "snow-shot-mcp.exe" = @()
+    "kxcapture.exe" = @()
+    "kxcapture-updater.exe" = @()
+    "kxcapture-mcp.exe" = @()
     "crashpad_handler.exe" = @()
     "snow-ocr-process.exe" = @()
     "snowshotexplorercommand.dll" = @()
@@ -846,18 +851,18 @@ if (-not $store) {
 
     $cpackConfiguration = Get-Content -LiteralPath $cpackConfig -Raw
     $requiredCpackSettings = @{
-        CPACK_CREATE_DESKTOP_LINKS = "snow_shot"
-        CPACK_PACKAGE_EXECUTABLES = "snow_shot;KXCapture"
+        CPACK_CREATE_DESKTOP_LINKS = "kxcapture"
+        CPACK_PACKAGE_EXECUTABLES = "kxcapture;KXCapture"
         CPACK_PACKAGE_HOMEPAGE_URL = ""
-        CPACK_PACKAGE_INSTALL_DIRECTORY = "SnowShot"
-        CPACK_PACKAGE_INSTALL_REGISTRY_KEY = "SnowShot"
-        CPACK_NSIS_INSTALLED_ICON_NAME = "bin\\snow_shot.exe"
+        CPACK_PACKAGE_INSTALL_DIRECTORY = "KXCapture"
+        CPACK_PACKAGE_INSTALL_REGISTRY_KEY = "KXCapture"
+        CPACK_NSIS_INSTALLED_ICON_NAME = "bin\\kxcapture.exe"
     }
     foreach ($setting in $requiredCpackSettings.Keys) {
         $escapedSetting = [regex]::Escape($setting)
         $escapedValue = [regex]::Escape($requiredCpackSettings[$setting])
         $settingPresent = if ($setting -eq "CPACK_NSIS_INSTALLED_ICON_NAME") {
-            $cpackConfiguration -match 'set\(CPACK_NSIS_INSTALLED_ICON_NAME "bin\\+snow_shot\.exe"\)'
+            $cpackConfiguration -match 'set\(CPACK_NSIS_INSTALLED_ICON_NAME "bin\\+kxcapture\.exe"\)'
         }
         else {
             $cpackConfiguration -match "set\($escapedSetting `"$escapedValue`"\)"
@@ -1379,7 +1384,7 @@ foreach ($variant in $variantStages.Keys) {
 
 if ($StageOnly) {
     $stage = $variantStages.offline
-    Assert-SnowNativeStartup -Stage $stage -Executable snow_shot -Updater snow-shot-updater -Version $packageVersion
+    Assert-SnowNativeStartup -Stage $stage -Executable kxcapture -Updater kxcapture-updater -Version $packageVersion
     $nativeProbesPassed = $nativeTarget
     $stageFiles = Get-ReleaseTreeFileManifest -Root $stage
     $stageAuditPath = Join-Path $buildDirectory "$DistributionChannel-stage.manifest.json"
@@ -1447,7 +1452,7 @@ if (-not (Test-Path -LiteralPath $portableDataMarker -PathType Leaf) -or
 }
 
 $producedPackages = @()
-Assert-SnowNativeStartup -Stage $variantStages.online -Executable snow_shot -Updater snow-shot-updater -Version $packageVersion
+Assert-SnowNativeStartup -Stage $variantStages.online -Executable kxcapture -Updater kxcapture-updater -Version $packageVersion
 $nativeProbesPassed = $nativeTarget
 foreach ($variant in @('online', 'offline')) {
     $updateName = "snow-shot-$packageVersion-$ocrPlatform-$variant-update"

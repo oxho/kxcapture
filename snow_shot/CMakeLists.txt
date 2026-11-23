@@ -2348,6 +2348,12 @@ qt_add_resources(snow_shot "snow_shot_app_assets"
         "${CMAKE_CURRENT_SOURCE_DIR}/resources/snow-shot-tray-snow-light.png"
         "${CMAKE_CURRENT_SOURCE_DIR}/resources/snow-shot-tray-snow-dark.png"
         "${CMAKE_CURRENT_SOURCE_DIR}/resources/macos-tray-template.png"
+        "${CMAKE_CURRENT_SOURCE_DIR}/resources/brand/icons/tray-menubar/macos-template-16.png"
+        "${CMAKE_CURRENT_SOURCE_DIR}/resources/brand/icons/tray-menubar/macos-template-24.png"
+        "${CMAKE_CURRENT_SOURCE_DIR}/resources/brand/icons/tray-menubar/windows-tray-light-taskbar-16.png"
+        "${CMAKE_CURRENT_SOURCE_DIR}/resources/brand/icons/tray-menubar/windows-tray-light-taskbar-24.png"
+        "${CMAKE_CURRENT_SOURCE_DIR}/resources/brand/icons/tray-menubar/windows-tray-dark-taskbar-16.png"
+        "${CMAKE_CURRENT_SOURCE_DIR}/resources/brand/icons/tray-menubar/windows-tray-dark-taskbar-24.png"
 )
 
 function(snow_shot_add_image_codec_smoke_test)
@@ -3983,6 +3989,12 @@ if(SNOW_SHOT_BUILD_TESTS)
             "${CMAKE_CURRENT_SOURCE_DIR}/resources/snow-shot-tray-snow-default.png"
             "${CMAKE_CURRENT_SOURCE_DIR}/resources/snow-shot-tray-snow-light.png"
             "${CMAKE_CURRENT_SOURCE_DIR}/resources/snow-shot-tray-snow-dark.png"
+            "${CMAKE_CURRENT_SOURCE_DIR}/resources/brand/icons/tray-menubar/macos-template-16.png"
+            "${CMAKE_CURRENT_SOURCE_DIR}/resources/brand/icons/tray-menubar/macos-template-24.png"
+            "${CMAKE_CURRENT_SOURCE_DIR}/resources/brand/icons/tray-menubar/windows-tray-light-taskbar-16.png"
+            "${CMAKE_CURRENT_SOURCE_DIR}/resources/brand/icons/tray-menubar/windows-tray-light-taskbar-24.png"
+            "${CMAKE_CURRENT_SOURCE_DIR}/resources/brand/icons/tray-menubar/windows-tray-dark-taskbar-16.png"
+            "${CMAKE_CURRENT_SOURCE_DIR}/resources/brand/icons/tray-menubar/windows-tray-dark-taskbar-24.png"
     )
     snow_shot_add_translations(snow-shot-system-tray-controller-tests)
     add_test(
@@ -13123,7 +13135,13 @@ if(SNOW_SHOT_BUILD_BENCHMARKS)
             "${CMAKE_CURRENT_SOURCE_DIR}/resources/snow-shot-tray-dark.png"
             "${CMAKE_CURRENT_SOURCE_DIR}/resources/snow-shot-tray-snow-default.png"
             "${CMAKE_CURRENT_SOURCE_DIR}/resources/snow-shot-tray-snow-light.png"
-            "${CMAKE_CURRENT_SOURCE_DIR}/resources/snow-shot-tray-snow-dark.png")
+            "${CMAKE_CURRENT_SOURCE_DIR}/resources/snow-shot-tray-snow-dark.png"
+            "${CMAKE_CURRENT_SOURCE_DIR}/resources/brand/icons/tray-menubar/macos-template-16.png"
+            "${CMAKE_CURRENT_SOURCE_DIR}/resources/brand/icons/tray-menubar/macos-template-24.png"
+            "${CMAKE_CURRENT_SOURCE_DIR}/resources/brand/icons/tray-menubar/windows-tray-light-taskbar-16.png"
+            "${CMAKE_CURRENT_SOURCE_DIR}/resources/brand/icons/tray-menubar/windows-tray-light-taskbar-24.png"
+            "${CMAKE_CURRENT_SOURCE_DIR}/resources/brand/icons/tray-menubar/windows-tray-dark-taskbar-16.png"
+            "${CMAKE_CURRENT_SOURCE_DIR}/resources/brand/icons/tray-menubar/windows-tray-dark-taskbar-24.png")
     snow_shot_add_translations(snow-shot-skin-surface-performance-benchmark)
     snow_shot_import_offscreen_platform(snow-shot-skin-surface-performance-benchmark)
 endif()

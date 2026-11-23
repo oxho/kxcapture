@@ -209,7 +209,7 @@ if(NOT SNOW_SHOT_IMAGE_CODEC_BACKEND_STATIC)
     if(APPLE)
         # Remove the library left in MacOS by earlier Mini install rules.
         install(CODE [[
-            file(REMOVE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/snow_shot_mini.app/Contents/MacOS/$<TARGET_FILE_NAME:snow_shot_image_codec_backend>")
+            file(REMOVE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/kxcapture_mini.app/Contents/MacOS/$<TARGET_FILE_NAME:snow_shot_image_codec_backend>")
         ]] COMPONENT SnowShotMini)
     endif()
     install(TARGETS snow_shot_image_codec_backend

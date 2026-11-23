@@ -52,12 +52,14 @@ def fingerprint(certificate=None):
 
 
 def project_identity():
+    match = re.search(r"^PROJECT_SIGNING_CERTIFICATE_SHA1='([A-F0-9]{40})?'$",
+                      INSTALLER.read_text(), re.MULTILINE)
+    if not match or not match[1]:
+        raise ValueError('Project certificate is not configured')
     if not CERTIFICATE.is_file():
         raise ValueError('Project certificate is missing; restore release-signing.pem')
     value = fingerprint()
-    match = re.search(r"^PROJECT_SIGNING_CERTIFICATE_SHA1='([A-F0-9]{40})'$",
-                      INSTALLER.read_text(), re.MULTILINE)
-    if not match or match[1] != value:
+    if match[1] != value:
         raise ValueError('Installer certificate pin differs from the project certificate')
     return value
 

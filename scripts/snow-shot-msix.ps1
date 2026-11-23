@@ -22,10 +22,12 @@ function ConvertTo-SnowMsixVersion {
 function Read-SnowMsixIdentity {
     param([string]$Path = (Join-Path $script:SnowMsixRepoRoot 'snow_shot/packaging/msix/store-identity.json'))
     $identity = Get-Content -LiteralPath $Path -Raw | ConvertFrom-Json
+    $configured = $false
     foreach ($name in @('Name', 'Publisher', 'PublisherDisplayName', 'PackageFamilyName', 'StoreId')) {
-        if (-not $identity.PSObject.Properties[$name] -or
-            [string]::IsNullOrWhiteSpace($identity.$name)) { throw "Missing Store identity field: $name" }
+        if (-not $identity.PSObject.Properties[$name]) { throw "Missing Store identity field: $name" }
+        if (-not [string]::IsNullOrWhiteSpace([string]$identity.$name)) { $configured = $true }
     }
+    if (-not $configured) { return $identity }
     if ($identity.Name -cnotmatch '^[A-Za-z0-9.-]{3,50}$' -or
         $identity.Publisher -notmatch '^CN=\S' -or $identity.Publisher.Length -gt 8192 -or
         $identity.PublisherDisplayName.Length -gt 256 -or
@@ -156,7 +158,7 @@ function Assert-SnowMsixAuditedStage {
             throw "Installer or script artifact in Store payload: $($file.Path)"
         }
     }
-    foreach ($required in @('bin/snow_shot.exe', 'bin/snow-shot-mcp.exe', 'bin/crashpad_handler.exe',
+    foreach ($required in @('bin/kxcapture.exe', 'bin/kxcapture-mcp.exe', 'bin/crashpad_handler.exe',
             'bin/KXCaptureExplorerCommand.dll',
             'bin/audios/camera_shutter.mp3', 'bin/assets/ocr/asset-manifest.json',
             'bin/assets/qrcode/detect.prototxt', 'bin/assets/qrcode/detect.caffemodel',
@@ -168,7 +170,7 @@ function Assert-SnowMsixAuditedStage {
     if ($manifest.schema -ne 2 -or $manifest.runtime.platform -cne "windows-$Architecture" -or
         $manifest.default_model -cne 'small') { throw 'Store OCR identity does not match the target.' }
     $runtimeRoot = Join-Path $Stage "bin/assets/ocr/runtimes/$($manifest.runtime.version)/windows-$Architecture"
-    $expectedBinaries = @('bin/snow_shot.exe', 'bin/snow-shot-mcp.exe', 'bin/crashpad_handler.exe',
+    $expectedBinaries = @('bin/kxcapture.exe', 'bin/kxcapture-mcp.exe', 'bin/crashpad_handler.exe',
         'bin/KXCaptureExplorerCommand.dll',
         "bin/assets/ocr/runtimes/$($manifest.runtime.version)/windows-$Architecture/snow-ocr-process-$($manifest.runtime.version)-windows-$Architecture.exe")
     if ((@($binaryPaths | Sort-Object) -join ',') -cne (@($expectedBinaries | Sort-Object) -join ',')) {

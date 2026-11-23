@@ -102,7 +102,7 @@ void mcpSettingsWidget() {
         expectedStoreDescriptor = QDir::toNativeSeparators(
             QDir(localAppData)
                 .filePath(QStringLiteral(
-                    "Packages/SnowApps.SnowShot_3pp9w6ncw7bs0/LocalState/mcp/snow-shot-mcp.json")));
+                    "Packages/Example.Package_3pp9w6ncw7bs0/LocalState/mcp/snow-shot-mcp.json")));
         require(server.value(QStringLiteral("command")).toString() == expectedCommand &&
                     server.value(QStringLiteral("args")).toArray().isEmpty(),
                 "Store JSON uses the stable execution alias without installation-path arguments");

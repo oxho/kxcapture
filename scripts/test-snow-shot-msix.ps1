@@ -22,7 +22,7 @@ function Write-Pe([string]$Path, [string]$Architecture) {
     [IO.File]::WriteAllBytes($Path, $bytes)
 }
 function New-Fixture([string]$Stage, [string]$Architecture) {
-    $files = @('bin/snow_shot.exe', 'bin/snow-shot-mcp.exe', 'bin/crashpad_handler.exe',
+    $files = @('bin/kxcapture.exe', 'bin/kxcapture-mcp.exe', 'bin/crashpad_handler.exe',
         'bin/KXCaptureExplorerCommand.dll',
         'bin/audios/camera_shutter.mp3', 'share/snow-shot/licenses/LICENSES.txt',
         'bin/assets/qrcode/detect.prototxt', 'bin/assets/qrcode/detect.caffemodel',
@@ -225,7 +225,7 @@ endif()
         & cmake -P $guardPath
         if ($LASTEXITCODE -ne 0) { throw "Updater build/install channel regression: $channel" }
     }
-    Require ($identity.Name -ceq 'SnowApps.SnowShot' -and $identity.PackageFamilyName -ceq 'SnowApps.SnowShot_3pp9w6ncw7bs0') 'Partner Center identity must remain stable.'
+    Require ([string]::IsNullOrWhiteSpace([string]$identity.Name) -and [string]::IsNullOrWhiteSpace([string]$identity.PackageFamilyName)) 'Store identity is not configured.'
     Require ((ConvertTo-SnowMsixVersion '1.3.2') -ceq '1.3.2.0') 'Application version must map to Store revision zero.'
     foreach ($invalid in @('1.3.2-beta', '1.3.2.1', '1.3.65536', '01.2.3', '0.2.3', '1.2', '999999999999.1.1')) {
         Reject { ConvertTo-SnowMsixVersion $invalid } "Invalid Store version accepted: $invalid"
@@ -288,14 +288,14 @@ endif()
     Write-Audit $stage $audit $architecture standalone
     Reject { Assert-SnowMsixAuditedStage $stage $audit $architecture } 'Standalone stage must not be accepted as Store.'
     Write-Audit $stage $audit $architecture
-    $main = Join-Path $stage 'bin/snow_shot.exe'
+    $main = Join-Path $stage 'bin/kxcapture.exe'
     Add-Content -LiteralPath $main -Value 'changed'
     Reject { Assert-SnowMsixAuditedStage $stage $audit $architecture } 'Changed stage bytes must fail the audit.'
     Write-Pe $main 'arm64'
     Write-Audit $stage $audit $architecture
     Reject { Assert-SnowMsixAuditedStage $stage $audit $architecture } 'Opposite-architecture binary must fail.'
     Write-Pe $main $architecture
-    $updater = Join-Path $stage 'bin/snow-shot-updater.exe'
+    $updater = Join-Path $stage 'bin/kxcapture-updater.exe'
     Write-Pe $updater $architecture
     Write-Audit $stage $audit $architecture
     Reject { Assert-SnowMsixAuditedStage $stage $audit $architecture } 'Standalone updater must never enter a Store package.'

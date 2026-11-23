@@ -11,7 +11,7 @@ name = "snow_shot_updater"
 path = "src/lib.rs"
 
 [[bin]]
-name = "snow-shot-updater"
+name = "kxcapture-updater"
 path = "src/main.rs"
 
 [features]

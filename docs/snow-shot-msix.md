@@ -11,14 +11,14 @@ Verify the reserved product's identity in Partner Center against
 
 | Field | Value |
 | --- | --- |
-| Package name | `SnowApps.SnowShot` |
-| Publisher | `CN=E1F3693C-C740-4D31-B5DA-7520890E22DC` |
-| Publisher display name | `oxho` |
-| Package family | `SnowApps.SnowShot_3pp9w6ncw7bs0` |
-| Store product ID | `9NRTJ1GBX69V` |
+| Package name | not configured |
+| Publisher | not configured |
+| Publisher display name | not configured |
+| Package family | not configured |
+| Store product ID | not configured |
 
-Keep this identity across releases. A change also affects startup, MCP and access
-to existing Store data.
+The committed `store-identity.json` leaves these fields empty. Do not restore the
+upstream Store identity. Fill them only when Partner Center values are supplied.
 
 Use PowerShell 7.2+, the repository's Windows build toolchain, static Qt and
 vcpkg dependencies, and Windows SDK 10.0.26100.0 or newer with MakeAppx, MakePri

@@ -203,7 +203,7 @@ string(APPEND CPACK_NSIS_EXTRA_INSTALL_COMMANDS [=[
   StrCmp $SnowShotPreviousRoot "" snowStartupMigrated
   StrCmp $SnowShotPreviousRoot $INSTDIR snowStartupMigrated
   ClearErrors
-  ExecWait '"$INSTDIR\bin\snow-shot-updater.exe" --migrate-startup --previous "$SnowShotPreviousRoot" --target "$INSTDIR"' $0
+  ExecWait '"$INSTDIR\bin\kxcapture-updater.exe" --migrate-startup --previous "$SnowShotPreviousRoot" --target "$INSTDIR"' $0
   IfErrors snowStartupMigrationFailed
   StrCmp $0 0 snowStartupMigrated
 snowStartupMigrationFailed:

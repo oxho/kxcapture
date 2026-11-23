@@ -1153,8 +1153,8 @@ int main(int argc, char* argv[]) {
     require(!trayIcon->icon().isMask(),
             "bundled macOS tray icons must preserve their original colors");
 #endif
-    require(trayIcon->toolTip() == QStringLiteral("SnowShot"),
-            "the tray tooltip should be SnowShot");
+    require(trayIcon->toolTip() == QStringLiteral("KXCapture"),
+            "the tray tooltip should be KXCapture");
     controller.show();
     require(trayIcon->isVisible(), "show should make the tray icon visible");
     controller.setEnabled(false);

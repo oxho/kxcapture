@@ -686,7 +686,8 @@ fn package_family_name() -> Option<String> {
             }
         }
     }
-    cfg!(feature = "store").then(|| "SnowApps.SnowShot_3pp9w6ncw7bs0".to_owned())
+    // Store identity is not configured. Do not fall back to the upstream package family.
+    None
 }
 
 #[cfg(test)]
@@ -699,7 +700,7 @@ mod tests {
     fn store_descriptor_is_stable_and_separate_from_desktop() {
         let local = std::env::temp_dir().join("snow-shot-store-descriptor-test");
         assert!(local.is_absolute());
-        let family = "SnowApps.SnowShot_3pp9w6ncw7bs0";
+        let family = "Configured.Package_3pp9w6ncw7bs0";
         let path = packaged_descriptor_path(local.clone(), family);
         assert_eq!(
             path,
@@ -719,7 +720,7 @@ mod tests {
     fn store_descriptor_rejects_missing_or_relative_local_data() {
         for local in [PathBuf::new(), PathBuf::from("local-data")] {
             assert!(
-                packaged_descriptor_path(local, "SnowApps.SnowShot_family")
+                packaged_descriptor_path(local, "Configured.Package_family")
                     .as_os_str()
                     .is_empty()
             );
@@ -730,7 +731,7 @@ mod tests {
             PathBuf::from(r"C:local-data"),
         ] {
             assert!(
-                packaged_descriptor_path(local, "SnowApps.SnowShot_family")
+                packaged_descriptor_path(local, "Configured.Package_family")
                     .as_os_str()
                     .is_empty()
             );

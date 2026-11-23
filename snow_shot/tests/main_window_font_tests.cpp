@@ -90,7 +90,7 @@ void customTitleBarUsesPlatformWindowControls() {
     const auto scheme = styles::ThemeManager::instance().themeColorScheme();
     QWidget host;
     host.resize(360, 80);
-    host.setWindowTitle(QStringLiteral("SnowShot"));
+    host.setWindowTitle(QStringLiteral("KXCapture"));
     TitleBarWidget titleBar(scheme.metricAlias, &host);
     titleBar.resize(host.width(), titleBar.height());
     host.show();

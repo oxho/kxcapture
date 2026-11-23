@@ -14,7 +14,7 @@ function Expect-Failure([scriptblock]$Action, [string]$Pattern) {
     }
     throw "Expected failure matching $Pattern"
 }
-function New-FixtureArchive([string]$Marker = 'portable', [string]$Executable = 'bin/snow_shot.exe',
+function New-FixtureArchive([string]$Marker = 'portable', [string]$Executable = 'bin/kxcapture.exe',
     [string]$Extra = '') {
     $script:zipPath = Join-Path $root "$([guid]::NewGuid().ToString('N')).zip"
     $zip = [IO.Compression.ZipFile]::Open($script:zipPath, [IO.Compression.ZipArchiveMode]::Create)
@@ -93,9 +93,9 @@ try {
         Require ($manifest.version -ceq (Get-SnowShotScoopVersion $tag)) 'Wrong version'
         Require ($manifest.architecture.'64bit'.hash -ceq $script:hash) 'Wrong hash'
         Require ($manifest.architecture.'64bit'.url -ceq $script:release.assets[0].browser_download_url) 'Wrong URL'
-        Require ($manifest.bin.Count -eq 1 -and $manifest.bin[0][0] -ceq 'bin\snow_shot.exe' -and
+        Require ($manifest.bin.Count -eq 1 -and $manifest.bin[0][0] -ceq 'bin\kxcapture.exe' -and
             $manifest.bin[0][1] -ceq 'snowshot') 'Wrong shim'
-        Require ($manifest.shortcuts.Count -eq 1 -and $manifest.shortcuts[0][0] -ceq 'bin\snow_shot.exe' -and
+        Require ($manifest.shortcuts.Count -eq 1 -and $manifest.shortcuts[0][0] -ceq 'bin\kxcapture.exe' -and
             $manifest.shortcuts[0][1] -ceq 'KXCapture') 'Wrong shortcut'
         Require ($manifest.persist -ceq 'bin\portable') 'Wrong persistence'
         Require ($manifest.license -ceq 'GPL-3.0-or-later') 'Wrong license'
@@ -158,8 +158,8 @@ try {
     Expect-Failure { New-SnowShotScoopManifest 'v1.1.8' $output } 'Invalid checksum'
     $release.assets[1].browser_download_url = 'https://example.com/checksum'
     Expect-Failure { New-SnowShotScoopManifest 'v1.1.8' $output } 'Unexpected asset URL'
-    foreach ($case in @(@{ Marker = 'elsewhere' }, @{ Executable = 'snow_shot.exe' },
-        @{ Extra = '../outside' }, @{ Extra = 'BIN/snow_shot.exe' })) {
+    foreach ($case in @(@{ Marker = 'elsewhere' }, @{ Executable = 'kxcapture.exe' },
+        @{ Extra = '../outside' }, @{ Extra = 'BIN/kxcapture.exe' })) {
         New-FixtureArchive @case
         Set-FixtureRelease
         Expect-Failure { New-SnowShotScoopManifest 'v1.1.8' $output } 'marker|must contain|Unsafe or duplicate'

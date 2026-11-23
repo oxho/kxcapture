@@ -6,8 +6,8 @@ function Assert-SnowShotMiniPayload([string]$Stage,
     $files = @(Get-ChildItem -LiteralPath $Stage -Recurse -File -Force)
     $binaries = @($files | Where-Object { $_.Extension -in @('.exe', '.dll') } |
         ForEach-Object { [IO.Path]::GetRelativePath($Stage, $_.FullName).Replace('\', '/') })
-    $expected = @('bin/snow_shot_mini.exe', 'bin/snow-shot-mini-updater.exe',
-        'bin/snow-shot-mini-mcp.exe', 'bin/crashpad_handler.exe')
+    $expected = @('bin/kxcapture_mini.exe', 'bin/kxcapture-mini-updater.exe',
+        'bin/kxcapture-mini-mcp.exe', 'bin/crashpad_handler.exe')
     if ((($binaries | Sort-Object) -join "`n") -cne (($expected | Sort-Object) -join "`n")) {
         throw 'Mini must contain exactly its application, updater, MCP bridge, and crash collector.'
     }
@@ -56,9 +56,9 @@ function Invoke-SnowShotMiniPackaging {
     & cmake --install $buildDirectory --config Release --component SnowShotMini --prefix $miniInstall
     if ($LASTEXITCODE -ne 0) { throw 'KXCapture Mini install failed.' }
     Assert-SnowShotMiniPayload -Stage $miniInstall -Architecture $Architecture -OcrAssetManifest $ocrAssetManifestPath
-    $main = Join-Path $miniInstall 'bin/snow_shot_mini.exe'
+    $main = Join-Path $miniInstall 'bin/kxcapture_mini.exe'
     $metadata = (Get-Item -LiteralPath $main).VersionInfo
-    if ($metadata.ProductName -cne 'KXCapture Mini' -or $metadata.OriginalFilename -cne 'snow_shot_mini.exe' -or
+    if ($metadata.ProductName -cne 'KXCapture Mini' -or $metadata.OriginalFilename -cne 'kxcapture_mini.exe' -or
         $metadata.ProductVersion -cne $packageVersion) { throw 'Mini binary identity/version differs from this release.' }
     Assert-NoPeExports $main
     foreach ($binary in @(Get-ChildItem -LiteralPath (Join-Path $miniInstall 'bin') -File -Filter '*.exe' -Force)) {
