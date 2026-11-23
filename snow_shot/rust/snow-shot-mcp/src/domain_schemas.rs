@@ -1521,7 +1521,7 @@ mod tests {
                 Some(json!({"source":"selection"}))
             )
             .is_ok(),
-            !crate::edition::MINI
+            !crate::edition::MINI && cfg!(feature = "translation")
         );
         assert_eq!(
             schema(
@@ -1529,7 +1529,7 @@ mod tests {
                 Some(json!({"retry_job_id":"prior"}))
             )
             .is_ok(),
-            !crate::edition::MINI
+            !crate::edition::MINI && cfg!(feature = "translation")
         );
         assert!(
             schema(

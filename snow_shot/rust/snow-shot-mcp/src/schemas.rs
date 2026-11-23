@@ -1378,7 +1378,11 @@ mod tests {
             "snow_shot_translation_catalog",
             "snow_shot_translation_start",
         ] {
-            assert_eq!(schema(name, None).is_ok(), !crate::edition::MINI, "{name}");
+            assert_eq!(
+                schema(name, None).is_ok(),
+                !crate::edition::MINI && cfg!(feature = "translation"),
+                "{name}"
+            );
             let included = crate::server::TOOLS
                 .iter()
                 .chain(domains::TOOLS.iter())

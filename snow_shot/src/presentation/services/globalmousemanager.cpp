@@ -1,3 +1,4 @@
+#include "snow_shot/app/featureflags.h"
 #include "snow_shot/presentation/globalmousemanager.h"
 #include "snow_shot/storage/applicationstorage.h"
 
@@ -39,6 +40,8 @@ struct GlobalMouseManager::Impl {
             std::pair{Action::ScreenRecording, "global_mouse/screen_recording"}};
         auto& store = storage::ApplicationStorage::instance().configuration();
         for (const auto& [action, key] : pairs) {
+            if (!features::configurationKeyEnabled(QString::fromLatin1(key)))
+                continue;
             const auto value = store.value(QString::fromLatin1(key)).toObject();
             const auto binding = globalMouseBinding(
                 action, {value.value(QStringLiteral("activation_key")).toVariant().toStringList(),

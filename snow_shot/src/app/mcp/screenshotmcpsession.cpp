@@ -1,3 +1,4 @@
+#include "snow_shot/app/featureflags.h"
 #include "snow_shot/app/mcp/mcpedition.h"
 #include "snow_shot/app/mcp/screenshotmcpsession.h"
 #include "snow_shot/app/mcp/mcpimageexportoptions.h"
@@ -38,7 +39,8 @@ bool readOnly(const QString& method) {
            method == QStringLiteral("snow_shot_screenshot_render") ||
            method == QStringLiteral("snow_shot_screenshot_cancel");
 }
-const QStringList tools = {QStringLiteral("snow_shot_mcp_status"),
+QStringList availableTools() {
+    QStringList tools{QStringLiteral("snow_shot_mcp_status"),
                            QStringLiteral("snow_shot_screenshot_begin"),
                            QStringLiteral("snow_shot_screenshot_state"),
                            QStringLiteral("snow_shot_screenshot_set_selection"),
@@ -68,6 +70,15 @@ const QStringList tools = {QStringLiteral("snow_shot_mcp_status"),
                            QStringLiteral("snow_shot_screenshot_edit_recognition"),
                            QStringLiteral("snow_shot_screenshot_export_recognition"),
                            QStringLiteral("snow_shot_screenshot_draw_template")};
+    tools.removeIf([](const QString& name) {
+        const bool translation = name.contains(QStringLiteral("translate"));
+        const bool ocr = name.contains(QStringLiteral("recognize")) ||
+                         name.contains(QStringLiteral("recognition"));
+        return (translation && !features::translationEnabled()) ||
+               (ocr && !features::ocrEnabled());
+    });
+    return tools;
+}
 } // namespace
 ScreenshotMcpSession::ScreenshotMcpSession(Ports ports, QObject* parent)
     : QObject(parent), m_ports(std::move(ports)) {}
@@ -344,7 +355,7 @@ void ScreenshotMcpSession::request(const ScreenshotMcpRequest& r,
     const auto reject = [&](const QString& code, const QString& field = QString()) {
         done(failure(r, code, field));
     };
-    if (!tools.contains(r.method)) {
+    if (!availableTools().contains(r.method)) {
         reject(QStringLiteral("method_not_found"));
         return;
     }
@@ -382,7 +393,7 @@ void ScreenshotMcpSession::request(const ScreenshotMcpRequest& r,
              m_session.isEmpty()
                  ? QStringLiteral("none")
                  : (r.connectionId == m_owner ? QStringLiteral("self") : QStringLiteral("other"))},
-            {QStringLiteral("capabilities"), QJsonArray::fromStringList(tools)}};
+            {QStringLiteral("capabilities"), QJsonArray::fromStringList(availableTools())}};
         done(response);
         return;
     }

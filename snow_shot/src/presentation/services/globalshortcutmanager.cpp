@@ -1,5 +1,7 @@
 #include "snow_shot/presentation/globalshortcutmanager.h"
 
+#include "snow_shot/app/featureflags.h"
+
 #include "globalshortcutbackend_p.h"
 
 #include "snow_shot/diagnostics/diagnostics.h"
@@ -145,9 +147,10 @@ shortcuts::ShortcutBindingList persistedShortcuts(const storage::ShortcutSetting
     case GlobalShortcutAction::ScreenshotPinToScreen:
         return settings.screenshotPinToScreen();
     case GlobalShortcutAction::ScreenshotOcr:
-        return settings.screenshotOcr();
+        return features::ocrEnabled() ? settings.screenshotOcr() : shortcuts::ShortcutBindingList{};
     case GlobalShortcutAction::ScreenshotOcrCopy:
-        return settings.screenshotOcrCopy();
+        return features::ocrEnabled() ? settings.screenshotOcrCopy()
+                                      : shortcuts::ShortcutBindingList{};
     case GlobalShortcutAction::ScreenshotTranslation:
 #if SNOW_SHOT_ENABLE_TEXT_TRANSLATION
         return settings.screenshotTranslation();
@@ -529,6 +532,8 @@ class GlobalShortcutManager::Impl {
     }
 
     bool actionAvailable(GlobalShortcutAction action) const {
+        if (!features::shortcutActionEnabled(action))
+            return false;
 #ifndef Q_OS_WIN
         if (action == GlobalShortcutAction::ToggleWindowUnderCursorAlwaysOnTop)
             return false;

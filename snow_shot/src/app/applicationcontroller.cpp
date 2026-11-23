@@ -1,4 +1,5 @@
 #include "snow_shot/app/edition.h"
+#include "snow_shot/app/featureflags.h"
 #include "snow_shot/app/applicationcontroller.h"
 #include "snow_shot/app/distribution.h"
 #include "snow_shot/app/storeupdatelifecycle.h"
@@ -1129,6 +1130,8 @@ class ApplicationController::Impl {
                 ensureMainWindow().showPinToScreenManagement();
             else if (action == u"show_translation") {
 #if SNOW_SHOT_ENABLE_TEXT_TRANSLATION
+                if (!features::translationEnabled())
+                    return false;
                 ensureMainWindow().openTranslationPage();
 #else
                 return false;
@@ -1727,6 +1730,8 @@ class ApplicationController::Impl {
             {QStringLiteral("edit-selected-images"), Quick::EditSelectedImages},
         };
         if (const auto action = quickActions.constFind(id); action != quickActions.cend()) {
+            if (!features::shortcutActionEnabled(*action))
+                return;
             dispatchQuickAction(*action);
             return;
         }
@@ -1787,20 +1792,24 @@ class ApplicationController::Impl {
             }
             break;
         case presentation::GlobalShortcutAction::ScreenshotOcr:
-            if (ScreenshotController* controller = ensureScreenshotController()) {
-                controller->captureAndRecognizeText();
+            if (features::ocrEnabled()) {
+                if (ScreenshotController* controller = ensureScreenshotController())
+                    controller->captureAndRecognizeText();
             }
             break;
         case presentation::GlobalShortcutAction::ScreenshotOcrCopy:
-            if (ScreenshotController* controller = ensureScreenshotController()) {
-                static_cast<void>(controller->captureForAction(
-                    ScreenshotController::CaptureAction::RecognizeTextAndCopy));
+            if (features::ocrEnabled()) {
+                if (ScreenshotController* controller = ensureScreenshotController()) {
+                    static_cast<void>(controller->captureForAction(
+                        ScreenshotController::CaptureAction::RecognizeTextAndCopy));
+                }
             }
             break;
         case presentation::GlobalShortcutAction::ScreenshotTranslation:
 #if SNOW_SHOT_ENABLE_TEXT_TRANSLATION
-            if (ScreenshotController* controller = ensureScreenshotController()) {
-                controller->captureAndTranslateText();
+            if (features::translationEnabled()) {
+                if (ScreenshotController* controller = ensureScreenshotController())
+                    controller->captureAndTranslateText();
             }
 #endif
             break;
@@ -1900,7 +1909,8 @@ class ApplicationController::Impl {
             break;
         case presentation::GlobalShortcutAction::TranslateSelectedText:
 #if SNOW_SHOT_ENABLE_TEXT_TRANSLATION
-            if (storage::ExtendedFeaturesSettings().translationPageEnabled()) {
+            if (features::translationEnabled() &&
+                storage::ExtendedFeaturesSettings().translationPageEnabled()) {
                 ensureSelectedTextTranslationCoordinator().capture();
             }
 #endif

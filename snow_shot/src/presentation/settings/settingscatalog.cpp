@@ -4,6 +4,7 @@
 #include "snow_shot/translation/translationlanguagecatalog.h"
 
 #include "snow_shot/app/editionfeatures.h"
+#include "snow_shot/app/featureflags.h"
 
 #include "antd_icons.h"
 #include "snow_shot/presentation/components/icons/snowshoticons.h"
@@ -5797,6 +5798,60 @@ SettingsCatalog::SettingsCatalog(QVector<SettingsPageDefinition> pages,
             return page != nullptr && !pageAvailable(page->pageId);
         });
     }
+    if (!features::translationEnabled() || !features::ocrEnabled()) {
+        const auto itemEnabled = [](const SettingsItemDefinition& item) {
+            if (!features::configurationKeyEnabled(item.configurationKey) ||
+                !features::settingsItemIdEnabled(item.id))
+                return false;
+            if (const auto* shortcut = std::get_if<SettingsShortcutActionDefinition>(&item.payload))
+                return features::shortcutActionEnabled(shortcut->shortcutAction);
+            if (const auto* mouse =
+                    std::get_if<SettingsGlobalMouseActionDefinition>(&item.payload)) {
+                if (mouse->action == SettingsGlobalMouseAction::ScreenshotTranslation)
+                    return features::translationEnabled();
+                if (mouse->action == SettingsGlobalMouseAction::ScreenshotOcr ||
+                    mouse->action == SettingsGlobalMouseAction::ScreenshotOcrCopy)
+                    return features::ocrEnabled();
+            }
+            return true;
+        };
+        if (!features::translationEnabled()) {
+            m_pages.removeIf([](const SettingsPageDefinition& page) {
+                return page.id == QStringLiteral("translation");
+            });
+        }
+        for (auto& page : m_pages) {
+            if (!features::translationEnabled() &&
+                page.id == QStringLiteral("text-recognition-translation")) {
+                page.title = {"SettingsCatalog",
+                              QT_TRANSLATE_NOOP("SettingsCatalog", "Text recognition")};
+            }
+            for (auto& section : page.sections)
+                section.items.removeIf([&itemEnabled](const SettingsItemDefinition& item) {
+                    return !itemEnabled(item);
+                });
+            page.sections.removeIf(
+                [](const SettingsSectionDefinition& section) { return section.items.isEmpty(); });
+        }
+        m_pages.removeIf([](const SettingsPageDefinition& page) {
+            return page.sections.isEmpty() && page.kind == SettingsPageKind::GeneratedSettings;
+        });
+        const auto pagePresent = [this](const QString& id) {
+            return std::any_of(m_pages.cbegin(), m_pages.cend(),
+                               [&id](const SettingsPageDefinition& page) { return page.id == id; });
+        };
+        for (auto& node : m_navigation) {
+            if (auto* group = std::get_if<SettingsNavigationGroupDefinition>(&node)) {
+                group->pages.removeIf([&pagePresent](const SettingsNavigationPageDefinition& page) {
+                    return !pagePresent(page.pageId);
+                });
+            }
+        }
+        m_navigation.removeIf([&pagePresent](const SettingsNavigationNode& node) {
+            const auto* page = std::get_if<SettingsNavigationPageDefinition>(&node);
+            return page != nullptr && !pagePresent(page->pageId);
+        });
+    }
 
     // Compile the authoring tree once.  Consumers can now resolve routes and
     // fields in constant-time without repeatedly walking every page.
@@ -6177,6 +6232,25 @@ TrayCommandManifest buildBuiltInTrayCommandManifest() {
             static_cast<int>(GlobalShortcutAction::ScreenshotTranslation));
         manifest.shortcutAdjustments.remove(
             static_cast<int>(GlobalShortcutAction::TranslateSelectedText));
+    }
+    if (!features::translationEnabled() || !features::ocrEnabled()) {
+        for (auto& group : manifest.groups) {
+            group.options.removeIf([](const SettingsTrayMenuOptionDefinition& option) {
+                return !features::shortcutActionEnabled(option.shortcutAction);
+            });
+        }
+        if (!features::translationEnabled()) {
+            manifest.shortcutAdjustments.remove(
+                static_cast<int>(GlobalShortcutAction::ScreenshotTranslation));
+            manifest.shortcutAdjustments.remove(
+                static_cast<int>(GlobalShortcutAction::TranslateSelectedText));
+        }
+        if (!features::ocrEnabled()) {
+            manifest.shortcutAdjustments.remove(
+                static_cast<int>(GlobalShortcutAction::ScreenshotOcr));
+            manifest.shortcutAdjustments.remove(
+                static_cast<int>(GlobalShortcutAction::ScreenshotOcrCopy));
+        }
     }
     return manifest;
 }
