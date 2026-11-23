@@ -18,7 +18,7 @@ from urllib.parse import urlencode
 from urllib.request import urlopen
 
 
-GITHUB_REPOSITORY = ""
+GITHUB_REPOSITORY = "oxho/kxcapture"
 GITEE_REPOSITORY = ""
 GITEE_API = f"https://gitee.com/api/v5/repos/{GITEE_REPOSITORY}/releases"
 GITEE_GIT = f"https://gitee.com/{GITEE_REPOSITORY}.git"
@@ -652,7 +652,10 @@ if __name__ == "__main__":
                     token = load_token()
                 if token:
                     check_auth(token)
-                publish(release, assets, token, os.environ.get("GITEE_USERNAME", "mg-chao"),
-                        arguments.verify_only)
+                username = os.environ.get("GITEE_USERNAME", "")
+                if not arguments.verify_only and not username:
+                    raise ValueError(
+                        "GITEE_USERNAME is not configured. This publisher does not default to the upstream account.")
+                publish(release, assets, token, username, arguments.verify_only)
     except (ValueError, OSError, KeyError, subprocess.CalledProcessError) as error:
         parser.exit(1, f"Gitee publication failed: {error}\n")

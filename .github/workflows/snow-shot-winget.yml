@@ -53,7 +53,7 @@ jobs:
     if: needs.resolve.outputs.eligible == 'true'
     runs-on: windows-2025
     concurrency:
-      group: winget-mg-chao.snow-shot-${{ needs.resolve.outputs.version }}
+      group: winget-oxho.kxcapture-${{ needs.resolve.outputs.version }}
       cancel-in-progress: false
     env:
       RELEASE_TAG: ${{ needs.resolve.outputs.tag }}
@@ -71,7 +71,7 @@ jobs:
       - name: Preserve manifests for review and manual submission
         uses: actions/upload-artifact@v4
         with:
-          name: winget-mg-chao.snow-shot-${{ needs.resolve.outputs.version }}
+          name: winget-oxho.kxcapture-${{ needs.resolve.outputs.version }}
           path: build/winget/manifests
           if-no-files-found: error
       - name: Prepare WinGet validation
@@ -129,7 +129,7 @@ jobs:
           RELEASE_TAG: ${{ needs.resolve.outputs.tag }}
         run: |
           . ./scripts/snow-shot-winget.ps1
-          $release = Invoke-SnowShotWingetApi "repos/mg-chao/snow-shot/releases/tags/$env:RELEASE_TAG"
+          $release = Invoke-SnowShotWingetApi "repos/oxho/kxcapture/releases/tags/$env:RELEASE_TAG"
           $architectures = @(Get-SnowShotWingetArchitectures $release '${{ needs.resolve.outputs.version }}')
           "available=$('${{ matrix.architecture }}' -in $architectures)" >> $env:GITHUB_OUTPUT
       - name: Provision native WinGet
@@ -147,7 +147,7 @@ jobs:
         run: |
           . ./scripts/snow-shot-winget.ps1
           $previous = $null
-          foreach ($candidate in @(Invoke-SnowShotWingetApi 'repos/mg-chao/snow-shot/releases?per_page=100')) {
+          foreach ($candidate in @(Invoke-SnowShotWingetApi 'repos/oxho/kxcapture/releases?per_page=100')) {
             if ($candidate.draft -or $candidate.tag_name -ceq $env:RELEASE_TAG) { continue }
             try {
               $version = Get-SnowShotWingetVersion $candidate.tag_name

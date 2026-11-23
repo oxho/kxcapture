@@ -45,7 +45,7 @@ jobs:
           tag = os.environ['RELEASE_TAG']
           helper.tag_version(tag)
           if not os.environ['TAP_TOKEN']:
-              raise SystemExit('Configure HOMEBREW_TAP_TOKEN with contents write access to mg-chao/homebrew-tap.')
+              raise SystemExit('No KXCapture Homebrew tap is configured. This workflow must not use the upstream tap.')
           PY
       - name: Check out matching release source
         uses: actions/checkout@v4
@@ -53,15 +53,11 @@ jobs:
           ref: ${{ inputs.tag || github.event.release.tag_name }}
           path: release-source
           persist-credentials: false
-      - name: Check out tap
-        uses: actions/checkout@v4
-        with:
-          repository: mg-chao/homebrew-tap
-          ref: main
-          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
-          path: homebrew-tap
-      - name: Verify focused release contracts
-        run: python3 scripts/test-snow-shot-homebrew.py
+      - name: Refuse the upstream Homebrew tap
+        run: |
+          echo "Publish KXCapture Homebrew cask is historical against the upstream tap and must not be executed."
+          echo "It does not check out or push the upstream tap, and no replacement tap is configured."
+          exit 1
       - name: Publish archive and cask
         env:
           GH_TOKEN: ${{ github.token }}

@@ -80,5 +80,5 @@ Checked against `uploads/brand-checklist.md` items 1–78 on branch `cursor/rebr
 | 74 | `snow_shot/src/presentation/components/aboutpagewidget.cpp` | done | `53fa74ea88c6` | — |
 | 75 | `snow_shot/packaging/macos/Info.plist.in` | done | `53fa74ea88c6` | — |
 | 76 | `snow_shot/packaging/README.txt`, `README-mini.txt` | partly | `53fa74ea88c6` | The Support line is blank. No support email was supplied. |
-| 77 | Repository-wide user-visible Snow Shot / Snow Apps strings | partly | `4c3ccf5fbdb6` | App translations no longer present the product as Snow Shot. Internal identifiers remain, and `docs-macos-build.md`, `docs/snow-shot-releases.md`, and `scripts/close-legacy-issues.ps1` still name the upstream project. |
+| 77 | Repository-wide user-visible Snow Shot / Snow Apps strings | partly | `4c3ccf5fbdb6` | App translations no longer present the product as Snow Shot. Internal identifiers remain, and `docs-macos-build.md` and `docs/snow-shot-releases.md` still name the upstream project. `scripts/close-legacy-issues.ps1` now refuses to run. |
 | 78 | CMake and script filenames | done | `53fa74ea88c6` | — |

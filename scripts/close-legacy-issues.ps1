@@ -8,7 +8,10 @@ param(
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
-$repository = 'mg-chao/snow-shot'
+# Historical issue-closing tool. It must not run: it used to comment on and close
+# issues in the upstream project, and it is not retargeted at oxho/kxcapture.
+throw 'close-legacy-issues.ps1 is historical and must not be executed. It does not close issues on the upstream project or on oxho/kxcapture.'
+
 $lastIssue = 1021
 $reply = @(
     '**简体中文**',

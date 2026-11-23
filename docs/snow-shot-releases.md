@@ -67,7 +67,7 @@ Identical retries reuse existing assets; conflicting bytes fail without overwrit
 Configure `GITEE_TOKEN` locally with Gitee tag and release write access. The publisher
 reads the process environment, then the Windows user/system environment when the
 running shell predates the setting. Never paste tokens into release notes, command
-arguments, or checked-in configuration. Optional `GITEE_USERNAME` defaults to `mg-chao`.
+arguments, or checked-in configuration. A real Gitee publish requires `GITEE_USERNAME`. The publisher has no default account.
 
 The default publisher authenticates Gitee before building. After the compiled updater
 audits the signed packages, it saves `artifacts/publish-*/local-release.json`, prepares
