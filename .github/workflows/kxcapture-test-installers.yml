@@ -93,6 +93,8 @@ jobs:
           choco install nsis llvm -y --no-progress
           $nsis = 'C:\Program Files (x86)\NSIS'
           if (Test-Path -LiteralPath $nsis) { Add-Content -Path $env:GITHUB_PATH -Value $nsis }
+          $llvm = 'C:\Program Files\LLVM\bin'
+          if (Test-Path -LiteralPath $llvm) { Add-Content -Path $env:GITHUB_PATH -Value $llvm }
 
       - name: Install Rust 1.97.1
         uses: dtolnay/rust-toolchain@master
@@ -141,7 +143,23 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
-          $env:SNOW_QT_STATIC_DIR = (Join-Path (Get-Location) '.tools/qt/6.12.0/msvc2026_64-static-system-codecs/lib/cmake/Qt6')
+          $prefix = Join-Path (Get-Location) '.tools\qt\6.12.0\msvc2026_64-static-system-codecs'
+          $qt = Join-Path $prefix 'lib\cmake\Qt6'
+          $env:SNOW_QT_STATIC_DIR = $qt
+          $env:Qt6_DIR = $qt
+          $env:QTDIR = $prefix
+          $core = Join-Path $qt '..\Qt6Core'
+          Write-Host "Qt6Config=$(Test-Path (Join-Path $qt 'Qt6Config.cmake')) prefix=$prefix"
+          Get-ChildItem -LiteralPath $core -Filter 'Qt6CoreTargets*' -ErrorAction SilentlyContinue |
+            ForEach-Object { Write-Host "target-file $($_.Name)" }
+          $releaseTargets = Join-Path $core 'Qt6CoreTargets-release.cmake'
+          $plainTargets = Join-Path $core 'Qt6CoreTargets.cmake'
+          # Ninja's single-config install can omit the -release export the
+          # release preset requires. Point that name at the installed export.
+          if ((Test-Path -LiteralPath $plainTargets) -and -not (Test-Path -LiteralPath $releaseTargets)) {
+            Copy-Item -LiteralPath $plainTargets -Destination $releaseTargets
+            Write-Host 'Added Qt6CoreTargets-release.cmake from Qt6CoreTargets.cmake'
+          }
           ./scripts/package-snow-shot.ps1 -Architecture x64 -Parallelism 2
 
       - name: Record version resources and checksums

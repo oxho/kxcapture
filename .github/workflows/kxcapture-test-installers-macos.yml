@@ -11,7 +11,8 @@ on:
 
 concurrency:
   group: kxcapture-test-installers-macos-${{ github.ref }}
-  cancel-in-progress: true
+  # A Windows retry must not cancel an in-progress macOS build.
+  cancel-in-progress: false
 
 permissions:
   contents: read
@@ -19,6 +20,8 @@ permissions:
 jobs:
   macos-arm64:
     name: macOS arm64 DMG
+    # A commit message containing [skip-macos] retries Windows only.
+    if: ${{ !contains(github.event.head_commit.message, '[skip-macos]') }}
     runs-on: macos-latest
     timeout-minutes: 360
     env:
