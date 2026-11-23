@@ -80,17 +80,16 @@ jobs:
           xcodebuild -version
           xcrun --show-sdk-path
           sudo xcodebuild -runFirstLaunch
-          if xcrun metal --version; then
-            printf 'Metal compiler is already installed.\n'
-          else
-            help="$(xcodebuild -help 2>&1 || true)"
-            if grep -q -- '-downloadComponent' <<<"$help"; then
-              xcodebuild -downloadComponent MetalToolchain
-              xcrun metal --version
-            else
-              printf 'xcodebuild has no -downloadComponent and metal is not installed.\n' >&2
-              exit 1
-            fi
+          help="$(xcodebuild -help 2>&1 || true)"
+          # A preinstalled metal can be older than the shader tools that emit
+          # contention_relief. When this Xcode can download MetalToolchain,
+          # install that component even if some metal binary is already on PATH.
+          if grep -q -- '-downloadComponent' <<<"$help"; then
+            xcodebuild -downloadComponent MetalToolchain
+          fi
+          if ! xcrun metal --version; then
+            printf 'The Metal compiler is not available.\n' >&2
+            exit 1
           fi
           cmake --version
           rustc --version
