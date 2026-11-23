@@ -506,8 +506,15 @@ install_application() {
     previous_destination="$destination"
     # Move the old bundle into the existing transaction backup so success adopts
     # the product name and failure restores the original installation path.
-    if [[ ! -e "$destination" && -e "$applications_dir/$product_executable.app" ]]; then
+    # kxcapture.app is the same path as KXCapture.app on a case-insensitive volume,
+    # so pre-rebrand bundles named snow_shot.app stay a separate migration source.
+    local legacy_bundle="$applications_dir/snow_shot.app"
+    if [[ "$edition" == mini ]]; then legacy_bundle="$applications_dir/snow_shot_mini.app"; fi
+    if [[ ! -e "$destination" && -e "$applications_dir/$product_executable.app" &&
+          "$applications_dir/$product_executable.app" != "$destination" ]]; then
         previous_destination="$applications_dir/$product_executable.app"
+    elif [[ ! -e "$destination" && -e "$legacy_bundle" && "$legacy_bundle" != "$destination" ]]; then
+        previous_destination="$legacy_bundle"
     fi
     [[ -d "$applications_dir" && ! -L "$applications_dir" && ! -L "$destination" && ( ! -e "$destination" || -d "$destination" ) ]] || die invalid
     [[ ! -L "$previous_destination" && ( ! -e "$previous_destination" || -d "$previous_destination" ) ]] || die invalid

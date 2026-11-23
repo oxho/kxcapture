@@ -559,7 +559,7 @@ prepare_application
         self.previous()
         self.identity()
         (self.state / 'requirement').write_text(REQUIREMENT)
-        self.shell(self.prepare_code(), success=False, FAIL_REQUIREMENT='1')
+        self.shell(self.prepare_code(), success=False, ADHOC_SIGNATURE='1')
         self.assertTrue((self.destination / 'old-marker').exists())
         self.assertFalse((self.root / 'Prepared KXCapture.app').exists())
         self.assertFalse(self.work.exists())
@@ -591,7 +591,7 @@ prepare_application''')
 
     def test_legacy_installation_migrates_to_product_name(self):
         self.stage()
-        legacy = self.apps / 'kxcapture.app'
+        legacy = self.apps / 'snow_shot.app'
         legacy.mkdir()
         (legacy / 'old-marker').write_text('previous application')
         self.shell('trap cleanup EXIT; requirement="$REQUIREMENT"; install_application')
@@ -600,7 +600,7 @@ prepare_application''')
 
     def test_failed_legacy_migration_restores_original_path(self):
         self.stage()
-        legacy = self.apps / 'kxcapture.app'
+        legacy = self.apps / 'snow_shot.app'
         legacy.mkdir()
         (legacy / 'old-marker').write_text('previous application')
         self.shell('trap cleanup EXIT; requirement="$REQUIREMENT"; install_application',
