@@ -22,7 +22,10 @@ jobs:
     name: macOS arm64 DMG
     # A commit message containing [skip-macos] retries Windows only.
     if: ${{ !contains(github.event.head_commit.message, '[skip-macos]') }}
-    runs-on: macos-latest
+    # xcode-27 is the free arm64 image that carries Xcode 27. The OCR Metal
+    # archive was qualified on Xcode 27.1; contention_relief is a Metal
+    # pipeline field that Xcode 26's metal-tt rejects.
+    runs-on: xcode-27
     timeout-minutes: 360
     env:
       VCPKG_MAX_CONCURRENCY: "2"
@@ -66,33 +69,67 @@ jobs:
       - name: Prepare Xcode and the Metal toolchain
         run: |
           set -euo pipefail
-          # macos-15's Xcode rejects `xcodebuild -downloadComponent` (exit 64).
-          # That flag exists on newer Xcode, where the Metal compiler is a
-          # separate component. Use the compiler already in the selected Xcode
-          # when it is present, and download MetalToolchain only when the flag
-          # exists and metal is missing.
-          if [[ ! -d /Applications/Xcode.app ]]; then
-            printf 'Xcode.app is not installed. Applications:\n' >&2
-            ls /Applications >&2
+          # simd-paddle-ocr-rs writes contention_relief into ocr.mtlp-json and
+          # passes that file to metal-tt. That field is absent from Xcode 26
+          # and was added to the Metal pipeline schema for Xcode 27.3. The
+          # author's Metal notes name Xcode 27.1. Try the installed Xcode 27
+          # apps newest first and keep the first whose metal-tt parses the field.
+          probe="$RUNNER_TEMP/contention-relief-probe.mtlp-json"
+          printf '%s\n' '{"libraries":{"paths":[]},"pipelines":{"compute_pipelines":[{"compute_function":"alias:OCR#probe_0","threadgroup_size_is_multiple_of_thread_execution_width":false,"max_total_threads_per_threadgroup":0,"max_call_stack_depth":1,"support_indirect_command_buffers":false,"support_adding_binary_functions":false,"optimize_for_persistent_kernel":false,"forward_progress_usage":"Automatic","contention_relief":"Automatic"}]}}' >"$probe"
+          printf 'Installed Xcode apps:\n'
+          ls -d /Applications/Xcode*.app
+          selected=''
+          for app in \
+            /Applications/Xcode_27.3_beta.app \
+            /Applications/Xcode_27.3.app \
+            /Applications/Xcode_27.2.app \
+            /Applications/Xcode_27.1.app \
+            /Applications/Xcode_27.app \
+            /Applications/Xcode.app
+          do
+            if [[ ! -d "$app" ]]; then
+              continue
+            fi
+            printf '\n===== probing %s =====\n' "$app"
+            sudo xcode-select -s "$app"
+            xcodebuild -version || true
+            help="$(xcodebuild -help 2>&1 || true)"
+            if grep -q -- '-downloadComponent' <<<"$help"; then
+              xcodebuild -downloadComponent MetalToolchain || true
+            fi
+            printf 'metal: '; xcrun metal --version || true
+            if ! xcrun --find metal-tt; then
+              printf 'metal-tt is missing for %s\n' "$app"
+              continue
+            fi
+            err="$RUNNER_TEMP/metal-tt-probe.err"
+            xcrun metal-tt "$probe" -target air64-apple-macos27.0 -arch applegpu_g16g \
+              -no-pack-sources -o "$RUNNER_TEMP/contention-relief-probe.metallib" \
+              >"$RUNNER_TEMP/metal-tt-probe.out" 2>"$err" || true
+            if grep -q 'unknown field: contention_relief' "$err"; then
+              printf 'metal-tt on %s does not understand contention_relief\n' "$app"
+              cat "$err"
+              continue
+            fi
+            printf 'metal-tt on %s accepts contention_relief\n' "$app"
+            cat "$err" || true
+            selected="$app"
+            break
+          done
+          if [[ -z "$selected" ]]; then
+            printf 'No installed Xcode metal-tt accepts contention_relief.\n' >&2
             exit 1
           fi
-          sudo xcode-select -s /Applications/Xcode.app
+          sudo xcode-select -s "$selected"
+          sudo xcodebuild -runFirstLaunch
           xcodebuild -version
           xcrun --show-sdk-path
-          sudo xcodebuild -runFirstLaunch
-          help="$(xcodebuild -help 2>&1 || true)"
-          # A preinstalled metal can be older than the shader tools that emit
-          # contention_relief. When this Xcode can download MetalToolchain,
-          # install that component even if some metal binary is already on PATH.
-          if grep -q -- '-downloadComponent' <<<"$help"; then
-            xcodebuild -downloadComponent MetalToolchain
-          fi
-          if ! xcrun metal --version; then
-            printf 'The Metal compiler is not available.\n' >&2
-            exit 1
-          fi
+          xcrun metal --version
           cmake --version
           rustc --version
+          developer_dir="$selected/Contents/Developer"
+          printf 'DEVELOPER_DIR=%s\n' "$developer_dir" >>"$GITHUB_ENV"
+          export DEVELOPER_DIR="$developer_dir"
 
       - name: Create a job-local signing identity
         run: bash scripts/ci/macos-test-identity.sh create
