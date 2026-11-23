@@ -1,0 +1,264 @@
+# Test installers for the KXCapture rebrand. These jobs use free GitHub-hosted
+# runners and the repository's static Qt 6.12.0 release path.
+#
+# macOS does not call scripts/package-snow-shot.sh. That entry point stops unless
+# scripts/snow-shot-macos-signing.py identity can see the private key for
+# snow_shot/packaging/macos/release-signing.pem, and unless
+# scripts/snow-shot-sparkle.py check-key can see the Ed25519 key for the public
+# key in snow_shot/packaging/macos/sparkle.json. This workflow does not create,
+# import, or commit either private key. The application is still built from the
+# static release preset; CPack's publisher audit is left off, and a certificate
+# generated inside the job signs the bundles.
+#
+# Windows follows scripts/bootstrap.ps1, scripts/build-static-qt.ps1, and
+# scripts/package-snow-shot.ps1. There is no Authenticode signature.
+name: KXCapture test installers
+
+on:
+  push:
+    branches:
+      - cursor/package-kxcapture-af5e
+  workflow_dispatch:
+
+concurrency:
+  group: kxcapture-test-installers-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  macos-arm64:
+    name: macOS arm64 DMG
+    runs-on: macos-15
+    timeout-minutes: 360
+    env:
+      VCPKG_MAX_CONCURRENCY: "2"
+      VCPKG_DISABLE_METRICS: "1"
+      MACOSX_DEPLOYMENT_TARGET: "15.0"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 1
+
+      - name: Show disk space
+        run: df -h /
+
+      - name: Install CMake 4.2.3, Ninja, pkg-config, and NASM
+        run: |
+          set -euo pipefail
+          cmake_root="$RUNNER_TEMP/cmake"
+          mkdir -p "$cmake_root"
+          curl --fail --location --retry 3 --output "$RUNNER_TEMP/cmake.tar.gz" \
+            https://github.com/Kitware/CMake/releases/download/v4.2.3/cmake-4.2.3-macos-universal.tar.gz
+          tar -xzf "$RUNNER_TEMP/cmake.tar.gz" -C "$cmake_root"
+          echo "$cmake_root/cmake-4.2.3-macos-universal/CMake.app/Contents/bin" >> "$GITHUB_PATH"
+          brew install ninja pkgconf nasm
+          # pkgconf's executable is pkgconf; the build scripts require pkg-config.
+          if ! command -v pkg-config >/dev/null; then
+            brew_bin="$(brew --prefix)/bin"
+            ln -sf "$(command -v pkgconf)" "$brew_bin/pkg-config"
+          fi
+
+      - name: Install Rust 1.97.1
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.97.1
+
+      - name: Prepare Xcode and the Metal toolchain
+        run: |
+          set -euo pipefail
+          sudo xcode-select -s /Applications/Xcode.app
+          sudo xcodebuild -runFirstLaunch
+          xcodebuild -downloadComponent MetalToolchain
+          xcrun metal --version || true
+          cmake --version
+          rustc --version
+
+      - name: Create a job-local signing identity
+        run: bash scripts/ci/macos-test-identity.sh create
+
+      - name: Restore static Qt and vcpkg
+        uses: actions/cache@v4
+        continue-on-error: true
+        with:
+          path: |
+            ${{ github.workspace }}/.tools/macos/installed/static
+            ${{ github.workspace }}/.tools/sparkle
+            /Users/runner/Qt/6.12.0/macos-static-arm64
+          key: kxcapture-macos-arm64-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json', 'scripts/qt-toolchain.json', 'scripts/static-qt-features.json', 'scripts/build-static-qt.sh', 'cmake/vcpkg-overlay-ports/**', 'cmake/vcpkg-overlay-triplets/**', 'snow_shot/packaging/macos/sparkle.json') }}
+
+      - name: Bootstrap static macOS dependencies
+        run: |
+          set -euo pipefail
+          scripts/bootstrap-macos.sh snow-shot-macos-arm64-release --skip-qt-validation
+
+      - name: Build static Qt 6.12.0
+        run: |
+          set -euo pipefail
+          scripts/build-static-qt.sh \
+            --arch arm64 \
+            --install-prefix "$HOME/Qt/6.12.0/macos-static-arm64" \
+            --source-dir "$RUNNER_TEMP/qt-src" \
+            --build-dir "$RUNNER_TEMP/qt-build" \
+            --parallel 2
+          rm -rf "$RUNNER_TEMP/qt-src" "$RUNNER_TEMP/qt-build" \
+            "$RUNNER_TEMP/qt-everywhere-src-6.12.0.tar.xz"
+          df -h /
+
+      - name: Build KXCapture
+        run: |
+          set -euo pipefail
+          export SNOW_QT_STATIC_DIR="$HOME/Qt/6.12.0/macos-static-arm64/lib/cmake/Qt6"
+          scripts/build.sh snow-shot-macos-arm64-release --parallel 2 -- \
+            -DSNOW_APPS_PACKAGE_SNOW_SHOT=OFF \
+            -DSNOW_MACOS_CODESIGN_IDENTITY="$KXCAPTURE_CODESIGN_SHA1"
+          grep -E '^(SNOW_APPS_PACKAGE_SNOW_SHOT|SNOW_MACOS_CODESIGN_IDENTITY|SNOW_APPS_QT_STATIC):' \
+            build/snow-shot-macos-arm64-release/CMakeCache.txt
+
+      - name: Package and verify DMGs
+        run: |
+          set -euo pipefail
+          bash scripts/ci/package-macos-test-dmg.sh snow-shot-macos-arm64-release artifacts/macos
+
+      - name: Delete the temporary signing keychain
+        if: always()
+        run: bash scripts/ci/macos-test-identity.sh delete
+
+      - name: Upload macOS artifacts
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kxcapture-macos-arm64
+          retention-days: 14
+          path: artifacts/macos/
+          if-no-files-found: error
+
+  windows-x64:
+    name: Windows x64 installer
+    runs-on: windows-latest
+    timeout-minutes: 360
+    env:
+      VCPKG_MAX_CONCURRENCY: "2"
+      VCPKG_DISABLE_METRICS: "1"
+    steps:
+      - name: Enable long paths
+        shell: pwsh
+        run: git config --system core.longpaths true
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 1
+
+      - name: Free disk space
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Continue'
+          function Show-Free {
+            $disk = Get-CimInstance Win32_LogicalDisk -Filter "DeviceID='C:'"
+            Write-Output ("C: free_gb={0:N1} size_gb={1:N1}" -f ($disk.FreeSpace / 1GB), ($disk.Size / 1GB))
+          }
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          $vs = & $vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          Write-Output "Latest MSVC installation: $vs"
+          Show-Free
+          $remove = @(
+            'C:\Program Files (x86)\Android',
+            'C:\Android',
+            'C:\Program Files\Microsoft SQL Server',
+            'C:\Program Files (x86)\Microsoft SQL Server',
+            "$env:LOCALAPPDATA\Android"
+          )
+          if ($vs -match '\\2026\\|\\18\\') {
+            $remove += 'C:\Program Files\Microsoft Visual Studio\2022'
+            $remove += 'C:\Program Files (x86)\Microsoft Visual Studio\2022'
+          }
+          foreach ($path in $remove) {
+            if (Test-Path -LiteralPath $path) {
+              Write-Output "Removing $path"
+              Remove-Item -LiteralPath $path -Recurse -Force -ErrorAction SilentlyContinue
+            }
+          }
+          Show-Free
+
+      - name: Install CMake 4.2.3, NSIS, and Rust 1.97.1
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $cmakeRoot = Join-Path $env:RUNNER_TEMP 'cmake'
+          New-Item -ItemType Directory -Path $cmakeRoot -Force | Out-Null
+          $archive = Join-Path $env:RUNNER_TEMP 'cmake.zip'
+          Invoke-WebRequest -Uri 'https://github.com/Kitware/CMake/releases/download/v4.2.3/cmake-4.2.3-windows-x86_64.zip' -OutFile $archive
+          Expand-Archive -LiteralPath $archive -DestinationPath $cmakeRoot
+          Add-Content -Path $env:GITHUB_PATH -Value (Join-Path $cmakeRoot 'cmake-4.2.3-windows-x86_64\bin')
+          choco install nsis -y --no-progress
+          $nsis = 'C:\Program Files (x86)\NSIS'
+          if (Test-Path -LiteralPath $nsis) { Add-Content -Path $env:GITHUB_PATH -Value $nsis }
+
+      - name: Install Rust 1.97.1
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.97.1
+
+      - name: Tool versions
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          cmake --version
+          rustc --version
+          makensis /VERSION
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          & $vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          & $vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationVersion
+
+      - name: Restore static Qt and vcpkg
+        uses: actions/cache@v4
+        continue-on-error: true
+        with:
+          path: |
+            ${{ github.workspace }}/.tools/qt/6.12.0
+            ${{ github.workspace }}/.tools/vcpkg/installed/static
+          key: kxcapture-windows-x64-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json', 'scripts/qt-toolchain.json', 'scripts/static-qt-features.json', 'scripts/build-static-qt.ps1', 'scripts/static-qt-features.json', 'cmake/vcpkg-overlay-ports/**', 'cmake/vcpkg-overlay-triplets/**') }}
+
+      - name: Bootstrap static Windows dependencies
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          ./scripts/bootstrap.ps1 -Preset snow-shot-msvc-release -VcpkgVariants Static -SkipQtValidation
+
+      - name: Build static Qt 6.12.0
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $prefix = Join-Path (Get-Location) '.tools/qt/6.12.0/msvc2026_64-static-system-codecs'
+          ./scripts/build-static-qt.ps1 -Architecture x64 -InstallPrefix $prefix -Parallelism 2 `
+            -SourceDirectory (Join-Path $env:RUNNER_TEMP 'qt-src') `
+            -BuildDirectory (Join-Path $env:RUNNER_TEMP 'qt-build')
+          Remove-Item -LiteralPath (Join-Path $env:RUNNER_TEMP 'qt-src'), (Join-Path $env:RUNNER_TEMP 'qt-build') -Recurse -Force -ErrorAction SilentlyContinue
+          $disk = Get-CimInstance Win32_LogicalDisk -Filter "DeviceID='C:'"
+          Write-Output ("C: free_gb={0:N1}" -f ($disk.FreeSpace / 1GB))
+
+      - name: Package installer and portable archive
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $env:SNOW_QT_STATIC_DIR = (Join-Path (Get-Location) '.tools/qt/6.12.0/msvc2026_64-static-system-codecs/lib/cmake/Qt6')
+          ./scripts/package-snow-shot.ps1 -Architecture x64 -Parallelism 2
+
+      - name: Record version resources and checksums
+        if: success()
+        shell: pwsh
+        run: ./scripts/ci/windows-collect-artifacts.ps1
+
+      - name: Upload Windows artifacts
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kxcapture-windows-x64
+          retention-days: 14
+          path: artifacts/windows/
+          if-no-files-found: error

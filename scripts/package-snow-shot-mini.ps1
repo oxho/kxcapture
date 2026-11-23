@@ -96,7 +96,7 @@ function Invoke-SnowShotMiniPackaging {
         })
         [ordered]@{ schema = 1; product = 'snow-shot-mini'; platform = $ocrPlatform; version = $packageVersion; variant = $variant; files = $owned } |
             ConvertTo-Json -Depth 8 | Set-Content (Join-Path $stage 'snow-shot-mini-installation.json') -Encoding utf8NoBOM
-        Assert-SnowNativeStartup -Stage $stage -Executable snow_shot_mini -Updater snow-shot-mini-updater -Version $packageVersion
+        Assert-SnowNativeStartup -Stage $stage -Executable kxcapture_mini -Updater kxcapture-mini-updater -Version $packageVersion
         $base = "snow-shot-mini-$packageVersion-$ocrPlatform-$variant"
         $zipBase = if ($variant -eq 'online') { "$base-update" } else { $base }
         $zip = Join-Path $buildDirectory "$zipBase.zip"
