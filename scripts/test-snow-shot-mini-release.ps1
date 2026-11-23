@@ -10,8 +10,8 @@ function Must-Fail([scriptblock]$Action) {
 }
 $fixture = Join-Path ([IO.Path]::GetTempPath()) "snow-shot-mini-release-$([guid]::NewGuid().ToString('N'))"
 try {
-    foreach ($name in @('bin/snow_shot_mini.exe', 'bin/snow-shot-mini-updater.exe',
-            'bin/snow-shot-mini-mcp.exe', 'bin/crashpad_handler.exe',
+    foreach ($name in @('bin/kxcapture_mini.exe', 'bin/kxcapture-mini-updater.exe',
+            'bin/kxcapture-mini-mcp.exe', 'bin/crashpad_handler.exe',
             'bin/assets/ocr/asset-manifest.json', 'bin/audios/camera_shutter.mp3',
             'bin/__mini_data_directory', 'share/snow-shot-mini/licenses/LICENSES.txt')) {
         $path = Join-Path $fixture $name

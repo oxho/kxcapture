@@ -187,8 +187,8 @@ include("$repoCmake/cmake/SnowShotMiniPackage.cmake")
         $output = Join-Path $caseRoot 'output'
         New-Item -ItemType Directory -Path (Join-Path $stage 'bin'),
             (Join-Path $stage ('share/' + [char]0x6587)), $output -Force | Out-Null
-        $application = if ($edition -eq 'Mini') { 'snow_shot_mini.exe' } else { 'snow_shot.exe' }
-        $updaterName = if ($edition -eq 'Mini') { 'snow-shot-mini-updater.exe' } else { 'snow-shot-updater.exe' }
+        $application = if ($edition -eq 'Mini') { 'kxcapture_mini.exe' } else { 'kxcapture.exe' }
+        $updaterName = if ($edition -eq 'Mini') { 'kxcapture-mini-updater.exe' } else { 'kxcapture-updater.exe' }
         Copy-Item -LiteralPath $extractor -Destination (Join-Path $stage "bin/$application")
         Copy-Item -LiteralPath $updater -Destination (Join-Path $stage "bin/$updaterName")
         [IO.File]::WriteAllBytes((Join-Path $stage 'empty.txt'), [byte[]]::new(0))

@@ -29,9 +29,10 @@ if ($windowsTarget.Architecture -ceq 'arm64' -and $windowsTarget.HostArchitectur
     throw 'Running KXCapture ARM64 requires a Windows ARM64 host.'
 }
 $target = if ($Edition -eq "Mini") { "snow_shot_mini" } else { "snow_shot" }
+$executableName = if ($Edition -eq "Mini") { "kxcapture_mini" } else { "kxcapture" }
 $buildDirectory = Join-Path $repoRoot "build\$Preset"
 $configuration = $windowsTarget.Configuration
-$executablePath = Join-Path $buildDirectory "$target\$configuration\$target.exe"
+$executablePath = Join-Path $buildDirectory "$target\$configuration\$executableName.exe"
 
 function Test-PathIsUnderDirectory {
     param(
@@ -54,7 +55,7 @@ function Test-PathIsUnderDirectory {
 function Stop-RunningBuildInstance {
     param([Parameter(Mandatory = $true)][string]$BuildDirectory)
 
-    $runningProcesses = @(Get-Process -Name $target -ErrorAction SilentlyContinue)
+    $runningProcesses = @(Get-Process -Name $executableName -ErrorAction SilentlyContinue)
     foreach ($process in $runningProcesses) {
         try {
             $processPath = $process.Path

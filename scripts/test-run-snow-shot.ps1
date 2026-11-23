@@ -99,7 +99,7 @@ try {
             $exitCode = $LASTEXITCODE
             $ErrorActionPreference = $originalErrorPreference
             Require ($exitCode -eq 1) 'The batch launcher must propagate a launch failure.'
-            $expectedPath = Join-Path $fixture 'build\windows-msvc-performance\snow_shot_mini\Release\snow_shot_mini.exe'
+            $expectedPath = Join-Path $fixture 'build\windows-msvc-performance\snow_shot_mini\Release\kxcapture_mini.exe'
             # PowerShell 7's concise error view wraps long paths with gutter bars.
             $normalizedOutput = $output -replace '[\s|]', ''
             $expectedOutput = "KXCapture executable was not found at '$expectedPath'." -replace '\s', ''

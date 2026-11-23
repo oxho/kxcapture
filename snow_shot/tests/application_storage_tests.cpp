@@ -1050,7 +1050,7 @@ void settingsSchemaDefaultsAndValidationAreComplete() {
             defaultValue("screen_recording/video_save_directory").toString() ==
                 systemSaveDirectory(QStandardPaths::MoviesLocation) &&
             defaultValue("screen_recording/video_filename_format").toString() ==
-                QStringLiteral("SnowShot_Video_{YYYY-MM-DD_HH-mm-ss}") &&
+                QStringLiteral("KXCapture_Video_{YYYY-MM-DD_HH-mm-ss}") &&
             defaultValue("tray/left_click_action").toString() == QStringLiteral("screenshot") &&
             defaultValue("tray/middle_click_action").toString() ==
                 QStringLiteral("screenshot_fixed") &&
@@ -2934,7 +2934,7 @@ void settingsAdaptersRoundTripAndRejectInvalidValues() {
                 recording.videoSaveDirectory() ==
                     systemSaveDirectory(QStandardPaths::MoviesLocation) &&
                 recording.videoFilenameFormat() ==
-                    QStringLiteral("SnowShot_Video_{YYYY-MM-DD_HH-mm-ss}"),
+                    QStringLiteral("KXCapture_Video_{YYYY-MM-DD_HH-mm-ss}"),
             "recording adapters must expose requested defaults");
     require(
         recording.setScreenRecordingClarity(QStringLiteral("2k")) && recording.setFrameRate(83) &&

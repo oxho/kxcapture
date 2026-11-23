@@ -1817,7 +1817,7 @@
       "allowedStringValues": [],
       "defaultJsonType": 3,
       "defaultStringIsNull": false,
-      "defaultValue": "SnowShot_Video_{YYYY-MM-DD_HH-mm-ss}",
+      "defaultValue": "KXCapture_Video_{YYYY-MM-DD_HH-mm-ss}",
       "integerRange": null,
       "key": "screen_recording/video_filename_format",
       "maximumListItems": -1,

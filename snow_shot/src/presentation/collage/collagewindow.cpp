@@ -1227,7 +1227,7 @@ struct ImageStitchingWindow::Impl {
                 QStringLiteral("%1 (*.pdf)").arg(imageStitchingText("PDF documents")));
             dialog->setDefaultSuffix(QStringLiteral("pdf"));
             dialog->setOption(QFileDialog::DontConfirmOverwrite, false);
-            dialog->selectFile(QStringLiteral("SnowShot_%1.pdf")
+            dialog->selectFile(QStringLiteral("KXCapture_%1.pdf")
                                    .arg(QDateTime::currentDateTime().toString(
                                        QStringLiteral("yyyy-MM-dd_HH-mm-ss"))));
         } else {

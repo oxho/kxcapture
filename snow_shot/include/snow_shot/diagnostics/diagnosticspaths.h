@@ -31,9 +31,9 @@ inline DiagnosticsOptions diagnosticsOptionsForPaths(const DiagnosticsPathOption
             QDir(paths.stableDirectory).filePath(QStringLiteral("logs/crashes"));
     if (QDir::isAbsolutePath(paths.temporaryDirectory)) {
         const QString relative =
-            packaged ? QStringLiteral("SnowShot/%1/%2/logs")
+            packaged ? QStringLiteral("KXCapture/%1/%2/logs")
                            .arg(paths.applicationName, paths.packageFamily)
-                     : QStringLiteral("SnowShot/%1/logs").arg(paths.applicationName);
+                     : QStringLiteral("KXCapture/%1/logs").arg(paths.applicationName);
         options.directories.append(QDir(paths.temporaryDirectory).filePath(relative));
     }
     options.directories.removeDuplicates();

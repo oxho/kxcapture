@@ -1248,7 +1248,7 @@ constexpr SchemaEntryDescriptor kEntryDescriptors[] = {
     {u"screen_recording/video_save_directory",
      factoryDefault(SchemaDefaultFactory::MoviesDirectory), ConfigurationValueKind::String},
     {u"screen_recording/video_filename_format",
-     stringDefault(u"SnowShot_Video_{YYYY-MM-DD_HH-mm-ss}"), ConfigurationValueKind::String},
+     stringDefault(u"KXCapture_Video_{YYYY-MM-DD_HH-mm-ss}"), ConfigurationValueKind::String},
     {u"drawing/automatically_select_newly_created_elements", booleanDefault(false),
      ConfigurationValueKind::Boolean},
     {u"drawing/automatic_selection_excluded_tools", stringsDefault(kSchemaStrings33),
