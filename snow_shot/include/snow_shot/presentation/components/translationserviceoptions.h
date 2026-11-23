@@ -21,7 +21,8 @@ translationServiceOptions(const QVector<SnowShotChatModel>& models) {
         else if (model.id == translation::fastTranslationId)
             label = QCoreApplication::translate("snow_shot::translation::TranslationService",
                                                 "Fast Translation");
-        options.append({model.id, label, false, translation::translationModelGroup(model)});
+        options.append(
+            {model.id, label, model.unavailable, translation::translationModelGroup(model)});
     }
     return options;
 }
