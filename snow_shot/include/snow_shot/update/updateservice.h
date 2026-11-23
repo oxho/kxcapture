@@ -55,7 +55,11 @@ class UpdateService final : public QObject {
         bool allowLocalHttp = false;
         std::chrono::milliseconds startupCheckDelay = std::chrono::seconds(30);
         std::chrono::milliseconds automaticCheckInterval = std::chrono::hours(24);
-        // Windows helper discovery endpoints, also overridden by its process fixtures.
+        // Windows helper discovery endpoints. Empty disables update checks.
+        // Local debug only, not a release default:
+        // http://127.0.0.1:8782/github/repos/oxho/kxcapture/releases
+        // http://127.0.0.1 is rejected unless allowLocalHttp is set on a debug path.
+        // Release and store packages must leave allowLocalHttp false.
         QUrl githubApiUrl =
             QUrl(QStringLiteral(""));
         QUrl giteeApiUrl =

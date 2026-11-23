@@ -535,7 +535,7 @@ $expectedBinaryMetadata = @{
     CompanyName = "oxho"
     FileDescription = "KXCapture screenshot utility"
     InternalName = "snow_shot"
-    LegalCopyright = "Copyright (C) 2025-2026 mg-chao"
+    LegalCopyright = "Copyright (C) 2025-2026 mg-chao. Modified by oxho, 2026."
     OriginalFilename = "snow_shot.exe"
     ProductName = "KXCapture"
 }
@@ -559,7 +559,7 @@ if (-not $store) {
         CompanyName = 'oxho'
         FileDescription = 'KXCapture update service'
         InternalName = 'snow-shot-updater'
-        LegalCopyright = 'Copyright (C) 2025-2026 mg-chao'
+        LegalCopyright = 'Copyright (C) 2025-2026 mg-chao. Modified by oxho, 2026.'
         OriginalFilename = 'snow-shot-updater.exe'
         ProductName = 'KXCapture'
         ProductVersion = $versionInfo.ProductVersion
@@ -1506,7 +1506,7 @@ string(REPLACE "snow-shot-$packageVersion-$ocrPlatform.exe" "$packageBaseName.ex
         FileDescription = "KXCapture installer"
         FileVersion = "$packageVersionNumeric.0"
         InternalName = "snow-shot-installer"
-        LegalCopyright = "Copyright (C) 2025-2026 mg-chao"
+        LegalCopyright = "Copyright (C) 2025-2026 mg-chao. Modified by oxho, 2026."
         OriginalFilename = "$packageBaseName.exe"
         ProductName = "KXCapture"
         ProductVersion = $packageVersion

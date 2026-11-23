@@ -18,8 +18,8 @@ from urllib.parse import urlencode
 from urllib.request import urlopen
 
 
-GITHUB_REPOSITORY = "mg-chao/snow-shot"
-GITEE_REPOSITORY = "mg-chao/snow-apps"
+GITHUB_REPOSITORY = ""
+GITEE_REPOSITORY = ""
 GITEE_API = f"https://gitee.com/api/v5/repos/{GITEE_REPOSITORY}/releases"
 GITEE_GIT = f"https://gitee.com/{GITEE_REPOSITORY}.git"
 # Use decimal GB so the publication fits either a GB or GiB quota.

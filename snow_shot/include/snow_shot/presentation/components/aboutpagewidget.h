@@ -37,6 +37,7 @@ class AboutPageWidget final : public QWidget {
     void refreshUpdateStatus();
     void updateLayout();
     void openProjectLink(const QUrl& url);
+    void attachAncestorAdCarousel();
 
     const QString m_version;
     const UrlOpener m_urlOpener;

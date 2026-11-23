@@ -20,8 +20,14 @@ set(SNOW_SPARKLE_FEED_ARCH arm64)
 if(CMAKE_OSX_ARCHITECTURES STREQUAL "x86_64")
     set(SNOW_SPARKLE_FEED_ARCH x86_64)
 endif()
-set(SNOW_SPARKLE_GITHUB_FEED_BASE "" CACHE STRING "Primary Sparkle feed directory")
-set(SNOW_SPARKLE_GITEE_FEED_BASE "" CACHE STRING "Mirror Sparkle feed directory")
+# Release builds keep these empty. A local debug feed, not a production URL, is
+# http://127.0.0.1:8782/sparkle/ (appcasts kxcapture-macos-arm64.xml and
+# kxcapture-macos-x86_64.xml). Sparkle will not accept that http feed unless a
+# debug-only path sets allowLocalHttp; release and store packages must leave it off.
+set(SNOW_SPARKLE_GITHUB_FEED_BASE "" CACHE STRING
+    "Primary Sparkle feed directory. Empty disables the feed. Local debug only: http://127.0.0.1:8782/sparkle")
+set(SNOW_SPARKLE_GITEE_FEED_BASE "" CACHE STRING
+    "Mirror Sparkle feed directory. Empty disables the mirror.")
 foreach(_base IN ITEMS SNOW_SPARKLE_GITHUB_FEED_BASE SNOW_SPARKLE_GITEE_FEED_BASE)
     if(NOT "${${_base}}" STREQUAL "" AND
        NOT "${${_base}}" MATCHES "^https://[A-Za-z0-9][A-Za-z0-9./_-]*$")

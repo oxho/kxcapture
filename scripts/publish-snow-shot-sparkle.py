@@ -13,8 +13,7 @@ import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
 NAMESPACE = {'s': 'http://www.andymatuschak.org/xml-namespaces/sparkle'}
-REPOSITORIES = {'github': 'https://github.com/mg-chao/snow-shot.git',
-                'gitee': 'https://gitee.com/mg-chao/snow-apps.git'}
+REPOSITORIES = {'github': '', 'gitee': ''}
 BRANCH = 'sparkle-appcasts'
 
 

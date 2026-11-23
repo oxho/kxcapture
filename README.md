@@ -23,6 +23,8 @@ English · [简体中文](README.zh-CN.md)
 
 No installer, package feed, or automatic update service is configured for KXCapture. Do not use upstream Snow Shot release files, WinGet, Scoop, or Homebrew packages as substitutes for this build.
 
+The Windows update public key id is `kxcapture-2026-11` and the macOS Sparkle account is `kxcapture-sparkle`. Feed URLs stay empty in release builds. A local debug source, not a production feed, is `http://127.0.0.1:8782/sparkle/` and `http://127.0.0.1:8782/github/repos/oxho/kxcapture/releases`. Release and store packages keep `allowLocalHttp` off, so those http URLs are rejected unless a debug path turns that flag on.
+
 ## Development
 
 Build this repository with the upstream platform guides in `docs/development.md`, `docs-macos-build.md`, and `docs-windows-arm64-build.md`. Those guides still describe the macOS and Windows toolchains. Linux does not configure the application: the project requires Qt 6.12 and has no Linux preset.

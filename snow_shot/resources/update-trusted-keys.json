@@ -1,3 +1,9 @@
 {
-  "keys": []
+  "keys": [
+    {
+      "id": "kxcapture-2026-11",
+      "modulus": "43V/3CM8txiu2qfdqZ0SpJPLBnIGBcHhrDhPx/cJS9YzBjs4ae4+Rqf+31jqfeJGp8HVASS4tUCtZ9onS9yK1SyCaHcZFfJSkAg6gl5InDXGFhMXPm7CwsVVMwX2HTDyRH4ykdUJcdoft2QZhuYWIIhsSOn5krWndml2Hn5v6ValtZ3QwSZzhzSOSdqFHrUAGVOlgzBM2RbHVNiniBdfP9K763qkpmcY3yVzT83E/xB6ddRR0KNyHoPdb9dVoinRM3IUn0bHKXOQtxGkw4LR7CY8rDvLnyVSe7YgHYHP4TItby/T4jq/xe6Rx5EBXoZ6O2of7tCKxTMzCqTPihW7ZAa5WokGAmkSk9luRLJgVSbeXJROA1YShjm+fOw0nbXGQ9C0x6Z1VcGbZbV9BJD0xmNVY5YRdm/5fkGrT3/bzhYTLChs5/wEGVALCcHVPyzHjWGtKalYgdzED+DgbRQ3Pxdr3X33my5mQQYJW4TiCsHLmJwM1ZExV4P6oyEZIAWn",
+      "exponent": "AQAB"
+    }
+  ]
 }

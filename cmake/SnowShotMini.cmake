@@ -113,7 +113,7 @@ list(FILTER _sources EXCLUDE REGEX "windows-app-resource\\.rc$|_plugin_import\\.
 snow_shot_mini_filter_sources(_sources ${_sources})
 qt_add_executable(snow_shot_mini MANUAL_FINALIZATION ${_sources})
 _snow_mini_copy_build_properties(snow_shot snow_shot_mini)
-target_link_libraries(snow_shot_mini PRIVATE snow_shot_edition_mini)
+target_link_libraries(snow_shot_mini PRIVATE snow_shot_edition_mini snow_shot_ads)
 if(SNOW_SHOT_BUILD_TESTS)
     # Full's generated plugin-import source is deliberately excluded above.
     snow_shot_import_offscreen_platform(snow_shot_mini)

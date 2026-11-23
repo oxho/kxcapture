@@ -1,3 +1,5 @@
+#include "snow_shot/ads/adcarouselwidget.h"
+#include "snow_shot/ads/adservice.h"
 #include "snow_shot/app/edition.h"
 #include "snow_shot/presentation/components/aboutpagewidget.h"
 #include "widgets/detail/pointer_region.h"
@@ -659,6 +661,21 @@ AboutPageWidget::AboutPageWidget(QWidget* parent, UrlOpener urlOpener,
     applyTheme(m_ui->scheme);
     content->installEventFilter(this);
     m_ui->container->scrollArea()->viewport()->installEventFilter(this);
+    attachAncestorAdCarousel();
+}
+
+void AboutPageWidget::attachAncestorAdCarousel() {
+    kx::ads::AdService* ads = nullptr;
+    for (QWidget* ancestor = parentWidget(); ancestor != nullptr && ads == nullptr;
+         ancestor = ancestor->parentWidget()) {
+        ads = ancestor->findChild<kx::ads::AdService*>(QString(), Qt::FindDirectChildrenOnly);
+    }
+    if (ads == nullptr)
+        return;
+    auto* carousel = new kx::ads::AdCarouselWidget(ads, this);
+    carousel->setObjectName(QStringLiteral("aboutAdCarousel"));
+    const int heroIndex = m_ui->container->contentLayout()->indexOf(m_ui->hero);
+    m_ui->container->contentLayout()->insertWidget(heroIndex + 1, carousel);
 }
 
 AboutPageWidget::~AboutPageWidget() {

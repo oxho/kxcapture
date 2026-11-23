@@ -106,8 +106,8 @@ option(SNOW_SHOT_SCROLLING_PERF_DETAIL "Compile detailed scrolling C++ and Rust 
 option(SNOW_SHOT_RELEASE_STATIC "Prefer static KXCapture release linkage." OFF)
 option(SNOW_SHOT_QT_STATIC "Link KXCapture against a static Qt build." OFF)
 set(SNOW_SHOT_WEBSITE_URL "" CACHE STRING "Public KXCapture website URL.")
-set(SNOW_SHOT_PROJECT_URL "https://github.com/mg-chao/snow-shot" CACHE STRING
-    "Public KXCapture source repository URL.")
+set(SNOW_SHOT_PROJECT_URL "" CACHE STRING
+    "Public source repository URL. Empty hides project links. The upstream Snow Shot repository is credited in the README, not used as this app's project link.")
 set(SNOW_SHOT_QQ_GROUP_4_URL "" CACHE STRING
     "QQ group 4 join URL.")
 unset(SNOW_SHOT_CAMERA_SHUTTER_AUDIO_SOURCE CACHE)
@@ -133,6 +133,18 @@ endif()
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/../cmake/SnowQt.cmake")
 snow_find_qt(COMPONENTS Widgets LinguistTools Svg Network)
+# The ads module refuses to build its tests unless Qt6::Test already exists.
+if(SNOW_SHOT_BUILD_TESTS)
+    snow_find_qt(COMPONENTS Test)
+    set(SNOW_SHOT_ADS_BUILD_TESTS ON CACHE BOOL "Build snow-shot-ads-tests" FORCE)
+endif()
+include("${CMAKE_CURRENT_SOURCE_DIR}/ads.cmake")
+if(TARGET snow-shot-ads-tests)
+    add_test(NAME snow-shot-ads-tests COMMAND snow-shot-ads-tests)
+    set_tests_properties(snow-shot-ads-tests PROPERTIES
+        LABELS "unit" TIMEOUT 60
+        ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+endif()
 
 add_library(snow_shot_distribution STATIC
     include/snow_shot/app/distribution.h
@@ -1265,7 +1277,7 @@ target_compile_definitions(snow_shot_settings PRIVATE
     SNOW_SHOT_PROJECT_URL="${SNOW_SHOT_PROJECT_URL}"
     SNOW_SHOT_QQ_GROUP_4_URL="${SNOW_SHOT_QQ_GROUP_4_URL}"
 )
-target_link_libraries(snow_shot_settings PRIVATE snow_shot_image_codec Qt6::Svg Qt6::Network snow_shot_administrator)
+target_link_libraries(snow_shot_settings PRIVATE snow_shot_ads snow_shot_image_codec Qt6::Svg Qt6::Network snow_shot_administrator)
 add_library(snow_shot_global_mouse STATIC
     include/snow_shot/presentation/globalmousemanager.h
     include/snow_shot/presentation/globalmousegesture.h
@@ -2268,6 +2280,7 @@ if(WIN32)
     )
 endif()
 target_link_libraries(snow_shot PRIVATE
+    snow_shot_ads
     snow_shot_export_naming
     snow_shot_collage
     snow_shot_image_split

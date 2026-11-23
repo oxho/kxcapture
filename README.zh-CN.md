@@ -23,6 +23,8 @@ Copyright (C) 2025-2026 mg-chao. Modified by oxho, 2026.
 
 KX截屏尚未配置安装包、软件源或自动更新服务。请不要把上游 Snow Shot 的发布文件、WinGet、Scoop 或 Homebrew 包当作本版本的替代安装方式。
 
+Windows 更新公钥 id 是 `kxcapture-2026-11`，macOS Sparkle 账户是 `kxcapture-sparkle`。正式配置里的更新地址保持为空。本机调试源（不是正式地址）是 `http://127.0.0.1:8782/sparkle/` 和 `http://127.0.0.1:8782/github/repos/oxho/kxcapture/releases`。正式包和商店包的 `allowLocalHttp` 保持关闭，因此除非调试路径单独打开这个开关，这些 http 地址会被拒绝。
+
 ## 开发
 
 在本仓库中构建。平台工具链说明见 `docs/development.md`、`docs-macos-build.md` 和 `docs-windows-arm64-build.md`。Linux 上不能配置该应用：工程要求 Qt 6.12，且没有 Linux 预设。

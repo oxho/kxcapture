@@ -1,7 +1,7 @@
 [CmdletBinding(SupportsShouldProcess)]
 param(
     [ValidateSet('Publish', 'Verify')][string]$Operation = 'Publish',
-    [ValidatePattern('^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$')][string]$GitHubRepository = 'mg-chao/snow-shot',
+    [Parameter(Mandatory)][ValidatePattern('^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$')][string]$GitHubRepository,
     [string]$Version = '',
     [string]$BuildDirectory = 'build/snow-shot-msvc-release',
     [string]$Arm64BuildDirectory = 'build/snow-shot-msvc-arm64-release',
