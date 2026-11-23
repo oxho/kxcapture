@@ -47,7 +47,8 @@ jobs:
           # Bash 5: macOS /bin/bash 3.2 treats an empty "${array[@]}" as unbound
           # under set -u, and build-static-qt.sh expands qt_apple_options that way
           # on native arm64 with full Xcode.
-          brew install bash ninja pkgconf nasm
+          # clang-format is required when CMake regenerates the icon pack.
+          brew install bash ninja pkgconf nasm clang-format
           # pkgconf's executable is pkgconf; the build scripts require pkg-config.
           if ! command -v pkg-config >/dev/null; then
             brew_bin="$(brew --prefix)/bin"

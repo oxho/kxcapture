@@ -90,7 +90,7 @@ jobs:
           Invoke-WebRequest -Uri 'https://github.com/Kitware/CMake/releases/download/v4.2.3/cmake-4.2.3-windows-x86_64.zip' -OutFile $archive
           Expand-Archive -LiteralPath $archive -DestinationPath $cmakeRoot
           Add-Content -Path $env:GITHUB_PATH -Value (Join-Path $cmakeRoot 'cmake-4.2.3-windows-x86_64\bin')
-          choco install nsis -y --no-progress
+          choco install nsis llvm -y --no-progress
           $nsis = 'C:\Program Files (x86)\NSIS'
           if (Test-Path -LiteralPath $nsis) { Add-Content -Path $env:GITHUB_PATH -Value $nsis }
 
