@@ -120,13 +120,16 @@ jobs:
       - name: Build static Qt 6.12.0
         run: |
           set -euo pipefail
+          # The official builder extracts qt-everywhere-src-6.12.0 next to the
+          # archive and requires --source-dir to be that directory name.
           scripts/build-static-qt.sh \
             --arch arm64 \
             --install-prefix "$HOME/Qt/6.12.0/macos-static-arm64" \
-            --source-dir "$RUNNER_TEMP/qt-src" \
-            --build-dir "$RUNNER_TEMP/qt-build" \
+            --source-dir "$RUNNER_TEMP/qt-everywhere-src-6.12.0" \
+            --build-dir "$RUNNER_TEMP/qt-build-6.12.0-macos-arm64-static" \
             --parallel 2
-          rm -rf "$RUNNER_TEMP/qt-src" "$RUNNER_TEMP/qt-build" \
+          rm -rf "$RUNNER_TEMP/qt-everywhere-src-6.12.0" \
+            "$RUNNER_TEMP/qt-build-6.12.0-macos-arm64-static" \
             "$RUNNER_TEMP/qt-everywhere-src-6.12.0.tar.xz"
           df -h /
 
