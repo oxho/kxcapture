@@ -70,10 +70,32 @@ jobs:
       - name: Prepare Xcode and the Metal toolchain
         run: |
           set -euo pipefail
+          # macos-15's Xcode rejects `xcodebuild -downloadComponent` (exit 64).
+          # That flag exists on newer Xcode, where the Metal compiler is a
+          # separate component. Use the compiler already in the selected Xcode
+          # when it is present, and download MetalToolchain only when the flag
+          # exists and metal is missing.
+          if [[ ! -d /Applications/Xcode.app ]]; then
+            printf 'Xcode.app is not installed. Applications:\n' >&2
+            ls /Applications >&2
+            exit 1
+          fi
           sudo xcode-select -s /Applications/Xcode.app
+          xcodebuild -version
+          xcrun --show-sdk-path
           sudo xcodebuild -runFirstLaunch
-          xcodebuild -downloadComponent MetalToolchain
-          xcrun metal --version || true
+          if xcrun metal --version; then
+            printf 'Metal compiler is already installed.\n'
+          else
+            help="$(xcodebuild -help 2>&1 || true)"
+            if grep -q -- '-downloadComponent' <<<"$help"; then
+              xcodebuild -downloadComponent MetalToolchain
+              xcrun metal --version
+            else
+              printf 'xcodebuild has no -downloadComponent and metal is not installed.\n' >&2
+              exit 1
+            fi
+          fi
           cmake --version
           rustc --version
 
