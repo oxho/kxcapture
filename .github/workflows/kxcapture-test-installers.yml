@@ -55,7 +55,10 @@ jobs:
             https://github.com/Kitware/CMake/releases/download/v4.2.3/cmake-4.2.3-macos-universal.tar.gz
           tar -xzf "$RUNNER_TEMP/cmake.tar.gz" -C "$cmake_root"
           echo "$cmake_root/cmake-4.2.3-macos-universal/CMake.app/Contents/bin" >> "$GITHUB_PATH"
-          brew install ninja pkgconf nasm
+          # Bash 5: macOS /bin/bash 3.2 treats an empty "${array[@]}" as unbound
+          # under set -u, and build-static-qt.sh expands qt_apple_options that way
+          # on native arm64 with full Xcode.
+          brew install bash ninja pkgconf nasm
           # pkgconf's executable is pkgconf; the build scripts require pkg-config.
           if ! command -v pkg-config >/dev/null; then
             brew_bin="$(brew --prefix)/bin"
@@ -122,7 +125,8 @@ jobs:
           set -euo pipefail
           # The official builder extracts qt-everywhere-src-6.12.0 next to the
           # archive and requires --source-dir to be that directory name.
-          scripts/build-static-qt.sh \
+          # Homebrew bash avoids the Bash 3.2 empty-array failure in that script.
+          "$(brew --prefix)/bin/bash" scripts/build-static-qt.sh \
             --arch arm64 \
             --install-prefix "$HOME/Qt/6.12.0/macos-static-arm64" \
             --source-dir "$RUNNER_TEMP/qt-everywhere-src-6.12.0" \
@@ -137,7 +141,7 @@ jobs:
         run: |
           set -euo pipefail
           export SNOW_QT_STATIC_DIR="$HOME/Qt/6.12.0/macos-static-arm64/lib/cmake/Qt6"
-          scripts/build.sh snow-shot-macos-arm64-release --parallel 2 -- \
+          "$(brew --prefix)/bin/bash" scripts/build.sh snow-shot-macos-arm64-release --parallel 2 -- \
             -DSNOW_APPS_PACKAGE_SNOW_SHOT=OFF \
             -DSNOW_MACOS_CODESIGN_IDENTITY="$KXCAPTURE_CODESIGN_SHA1"
           grep -E '^(SNOW_APPS_PACKAGE_SNOW_SHOT|SNOW_MACOS_CODESIGN_IDENTITY|SNOW_APPS_QT_STATIC):' \
