@@ -36,7 +36,10 @@ cleanup() {
 }
 trap cleanup EXIT
 
-password="$(openssl rand -hex 32)"
+# Apple's security(1) rejects PKCS#12 files written by Homebrew OpenSSL 3.
+# The system LibreSSL openssl produces an importable identity.
+openssl=/usr/bin/openssl
+password="$("$openssl" rand -hex 32)"
 # Mask the keychain password if the runner echoes a failing command line.
 printf '::add-mask::%s\n' "$password"
 
@@ -54,11 +57,11 @@ keyUsage = critical,digitalSignature,keyCertSign
 extendedKeyUsage = codeSigning
 EOF
 
-openssl req -new -newkey rsa:3072 -nodes -x509 -days 2 \
+"$openssl" req -new -newkey rsa:3072 -nodes -x509 -days 2 \
     -config "$config" \
     -keyout "$work/private.pem" \
     -out "$work/certificate.pem" >/dev/null
-openssl pkcs12 -export \
+"$openssl" pkcs12 -export \
     -inkey "$work/private.pem" \
     -in "$work/certificate.pem" \
     -out "$work/identity.p12" \
@@ -74,9 +77,9 @@ security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$password
 security list-keychains -d user -s "$keychain" login.keychain-db
 security default-keychain -s "$keychain"
 
-subject="$(openssl x509 -in "$work/certificate.pem" -noout -subject)"
-sha1="$(openssl x509 -in "$work/certificate.pem" -noout -fingerprint -sha1)"
-sha256="$(openssl x509 -in "$work/certificate.pem" -noout -fingerprint -sha256)"
+subject="$("$openssl" x509 -in "$work/certificate.pem" -noout -subject)"
+sha1="$("$openssl" x509 -in "$work/certificate.pem" -noout -fingerprint -sha1)"
+sha256="$("$openssl" x509 -in "$work/certificate.pem" -noout -fingerprint -sha256)"
 printf 'Test signing certificate subject: %s\n' "$subject"
 printf 'Test signing certificate %s\n' "$sha1"
 printf 'Test signing certificate %s\n' "$sha256"
