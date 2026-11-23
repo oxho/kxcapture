@@ -109,7 +109,7 @@ unavailable delivery instead of invoking the native API.
 
 The content requests the default notification sound; the delegate permits foreground
 banners, sound and Notification Center entries. macOS still controls presentation:
-Snow Shot must have **Desktop** notifications and a temporary or persistent alert
+KXCapture must have **Desktop** notifications and a temporary or persistent alert
 style enabled. **Play sound for notification** controls whether sounds are audible.
 Focus and **When mirroring or sharing the display → Notifications Off** can silence
 an accepted notification while keeping its Notification Center entry. During active
@@ -122,7 +122,7 @@ critical alerts, retries or fixed delays.
 After explicitly allowing notifications during sharing, a normal six-second UI
 recording/export was verified in the native log with `interruptionSuppression: none`,
 foreground presentation options `sound`, `list`, `banner`, an alert displayed by
-Notification Center, and `Playing notification sound` for the Snow Shot bundle.
+Notification Center, and `Playing notification sound` for the KXCapture bundle.
 
 Each export notification retains its own file path, so clicking an older notification
 reveals that export in Finder even after another export or an update notification arrives.
@@ -156,8 +156,8 @@ trimmed exports, auto-exit, failures and the disabled notification setting.
 
 For native acceptance, use the signed installed app with notifications enabled:
 
-1. Export a short video and allow Snow Shot notifications when macOS prompts.
-   Verify the banner and sound while Snow Shot is active and again while another
+1. Export a short video and allow KXCapture notifications when macOS prompts.
+   Verify the banner and sound while KXCapture is active and again while another
    app is active, with sound and Desktop alerts enabled and Focus disabled. Check
    the screen-sharing notification preference if macOS suppresses the banner.
 2. Export two different files, then click the older entry in Notification Center.
@@ -169,7 +169,7 @@ For native acceptance, use the signed installed app with notifications enabled:
    new export triggers delivery.
 4. While another app shares the display, verify **Notifications Off** suppresses
    the pop-up, then explicitly allow notifications during sharing and verify the
-   next export can present a banner. Also disable Snow Shot notification sounds
+   next export can present a banner. Also disable KXCapture notification sounds
    and verify a new export remains visually present without sound.
 5. Disable the tray icon and export again. Verify native delivery still works, including
    clicking an older notification to reveal its own file. Restore the original tray and

@@ -76,7 +76,7 @@ impl Panel {
                     let hwnd = CreateWindowExW(
                         WS_EX_TOPMOST | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE,
                         name,
-                        w!("Snow Shot follow recording test"),
+                        w!("KXCapture follow recording test"),
                         WS_POPUP | WS_VISIBLE,
                         bounds.0,
                         bounds.1,

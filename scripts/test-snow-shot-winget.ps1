@@ -84,7 +84,7 @@ function Set-FixtureRelease([string]$Tag) {
         published_at = '2026-09-28T01:30:00+02:00'
         body = "## Changes`r`n`r`n- Fix: screenshot capture`r`n  Nested text`r`n---`r`n雪`r`n"
         assets = @(@{ name = $name; size = 4
-            browser_download_url = "https://github.com/mg-chao/snow-shot/releases/download/$Tag/$name" })
+            browser_download_url = "" })
     }
 }
 try {
@@ -173,7 +173,7 @@ try {
             Set-FixtureRelease 'v1.2.0_snow-shot'
             $directory = New-SnowShotWingetManifest 'v1.2.0_snow-shot' $sourceDirectory
             $locale = Get-Content (Join-Path $directory 'mg-chao.snow-shot.locale.en-US.yaml') -Raw
-            Require ($locale.Contains('PackageName: Snow Shot')) "$checkout package name mismatch."
+            Require ($locale.Contains('PackageName: KXCapture')) "$checkout package name mismatch."
             foreach ($tag in @('chatbot', 'screen-capture', 'screenshot', 'snowshot', 'translate', 'annotation', 'ocr')) {
                 Require ($locale.Contains("  - $tag`n")) "$checkout is missing retained tag: $tag"
             }
@@ -220,7 +220,7 @@ try {
         Expect-Failure { New-SnowShotWingetManifest 'v1.1.5-beta' $root } 'release notes must contain'
     }
     foreach ($tag in @('v1.2.0_viewer', '1.2.0', 'v01.2.0', 'v1.2.0-beta..1', "v1.2.0`nextra", "v1.2.0`n")) {
-        Expect-Failure { Get-SnowShotWingetVersion $tag } 'Not a Snow Shot release'
+        Expect-Failure { Get-SnowShotWingetVersion $tag } 'Not a KXCapture release'
     }
     Set-FixtureRelease 'v1.1.5-beta'
     $script:release.tag_name = 'v1.1.4-beta'
@@ -238,7 +238,7 @@ try {
     $script:release.assets[0].size = 5
     Expect-Failure { New-SnowShotWingetManifest 'v1.1.5-beta' $root } 'size does not match'
     Set-FixtureRelease 'v1.1.5-beta'
-    $script:release.assets[0].browser_download_url = 'https://snowshot.top/setup/latest.exe'
+    $script:release.assets[0].browser_download_url = ''
     Expect-Failure { New-SnowShotWingetManifest 'v1.1.5-beta' $root } 'Unexpected installer asset URL'
     Set-FixtureRelease 'v1.1.5-beta'
     $script:release.assets += @{ name = 'snow-shot-1.1.5-beta-windows-x64-online.exe' }
@@ -396,7 +396,7 @@ try {
         $env:RUNNER_ENVIRONMENT = $runnerEnvironment
         $env:RUNNER_OS = $runnerOs
     }
-    Write-Output 'PASS: Snow Shot WinGet generation and submission fixtures.'
+    Write-Output 'PASS: KXCapture WinGet generation and submission fixtures.'
 } finally {
     $env:WINGET_CREATE_GITHUB_TOKEN = $originalToken
     # This exact, newly allocated test root is the only directory removed.

@@ -650,7 +650,7 @@ void AccountPageWidget::retranslateUi() {
     setAccessibleName(tr("Account"));
     m_pageTitle->setText(tr("Account"));
     m_pageDescription->setText(tr("Manage and view account data"));
-    m_authTitle->setText(m_registration ? tr("Create your account") : tr("Sign in to Snow Shot"));
+    m_authTitle->setText(m_registration ? tr("Create your account") : tr("Sign in to KXCapture"));
     m_usernameField->setLabel(tr("Username"));
     m_passwordField->setLabel(tr("Password"));
     m_confirmationField->setLabel(tr("Confirm password"));

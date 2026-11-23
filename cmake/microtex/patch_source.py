@@ -1,4 +1,4 @@
-"""Apply the reviewed Snow Shot integration to an immutable MicroTeX source copy.
+"""Apply the reviewed KXCapture integration to an immutable MicroTeX source copy.
 
 Never patch the downloaded tree in place. Exact-match assertions fail closed when the
 upstream revision changes; the caller creates a fresh build-local copy beforehand.
@@ -117,7 +117,7 @@ for relative in ("src/res/parser/font_parser.h", "src/res/parser/font_parser.cpp
 
 def qt_font_backend(text):
     # QFontDatabase exposes static APIs; its deprecated constructor is unavailable
-    # under Snow Shot's Qt 6.12 deprecation policy.
+    # under KXCapture's Qt 6.12 deprecation policy.
     text = replace(text, "  QFontDatabase db;\n  int id = db.addApplicationFont(filename);",
                    "  int id = QFontDatabase::addApplicationFont(filename);")
     text = replace(text, "db.applicationFontFamilies(id)",

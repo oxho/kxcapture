@@ -16,6 +16,7 @@
 #define NOMINMAX
 #endif
 #include <qt_windows.h>
+#include <shlobj.h>
 #include <winrt/Windows.ApplicationModel.h>
 #include <winrt/Windows.Foundation.h>
 #endif
@@ -188,7 +189,7 @@ QString AutoStartRegistration::hint() {
     const auto current = snapshot();
     if (current.state == AutoStartState::DisabledByUser)
         return QCoreApplication::translate("AutoStartRegistration",
-                                           "Enable Snow Shot in Windows Settings > Apps > Startup");
+                                           "Enable KXCapture in Windows Settings > Apps > Startup");
     if (current.state == AutoStartState::DisabledByPolicy ||
         current.state == AutoStartState::EnabledByPolicy)
         return QCoreApplication::translate("AutoStartRegistration",
@@ -320,6 +321,13 @@ bool AutoStartRegistration::restore(const AutoStartRegistrationSnapshot& previou
         *error = QStringLiteral("Auto-start registration is only supported on Windows");
     }
     return false;
+#endif
+}
+
+void setExplicitAppUserModelId() {
+#if defined(Q_OS_WIN) || defined(_WIN32)
+    const std::wstring id = app::edition::appUserModelId().toStdWString();
+    SetCurrentProcessExplicitAppUserModelID(id.c_str());
 #endif
 }
 

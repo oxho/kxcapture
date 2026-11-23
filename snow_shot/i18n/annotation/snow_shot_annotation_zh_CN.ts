@@ -1319,8 +1319,8 @@
             <translation>平滑移动</translation>
         </message>
         <message>
-            <source>Snow Shot visual understanding</source>
-            <translation>Snow Shot 视觉理解</translation>
+            <source>KXCapture visual understanding</source>
+            <translation>KX截屏 视觉理解</translation>
         </message>
         <message>
             <source>Solid arrow line</source>

@@ -1,6 +1,6 @@
 # Form fields
 
-Snow Shot's form fields live in `snow_shot::presentation::components::form_fields` and are
+KXCapture's form fields live in `snow_shot::presentation::components::form_fields` and are
 compiled into `snow_shot_settings`. Include `snow_shot/presentation/components/formfields.h`.
 They compose Ant Design Qt editors and `AdFormItem`; domain validation, persistence, fetching,
 shortcut capture, and submission remain with the owning controller.

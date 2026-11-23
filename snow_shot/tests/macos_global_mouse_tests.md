@@ -36,9 +36,9 @@ user gesture, so they are not used as an acceptance boundary. macOS Input Monito
 Accessibility permissions remain the operating-system trust boundary for observing and modifying
 the session input stream.
 
-For hardware acceptance, launch Snow Shot using Cocoa, open Global mouse settings, and use its
+For hardware acceptance, launch KXCapture using Cocoa, open Global mouse settings, and use its
 permission action to grant Input Monitoring, then Accessibility. Retry after returning to the
-app; if macOS asks to quit and reopen Snow Shot, follow that prompt. Check that the banner becomes
+app; if macOS asks to quit and reopen KXCapture, follow that prompt. Check that the banner becomes
 ready, and that missing/revoked access removes the registered appearance of configured bindings.
 
 Exercise Command, Control, Option, and Shift (including both left/right modifier keys) with each

@@ -1,4 +1,4 @@
-// Primitive table support for Snow Shot's pinned MicroTeX integration.
+// Primitive table support for KXCapture's pinned MicroTeX integration.
 // The original MicroTeX sources and font resources retain their upstream licenses.
 #ifndef SNOW_MICROTEX_TABLES_H
 #define SNOW_MICROTEX_TABLES_H

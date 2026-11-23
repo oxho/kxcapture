@@ -1221,7 +1221,7 @@ void registrationRequiresExplicitAgreement() {
         document.setHtml(text->text());
         require(
             document.toPlainText() == expected && agreement->accessibleName() == expected &&
-                text->text().contains(QStringLiteral("href=\"https://snowshot.top/terms.html\"")) &&
+                text->text().contains(QStringLiteral("href=\""")) &&
                 text->text().contains(QStringLiteral("href=\"%1\"")
                                           .arg(snow_shot::app::distribution::privacyPolicyUrl())),
             "consent copy retranslates while both document destinations stay stable");

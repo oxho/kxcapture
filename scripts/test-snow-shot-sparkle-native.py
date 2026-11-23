@@ -261,8 +261,8 @@ class NativeSparkle(unittest.TestCase):
             return run(*args)
 
         # Keep production identities confined to bundles that are never launched.
-        for product, identifier in [('snow-shot', 'com.snowshot.snow_shot'),
-                                    ('snow-shot-mini', 'com.snowshot.snow_shot_mini')]:
+        for product, identifier in [('snow-shot', 'io.github.oxho.kxcapture'),
+                                    ('snow-shot-mini', 'io.github.oxho.kxcapture.mini')]:
             with self.subTest(product=product):
                 plist = self.app / 'Contents/Info.plist'
                 info = plistlib.loads(plist.read_bytes())

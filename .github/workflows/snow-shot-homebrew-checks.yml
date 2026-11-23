@@ -1,4 +1,4 @@
-name: Check Snow Shot Homebrew support
+name: Check KXCapture Homebrew support
 
 on:
   workflow_dispatch:

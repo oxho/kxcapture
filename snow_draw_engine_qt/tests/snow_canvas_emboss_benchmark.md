@@ -27,7 +27,7 @@ plugin for static Qt builds, using the existing repository helper.
 - `windows-msvc-performance`, Release, release optimization and IPO enabled.
 - Local CMake overrides: `VCPKG_MANIFEST_INSTALL=OFF` to use installed dependencies,
   and `SNOW_APPS_BUILD_SNOW_SHOT=OFF` to link the drawing engine's own Rust library.
-  The unmodified combined Snow Shot Rust bundle failed to link this benchmark because
+  The unmodified combined KXCapture Rust bundle failed to link this benchmark because
   its FFmpeg symbols were unresolved. No repository build defaults were changed.
 - Qt platform: `offscreen`; no visible benchmark windows are required.
 - Three alternating baseline/optimized rounds per scenario, 20 warmups and 200 timed

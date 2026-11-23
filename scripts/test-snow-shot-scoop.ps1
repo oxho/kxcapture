@@ -35,7 +35,7 @@ function Set-FixtureRelease([string]$Tag = 'v1.1.8') {
         tag_name = $Tag; draft = $false; prerelease = $false
         assets = @([pscustomobject]@{ name = $script:name; size = (Get-Item $script:zipPath).Length
             digest = "sha256:$script:hash"
-            browser_download_url = "https://github.com/mg-chao/snow-shot/releases/download/$Tag/$script:name" })
+            browser_download_url = "" })
     }
     $script:sidecarText = "$script:hash  $script:name`n"
 }
@@ -54,7 +54,7 @@ function New-CheckverRelease([string]$Tag, [bool]$Prerelease = $false, [bool]$Dr
     return [pscustomobject]@{
         tag_name = $Tag; draft = $Draft; prerelease = $Prerelease
         assets = @([pscustomobject]@{ name = $name
-            browser_download_url = "https://github.com/mg-chao/snow-shot/releases/download/$Tag/$name" })
+            browser_download_url = "" })
     }
 }
 function Get-FixtureCheckverMatch($Manifest, $Releases) {
@@ -96,10 +96,10 @@ try {
         Require ($manifest.bin.Count -eq 1 -and $manifest.bin[0][0] -ceq 'bin\snow_shot.exe' -and
             $manifest.bin[0][1] -ceq 'snowshot') 'Wrong shim'
         Require ($manifest.shortcuts.Count -eq 1 -and $manifest.shortcuts[0][0] -ceq 'bin\snow_shot.exe' -and
-            $manifest.shortcuts[0][1] -ceq 'Snow Shot') 'Wrong shortcut'
+            $manifest.shortcuts[0][1] -ceq 'KXCapture') 'Wrong shortcut'
         Require ($manifest.persist -ceq 'bin\portable') 'Wrong persistence'
         Require ($manifest.license -ceq 'GPL-3.0-or-later') 'Wrong license'
-        Require ($manifest.checkver.url -ceq 'https://api.github.com/repos/mg-chao/snow-shot/releases?per_page=100') 'Wrong checkver endpoint'
+        Require ($manifest.checkver.url -ceq '') 'Wrong checkver endpoint'
         $match = Get-FixtureCheckverMatch $manifest @($script:release)
         Require ($match.Success -and $match.Groups['version'].Value -ceq $manifest.version -and
             $match.Groups['tag'].Value -ceq $tag) 'checkver lost version or release tag'
@@ -188,12 +188,12 @@ try {
     $releases[6].assets[0].browser_download_url = 'https://example.com/portable.zip'
     $match = Get-FixtureCheckverMatch $manifest $releases
     Require ($match.Success -and $match.Groups['version'].Value -ceq '1.1.10' -and
-        $match.Groups['tag'].Value -ceq 'v1.1.10_snow-shot') 'checkver must choose newest eligible Snow Shot stable ZIP'
+        $match.Groups['tag'].Value -ceq 'v1.1.10_snow-shot') 'checkver must choose newest eligible KXCapture stable ZIP'
     $match = Get-FixtureCheckverMatch $manifest @($releases[0..6])
     Require (-not $match.Success) 'checkver accepted an ineligible release'
     $match = Get-FixtureCheckverMatch $manifest @()
     Require (-not $match.Success) 'checkver accepted an empty release list'
-    Write-Output 'Snow Shot Scoop fixture tests passed.'
+    Write-Output 'KXCapture Scoop fixture tests passed.'
 } finally {
     $resolved = [IO.Path]::GetFullPath($root)
     $tempRoot = [IO.Path]::GetFullPath([IO.Path]::GetTempPath())

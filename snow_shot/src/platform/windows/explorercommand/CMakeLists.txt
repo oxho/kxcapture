@@ -1,4 +1,4 @@
-# This subdirectory is added before Snow Shot's directory-wide Qt linkage. Explorer must
+# This subdirectory is added before KXCapture's directory-wide Qt linkage. Explorer must
 # be able to load the packaged COM server without loading the application's Qt runtime.
 set(_snow_explorer_root "${CMAKE_CURRENT_SOURCE_DIR}/../../../..")
 set(_snow_explorer_suffixes)
@@ -53,7 +53,7 @@ add_library(snow_shot_explorer_command SHARED
     explorercommand.cpp explorercommand.h explorercommand.def
     "${CMAKE_CURRENT_BINARY_DIR}/generated/explorercommand.rc")
 set_target_properties(snow_shot_explorer_command PROPERTIES
-    OUTPUT_NAME SnowShotExplorerCommand
+    OUTPUT_NAME KXCaptureExplorerCommand
     AUTOMOC OFF AUTOUIC OFF AUTORCC OFF
     MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 target_include_directories(snow_shot_explorer_command PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/generated"

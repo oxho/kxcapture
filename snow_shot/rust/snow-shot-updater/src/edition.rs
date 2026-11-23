@@ -22,34 +22,34 @@ macro_rules! identity {
         pub const $name: &str = if MINI { $mini } else { $full };
     };
 }
-identity!(PRODUCT, "snow-shot", "snow-shot-mini");
-identity!(PRODUCT_NAME, "Snow Shot", "Snow Shot Mini");
-identity!(REGISTRY_NAME, "SnowShot", "SnowShotMini");
-identity!(SHELL_VERB, "SnowShot.Edit", "SnowShotMini.Edit");
-identity!(APP_PATH, "bin/snow_shot.exe", "bin/snow_shot_mini.exe");
+identity!(PRODUCT, "kxcapture", "kxcapture-mini");
+identity!(PRODUCT_NAME, "KXCapture", "KXCapture Mini");
+identity!(REGISTRY_NAME, "KXCapture", "KXCaptureMini");
+identity!(SHELL_VERB, "KXCapture.Edit", "KXCaptureMini.Edit");
+identity!(APP_PATH, "bin/kxcapture.exe", "bin/kxcapture_mini.exe");
 identity!(
     UPDATER_PATH,
-    "bin/snow-shot-updater.exe",
-    "bin/snow-shot-mini-updater.exe"
+    "bin/kxcapture-updater.exe",
+    "bin/kxcapture-mini-updater.exe"
 );
 identity!(
     UPDATER_NONWINDOWS_PATH,
-    "bin/snow-shot-updater",
-    "bin/snow-shot-mini-updater"
+    "bin/kxcapture-updater",
+    "bin/kxcapture-mini-updater"
 );
-identity!(UPDATER_NAME, "snow-shot-updater", "snow-shot-mini-updater");
+identity!(UPDATER_NAME, "kxcapture-updater", "kxcapture-mini-updater");
 identity!(
     INSTALLATION_RECORD,
-    "snow-shot-installation.json",
-    "snow-shot-mini-installation.json"
+    "kxcapture-installation.json",
+    "kxcapture-mini-installation.json"
 );
-identity!(UPDATE_WORK, ".snow-shot-update", ".snow-shot-mini-update");
-identity!(SHARE_PREFIX, "share/snow-shot/", "share/snow-shot-mini/");
+identity!(UPDATE_WORK, ".kxcapture-update", ".kxcapture-mini-update");
+identity!(SHARE_PREFIX, "share/kxcapture/", "share/kxcapture-mini/");
 pub const PACKAGE_PREFIX: &str = match (MINI, cfg!(target_arch = "aarch64")) {
-    (false, false) => "setup/snow-shot_windows-x64-",
-    (true, false) => "setup/snow-shot-mini_windows-x64-",
-    (false, true) => "setup/snow-shot_windows-arm64-",
-    (true, true) => "setup/snow-shot-mini_windows-arm64-",
+    (false, false) => "setup/kxcapture_windows-x64-",
+    (true, false) => "setup/kxcapture-mini_windows-x64-",
+    (false, true) => "setup/kxcapture_windows-arm64-",
+    (true, true) => "setup/kxcapture-mini_windows-arm64-",
 };
 pub const FEED_NAME: &str = match (MINI, cfg!(target_arch = "aarch64")) {
     (false, false) => "latest-version.json",
@@ -57,7 +57,7 @@ pub const FEED_NAME: &str = match (MINI, cfg!(target_arch = "aarch64")) {
     (false, true) => "latest-version-windows-arm64.json",
     (true, true) => "latest-version-mini-windows-arm64.json",
 };
-identity!(TEMP_PREFIX, "snow-shot-updater-", "snow-shot-mini-updater-");
+identity!(TEMP_PREFIX, "kxcapture-updater-", "kxcapture-mini-updater-");
 identity!(
     MARKER_PATH,
     "bin/__data_directory",
@@ -65,13 +65,13 @@ identity!(
 );
 identity!(
     INSTALL_KEY,
-    "Software\\Snow Apps\\SnowShot",
-    "Software\\Snow Apps\\SnowShotMini"
+    "Software\\oxho\\KXCapture",
+    "Software\\oxho\\KXCaptureMini"
 );
 identity!(
     UNINSTALL_KEY,
-    "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\SnowShot",
-    "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\SnowShotMini"
+    "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\KXCapture",
+    "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\KXCaptureMini"
 );
 
 pub fn product_matches(value: Option<&serde_json::Value>) -> bool {

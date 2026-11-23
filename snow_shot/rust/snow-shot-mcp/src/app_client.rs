@@ -29,12 +29,12 @@ use tokio_util::sync::CancellationToken;
 #[derive(Debug, thiserror::Error, Clone)]
 pub enum AppClientError {
     #[error(
-        "Snow Shot is not running or MCP is disabled. Start Snow Shot and enable MCP in Settings."
+        "KXCapture is not running or MCP is disabled. Start KXCapture and enable MCP in Settings."
     )]
     Unavailable,
-    #[error("Invalid or insecure Snow Shot MCP descriptor")]
+    #[error("Invalid or insecure KXCapture MCP descriptor")]
     InvalidDescriptor,
-    #[error("Snow Shot local protocol error")]
+    #[error("KXCapture local protocol error")]
     Protocol,
     #[error(
         "Screenshot request timed out; its outcome may be unknown. Refresh the session state before editing."
@@ -46,9 +46,9 @@ pub enum AppClientError {
         "The local connection closed; the mutation was not replayed. Refresh the session state before editing."
     )]
     Disconnected,
-    #[error("Snow Shot request capacity is full; retry after a pending request finishes")]
+    #[error("KXCapture request capacity is full; retry after a pending request finishes")]
     QueueFull,
-    #[error("Snow Shot request exceeds the maximum JSON size")]
+    #[error("KXCapture request exceeds the maximum JSON size")]
     RequestTooLarge,
 }
 impl AppClientError {
@@ -372,7 +372,7 @@ impl AppClient {
                         .value
                         .get("uri")
                         .and_then(Value::as_str)
-                        .filter(|u| u.starts_with("snow-shot://") && u.len() <= 1024)
+                        .filter(|u| u.starts_with("kxcapture://") && u.len() <= 1024)
                     else {
                         break;
                     };
@@ -955,7 +955,7 @@ mod tests {
         let (client, thread, dir) = fixture(|mut stream| {
             let pending = request(&mut stream);
             assert_eq!(pending.method, "snow_shot_document_render");
-            write_frame(&mut stream,&json!({"protocol":PROTOCOL,"kind":"event","event":"resource_changed","uri":"snow-shot://documents/one","attachment_length":0}),&[]).unwrap();
+            write_frame(&mut stream,&json!({"protocol":PROTOCOL,"kind":"event","event":"resource_changed","uri":"kxcapture://documents/one","attachment_length":0}),&[]).unwrap();
             let mut canceled = false;
             for _ in 0..2 {
                 let control = request(&mut stream);
@@ -985,7 +985,7 @@ mod tests {
         ));
         assert_eq!(
             events.recv().await.unwrap().uri,
-            "snow-shot://documents/one"
+            "kxcapture://documents/one"
         );
         assert!(
             client

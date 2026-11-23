@@ -1,7 +1,7 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-- `snow_shot/` – Snow Shot app (GPL-3.0). Code lives in `src/{app,image,network,platform,presentation,storage}`, tests in `tests/`, assets in `resources/` and `i18n/`.
+- `snow_shot/` – KXCapture app (GPL-3.0). Code lives in `src/{app,image,network,platform,presentation,storage}`, tests in `tests/`, assets in `resources/` and `i18n/`.
 - `snow_image_viewer/`, `snow_image/`, `ant_design_qt/`, `snow_draw_engine_qt/` – Qt/C++ libraries and the viewer app; each has its own `CMakeLists.txt`, `tests/`, and license file.
 - `snow-crates/crates/*` – Rust workspace (`snow-capture`, `snow-ocr-process`, …); `snow_rust_ffi/` bundles the C FFI static library consumed by CMake.
 - `cmake/` – shared modules, `vcpkg-overlay-ports/`, `vcpkg-overlay-triplets/`, `test-support/`. `scripts/` – PowerShell entry points. `build/<preset>/` and `.tools/vcpkg/` are generated; never commit them.
@@ -30,7 +30,7 @@
 - Keep IDs, config keys, object names, and protocol values as `QStringLiteral`. Do not wrap those, and do not use translated text as a stable identifier.
 - After adding or changing translatable strings, extract with `snow_shot_update_translations` or `ant_design_qt_update_translations`, then fill **every** catalog for that target. Leave no `type="unfinished"` (`snow_shot` `lrelease` uses `-fail-on-unfinished`). Catalogs: `snow_shot/i18n/<feature>/snow_shot_<feature>_{en_US,zh_CN,zh_TW}.ts` (`en_US` is identity, apart from language-name metadata and plural forms; context ownership is in `snow_shot/i18n/modules.json`); `ant_design_qt/.../i18n/ant_design_qt_{zh_CN,zh_TW}.ts` (English is source; no `en_US.ts`). Use Simplified in `zh_CN` and Traditional in `zh_TW`; preserve `%1` / `%n` placeholders. Widgets that cache strings must retranslate on `QEvent::LanguageChange`.
 
-- Snow Shot catalogs are split by feature and merged only under `build/`. Use the application-wide `snow_shot_update_translations` target; do not run `lupdate` directly on all fragments or extract from test source subsets. Assign new contexts in `snow_shot/i18n/modules.json`. Keep catalogs sorted without source locations; see `snow_shot/i18n/README.md`.
+- KXCapture catalogs are split by feature and merged only under `build/`. Use the application-wide `snow_shot_update_translations` target; do not run `lupdate` directly on all fragments or extract from test source subsets. Assign new contexts in `snow_shot/i18n/modules.json`. Keep catalogs sorted without source locations; see `snow_shot/i18n/README.md`.
 
 ## Testing Guidelines
 - After any code change, run **only** the tests that cover those changes. Running the full suite is **strictly prohibited** unless the user explicitly asks.

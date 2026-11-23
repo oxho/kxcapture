@@ -101,7 +101,7 @@ int main(int argc, char** argv) try {
         return 77;
     }
     QWidget window;
-    window.setWindowTitle(QStringLiteral("Snow Shot Smart selection smoke fixture"));
+    window.setWindowTitle(QStringLiteral("KXCapture Smart selection smoke fixture"));
     auto* layout = new QVBoxLayout(&window);
     auto* edit = new QLineEdit(QStringLiteral("Accessibility child selection"), &window);
     layout->addWidget(edit);

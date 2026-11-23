@@ -6,7 +6,7 @@ $ErrorActionPreference = 'Stop'
 
 function Get-SnowShotScoopVersion([string]$Tag) {
     if ($Tag -cnotmatch '^v(?<version>(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?)(?:_snow-shot)?\z') {
-        throw "Not a Snow Shot release tag: $Tag"
+        throw "Not a KXCapture release tag: $Tag"
     }
     $version = $Matches.version
     # SemanticVersion also rejects leading zeros in numeric prerelease identifiers.
@@ -17,14 +17,14 @@ function Get-SnowShotScoopVersion([string]$Tag) {
 function Invoke-SnowShotScoopRelease([string]$Tag) {
     $headers = @{ Accept = 'application/vnd.github+json'; 'X-GitHub-Api-Version' = '2022-11-28' }
     if ($env:GH_TOKEN) { $headers.Authorization = "Bearer $env:GH_TOKEN" }
-    Invoke-RestMethod -Uri "https://api.github.com/repos/mg-chao/snow-shot/releases/tags/$Tag" -Headers $headers
+    Invoke-RestMethod -Uri "" -Headers $headers
 }
 
 function Get-SnowShotScoopAsset($Release, [string]$Name, [string]$Tag, [switch]$Optional) {
     $assets = @($Release.assets | Where-Object { $_.name -ceq $Name })
     if ($Optional -and $assets.Count -eq 0) { return $null }
     if ($assets.Count -ne 1) { throw "Expected exactly one release asset named $Name." }
-    $url = "https://github.com/mg-chao/snow-shot/releases/download/$Tag/$Name"
+    $url = ""
     if ($assets[0].browser_download_url -cne $url) { throw "Unexpected asset URL for $Name." }
     return $assets[0]
 }
@@ -59,7 +59,7 @@ function New-SnowShotScoopManifestObject([string]$Version, [string]$Url, [string
     $manifest = [ordered]@{
         version = $Version
         description = 'A screenshot utility for capturing, annotating, pinning, and recognizing screen content.'
-        homepage = 'https://snowshot.top'
+        homepage = ''
         license = 'GPL-3.0-or-later'
         notes = "Quit $($product.Name) before upgrading. Use scoop update $($product.Scoop) instead of the built-in updater."
         architecture = [ordered]@{ '64bit' = [ordered]@{ url = $Url; hash = $Hash } }
@@ -67,14 +67,14 @@ function New-SnowShotScoopManifestObject([string]$Version, [string]$Url, [string
         shortcuts = ,@("bin\$($product.Executable).exe", $product.Name)
         persist = 'bin\portable'
         checkver = [ordered]@{
-            url = 'https://api.github.com/repos/mg-chao/snow-shot/releases?per_page=100'
+            url = ''
             script = @(
                 '$releases = ($page | ConvertFrom-Json) | Where-Object { -not $_.draft -and -not $_.prerelease -and $_.tag_name -cmatch ''^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:_snow-shot)?$'' }'
                 '$releases = $releases | Sort-Object { [version] ($_.tag_name -replace ''^v|_snow-shot$'', '''') } -Descending'
                 'foreach ($release in $releases) {'
                 '    $version = $release.tag_name -replace ''^v|_snow-shot$'', '''''
                 '    $name = "snow-shot-$version-windows-x64-portable.zip"'
-                '    $asset = $release.assets | Where-Object { $_.name -ceq $name -and $_.browser_download_url -ceq "https://github.com/mg-chao/snow-shot/releases/download/$($release.tag_name)/$name" } | Select-Object -First 1'
+                '    $asset = $release.assets | Where-Object { $_.name -ceq $name -and $_.browser_download_url -ceq ")/$name" } | Select-Object -First 1'
                 '    if ($asset) { $asset.browser_download_url; break }'
                 '}'
             )
@@ -83,7 +83,7 @@ function New-SnowShotScoopManifestObject([string]$Version, [string]$Url, [string
         autoupdate = [ordered]@{
             architecture = [ordered]@{
                 '64bit' = [ordered]@{
-                    url = 'https://github.com/mg-chao/snow-shot/releases/download/$matchTag/snow-shot-$version-windows-x64-portable.zip'
+                    url = ''
                     hash = [ordered]@{ url = '$url.sha256' }
                 }
             }
@@ -97,13 +97,13 @@ function New-SnowShotScoopManifestObject([string]$Version, [string]$Url, [string
     if ($ArmUrl) {
         $manifest.architecture.arm64 = [ordered]@{ url = $ArmUrl; hash = $ArmHash }
         $manifest.autoupdate.architecture.arm64 = [ordered]@{
-            url = 'https://github.com/mg-chao/snow-shot/releases/download/$matchTag/' + $product.Product + '-$version-windows-arm64-portable.zip'
+            url = '' + $product.Product + '-$version-windows-arm64-portable.zip'
             hash = [ordered]@{ url = '$url.sha256' }
         }
         # Keep a two-architecture bucket entry on releases containing both payloads.
         $manifest.checkver.script = @($manifest.checkver.script | ForEach-Object {
             $_.Replace('    if ($asset)', '    $armName = "' + $product.Product + '-$version-windows-arm64-portable.zip"' + "`n" +
-                '    $arm = $release.assets | Where-Object { $_.name -ceq $armName -and $_.browser_download_url -ceq "https://github.com/mg-chao/snow-shot/releases/download/$($release.tag_name)/$armName" }' + "`n" + '    if ($asset -and $arm)')
+                '    $arm = $release.assets | Where-Object { $_.name -ceq $armName -and $_.browser_download_url -ceq ")/$armName" }' + "`n" + '    if ($asset -and $arm)')
         })
     }
     return $manifest

@@ -17,19 +17,12 @@ import tempfile
 ROOT = Path(__file__).resolve().parent.parent
 CERTIFICATE = ROOT / 'snow_shot/packaging/macos/release-signing.pem'
 INSTALLER = ROOT / 'scripts/install-snow-shot-macos.sh'
-PRODUCTS = {'snow-shot': 'com.snowshot.snow_shot',
-            'snow-shot-mini': 'com.snowshot.snow_shot_mini'}
-REPOSITORY = 'mg-chao/snow-shot'
+PRODUCTS = {'kxcapture': 'io.github.oxho.kxcapture',
+            'kxcapture-mini': 'io.github.oxho.kxcapture.mini'}
+REPOSITORY = ''
 # The last ad-hoc release is the only allowed migration boundary. These are
 # downloaded GitHub asset digests, not arbitrary unsigned predecessor exceptions.
-LEGACY_PACKAGES = {
-    'snow-shot-1.5.8-macos-arm64.dmg':
-        'c113a13f3acb3321124616c4174b1d4f2418ab62787f08db4819f9985c28c160',
-    'snow-shot-1.5.8-macos-x86_64.dmg':
-        '6fc190392fb99c384ab7d5c1dca11b2dbad2f014db478b3ea074117835a1f636',
-    'snow-shot-mini-1.5.8-macos-arm64.dmg':
-        '102eed9dd44e9f91e16de4824270aef197a476a34e5d83c6d4f475c2908cc564',
-}
+LEGACY_PACKAGES = {}
 
 
 def run(*args):
@@ -182,6 +175,8 @@ def select_previous(releases, product, architecture, version):
 
 
 def previous_package(product, architecture, version, directory):
+    if not REPOSITORY:
+        raise ValueError('KXCapture update repository is not configured')
     metadata = directory / 'releases.json'
     download(f'https://api.github.com/repos/{REPOSITORY}/releases?per_page=100', metadata)
     asset = select_previous(json.loads(metadata.read_text()), product, architecture, version)
@@ -243,7 +238,7 @@ def initialize():
     keychain = Path.home() / 'Library/Keychains/login.keychain-db'
     if not keychain.is_file():
         raise ValueError('Unlock the publishing account login Keychain first')
-    state = Path.home() / 'Library/Application Support/Snow Shot/ReleaseSigning'
+    state = Path.home() / 'Library/Application Support/KXCapture/ReleaseSigning'
     if (state / 'release-signing.pem').exists():
         raise ValueError('A release identity already exists on this Mac; restore its public certificate')
     state.mkdir(mode=0o700, parents=True, exist_ok=True)
@@ -255,7 +250,7 @@ def initialize():
         os.chmod(work, 0o700)
         config = work / 'certificate.cnf'
         config.write_text('[req]\nprompt=no\ndistinguished_name=subject\nx509_extensions=signing\n'
-                          '[subject]\nCN=Snow Shot Project Release\n'
+                          '[subject]\nCN=KXCapture Project Release\n'
                           '[signing]\nbasicConstraints=critical,CA:true\n'
                           'keyUsage=critical,digitalSignature,keyCertSign\n'
                           'extendedKeyUsage=codeSigning\n')

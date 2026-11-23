@@ -159,7 +159,7 @@ def main():
         ], env=environment, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         deadline = time.monotonic() + 45
         while not descriptor.exists() and time.monotonic() < deadline:
-            assert app.poll() is None, f"Snow Shot exited with {app.returncode}"
+            assert app.poll() is None, f"KXCapture exited with {app.returncode}"
             time.sleep(0.1)
         assert descriptor.exists(), "MCP descriptor was not published"
         client = McpClient(bridge_executable, environment)

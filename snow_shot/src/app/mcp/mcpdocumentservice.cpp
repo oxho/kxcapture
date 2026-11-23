@@ -2432,7 +2432,7 @@ QJsonObject McpDocumentService::storeArtifact(quint64 owner, QByteArray bytes,
     const auto id = identifier();
     const auto now = QDateTime::fromMSecsSinceEpoch(s.now()).toUTC();
     QJsonObject descriptor{{QStringLiteral("artifact_id"), id},
-                           {QStringLiteral("uri"), QStringLiteral("snow-shot://artifacts/") + id},
+                           {QStringLiteral("uri"), QStringLiteral("kxcapture://artifacts/") + id},
                            {QStringLiteral("mime_type"), mimeType},
                            {QStringLiteral("byte_count"), bytes.size()},
                            {QStringLiteral("created_at"), now.toString(Qt::ISODateWithMs)},
@@ -2498,7 +2498,7 @@ void McpDocumentService::storeFileArtifact(quint64 owner, const QString& sourceP
         const auto now = QDateTime::fromMSecsSinceEpoch(state.now()).toUTC();
         QJsonObject descriptor{
             {QStringLiteral("artifact_id"), id},
-            {QStringLiteral("uri"), QStringLiteral("snow-shot://artifacts/") + id},
+            {QStringLiteral("uri"), QStringLiteral("kxcapture://artifacts/") + id},
             {QStringLiteral("mime_type"), mimeType},
             {QStringLiteral("byte_count"), size},
             {QStringLiteral("created_at"), now.toString(Qt::ISODateWithMs)},

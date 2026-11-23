@@ -2619,7 +2619,7 @@ int main(int argc, char** argv) {
         require(area.canvas()->setCanvasTool(SnowCanvasTool::Shape), "activate a recording tool");
         require(area.canvas()->cursor() ==
                     snow_shot::presentation::crosshairCursor(area.canvas()->devicePixelRatioF()),
-                "recording annotation tools must use Snow Shot's crosshair");
+                "recording annotation tools must use KXCapture's crosshair");
         snow_shot::storage::ApplicationStorage::instance().shutdown();
         return 0;
     }

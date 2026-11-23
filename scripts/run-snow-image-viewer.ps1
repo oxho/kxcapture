@@ -12,7 +12,7 @@ $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $buildDirectory = Join-Path $repoRoot "build/$Preset"
 if (-not $NoBuild) {
     & (Join-Path $PSScriptRoot "build.ps1") -Preset $Preset -Target snow_image_viewer -Clean:$Clean
-    if ($LASTEXITCODE -ne 0) { throw "Snow Image Viewer build failed." }
+    if ($LASTEXITCODE -ne 0) { throw "KXCapture Image Viewer build failed." }
 }
 $configuration = if ($Preset -eq "windows-msvc-debug") { "Debug" } else { "Release" }
 $executable = Get-ChildItem -LiteralPath $buildDirectory -Filter "snow_image_viewer.exe" -File -Recurse -ErrorAction SilentlyContinue |

@@ -62,11 +62,11 @@ class HomebrewTests(unittest.TestCase):
         self.assertIn(brew.digest(archive), cask)
         self.assertIn('depends_on arch: :arm64', cask)
         self.assertIn('depends_on macos: :sequoia', cask)
-        self.assertIn('app "Snow Shot.app"', cask)
+        self.assertIn('app "KXCapture.app"', cask)
         self.assertIn('staged_path.join("prepare-snow-shot-homebrew.sh")', cask)
         self.assertIn('installer script:', cask)
         self.assertRegex(cask, r'uninstall quit:\s+"com\.snowshot\.snow_shot",\n\s+script:')
-        self.assertIn('["-rf", "--", "#{staged_path}/Snow Shot.app"]', cask)
+        self.assertIn('["-rf", "--", "#{staged_path}/KXCapture.app"]', cask)
         for forbidden in ('/main/', '/latest/', 'sha256 :no_check', 'zap ', 'preflight', '/Applications/'):
             self.assertNotIn(forbidden, cask)
         self.package()
@@ -112,7 +112,7 @@ load ARGV[0]
         self.assertEqual(executable, '/bin/bash')
         self.assertEqual(options['args'], [
             str(self.output / 'prepare-snow-shot-homebrew.sh'),
-            str(self.output / self.name), str(self.output / 'Snow Shot.app')])
+            str(self.output / self.name), str(self.output / 'KXCapture.app')])
         self.assertTrue(options['must_succeed'])
         self.assertFalse(options['sudo'])
 
@@ -250,9 +250,9 @@ load ARGV[0]
         if edition == 'mini':
             text = text.replace('/snow-shot-', '/snow-shot-mini-').replace('"snow-shot-', '"snow-shot-mini-')
             text = text.replace('cask "snow-shot"', 'cask "snow-shot-mini"')
-            text = text.replace('Snow Shot', 'Snow Shot Mini')
-            text = text.replace('staged_path.join("Snow Shot Mini.app")]',
-                                'staged_path.join("Snow Shot Mini.app"),\n                                  "mini"]')
+            text = text.replace('KXCapture', 'KXCapture Mini')
+            text = text.replace('staged_path.join("KXCapture Mini.app")]',
+                                'staged_path.join("KXCapture Mini.app"),\n                                  "mini"]')
         if beta:
             slug = brew.PRODUCTS[edition][0]
             text = text.replace('1.3.4', '1.3.4-beta.2')
@@ -572,7 +572,7 @@ load ARGV[0]
                 original.replace('_snow-shot/', '/'),
                 original.replace('must_succeed: true', 'must_succeed: false'),
                 original.replace('macos: :sequoia', 'macos: :sonoma'),
-                original.replace('Snow Shot.app', 'Different.app')):
+                original.replace('KXCapture.app', 'Different.app')):
             self.current.write_text(altered)
             with self.subTest(altered=altered), \
                     patch.object(brew, 'run', side_effect=self.fake_run) as run:
@@ -661,7 +661,7 @@ load ARGV[0]
                                     self.tap / 'Casks/snow-shot-mini.rb', 'mini')
         self.assertEqual(archive.name, 'snow-shot-mini-1.2.3-macos-arm64-homebrew.tar.gz')
         self.assertIn('cask "snow-shot-mini"', cask)
-        self.assertIn('app "Snow Shot Mini.app"', cask)
+        self.assertIn('app "KXCapture Mini.app"', cask)
         self.assertIn('"mini"]', cask)
         self.assertIn('/v#{version}_snow-shot/', cask)
         self.assertIn('preserves the project signature', cask)

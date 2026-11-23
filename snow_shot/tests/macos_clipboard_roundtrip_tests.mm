@@ -284,7 +284,7 @@ void nativeImageFormatsRoundTrip() {
     QObject receiver;
     QTemporaryDir directory;
     require(directory.isValid(), "clipboard file fixture must be available");
-    const QString path = directory.filePath(QStringLiteral("Snow Shot \u56fe\u50cf.png"));
+    const QString path = directory.filePath(QStringLiteral("KXCapture \u56fe\u50cf.png"));
     require(source.save(path, "PNG"), "clipboard file fixture must be saved");
     for (int cycle = 0; cycle < 24; ++cycle) {
         QEventLoop loop;

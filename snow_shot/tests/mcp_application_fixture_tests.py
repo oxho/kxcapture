@@ -403,7 +403,7 @@ def exercise_application(client, directory):
     history = client.tool("snow_shot_history_list", {"limit": 1})
     assert history["result"]["records"], history
     history_id = history["result"]["records"][0]["history_id"]
-    assert resource(client, "snow-shot://history/" + history_id)["result"]["history_id"] == history_id
+    assert resource(client, "kxcapture://history/" + history_id)["result"]["history_id"] == history_id
     previous_pins = {pin["id"] for pin in client.tool("snow_shot_pinned_list")["result"]["windows"]}
     client.tool("snow_shot_history_action", {"history_id": history_id, "action": "pin"})
     deadline = time.monotonic() + 5
@@ -415,7 +415,7 @@ def exercise_application(client, directory):
         time.sleep(.05)
     assert len(pinned) == 1, pinned
     pinned_id = pinned[0]["id"]
-    pinned_state = resource(client, "snow-shot://pinned/" + pinned_id)
+    pinned_state = resource(client, "kxcapture://pinned/" + pinned_id)
     assert pinned_state["result"]["id"] == pinned_id
     client.tool("snow_shot_pinned_action", {"id": pinned_id,
                 "expected_revision": pinned_state["revision"], "action": "destroy"})

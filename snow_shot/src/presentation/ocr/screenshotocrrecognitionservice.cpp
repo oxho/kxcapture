@@ -1446,12 +1446,12 @@ class ScreenshotOcrRecognitionService::Impl final {
                 ? QCoreApplication::translate(
                       "ScreenshotOcrController",
                       "The packaged text recognition runtime is missing or damaged. Repair or "
-                      "reinstall Snow Shot from Microsoft Store")
+                      "reinstall KXCapture from Microsoft Store")
             : m_assetStatus.error == QStringLiteral("bundled_runtime_invalid")
                 ? QCoreApplication::translate(
                       "ScreenshotOcrController",
                       "The bundled text recognition runtime is damaged or incompatible. Reinstall "
-                      "Snow Shot for this Mac")
+                      "KXCapture for this Mac")
                 : QCoreApplication::translate("ScreenshotOcrController",
                                               "Text recognition components could not be prepared");
         const auto failed = m_pending;

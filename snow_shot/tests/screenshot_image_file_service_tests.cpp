@@ -250,7 +250,7 @@ void jpegUsesTheCodecTransparencyPolicy() {
     const QColor pixel = decoded.pixelColor(decoded.width() / 2, decoded.height() / 2);
     const auto near = [](int actual, int expected) { return std::abs(actual - expected) <= 4; };
     require(near(pixel.red(), 80) && near(pixel.green(), 40) && near(pixel.blue(), 20),
-            "the Snow Shot bridge must delegate JPEG alpha removal to the codec's black matte");
+            "the KXCapture bridge must delegate JPEG alpha removal to the codec's black matte");
 }
 
 void streamsRowsToAtomicFileAndCancelsWithoutPublishing() {

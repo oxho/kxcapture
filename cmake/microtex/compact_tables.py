@@ -1,6 +1,6 @@
 """Replace pinned MicroTeX constructor expansion with primitive descriptor rows.
 
-Rows come from the pristine upstream copy plus the established Snow Shot fixes;
+Rows come from the pristine upstream copy plus the established KXCapture fixes;
 no duplicate hand-maintained registry is used. Unexpected source shapes fail closed.
 """
 from pathlib import Path

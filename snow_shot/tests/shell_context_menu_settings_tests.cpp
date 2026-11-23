@@ -71,11 +71,11 @@ void catalogAndDefaults(const QString& configurationPath) {
             std::get<settings::SettingsLocalShortcutDefinition>(shortcutField->definition->payload)
                     .maximumShortcutCount == 1 &&
             shortcutField->definition->title.translated() ==
-                (snow_shot::app::edition::isMini ? QStringLiteral("Edit with Snow Shot Mini")
-                                                 : QStringLiteral("Edit with Snow Shot")) &&
+                (snow_shot::app::edition::isMini ? QStringLiteral("Edit with KXCapture Mini")
+                                                 : QStringLiteral("Edit with KXCapture")) &&
             registry.catalog().page(shortcutField->pageId)->sections.last().id ==
                 shortcutField->sectionId &&
-            !search.search(QStringLiteral("Edit with Snow Shot")).isEmpty(),
+            !search.search(QStringLiteral("Edit with KXCapture")).isEmpty(),
         "Windows exposes the searchable edition-aware recorder in the final shortcut category");
     require(field && field->configurationKey == kKey &&
                 field->pageId == QStringLiteral("general") &&
@@ -598,7 +598,7 @@ int main(int argc, char** argv) {
                         shortcutField->definition->payload)
                             .maximumShortcutCount == 1 &&
                     !settings::SettingsSearchIndex(settings::builtInSettingsRegistry())
-                         .search(QStringLiteral("Edit with Snow Shot"))
+                         .search(QStringLiteral("Edit with KXCapture"))
                          .isEmpty(),
                 "Store exposes the searchable classic menu access-key recorder and reset");
         require(session.applySelectValue(kBinding, QStringLiteral("disabled")) && !menuEnabled() &&

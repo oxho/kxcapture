@@ -111,7 +111,7 @@ def publish(host, reports, token=None, username=None, verify_only=False):
             path.write_bytes(content)
             git('add', '--', feed['name'])
         if not verify_only and git('status', '--porcelain'):
-            git('-c', 'user.name=Snow Shot releases', '-c', 'user.email=releases@snowshot.top',
+            git('-c', 'user.name=KXCapture releases', '-c', 'user.email=',
                 'commit', '-m', 'build(updates): publish verified Sparkle appcasts')
             # No force push: a concurrent release must be reconciled and reverified.
             git('push', 'origin', 'HEAD:refs/heads/' + BRANCH)

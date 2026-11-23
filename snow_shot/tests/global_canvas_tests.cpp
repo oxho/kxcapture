@@ -1494,7 +1494,7 @@ int main(int argc, char** argv) {
         auto* canvas = controller.canvas();
         require(canvas->setCanvasTool(SnowCanvasTool::Shape), "activate a global crosshair tool");
         require(canvas->cursor() == presentation::crosshairCursor(canvas->devicePixelRatioF()),
-                "global annotation tools must use Snow Shot's crosshair");
+                "global annotation tools must use KXCapture's crosshair");
         controller.shutdown();
         storage.shutdown();
         return 0;

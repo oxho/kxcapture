@@ -1,8 +1,8 @@
-# Snow Apps Licensing
+# oxho Licensing
 
-Copyright (C) 2025-2026 mg-chao
+Copyright (C) 2025-2026 mg-chao. Modified by oxho, 2026.
 
-Snow Apps is a multi-license repository. Each component is licensed according
+oxho is a multi-license repository. Each component is licensed according
 to the following table. A component license applies to the original files in
 that directory tree unless a file or nested directory states otherwise.
 

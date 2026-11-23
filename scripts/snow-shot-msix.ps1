@@ -157,7 +157,7 @@ function Assert-SnowMsixAuditedStage {
         }
     }
     foreach ($required in @('bin/snow_shot.exe', 'bin/snow-shot-mcp.exe', 'bin/crashpad_handler.exe',
-            'bin/SnowShotExplorerCommand.dll',
+            'bin/KXCaptureExplorerCommand.dll',
             'bin/audios/camera_shutter.mp3', 'bin/assets/ocr/asset-manifest.json',
             'bin/assets/qrcode/detect.prototxt', 'bin/assets/qrcode/detect.caffemodel',
             'bin/assets/qrcode/sr.prototxt', 'bin/assets/qrcode/sr.caffemodel',
@@ -169,7 +169,7 @@ function Assert-SnowMsixAuditedStage {
         $manifest.default_model -cne 'small') { throw 'Store OCR identity does not match the target.' }
     $runtimeRoot = Join-Path $Stage "bin/assets/ocr/runtimes/$($manifest.runtime.version)/windows-$Architecture"
     $expectedBinaries = @('bin/snow_shot.exe', 'bin/snow-shot-mcp.exe', 'bin/crashpad_handler.exe',
-        'bin/SnowShotExplorerCommand.dll',
+        'bin/KXCaptureExplorerCommand.dll',
         "bin/assets/ocr/runtimes/$($manifest.runtime.version)/windows-$Architecture/snow-ocr-process-$($manifest.runtime.version)-windows-$Architecture.exe")
     if ((@($binaryPaths | Sort-Object) -join ',') -cne (@($expectedBinaries | Sort-Object) -join ',')) {
         throw 'Store payload executable inventory differs from the static release contract.'
@@ -215,7 +215,7 @@ function Write-SnowMsixManifest {
     $text = $text.Replace('@FileTypes@', ($types -join "`n"))
     $menuTypes = @($extensions | ForEach-Object {
         "            <desktop5:ItemType Type=`"$_`">`n" +
-        '              <desktop5:Verb Id="EditWithSnowShot" Clsid="3F1E90A2-7D4B-4F21-9D8A-6B0C5E2F7093" />' + "`n" +
+        '              <desktop5:Verb Id="EditWithSnowShot" Clsid="125F9C90-A277-4ED7-82AB-8B2AE9B5BE61" />' + "`n" +
         '            </desktop5:ItemType>'
     })
     $text = $text.Replace('@ContextMenuItemTypes@', ($menuTypes -join "`n"))

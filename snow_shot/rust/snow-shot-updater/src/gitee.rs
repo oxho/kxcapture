@@ -18,7 +18,7 @@ pub fn version(release: &Value) -> Option<semver::Version> {
         .get("tag_name")?
         .as_str()?
         .strip_prefix('v')?
-        .strip_suffix("_snow-shot")?;
+        .strip_suffix("_kxcapture")?;
     semver::Version::parse(text).ok()
 }
 
@@ -38,11 +38,15 @@ pub fn attachment<'a>(files: &'a Value, name: &str) -> Result<&'a Value> {
 }
 
 pub fn asset(files: &Value, tag: &str, name: &str) -> Result<Url> {
+    let repository = std::env::var("KXCAPTURE_GITEE_REPOSITORY").unwrap_or_default();
+    if repository.is_empty() {
+        return Err(error());
+    }
     let file = attachment(files, name)?;
     let url = Url::parse(file["browser_download_url"].as_str().ok_or_else(error)?)
         .map_err(|_| error())?;
     let expected = Url::parse(&format!(
-        "https://gitee.com/mg-chao/snow-apps/releases/download/{tag}/{name}"
+        "{repository}/releases/download/{tag}/{name}"
     ))
     .map_err(|_| error())?;
     require(
@@ -54,11 +58,21 @@ pub fn asset(files: &Value, tag: &str, name: &str) -> Result<Url> {
 }
 
 pub fn redirect_allowed(origin: &Url, target: &Url) -> bool {
-    origin.scheme() == "https"
-        && origin.host_str() == Some("gitee.com")
+    let repository = std::env::var("KXCAPTURE_GITEE_REPOSITORY").unwrap_or_default();
+    if repository.is_empty() {
+        return false;
+    }
+    let Ok(expected) = Url::parse(&repository) else {
+        return false;
+    };
+    origin.scheme() == expected.scheme()
+        && origin.host_str() == expected.host_str()
         && origin
             .path()
-            .starts_with("/mg-chao/snow-apps/releases/download/")
+            .starts_with(&format!(
+                "{}/releases/download/",
+                expected.path().trim_end_matches('/')
+            ))
         && target.scheme() == "https"
         && target.port_or_known_default() == Some(443)
         && target.username().is_empty()
@@ -73,19 +87,19 @@ mod tests {
 
     #[test]
     fn tags_and_attachment_urls_are_repository_scoped() {
-        assert!(version(&json!({"tag_name":"v2.0.0-beta_snow-shot"})).is_some());
-        assert!(version(&json!({"tag_name":"v2.0.0_snow-shot","draft":true})).is_none());
+        assert!(version(&json!({"tag_name":"v2.0.0-beta_kxcapture"})).is_some());
+        assert!(version(&json!({"tag_name":"v2.0.0_kxcapture","draft":true})).is_none());
         let files = json!([{"name":"latest-version.json","browser_download_url":
-            "https://gitee.com/mg-chao/snow-apps/releases/download/v2.0.0_snow-shot/latest-version.json"}]);
-        assert!(asset(&files, "v2.0.0_snow-shot", "latest-version.json").is_ok());
-        assert!(asset(&files, "v2.0.0_snow-shot", "missing").is_err());
+            "https://example.invalid/kxcapture/releases/download/v2.0.0_kxcapture/latest-version.json"}]);
+        assert!(asset(&files, "v2.0.0_kxcapture", "latest-version.json").is_err());
+        assert!(asset(&files, "v2.0.0_kxcapture", "missing").is_err());
         for url in [
-            "https://evil.test/mg-chao/snow-apps/releases/download/v2.0.0_snow-shot/latest-version.json",
-            "https://gitee.com/other/repo/attach_files/123/download/latest-version.json",
-            "http://gitee.com/mg-chao/snow-apps/releases/download/v2.0.0_snow-shot/latest-version.json",
+            "https://evil.test/kxcapture/releases/download/v2.0.0_kxcapture/latest-version.json",
+            "https://example.invalid/other/repo/attach_files/123/download/latest-version.json",
+            "http://example.invalid/kxcapture/releases/download/v2.0.0_kxcapture/latest-version.json",
         ] {
             let bad = json!([{"name":"latest-version.json","browser_download_url":url}]);
-            assert!(asset(&bad, "v2.0.0_snow-shot", "latest-version.json").is_err());
+            assert!(asset(&bad, "v2.0.0_kxcapture", "latest-version.json").is_err());
         }
     }
 }

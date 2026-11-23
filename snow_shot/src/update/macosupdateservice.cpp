@@ -63,7 +63,7 @@ struct UpdateService::Impl {
     UpdateService& q;
     std::unique_ptr<detail::MacOSUpdateDriver> driver;
     UpdateStatus status;
-    QString mode = QStringLiteral("next_launch");
+    QString mode = QStringLiteral("manual");
     QPointer<QObject> approvalContext;
     QPointer<QObject> validationContext;
     std::function<bool()> approval;

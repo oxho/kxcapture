@@ -680,7 +680,7 @@ void selectedTextHandoff() {
 
 void selectedTextNavigation() {
     Server server;
-    qputenv("SNOW_SHOT_API_BASE_URL", server.url().toUtf8());
+    qputenv("KXCAPTURE_API_BASE_URL", server.url().toUtf8());
     snow_shot::presentation::GlobalShortcutManager shortcuts;
     settings::BuiltInSettingsBackend backend(shortcuts);
     settings::SettingsRuntimeSession runtime(settings::builtInSettingsRegistry(), backend);
@@ -758,7 +758,7 @@ void selectedTextNavigation() {
                     QStringLiteral("third selection"),
             "handoff creates a new translation page after navigation disposed the previous one");
     window.close();
-    qunsetenv("SNOW_SHOT_API_BASE_URL");
+    qunsetenv("KXCAPTURE_API_BASE_URL");
 }
 
 void editorAndShortcutBehavior() {
@@ -1101,7 +1101,7 @@ void selectorContentGeometry() {
 
 void navigationThemesLanguagesAndGeometry() {
     Server server;
-    qputenv("SNOW_SHOT_API_BASE_URL", server.url().toUtf8());
+    qputenv("KXCAPTURE_API_BASE_URL", server.url().toUtf8());
     snow_shot::presentation::GlobalShortcutManager shortcuts;
     settings::BuiltInSettingsBackend backend(shortcuts);
     settings::SettingsRuntimeSession runtime(settings::builtInSettingsRegistry(), backend);
@@ -1354,7 +1354,7 @@ void navigationThemesLanguagesAndGeometry() {
                 QApplication::clipboard()->text() == QStringLiteral("Copied before closing"),
             "Copy and Close and Ctrl+Q copy the result and destroy the current window and draft");
     }
-    qunsetenv("SNOW_SHOT_API_BASE_URL");
+    qunsetenv("KXCAPTURE_API_BASE_URL");
 }
 
 #ifdef Q_OS_WIN
@@ -1362,7 +1362,7 @@ void nativeWindowInteraction() {
     Server server;
     SnowShotApiClient client(server.url());
     QWidget owner;
-    owner.setWindowTitle(QStringLiteral("Snow Shot Translation interaction test"));
+    owner.setWindowTitle(QStringLiteral("KXCapture Translation interaction test"));
     owner.resize(800, 650);
     auto* page = new TranslationPageWidget(&owner, &client, 0);
     page->setGeometry(owner.rect());

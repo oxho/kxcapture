@@ -72,7 +72,7 @@ windows = { workspace = true, features = [
 [features]
 default = ["legacy-capture", "hdr-encoding"]
 hdr-encoding = ["snow-recording-export/hdr-encoding"]
-# Compatibility capture APIs are excluded from the Snow Shot archive.
+# Compatibility capture APIs are excluded from the KXCapture archive.
 legacy-capture = ["dep:snow-pipeline"]
 # Compile-time metric groups for the realtime recording benchmark. Each group
 # is independently selectable so one measurement is not perturbed by the

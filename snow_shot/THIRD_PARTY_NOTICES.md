@@ -1,6 +1,6 @@
-# Snow Shot Third-Party Notices
+# KXCapture Third-Party Notices
 
-Snow Shot incorporates third-party software and assets under their respective
+KXCapture incorporates third-party software and assets under their respective
 licenses. The release build generates a complete, versioned notice bundle from
 the resolved Rust dependency graph, installed vcpkg packages, the audited
 static Qt build, and repository-owned attribution files.
@@ -11,7 +11,7 @@ Windows releases install all project and dependency notices in one UTF-8 documen
 share/snow-shot/licenses/LICENSES.txt
 ```
 
-Snow Shot Mini uses `share/snow-shot-mini/licenses/LICENSES.txt`. Each original
+KXCapture Mini uses `share/snow-shot-mini/licenses/LICENSES.txt`. Each original
 file is preserved in a labeled section, including full license texts, copyright
 and attribution notices, and the dependency index and provenance metadata. The
 complete directory bundle remains in the build output for auditing. macOS
@@ -105,7 +105,7 @@ for build-time compression and lazy runtime decompression. Its resolved
 dependency licenses are included in the generated Rust dependency notice bundle.
 
 The GPL-3.0-only `snow-shot-updater` sidecar is implemented in Rust and is
-distributed as part of Snow Shot. Its resolved normal and build dependency
+distributed as part of KXCapture. Its resolved normal and build dependency
 graph—including Tokio, Reqwest with native platform TLS, Serde, RSA/SHA-256,
 SemVer, ZIP/Deflate, and Microsoft windows-rs—is collected into the same
 versioned notice bundle from its independently locked Cargo package.
@@ -115,8 +115,8 @@ Apache-2.0); Unix filesystem support also uses `nix` (MIT). Their resolved
 license texts are included in the same generated dependency bundle.
 
 The three PP-OCRv6 model bundles and dictionaries retain their existing
-PaddleOCR Apache-2.0 licensing. Snow Shot uses the unchanged Tiny, Small, and
-Medium files from https://www.modelscope.cn/models/mgchao/SnowShotOCR, with
+PaddleOCR Apache-2.0 licensing. KXCapture uses the unchanged Tiny, Small, and
+Medium files from  with
 sizes and SHA-256 hashes pinned in `packaging/snow-shot-ocr-asset-manifest.json`.
 
 Local crash diagnostics on Windows and macOS use Crashpad (Apache-2.0), pinned by the vcpkg baseline
@@ -187,7 +187,7 @@ native H.264 surfaces using AMD AMF headers 1.5.2 (MIT), NVIDIA nv-codec-headers
 13.0.19.0 (MIT), and Intel oneVPL dispatcher 2.17.0 (MIT). The headers and
 dispatcher notices are collected from the resolved vcpkg packages, including
 the full copyright notices. Vendor display drivers supply the hardware codec
-implementations; those drivers are not distributed with Snow Shot.
+implementations; those drivers are not distributed with KXCapture.
 
 The standalone macOS media libraries use objc2 framework bindings, block2,
 and dispatch2 (MIT), and CoreText/CoreGraphics system font rendering. Apple's
@@ -218,7 +218,7 @@ standard license collection script.
 The Smart Merge implementation in `src/presentation/ocr/screenshotocrlayout.cpp`
 and its layout test fixtures are adapted from STranslate's `OcrLayoutAnalyzer.cs`
 and `OcrLayoutAnalyzerTests.cs` (https://github.com/STranslate/STranslate).
-Snow Shot adapts the algorithm to Qt and retains unsupported OCR geometry as
+KXCapture adapts the algorithm to Qt and retains unsupported OCR geometry as
 original translation units. The following license applies to the adapted code:
 
 The MIT License (MIT)
@@ -307,7 +307,7 @@ licenses are included in the Rust dependency notice bundle. OpenCV is not
 required by this feature.
 
 
-## Snow Shot MCP executable
+## KXCapture MCP executable
 
 `snow-shot-mcp` is GPL-3.0-only application code. It uses the official Rust MCP SDK
 (`rmcp`, Apache-2.0) and same-user local IPC (`interprocess`, 0BSD OR Apache-2.0).

@@ -26,7 +26,7 @@ The repository collector was run against the current Windows dependency graph on
 `../build/arrow-outline-license-audit/third-party/INDEX.md`
 
 It collected 512 notice files covering 285 external Rust packages, 21 vcpkg
-packages and repository attribution notices. The collector is shared with Snow Shot and its
+packages and repository attribution notices. The collector is shared with KXCapture and its
 index retains its generic Snow Media title and superset vcpkg/project entries;
 this GPUI binary does not link Qt or that vcpkg package set.
 

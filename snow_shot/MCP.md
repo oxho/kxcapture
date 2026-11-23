@@ -1,6 +1,6 @@
-# Snow Shot MCP
+# KXCapture MCP
 
-Snow Shot exposes application controls, screenshots, background documents,
+KXCapture exposes application controls, screenshots, background documents,
 recording, pinned images, settings, history, and provider operations through the packaged Rust
 `snow-shot-mcp` executable. It uses the official `rmcp` SDK over stdio. Start Snow
 Shot, open **Settings → System**, and enable **MCP integration**. The feature is
@@ -11,7 +11,7 @@ location, and a copyable configuration for your installed executable.
 
 Use the executable beside `snow_shot.exe` on Windows. Development builds stage it
 in `build/windows-msvc-debug/snow_shot/Debug/`. On macOS it is inside
-`Snow Shot.app/Contents/MacOS/` (the build tree bundle is named `snow_shot.app`).
+`KXCapture.app/Contents/MacOS/` (the build tree bundle is named `snow_shot.app`).
 Use your installation's absolute path.
 
 Claude-style configuration:
@@ -20,7 +20,7 @@ Claude-style configuration:
 {
   "mcpServers": {
     "snow-shot": {
-      "command": "D:\\Snow Shot\\bin\\snow-shot-mcp.exe",
+      "command": "D:\\KXCapture\\bin\\snow-shot-mcp.exe",
       "args": []
     }
   }
@@ -31,14 +31,14 @@ Codex-style stdio configuration:
 
 ```toml
 [mcp_servers.snow_shot]
-command = 'D:\Snow Shot\bin\snow-shot-mcp.exe'
+command = 'D:\KXCapture\bin\snow-shot-mcp.exe'
 args = []
 ```
 
 On macOS set `command` to, for example,
-`/Applications/Snow Shot.app/Contents/MacOS/snow-shot-mcp`.
+`/Applications/KXCapture.app/Contents/MacOS/snow-shot-mcp`.
 The bridge leaves application startup to you by default. Add `"--launch-app"` to
-`args` to allow one launch attempt of the sibling Snow Shot executable. This does
+`args` to allow one launch attempt of the sibling KXCapture executable. This does
 not enable MCP integration: enable it in the application first. The bridge waits
 up to ten seconds for the authenticated endpoint and never replays a mutation.
 If the application is stopped or integration
@@ -192,7 +192,7 @@ providers; network/provider failures are returned as application errors.
 
 Resources expose capabilities, application status, settings, owned documents,
 jobs, screenshot sessions, pinned images, history metadata, and bounded artifact
-reads under `snow-shot://` URIs. Mutable/private reads have zero cache lifetime;
+reads under `kxcapture://` URIs. Mutable/private reads have zero cache lifetime;
 static catalogs advertise a five-minute lifetime. No arbitrary file URI reads
 are supported. Prompts provide screenshot, background-image, and recording
 workflows, with completion for background-image output formats.
@@ -330,7 +330,7 @@ pixels, tokens, clipboard payloads, or annotation text are written to logs.
 
 The Blender references (`mcp-for-blender-main/src/blender_mcp/server.py` and
 `addon.py`) establish the stdio/process boundary, bounded socket operations, and
-main-thread command dispatch. Snow Shot adapts those principles to its existing
+main-thread command dispatch. KXCapture adapts those principles to its existing
 asynchronous workflows; it does not embed Python or expose arbitrary commands.
 
 - Rust `snow-shot-mcp`: typed SDK tools, asynchronous same-user IPC, cancellation,
@@ -433,7 +433,7 @@ uses the repository Windows QPA fallback. This iteration validates Windows only;
 macOS native validation was deferred by the user. See `MCP_VALIDATION.md` for the
 specific completed and outstanding gates.
 
-On Windows, the manual live probe starts an isolated Snow Shot instance and calls
+On Windows, the manual live probe starts an isolated KXCapture instance and calls
 all 28 screenshot tools through the bridge. It captures the current desktop, retains
 and restores the clipboard, and briefly creates a pinned image. Its report separates
 successful native operations from ownership guards on provider/scrolling routes.
@@ -450,5 +450,5 @@ python snow_shot/tests/mcp_live_tests.py `
 Configurable canvas fill styles accept `fill_style: "border"`, `"solid"`, `"cross_line"`,
 or `"line"` in screenshot and background-document tool-style patches and pinned-image
 `tool_style` edits. Border preserves the stored fill color and renders no fill.
-Fresh Snow Shot drawing preferences use Border with `#FFCCC7`;
+Fresh KXCapture drawing preferences use Border with `#FFCCC7`;
 existing saved preferences are retained.

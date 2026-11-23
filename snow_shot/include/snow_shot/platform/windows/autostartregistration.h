@@ -40,6 +40,10 @@ class AutoStartRegistration final {
                                       QString* error = nullptr);
 };
 
+// Explicit Windows taskbar identity. MSIX may still append a package-relative
+// suffix; unpackaged builds use this AUMID directly.
+void setExplicitAppUserModelId();
+
 } // namespace snow_shot::platform::windows
 
 #endif // SNOW_SHOT_PLATFORM_WINDOWS_AUTOSTARTREGISTRATION_H

@@ -7,7 +7,7 @@ build = "build.rs"
 
 [features]
 default = ["hdr-encoding"]
-# Standalone recording APIs retain HDR output. Snow Shot's Windows recording
+# Standalone recording APIs retain HDR output. KXCapture's Windows recording
 # profile captures SDR and excludes this encoder-only capability.
 hdr-encoding = []
 bench-timing = []

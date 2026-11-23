@@ -20,7 +20,7 @@ ROOT = Path(__file__).resolve().parent.parent
 spec = importlib.util.spec_from_file_location('signing', ROOT / 'scripts/snow-shot-macos-signing.py')
 signing = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(signing)
-ID = 'com.snowshot.snow_shot'
+ID = 'io.github.oxho.kxcapture'
 
 
 class ReleaseSelection(unittest.TestCase):
@@ -69,7 +69,7 @@ class ReleaseSelection(unittest.TestCase):
             inspection.mkdir()
             def command(*args):
                 if 'attach' in args:
-                    (inspection / 'volume/Snow Shot.app').mkdir()
+                    (inspection / 'volume/KXCapture.app').mkdir()
                 if 'detach' in args:
                     raise ValueError('busy')
                 return ''
@@ -78,7 +78,7 @@ class ReleaseSelection(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, 'busy'):
                     with signing.mounted_app(Path(directory) / 'test.dmg'):
                         pass
-            self.assertTrue((inspection / 'volume/Snow Shot.app').exists())
+            self.assertTrue((inspection / 'volume/KXCapture.app').exists())
 
 
 @unittest.skipUnless(sys.platform == 'darwin', 'Native macOS code signing required')
@@ -149,7 +149,7 @@ class NativeSigning(unittest.TestCase):
 
     def test_rejects_other_certificate_adhoc_and_wrong_product(self):
         for name, identity, identifier in [('other', 1, ID), ('adhoc', None, ID),
-                                           ('wrong-product', 0, 'com.snowshot.snow_shot_mini')]:
+                                           ('wrong-product', 0, 'io.github.oxho.kxcapture.mini')]:
             with self.subTest(name=name):
                 app = self.app(name, '1.5.9', identity, identifier)
                 with self.assertRaises(ValueError):
@@ -245,7 +245,7 @@ install_application
         for version, app in [('1.5.9', old), ('1.5.10', new)]:
             source = self.directory / version
             source.mkdir()
-            shutil.copytree(app, source / 'Snow Shot.app')
+            shutil.copytree(app, source / 'KXCapture.app')
             dmg = self.directory / f'snow-shot-{version}-macos-arm64.dmg'
             signing.run('/usr/bin/hdiutil', 'create', '-srcfolder', str(source),
                         '-format', 'UDZO', '-volname', 'Snow Signing Fixture', str(dmg))

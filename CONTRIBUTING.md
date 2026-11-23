@@ -2,7 +2,7 @@
 
 ## 中文
 
-感谢你关注 Snow Apps！提交贡献前，请先阅读以下规则。
+感谢你关注 oxho！提交贡献前，请先阅读以下规则。
 
 ### Pull Request 范围
 
@@ -19,7 +19,7 @@
 
 ## English
 
-Thank you for your interest in Snow Apps! Please read these guidelines before contributing.
+Thank you for your interest in oxho! Please read these guidelines before contributing.
 
 ### Pull request scope
 

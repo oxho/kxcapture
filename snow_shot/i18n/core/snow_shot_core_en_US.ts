@@ -24,8 +24,8 @@
             <translation>About %1</translation>
         </message>
         <message>
-            <source>About Snow Shot</source>
-            <translation>About Snow Shot</translation>
+            <source>About KXCapture</source>
+            <translation>About KXCapture</translation>
         </message>
         <message>
             <source>Automatic updates are unavailable for this copy</source>
@@ -54,8 +54,8 @@ so every moment on screen can be expressed clearly and shared easily</translatio
             <translation>Check for a newer version of %1</translation>
         </message>
         <message>
-            <source>Check for a newer version of Snow Shot</source>
-            <translation>Check for a newer version of Snow Shot</translation>
+            <source>Check for a newer version of KXCapture</source>
+            <translation>Check for a newer version of KXCapture</translation>
         </message>
         <message>
             <source>Check for updates</source>
@@ -202,16 +202,16 @@ so every moment on screen can be expressed clearly and shared easily</translatio
             <translation>Screenshot selection, annotation tools, and recognized text</translation>
         </message>
         <message>
-            <source>Snow Shot</source>
-            <translation>Snow Shot</translation>
+            <source>KXCapture</source>
+            <translation>KXCapture</translation>
         </message>
         <message>
-            <source>Snow Shot logo</source>
-            <translation>Snow Shot logo</translation>
+            <source>KXCapture logo</source>
+            <translation>KXCapture logo</translation>
         </message>
         <message>
-            <source>Snow Shot · make expression clearer</source>
-            <translation>Snow Shot · make expression clearer</translation>
+            <source>KXCapture · make expression clearer</source>
+            <translation>KXCapture · make expression clearer</translation>
         </message>
         <message>
             <source>Text recognition</source>
@@ -429,12 +429,12 @@ so every moment on screen can be expressed clearly and shared easily</translatio
     <context>
         <name>EditionMetadata</name>
         <message>
-            <source>Snow Shot</source>
-            <translation>Snow Shot</translation>
+            <source>KXCapture</source>
+            <translation>KXCapture</translation>
         </message>
         <message>
-            <source>Snow Shot Mini</source>
-            <translation>Snow Shot Mini</translation>
+            <source>KXCapture Mini</source>
+            <translation>KXCapture Mini</translation>
         </message>
     </context>
     <context>
@@ -784,12 +784,12 @@ so every moment on screen can be expressed clearly and shared easily</translatio
             <translation>Paid calls are paused because your account has an outstanding balance. Settle the balance in Account to continue</translation>
         </message>
         <message>
-            <source>Sign in to your Snow Shot account to use Expert Model</source>
-            <translation>Sign in to your Snow Shot account to use Expert Model</translation>
+            <source>Sign in to your KXCapture account to use Expert Model</source>
+            <translation>Sign in to your KXCapture account to use Expert Model</translation>
         </message>
         <message>
-            <source>Sign in to your Snow Shot account to use this service</source>
-            <translation>Sign in to your Snow Shot account to use this service</translation>
+            <source>Sign in to your KXCapture account to use this service</source>
+            <translation>Sign in to your KXCapture account to use this service</translation>
         </message>
         <message>
             <source>Table recognition failed</source>
@@ -888,8 +888,8 @@ so every moment on screen can be expressed clearly and shared easily</translatio
             <translation>Translation stream ended unexpectedly</translation>
         </message>
         <message>
-            <source>Your Snow Shot session is no longer valid. Sign in again</source>
-            <translation>Your Snow Shot session is no longer valid. Sign in again</translation>
+            <source>Your KXCapture session is no longer valid. Sign in again</source>
+            <translation>Your KXCapture session is no longer valid. Sign in again</translation>
         </message>
         <message>
             <source>Your available credits cannot cover this request. Purchase credits in Account</source>
@@ -957,8 +957,8 @@ so every moment on screen can be expressed clearly and shared easily</translatio
             <translation>An update is ready. Open About to restart and update %1</translation>
         </message>
         <message>
-            <source>An update is ready. Open About to restart and update Snow Shot</source>
-            <translation>An update is ready. Open About to restart and update Snow Shot</translation>
+            <source>An update is ready. Open About to restart and update KXCapture</source>
+            <translation>An update is ready. Open About to restart and update KXCapture</translation>
         </message>
         <message>
             <source>Could not open the selected file: %1</source>
@@ -981,8 +981,8 @@ so every moment on screen can be expressed clearly and shared easily</translatio
             <translation>Restart failed</translation>
         </message>
         <message>
-            <source>Snow Shot %1 is available. Open About for update options</source>
-            <translation>Snow Shot %1 is available. Open About for update options</translation>
+            <source>KXCapture %1 is available. Open About for update options</source>
+            <translation>KXCapture %1 is available. Open About for update options</translation>
         </message>
         <message>
             <source>The selected file path is invalid</source>

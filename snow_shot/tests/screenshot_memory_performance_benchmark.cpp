@@ -64,7 +64,7 @@ QImage patternedImage(QSize size, QImage::Format format) {
     image.setColorSpace(QColorSpace::SRgb);
     image.setDotsPerMeterX(4321);
     image.setDotsPerMeterY(5678);
-    image.setText(QStringLiteral("Author"), QStringLiteral("Snow Shot memory benchmark"));
+    image.setText(QStringLiteral("Author"), QStringLiteral("KXCapture memory benchmark"));
     return image;
 }
 

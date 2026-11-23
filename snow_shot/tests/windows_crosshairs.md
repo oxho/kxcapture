@@ -1,6 +1,6 @@
 # Windows crosshair cursors
 
-Snow Shot replaces its Windows crosshair cursors with a transparent bitmap containing a white
+KXCapture replaces its Windows crosshair cursors with a transparent bitmap containing a white
 cross and a black outline. The shared 32×32 RGBA artwork has hotspot `(16,16)`. Qt scales this
 artwork for the current display; capture scales it to the observed native cursor dimensions.
 Both use nearest-neighbor sampling. Qt keeps the logical hotspot `(16,16)` and an even physical
@@ -9,9 +9,9 @@ Capture preserves the observed native dimensions and rounds its scaled hotspot u
 center pixel, including odd physical raster sizes.
 
 Windows' stock `IDC_CROSS` may use monochrome AND/XOR pixels that invert the desktop beneath
-the cursor. Snow Shot replaces that stock cursor when saving screenshots and recording frames.
+the cursor. KXCapture replaces that stock cursor when saving screenshots and recording frames.
 Copies of the stock resource with identical pixels are also substituted. Other application-owned
-cursors, including the fixture's colored marker and Snow Shot's brush previews, retain their own
+cursors, including the fixture's colored marker and KXCapture's brush previews, retain their own
 rendering. Capture does not change another application's live pointer.
 
 ## Build and launch the stock cursor fixture
@@ -33,16 +33,16 @@ it has keyboard focus to exit.
 The fixture borrows the stock cursor and never calls `DestroyCursor` on it. Its default marker mode
 creates and destroys its own cursor after destroying the window and unregistering its class.
 Geometry inspection uses `GetIconInfo`; the returned color/mask bitmaps are released with
-`DeleteObject`. The shared RGBA view remains valid for the process lifetime. Snow Shot caches Qt
+`DeleteObject`. The shared RGBA view remains valid for the process lifetime. KXCapture caches Qt
 cursors and separately owns `CreateIconIndirect` cursor handles for immediate native selection.
 It deletes the temporary color/mask bitmaps after creation and calls `DestroyCursor` on these
 owned handles when the application cache is destroyed.
 
 ## Reproduce screenshots and recordings
 
-1. Launch Snow Shot with `scripts/run-snow-shot.ps1 -Preset windows-msvc-debug`, then launch the
+1. Launch KXCapture with `scripts/run-snow-shot.ps1 -Preset windows-msvc-debug`, then launch the
    stock fixture using the command above.
-2. In Snow Shot's screenshot settings, choose **DXGI** for **Screenshot capture API** and enable
+2. In KXCapture's screenshot settings, choose **DXGI** for **Screenshot capture API** and enable
    **Show Cursor**. Place the pointer over the gray band, start a normal screenshot with the
    configured shortcut, and save it. The saved pointer must have a white fill and black outline.
 3. Start another screenshot and use its recapture action while the pointer is over the fixture.
@@ -56,10 +56,10 @@ owned handles when the application cache is destroyed.
    covers these paths; Desktop Duplication also matches its pointer shape to the stock resource.
 6. Repeat at Windows display scales of **100%**, **125%**, **150%**, and **200%**. Restart the fixture after
    changing a display's scale. On mixed-DPI systems, move the fixture to each display and also move
-   Snow Shot's pinned image/recording canvas between displays. Check the cursor's size, centered
+   KXCapture's pinned image/recording canvas between displays. Check the cursor's size, centered
    hotspot, and stable colors. Repeated screenshot selection updates must not flicker.
 
-The fixture uses temporary windows only. The automated test below isolates its Snow Shot settings,
+The fixture uses temporary windows only. The automated test below isolates its KXCapture settings,
 restores the pointer position and confinement, and shuts down capture when it finishes.
 
 ## Focused validation

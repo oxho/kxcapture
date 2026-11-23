@@ -181,7 +181,7 @@ struct UpdateService::Impl {
                     return;
                 }
                 qWarning().noquote()
-                    << "Snow Shot updater service exited unexpectedly" << exitCode << exitStatus;
+                    << "KXCapture updater service exited unexpectedly" << exitCode << exitStatus;
                 if (status.state == UpdateState::Checking ||
                     status.state == UpdateState::Downloading ||
                     status.state == UpdateState::Verifying ||
@@ -752,7 +752,7 @@ struct UpdateService::Impl {
     QByteArray stdoutBuffer;
     QByteArray stderrBuffer;
     QByteArray errorSource;
-    QString mode = QStringLiteral("next_launch");
+    QString mode = QStringLiteral("manual");
     QJsonObject progressAppearance;
     QString notifiedVersion;
     QString announcedVersion;
@@ -815,7 +815,11 @@ const UpdateStatus& UpdateService::status() const {
     return m_impl->status;
 }
 UpdateCapabilities UpdateService::capabilities() const {
-    return {!managedByStore(), !managedByStore(), !managedByStore()};
+    if (managedByStore())
+        return {};
+    const bool configured =
+        m_impl->options.githubApiUrl.isValid() || m_impl->options.giteeApiUrl.isValid();
+    return {configured, configured, configured};
 }
 
 void UpdateService::setHandoffApproval(QObject* context, std::function<bool()> approval) {
@@ -871,7 +875,7 @@ bool UpdateService::handoffPending() const {
 }
 
 void UpdateService::start() {
-    if (m_impl->started || managedByStore()) {
+    if (m_impl->started || managedByStore() || !capabilities().check) {
         return;
     }
     m_impl->started = true;

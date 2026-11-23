@@ -35,9 +35,8 @@ void distributionPolicy() {
     const auto packaged = resolvePolicy(false, QStringLiteral("Package_family"));
     require(packaged.managedByStore && packaged.packageFamily == QStringLiteral("Package_family"),
             "runtime package identity disables native installation operations");
-    require(resolvePolicy(true, {}).packageFamily ==
-                QStringLiteral("SnowApps.SnowShot_3pp9w6ncw7bs0"),
-            "unpackaged Store development retains a separate stable identity");
+    require(resolvePolicy(true, {}).packageFamily.isEmpty(),
+            "store package identity stays empty until a KXCapture publisher is configured");
 }
 
 void shutdownTransitions() {

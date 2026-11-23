@@ -248,7 +248,7 @@ if (-not (Test-Path -LiteralPath (Join-Path $libclangDirectory "libclang.dll")))
     Write-Warning "libclang.dll was not found under $libclangDirectory; Rust bindgen builds may fail."
 }
 
-Write-Host "Snow Apps build environment is ready."
+Write-Host "oxho build environment is ready."
 Write-Host "Repository: $repoRoot"
 Write-Host "CMake: $cmakeVersionLine"
 Write-Host "vcpkg: $vcpkgRoot"

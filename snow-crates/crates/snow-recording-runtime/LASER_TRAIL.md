@@ -1,6 +1,6 @@
 # Direct recording laser trail
 
-Snow Shot's direct recording compositor uses `src/laser_trail.rs`. The buffered
+KXCapture's direct recording compositor uses `src/laser_trail.rs`. The buffered
 recording/export mouse-effect API is independent and retains its existing behavior.
 No settings, FFI, dependency, or recording-format migration is required.
 

@@ -57,9 +57,9 @@ class UpdateService final : public QObject {
         std::chrono::milliseconds automaticCheckInterval = std::chrono::hours(24);
         // Windows helper discovery endpoints, also overridden by its process fixtures.
         QUrl githubApiUrl =
-            QUrl(QStringLiteral("https://api.github.com/repos/mg-chao/snow-shot/releases"));
+            QUrl(QStringLiteral(""));
         QUrl giteeApiUrl =
-            QUrl(QStringLiteral("https://gitee.com/api/v5/repos/mg-chao/snow-apps/releases"));
+            QUrl(QStringLiteral(""));
         // Native-driver injection keeps policy tests independent of installed applications.
         std::function<std::unique_ptr<detail::MacOSUpdateDriver>()> macOSDriverFactory;
         // Unset follows the installed distribution. Tests may select the Store policy explicitly.

@@ -12,7 +12,7 @@ if (-not $PSBoundParameters.ContainsKey('HelperPath')) {
 }
 $helper = (Resolve-Path -LiteralPath $HelperPath).Path
 $testElevation = $ElevationAction -ne 'None'
-$registrationPath = 'Software\Snow Apps\SnowShot'
+$registrationPath = 'Software\oxho\SnowShot'
 $uninstallPath = 'Software\Microsoft\Windows\CurrentVersion\Uninstall\SnowShot'
 $registry = [Microsoft.Win32.RegistryKey]::OpenBaseKey([Microsoft.Win32.RegistryHive]::CurrentUser, [Microsoft.Win32.RegistryView]::Registry32)
 $existingEmptyKeys = @{}

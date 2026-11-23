@@ -6,10 +6,10 @@ set -Eeuo pipefail
 PROJECT_SIGNING_CERTIFICATE_SHA1='A531FC00F5E11AC6AD38E5923401313F45A7CEAD'
 
 edition=full
-product_name="Snow Shot"
+product_name="KXCapture"
 product_slug=snow-shot
 product_executable=snow_shot
-product_bundle_id=com.snowshot.snow_shot
+product_bundle_id=io.github.oxho.kxcapture
 language=auto
 launch=1
 local_dmg=''
@@ -26,7 +26,7 @@ committed=0
 replacement_started=0
 had_previous=0
 needs_sudo=0
-destination='/Applications/Snow Shot.app'
+destination='/Applications/KXCapture.app'
 previous_destination=''
 github_pid=''
 gitee_pid=''
@@ -36,9 +36,9 @@ message() {
     local en cn tw
     case "$1" in
         usage) en='Usage: install-snow-shot-macos.sh [--edition full|mini] [--lang auto|en|zh-CN|zh-TW] [--no-launch] [--dmg PATH] [--prepare-app PATH] [--help]'; cn='用法：install-snow-shot-macos.sh [--edition full|mini] [--lang auto|en|zh-CN|zh-TW] [--no-launch] [--dmg 路径] [--prepare-app 路径] [--help]'; tw='用法：install-snow-shot-macos.sh [--edition full|mini] [--lang auto|en|zh-CN|zh-TW] [--no-launch] [--dmg 路徑] [--prepare-app 路徑] [--help]' ;;
-        help) en='Downloads, verifies, and installs the project-signed Snow Shot app without changing its signature. --dmg requires PATH.sha256. --prepare-app requires --dmg and a fresh absolute .app path; it stages the app without installing or launching. --no-launch skips launching. --lang overrides automatic language selection. First installation or migration requires macOS privacy authorization.'; cn='下载、验证并安装项目统一签名的 Snow Shot，不修改应用签名。--dmg 需要对应的 PATH.sha256 文件。--prepare-app 需要 --dmg 和尚不存在的绝对 .app 路径；仅暂存应用，不安装或启动。--no-launch 跳过启动。--lang 指定界面语言。首次安装或迁移需要授予 macOS 隐私权限。'; tw='下載、驗證並安裝專案統一簽署的 Snow Shot，不修改應用程式簽章。--dmg 需要對應的 PATH.sha256 檔案。--prepare-app 需要 --dmg 和尚不存在的絕對 .app 路徑；僅暫存應用程式，不安裝或啟動。--no-launch 跳過啟動。--lang 指定介面語言。首次安裝或移轉需要授予 macOS 隱私權限。' ;;
+        help) en='Downloads, verifies, and installs the project-signed KXCapture app without changing its signature. --dmg requires PATH.sha256. --prepare-app requires --dmg and a fresh absolute .app path; it stages the app without installing or launching. --no-launch skips launching. --lang overrides automatic language selection. First installation or migration requires macOS privacy authorization.'; cn='下载、验证并安装项目统一签名的 KXCapture，不修改应用签名。--dmg 需要对应的 PATH.sha256 文件。--prepare-app 需要 --dmg 和尚不存在的绝对 .app 路径；仅暂存应用，不安装或启动。--no-launch 跳过启动。--lang 指定界面语言。首次安装或迁移需要授予 macOS 隐私权限。'; tw='下載、驗證並安裝專案統一簽署的 KXCapture，不修改應用程式簽章。--dmg 需要對應的 PATH.sha256 檔案。--prepare-app 需要 --dmg 和尚不存在的絕對 .app 路徑；僅暫存應用程式，不安裝或啟動。--no-launch 跳過啟動。--lang 指定介面語言。首次安裝或移轉需要授予 macOS 隱私權限。' ;;
         arguments) en='Invalid or incomplete option. Run with --help.'; cn='选项无效或不完整。请使用 --help 查看帮助。'; tw='選項無效或不完整。請使用 --help 查看說明。' ;;
-        platform) en='Snow Shot requires macOS 15 or later on Apple Silicon or Intel.'; cn='Snow Shot 需要运行 macOS 15 或更新版本的 Apple Silicon 或 Intel Mac。'; tw='Snow Shot 需要執行 macOS 15 或更新版本的 Apple Silicon 或 Intel Mac。' ;;
+        platform) en='KXCapture requires macOS 15 or later on Apple Silicon or Intel.'; cn='KXCapture 需要运行 macOS 15 或更新版本的 Apple Silicon 或 Intel Mac。'; tw='KXCapture 需要執行 macOS 15 或更新版本的 Apple Silicon 或 Intel Mac。' ;;
         root) en='Run this script as your desktop user, without sudo. Administrator access is requested only when needed.'; cn='请以当前桌面用户运行脚本，不要直接使用 root。仅在需要时请求管理员权限。'; tw='請以目前桌面使用者執行指令碼，不要直接使用 root。僅在需要時請求管理員權限。' ;;
         primary) en='[1/5] Downloading the latest macOS package…'; cn='[1/5] 正在下载最新 macOS 安装包…'; tw='[1/5] 正在下載最新 macOS 安裝套件…' ;;
         fallback) en='Selected download unavailable or invalid; trying the same release on the other channel…'; cn='所选下载源不可用或验证失败，正在从另一渠道获取相同版本…'; tw='所選下載來源無法使用或驗證失敗，正在從另一管道取得相同版本…' ;;
@@ -46,22 +46,22 @@ message() {
         verify) en='[2/5] Verifying the package and application…'; cn='[2/5] 正在验证安装包和应用…'; tw='[2/5] 正在驗證安裝套件與應用程式…' ;;
         invalid) en='Package validation failed. Download the matching macOS DMG and its .sha256 file again.'; cn='安装包验证失败。请重新下载匹配的 macOS DMG 及其 .sha256 文件。'; tw='安裝套件驗證失敗。請重新下載相符的 macOS DMG 及其 .sha256 檔案。' ;;
         signing) en='[3/5] Verifying the project signing identity…'; cn='[3/5] 正在验证项目签名身份…'; tw='[3/5] 正在驗證專案簽署身分…' ;;
-        continuity) en='The app does not match the Snow Shot project signing identity. Installation stopped. Download a current release and its matching installer; do not re-sign the app.'; cn='应用不符合 Snow Shot 项目签名身份。安装已停止。请下载当前发布版本及其配套安装脚本，不要重新签名应用。'; tw='應用程式不符合 Snow Shot 專案簽署身分。安裝已停止。請下載目前發行版本及其配套安裝指令碼，請勿重新簽署應用程式。' ;;
+        continuity) en='The app does not match the KXCapture project signing identity. Installation stopped. Download a current release and its matching installer; do not re-sign the app.'; cn='应用不符合 KXCapture 项目签名身份。安装已停止。请下载当前发布版本及其配套安装脚本，不要重新签名应用。'; tw='應用程式不符合 KXCapture 專案簽署身分。安裝已停止。請下載目前發行版本及其配套安裝指令碼，請勿重新簽署應用程式。' ;;
         install) en='[4/5] Installing into /Applications…'; cn='[4/5] 正在安装到 /Applications…'; tw='[4/5] 正在安裝到 /Applications…' ;;
         sudo) en='Administrator access is needed to replace the application. Enter your Mac login password if prompted.'; cn='替换应用需要管理员权限。如有提示，请输入 Mac 登录密码。'; tw='取代應用程式需要管理員權限。如有提示，請輸入 Mac 登入密碼。' ;;
-        quit) en='Closing the installed Snow Shot…'; cn='正在关闭已安装的 Snow Shot…'; tw='正在關閉已安裝的 Snow Shot…' ;;
-        running) en='Snow Shot did not quit. Finish any recording, quit the app manually, and run the installer again.'; cn='Snow Shot 未退出。请结束录制并手动退出应用，然后重新运行安装器。'; tw='Snow Shot 未結束。請結束錄製並手動結束應用程式，然後重新執行安裝程式。' ;;
-        done) en='[5/5] Snow Shot is installed.'; cn='[5/5] Snow Shot 安装完成。'; tw='[5/5] Snow Shot 安裝完成。' ;;
+        quit) en='Closing the installed KXCapture…'; cn='正在关闭已安装的 KXCapture…'; tw='正在關閉已安裝的 KXCapture…' ;;
+        running) en='KXCapture did not quit. Finish any recording, quit the app manually, and run the installer again.'; cn='KXCapture 未退出。请结束录制并手动退出应用，然后重新运行安装器。'; tw='KXCapture 未結束。請結束錄製並手動結束應用程式，然後重新執行安裝程式。' ;;
+        done) en='[5/5] KXCapture is installed.'; cn='[5/5] KXCapture 安装完成。'; tw='[5/5] KXCapture 安裝完成。' ;;
         permissions) en='On first installation or migration from ad-hoc or local signing, grant Screen Recording and Accessibility in System Settings when requested. Current DMG, installer, and Homebrew releases share one project identity. Use an updated installer. Permission retention still depends on macOS consent policy.'; cn='首次安装或从临时、本地签名迁移时，请按提示在系统设置中授予屏幕录制和辅助功能权限。当前 DMG、安装脚本和 Homebrew 发布版本使用同一项目身份。请使用更新后的安装脚本。权限保留仍受 macOS 授权策略控制。'; tw='首次安裝或從臨時、本機簽署移轉時，請依提示在系統設定中授予螢幕錄製和輔助使用權限。目前 DMG、安裝指令碼和 Homebrew 發行版本使用同一專案身分。請使用更新後的安裝指令碼。權限保留仍受 macOS 授權政策控制。' ;;
         failed) en='Installation failed. Check the diagnostic below, resolve the issue, and retry.'; cn='安装失败。请检查下方诊断信息，解决问题后重试。'; tw='安裝失敗。請檢查下方診斷資訊，解決問題後重試。' ;;
         rollback) en='Restoring the previous application…'; cn='正在恢复原应用…'; tw='正在還原原應用程式…' ;;
         recovery) en='Automatic cleanup or recovery failed. Keep the following directory; it may contain your previous app. Restore previous.app to the installation path printed below before retrying:'; cn='自动清理或恢复失败。请保留以下目录，其中可能包含原应用。重试前请将 previous.app 恢复到下方显示的安装路径：'; tw='自動清理或還原失敗。請保留以下目錄，其中可能包含原應用程式。重試前請將 previous.app 還原至下方顯示的安裝路徑：' ;;
         detach) en='Could not detach the installer volume. Eject it in Finder:'; cn='无法卸载安装卷。请在访达中推出：'; tw='無法卸載安裝卷。請在 Finder 中退出：' ;;
         state) en='Installer state is unsafe or another installation is running. Check ownership and symlinks in the directory below. Remove its lock directory only after confirming no installer is running:'; cn='安装器状态不安全或已有安装正在运行。请检查下方目录的所有权及符号链接。仅在确认没有安装器运行后移除 lock 目录：'; tw='安裝程式狀態不安全或已有安裝正在執行。請檢查下方目錄的擁有權及符號連結。僅在確認沒有安裝程式執行後移除 lock 目錄：' ;;
-        launch) en='Installed successfully, but launch failed. Open Snow Shot from Applications in Finder.'; cn='安装成功，但启动失败。请从访达的“应用程序”打开 Snow Shot。'; tw='安裝成功，但啟動失敗。請從 Finder 的「應用程式」開啟 Snow Shot。' ;;
+        launch) en='Installed successfully, but launch failed. Open KXCapture from Applications in Finder.'; cn='安装成功，但启动失败。请从访达的“应用程序”打开 KXCapture。'; tw='安裝成功，但啟動失敗。請從 Finder 的「應用程式」開啟 KXCapture。' ;;
         *) return 1 ;;
     esac
-    case "$language" in zh-CN) printf '%s\n' "${cn//Snow Shot/$product_name}" ;; zh-TW) printf '%s\n' "${tw//Snow Shot/$product_name}" ;; *) printf '%s\n' "${en//Snow Shot/$product_name}" ;; esac
+    case "$language" in zh-CN) printf '%s\n' "${cn//KXCapture/$product_name}" ;; zh-TW) printf '%s\n' "${tw//KXCapture/$product_name}" ;; *) printf '%s\n' "${en//KXCapture/$product_name}" ;; esac
 }
 
 say() {
@@ -288,7 +288,7 @@ discover_channel() {
         result=''
         while read -r tag id; do
             [[ -n "$tag" && "$id" =~ ^[0-9]+$ ]] || continue
-            fetch_metadata "https://gitee.com/api/v5/repos/mg-chao/snow-apps/releases/$id/attach_files?per_page=100" \
+            fetch_metadata "" \
                 "$work/gitee-attachments.json" || continue
             result=$(release_urls "$work/gitee-releases.json" gitee "$tag" \
                 "$work/gitee-attachments.json" 2>> "$work/diagnostic.log") && break
@@ -305,9 +305,9 @@ discover_channel() {
 
 discover_release() {
     local channel
-    discover_channel github 'https://api.github.com/repos/mg-chao/snow-shot/releases' &
+    discover_channel github '' &
     github_pid=$!
-    discover_channel gitee 'https://gitee.com/api/v5/repos/mg-chao/snow-apps/releases' &
+    discover_channel gitee '' &
     gitee_pid=$!
     while :; do
         for channel in github gitee; do
@@ -394,7 +394,7 @@ obtain_package() {
         candidate=$(release_urls "$work/gitee-releases.json" gitee-list "$tag" 2>> "$work/diagnostic.log") || die unavailable
         id=${candidate#* }
         [[ "$id" =~ ^[0-9]+$ ]] || die unavailable
-        fetch_metadata "https://gitee.com/api/v5/repos/mg-chao/snow-apps/releases/$id/attach_files?per_page=100" \
+        fetch_metadata "" \
             "$work/gitee-attachments.json" || die unavailable
         urls=$(release_urls "$work/gitee-releases.json" gitee "$tag" \
             "$work/gitee-attachments.json" 2>> "$work/diagnostic.log") || die unavailable
@@ -573,7 +573,7 @@ main() {
     case "$language" in auto|en|zh-CN|zh-TW) ;; *) die arguments ;; esac
     case "$edition" in
         full) ;;
-        mini) product_name="Snow Shot Mini"; product_slug=snow-shot-mini; product_executable=snow_shot_mini; product_bundle_id=com.snowshot.snow_shot_mini ;;
+        mini) product_name="KXCapture Mini"; product_slug=snow-shot-mini; product_executable=snow_shot_mini; product_bundle_id=io.github.oxho.kxcapture.mini ;;
         *) die arguments ;;
     esac
     destination="/Applications/$product_name.app"

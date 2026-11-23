@@ -1,10 +1,10 @@
-name: Snow Shot Scoop
+name: KXCapture Scoop
 
 on:
   workflow_dispatch:
     inputs:
       tag:
-        description: Stable published Snow Shot tag (v1.1.8 or v1.1.8_snow-shot)
+        description: Stable published KXCapture tag (v1.1.8 or v1.1.8_snow-shot)
         required: true
         type: string
   pull_request:

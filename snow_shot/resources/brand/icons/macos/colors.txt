@@ -1,0 +1,8 @@
+底板浅	#1EC9A8
+底板中（主色）	#0D7A6B
+底板深	#0A3F3A
+玻璃浅	#FFFFFF
+玻璃深	#C5D8E6
+虚线槽	#B8F5EA
+手柄	#0E8F7C
+备注	主文件 kxcapture.svg 与 kxcapture-{size}.png 为 macOS（1024 画布、824 底板、底部投影）。kxcapture-win.svg 与 kxcapture-win-*.png 为 Windows 满铺 Fluent 版。16/24 以及 Windows ICO 用的 16/24 为像素网格手调，32 沿用 v4.1 方案 D 手调稿。文件名按已确定的英文名 slug：kxcapture。中文产品名仍是 KX截屏。

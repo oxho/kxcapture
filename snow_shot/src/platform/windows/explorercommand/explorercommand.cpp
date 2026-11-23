@@ -107,7 +107,7 @@ HRESULT selectionPaths(IShellItemArray* items, std::vector<std::wstring>* paths,
     if (count == 0)
         return E_INVALIDARG;
     // Even empty arguments cannot fit a larger selection in one CreateProcess invocation.
-    if (count > kMaximumCommandLineLength / sizeof(" --edit-with-snow-shot \"\""))
+    if (count > kMaximumCommandLineLength / sizeof(" --edit-with-kxcapture \"\""))
         return HRESULT_FROM_WIN32(ERROR_FILENAME_EXCED_RANGE);
     paths->reserve(count);
     for (DWORD index = 0; index < count; ++index) {
@@ -410,7 +410,7 @@ HRESULT buildCommandLine(const std::wstring& executable, const std::vector<std::
     for (const auto& path : paths) {
         if (!isSupportedPath(path))
             return E_INVALIDARG;
-        result.append(L" --edit-with-snow-shot ");
+        result.append(L" --edit-with-kxcapture ");
         appendQuoted(path, &result);
         // CreateProcess's limit includes the terminating NUL.
         if (result.size() >= kMaximumCommandLineLength)

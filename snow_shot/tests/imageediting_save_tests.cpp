@@ -105,7 +105,7 @@ void saveWorkflow(bool custom, const QTemporaryDir& directory, bool showResult =
     if (custom) {
         auto* dialog = customDialog(window);
         require(dialog && dialog->isOpen() && !systemDialog(window),
-                "Image Editor honors the Snow Shot save-dialog preference");
+                "Image Editor honors the KXCapture save-dialog preference");
         require(dialog->ownerWindow() == window.canvas()->window() &&
                     dialog->windowModality() == Qt::WindowModal &&
                     dialog->contentWidget()->window()->windowHandle()->transientParent() ==

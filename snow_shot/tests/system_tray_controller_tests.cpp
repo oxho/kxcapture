@@ -1580,7 +1580,7 @@ int main(int argc, char* argv[]) {
         screenshotMenuAction->icon().pixmap(QSize(32, 32), QIcon::Normal).toImage();
     require(containsOpaqueColor(screenshotMenuIcon,
                                 menu->palette().color(QPalette::Active, QPalette::Text)) &&
-                containsOpaqueColor(screenshotMenuIcon, QColor(QStringLiteral("#9254de"))) &&
+                containsOpaqueColor(screenshotMenuIcon, QColor(QStringLiteral("#0D7A6B"))) &&
                 !containsOpaqueColor(screenshotMenuIcon, QColor(QStringLiteral("#1677ff"))),
             "the native screenshot menu icon must use menu foreground with only its fixed purple "
             "accent");
@@ -1943,7 +1943,7 @@ int main(int argc, char* argv[]) {
     const int screenshotRequestsBeforeMessageClicks = screenshotRequests;
     const int showMainWindowRequestsBeforeMessageClicks = showMainWindowRequests;
     const int functionSettingsRequestsBeforeMessageClicks = functionSettingsRequests;
-    controller.showUpdateMessage(QStringLiteral("Snow Shot 2.0.0 is available."));
+    controller.showUpdateMessage(QStringLiteral("KXCapture 2.0.0 is available."));
     clickNotification(controller, trayIcon,
                       snow_shot::platform::SystemNotificationAction::OpenAbout);
     require(aboutRequests == 1 && screenshotRequests == screenshotRequestsBeforeMessageClicks &&

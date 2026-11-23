@@ -34,7 +34,7 @@ sibling reopening, actual surface visibility, and rejection of a locally clipped
 button. This test is independent of the machine's physical display arrangement.
 
 Validation: the new regression fails at hover opening with the original helper and
-passes with the correction. The related popup hover recovery and Snow Shot toolbar
+passes with the correction. The related popup hover recovery and KXCapture toolbar
 popup recovery tests also pass after rebuilding. Changed C++ files pass clang-format,
 and `git diff --check` passes.
 The full suite was not run. The running application retains the diagnostic correction;
@@ -77,7 +77,7 @@ The same invariant is applied to:
 | Date-range popup arrow | Subtracting independently mapped global points from different screen spaces |
 | Spotlight opacity wheel handler | Wheel input rejected even though the pointer is inside the slider |
 
-The existing popup surface body hit test and Snow Shot floating-toolbar interaction
+The existing popup surface body hit test and KXCapture floating-toolbar interaction
 region already map the pointer into local coordinates. Navigation-menu placement
 already works in scope-local coordinates. These paths required no geometry redesign.
 Modal centering uses the owner's native frame geometry in its normal path; the
@@ -109,14 +109,14 @@ Final validation uses the Debug build and only relevant tests:
 The Windows-only busy indicator uses the tested small-overlay projection; its native
 compositing was not exercised by the offscreen regression. These tests establish the
 coordinate invariant and affected behavior, not every physical monitor arrangement
-or native compositor interaction. The running Snow Shot instance still contains
+or native compositor interaction. The running KXCapture instance still contains
 only the earlier diagnostic call patch; the permanent refactor is in source and the
 rebuilt test targets, pending a normal application rebuild after that instance exits.
 
 The older investigation below describes a separate, previously unconfirmed failure.
 Its logging instructions have an additional limitation: `DiagnosticsService::record()`
 unconditionally discards `QtDebugMsg`, so `adqt.popup` debug events are not persisted
-in Snow Shot's log files even when `QT_LOGGING_RULES` enables the category.
+in KXCapture's log files even when `QT_LOGGING_RULES` enables the category.
 
 ## Earlier investigation
 
@@ -237,7 +237,7 @@ test confirm that recognition availability is handled on its own triggers/option
 ## Trace a recurrence
 
 Build the Debug application with the changes in this investigation. Fully exit the
-previous Snow Shot instance, then launch the Debug executable with the logging rule:
+previous KXCapture instance, then launch the Debug executable with the logging rule:
 
 ```powershell
 $previousLoggingRules = $env:QT_LOGGING_RULES
@@ -249,7 +249,7 @@ try {
 }
 ```
 
-Snow Shot's diagnostics service currently discards these debug messages; a debugger
+KXCapture's diagnostics service currently discards these debug messages; a debugger
 or console capture is required instead of relying on the storage `logs` folder.
 The rule must reach the process that actually handles captures.
 No change is made to the user's persistent logging configuration.

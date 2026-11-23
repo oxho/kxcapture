@@ -108,7 +108,7 @@ void forwardingToLegacyPrimaryDispatchesOnce() {
     });
     const QStringList arguments{QStringLiteral("snow-shot-test"),
                                 QStringLiteral("--show-main-window"),
-                                QStringLiteral("--edit-with-snow-shot"),
+                                QStringLiteral("--edit-with-kxcapture"),
                                 QDir::temp().filePath(QStringLiteral("image one 雪.png"))};
     QProcess secondary;
     auto childArguments = arguments;

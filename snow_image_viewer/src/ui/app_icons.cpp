@@ -46,7 +46,7 @@ constexpr IconDescriptor kEntries[] = {
 
 constexpr IconPack kStaticPack{
     std::string_view("snow-image-viewer"),
-    std::string_view("Snow Image Viewer project-owned static SVG assets"),
+    std::string_view("KXCapture Image Viewer project-owned static SVG assets"),
     std::string_view("a7d70f139077db28edc75a75460caceb80ff42b0f14da7aa535f5e92252efa99"), kEntries,
     sizeof(kEntries) / sizeof(kEntries[0])};
 

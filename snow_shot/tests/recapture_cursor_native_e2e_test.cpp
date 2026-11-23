@@ -368,7 +368,7 @@ StockCrosshairGeometry stockCrosshairGeometry() {
 QImage scaledStockCrosshair(const QSize& size, QPoint& hotspot) {
     SnowCaptureCursorImageView view{};
     require(snow_capture_crosshair_cursor_image(&view) != 0,
-            "shared Snow Shot crosshair artwork was unavailable");
+            "shared KXCapture crosshair artwork was unavailable");
     const auto width = static_cast<uint32_t>(size.width());
     const auto height = static_cast<uint32_t>(size.height());
     QImage image(size, QImage::Format_RGBA8888);

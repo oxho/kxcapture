@@ -13,7 +13,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 $store = $DistributionChannel -eq 'store'
-if ($store -and $Architecture -ne 'x64') { throw 'The Snow Shot Store channel supports x64 only.' }
+if ($store -and $Architecture -ne 'x64') { throw 'The KXCapture Store channel supports x64 only.' }
 if ($PrepareOcrRuntimeOnly) {
     & (Join-Path $PSScriptRoot 'prepare-snow-shot-ocr-runtime.ps1') -Architecture $Architecture -BuildDirectory $BuildDirectory -Parallelism $Parallelism -SkipBuild:$SkipBuild
     return
@@ -137,7 +137,7 @@ if (-not $store -and -not $StageOnly) {
         }
     }
     if (-not $nsisCommand) {
-        throw "NSIS compiler 'makensis' was not found. Install NSIS before packaging Snow Shot."
+        throw "NSIS compiler 'makensis' was not found. Install NSIS before packaging KXCapture."
     }
 }
 
@@ -325,12 +325,12 @@ function Assert-SnowShotStaticDependencies {
     )
 
     if (-not (Test-Path -LiteralPath $Prefix -PathType Container)) {
-        throw "The Snow Shot static vcpkg prefix was not found: $Prefix"
+        throw "The KXCapture static vcpkg prefix was not found: $Prefix"
     }
 
     $ffmpegComponentsPath = Join-Path $Prefix "share\ffmpeg\snow-shot-config-components.h"
     if (-not (Test-Path -LiteralPath $ffmpegComponentsPath -PathType Leaf)) {
-        throw "The audited Snow Shot FFmpeg component header was not found: $ffmpegComponentsPath"
+        throw "The audited KXCapture FFmpeg component header was not found: $ffmpegComponentsPath"
     }
     $componentPattern = '^#define CONFIG_(?<Name>[A-Z0-9_]+?)_(?<Kind>DEMUXER|DECODER|ENCODER|HWACCEL|PARSER|MUXER|BSF|PROTOCOL|FILTER|INDEV|OUTDEV) 1$'
     $enabledFfmpegComponents = @(Get-Content -LiteralPath $ffmpegComponentsPath | ForEach-Object {
@@ -375,7 +375,7 @@ function Assert-SnowShotStaticDependencies {
         -Filter "libde265_*" -ErrorAction SilentlyContinue |
         ForEach-Object { $libde265Artifacts.Add($_.FullName) }
     if ($libde265Artifacts.Count -gt 0) {
-        throw "The Snow Shot static prefix contains forbidden libde265 artifacts: $($libde265Artifacts -join ', ')"
+        throw "The KXCapture static prefix contains forbidden libde265 artifacts: $($libde265Artifacts -join ', ')"
     }
 
     $debugDirectory = Join-Path $Prefix "debug"
@@ -431,7 +431,7 @@ if (-not $SkipBuild) {
     $configureArguments += "-DSNOW_SHOT_OCR_ASSET_MANIFEST=$($ocrAssetManifestPath.Replace('\', '/'))"
     & cmake @configureArguments
     if ($LASTEXITCODE -ne 0) {
-        throw "Snow Shot release configuration failed."
+        throw "KXCapture release configuration failed."
     }
 }
 elseif (-not (Test-Path -LiteralPath $cachePath)) {
@@ -475,7 +475,7 @@ if (-not $SkipBuild) {
     [string[]]$releaseTargets = if ($store) { @('snow_shot') } else { @('snow_shot', 'snow_shot_mini') }
     & cmake --build $buildDirectory --config Release --target @releaseTargets --parallel $Parallelism
     if ($LASTEXITCODE -ne 0) {
-        throw "Snow Shot release build failed."
+        throw "KXCapture release build failed."
     }
 }
 
@@ -488,7 +488,7 @@ if (-not $store) {
     & $updaterSizeReporter -Architecture $Architecture -Executable $updaterBuildExecutable `
         -CargoProfileDirectory $updaterCargoProfileDirectory -Output $updaterSizeEvidence
     if ($LASTEXITCODE -ne 0) {
-        throw 'Snow Shot updater size reporting failed.'
+        throw 'KXCapture updater size reporting failed.'
     }
 }
 
@@ -512,7 +512,7 @@ if (-not $store) { $licenseManifests += $updaterCargoManifest }
     -AntDesignNotice (Join-Path $repoRoot "ant_design_qt\THIRD_PARTY_NOTICES.md") `
     -FallbackLicenseDirectory (Join-Path $repoRoot "licenses")
 if ($LASTEXITCODE -ne 0) {
-    throw "Snow Shot third-party license collection failed."
+    throw "KXCapture third-party license collection failed."
 }
 
 if (Test-Path -LiteralPath $installDirectory) {
@@ -522,7 +522,7 @@ New-Item -ItemType Directory -Force -Path $installDirectory | Out-Null
 
 & cmake --install $buildDirectory --config Release --component SnowShot --prefix $installDirectory
 if ($LASTEXITCODE -ne 0) {
-    throw "Snow Shot install step failed."
+    throw "KXCapture install step failed."
 }
 
 $mainExecutable = Join-Path $installDirectory "bin\snow_shot.exe"
@@ -532,16 +532,16 @@ if (-not (Test-Path -LiteralPath $mainExecutable)) {
 
 $versionInfo = (Get-Item -LiteralPath $mainExecutable).VersionInfo
 $expectedBinaryMetadata = @{
-    CompanyName = "Snow Apps"
-    FileDescription = "Snow Shot screenshot utility"
+    CompanyName = "oxho"
+    FileDescription = "KXCapture screenshot utility"
     InternalName = "snow_shot"
     LegalCopyright = "Copyright (C) 2025-2026 mg-chao"
     OriginalFilename = "snow_shot.exe"
-    ProductName = "Snow Shot"
+    ProductName = "KXCapture"
 }
 foreach ($property in $expectedBinaryMetadata.Keys) {
     if ($versionInfo.$property -ne $expectedBinaryMetadata[$property]) {
-        throw "Snow Shot binary metadata '$property' is '$($versionInfo.$property)'; expected '$($expectedBinaryMetadata[$property])'."
+        throw "KXCapture binary metadata '$property' is '$($versionInfo.$property)'; expected '$($expectedBinaryMetadata[$property])'."
     }
 }
 
@@ -556,17 +556,17 @@ if (-not $store) {
     }
     $updaterVersionInfo = (Get-Item -LiteralPath $updaterExecutable).VersionInfo
     $expectedUpdaterMetadata = @{
-        CompanyName = 'Snow Apps'
-        FileDescription = 'Snow Shot update service'
+        CompanyName = 'oxho'
+        FileDescription = 'KXCapture update service'
         InternalName = 'snow-shot-updater'
         LegalCopyright = 'Copyright (C) 2025-2026 mg-chao'
         OriginalFilename = 'snow-shot-updater.exe'
-        ProductName = 'Snow Shot'
+        ProductName = 'KXCapture'
         ProductVersion = $versionInfo.ProductVersion
     }
     foreach ($property in $expectedUpdaterMetadata.Keys) {
         if ($updaterVersionInfo.$property -ne $expectedUpdaterMetadata[$property]) {
-            throw "Snow Shot updater metadata '$property' is '$($updaterVersionInfo.$property)'; expected '$($expectedUpdaterMetadata[$property])'."
+            throw "KXCapture updater metadata '$property' is '$($updaterVersionInfo.$property)'; expected '$($expectedUpdaterMetadata[$property])'."
         }
     }
 }
@@ -577,7 +577,7 @@ $requiredStageFiles = @(
     "bin\snow-ocr-process.exe",
     "share\snow-shot\licenses\LICENSES.txt"
 )
-if ($store) { $requiredStageFiles += 'bin\SnowShotExplorerCommand.dll' }
+if ($store) { $requiredStageFiles += 'bin\KXCaptureExplorerCommand.dll' }
 $missingStageFiles = @($requiredStageFiles | Where-Object {
     -not (Test-Path -LiteralPath (Join-Path $installDirectory $_) -PathType Leaf)
 })
@@ -638,7 +638,7 @@ $expectedBinaryPaths = @(
 )
 if ($store) {
     $expectedBinaryPaths = @($expectedBinaryPaths | Where-Object { $_ -ne 'bin\snow-shot-updater.exe' })
-    $expectedBinaryPaths += 'bin\SnowShotExplorerCommand.dll'
+    $expectedBinaryPaths += 'bin\KXCaptureExplorerCommand.dll'
 }
 $unexpectedBinaries = @($stagedBinaries | Where-Object {
     $relativePath = [System.IO.Path]::GetRelativePath($installDirectory, $_.FullName)
@@ -784,7 +784,7 @@ $symbolOptions = @{
 
 $linkMapPath = Join-Path $buildDirectory "snow_shot\Release\snow_shot.map"
 if (-not (Test-Path -LiteralPath $linkMapPath -PathType Leaf)) {
-    throw "The Snow Shot Release link map was not found: $linkMapPath"
+    throw "The KXCapture Release link map was not found: $linkMapPath"
 }
 $ffmpegRegistrationPattern =
     '^\s+[0-9A-Fa-f]+:[0-9A-Fa-f]+\s+(?<Name>ff_[A-Za-z0-9_]+_(?:bsf|decoder|encoder|hwaccel|parser|demuxer|muxer|protocol)|ff_(?:af|asrc|asink|vf|vsrc|vsink|avf|vaf)_[A-Za-z0-9_]+)\s+[0-9A-Fa-f]+\s{2,}\S'
@@ -847,8 +847,8 @@ if (-not $store) {
     $cpackConfiguration = Get-Content -LiteralPath $cpackConfig -Raw
     $requiredCpackSettings = @{
         CPACK_CREATE_DESKTOP_LINKS = "snow_shot"
-        CPACK_PACKAGE_EXECUTABLES = "snow_shot;Snow Shot"
-        CPACK_PACKAGE_HOMEPAGE_URL = "https://snowshot.top"
+        CPACK_PACKAGE_EXECUTABLES = "snow_shot;KXCapture"
+        CPACK_PACKAGE_HOMEPAGE_URL = ""
         CPACK_PACKAGE_INSTALL_DIRECTORY = "SnowShot"
         CPACK_PACKAGE_INSTALL_REGISTRY_KEY = "SnowShot"
         CPACK_NSIS_INSTALLED_ICON_NAME = "bin\\snow_shot.exe"
@@ -867,7 +867,7 @@ if (-not $store) {
         }
     }
     if ($cpackConfiguration -notmatch 'set\(CPACK_PACKAGE_VERSION "([^"]+)"\)') {
-        throw "CPack configuration does not declare the Snow Shot package version."
+        throw "CPack configuration does not declare the KXCapture package version."
     }
     $packageVersion = $Matches[1]
     $packageVersionNumeric = ($packageVersion -split "-", 2)[0]
@@ -880,7 +880,7 @@ if (-not $store) {
 }
 if ($versionInfo.FileVersion -ne "$packageVersionNumeric.0" -or
     $versionInfo.ProductVersion -ne $packageVersion) {
-    throw "Snow Shot binary version '$($versionInfo.FileVersion)'/'$($versionInfo.ProductVersion)' does not match package version '$packageVersion'."
+    throw "KXCapture binary version '$($versionInfo.FileVersion)'/'$($versionInfo.ProductVersion)' does not match package version '$packageVersion'."
 }
 
 $pinnedRuntime = (Get-Content -LiteralPath $ocrAssetManifestPath -Raw | ConvertFrom-Json).runtime
@@ -888,10 +888,10 @@ $ocrRuntimeVersion = $pinnedRuntime.version
 $ocrPlatform = $windowsTarget.Platform
 $ocrDefaultModelType = "small"
 $ocrDefaultModelId = "ppocrv6-small-463ea9f"
-$ocrModelRootUrl = "https://www.modelscope.cn/models/mgchao/SnowShotOCR/resolve/master"
+$ocrModelRootUrl = ""
 $ocrRuntimeFileName = "snow-ocr-process-$ocrRuntimeVersion-$ocrPlatform.exe"
 $ocrRuntimeArchiveName = "snow-ocr-runtime-$ocrRuntimeVersion-$ocrPlatform.zip"
-$ocrRuntimeUrl = "https://www.modelscope.cn/models/mgchao/SnowShotOCR/resolve/master/runtime/$ocrRuntimeVersion/$ocrPlatform/$ocrRuntimeArchiveName"
+$ocrRuntimeUrl = ""
 $ocrModels = @(
     [ordered]@{
         Type = "extra_small"
@@ -1080,6 +1080,9 @@ if ($OcrRuntimeArchive) {
         Copy-Item -LiteralPath $OcrRuntimeArchive -Destination $runtimeArchivePath -Force
     }
 } else {
+    if ([string]::IsNullOrWhiteSpace([string]$pinnedRuntime.archive.url)) {
+        throw 'OCR runtime URL is not configured. Set KXCAPTURE_OCR_MODEL_BASE_URL or pass -OcrRuntimeArchive. Upstream ModelScope hosting is not used.'
+    }
     Invoke-WebRequest -Uri $pinnedRuntime.archive.url -OutFile $runtimeArchivePath -TimeoutSec 180 -MaximumRedirection 5
 }
 . (Join-Path $PSScriptRoot 'snow-shot-ocr-release-runtime.ps1')
@@ -1114,12 +1117,12 @@ if ($nativeTarget) {
 }
 $ocrRuntimeVersionInfo = (Get-Item -LiteralPath (Join-Path $runtimeWork $ocrRuntimeFileName)).VersionInfo
 $expectedOcrMetadata = @{
-    CompanyName = "Snow Apps"
-    FileDescription = "Snow Shot OCR runtime"
+    CompanyName = "oxho"
+    FileDescription = "KXCapture OCR runtime"
     FileVersion = "$ocrRuntimeVersion.0"
     InternalName = "snow-ocr-process"
     OriginalFilename = $ocrRuntimeFileName
-    ProductName = "Snow Shot OCR Runtime"
+    ProductName = "KXCapture OCR Runtime"
     ProductVersion = $ocrRuntimeVersion
 }
 foreach ($property in $expectedOcrMetadata.Keys) {
@@ -1172,6 +1175,9 @@ foreach ($model in $ocrModels) {
             }
         }
         if (-not $valid) {
+            if ([string]::IsNullOrWhiteSpace([string]$url)) {
+                throw 'OCR model URL is not configured. Set KXCAPTURE_OCR_MODEL_BASE_URL. Upstream ModelScope hosting is not used.'
+            }
             Write-Host "Downloading OCR model: $url"
             Invoke-WebRequest -Uri $url -OutFile $path -MaximumRedirection 5
             Assert-ReleaseFile -Path $path -Bytes $file.Bytes -Sha256 $file.Sha256
@@ -1207,7 +1213,10 @@ New-Item -ItemType Directory -Path $paragraphModelCache -Force | Out-Null
 foreach ($file in $paragraphModel.files) {
     $path = Join-Path $paragraphModelCache $file.name
     if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
-        Invoke-WebRequest -Uri $file.url -OutFile $path -Headers @{ Referer = 'https://www.modelscope.cn/' }
+        if ([string]::IsNullOrWhiteSpace([string]$file.url)) {
+            throw 'OCR paragraph-model URL is not configured. Set KXCAPTURE_OCR_MODEL_BASE_URL. Upstream ModelScope hosting is not used.'
+        }
+        Invoke-WebRequest -Uri $file.url -OutFile $path
     }
     Assert-ReleaseFile -Path $path -Bytes $file.size -Sha256 $file.sha256
 }
@@ -1493,18 +1502,18 @@ string(REPLACE "snow-shot-$packageVersion-$ocrPlatform.exe" "$packageBaseName.ex
     }
     $installerVersionInfo = (Get-Item -LiteralPath $packagePath).VersionInfo
     $expectedInstallerMetadata = @{
-        CompanyName = "Snow Apps"
-        FileDescription = "Snow Shot installer"
+        CompanyName = "oxho"
+        FileDescription = "KXCapture installer"
         FileVersion = "$packageVersionNumeric.0"
         InternalName = "snow-shot-installer"
         LegalCopyright = "Copyright (C) 2025-2026 mg-chao"
         OriginalFilename = "$packageBaseName.exe"
-        ProductName = "Snow Shot"
+        ProductName = "KXCapture"
         ProductVersion = $packageVersion
     }
     foreach ($property in $expectedInstallerMetadata.Keys) {
         if ($installerVersionInfo.$property -ne $expectedInstallerMetadata[$property]) {
-            throw "Snow Shot $variant installer metadata '$property' is '$($installerVersionInfo.$property)'; expected '$($expectedInstallerMetadata[$property])'."
+            throw "KXCapture $variant installer metadata '$property' is '$($installerVersionInfo.$property)'; expected '$($expectedInstallerMetadata[$property])'."
         }
     }
     $checksumPath = "$packagePath.sha256"
@@ -1541,9 +1550,9 @@ string(REPLACE "snow-shot-$packageVersion-$ocrPlatform.exe" "$packageBaseName.ex
         }
     } | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $manifestPath -Encoding utf8
     $producedPackages += $packagePath
-    Write-Output "Snow Shot $variant installer: $packagePath"
-    Write-Output "Snow Shot $variant installer checksum: $checksumPath"
-    Write-Output "Snow Shot $variant release manifest: $manifestPath"
+    Write-Output "KXCapture $variant installer: $packagePath"
+    Write-Output "KXCapture $variant installer checksum: $checksumPath"
+    Write-Output "KXCapture $variant release manifest: $manifestPath"
 }
 
 $portableBaseName = "snow-shot-$packageVersion-$ocrPlatform-portable"
@@ -1583,10 +1592,10 @@ $portableManifestPath = Join-Path $buildDirectory "$portableBaseName.manifest.js
     }
 } | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $portableManifestPath -Encoding utf8
 $producedPackages += $portableArchivePath
-Write-Output "Snow Shot portable archive: $portableArchivePath"
-Write-Output "Snow Shot portable archive checksum: $portableChecksumPath"
-Write-Output "Snow Shot portable release manifest: $portableManifestPath"
-Write-Output "Snow Shot audited install tree: $installDirectory"
+Write-Output "KXCapture portable archive: $portableArchivePath"
+Write-Output "KXCapture portable archive checksum: $portableChecksumPath"
+Write-Output "KXCapture portable release manifest: $portableManifestPath"
+Write-Output "KXCapture audited install tree: $installDirectory"
 Write-Output "OCR runtime upload artifact: $runtimeArchivePath"
 Write-Output "OCR runtime checksum: $runtimeArchiveChecksum"
 Write-Output "OCR runtime manifest: $runtimeReleaseManifest"

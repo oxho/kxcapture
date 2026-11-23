@@ -2,7 +2,7 @@
 """Compile the patched DNN registry offline; no OpenCV build or models are downloaded.
 
 Run with --source-tree PATH (or SNOW_OPENCV_SOURCE_TREE) pointing to the pinned
-OpenCV source, either pristine or with the Snow Shot patch already applied.
+OpenCV source, either pristine or with the KXCapture patch already applied.
 --models-directory defaults to artifacts/qr-models-wechat when those files exist.
 """
 

@@ -1,4 +1,4 @@
-name: Snow Shot WinGet
+name: KXCapture WinGet
 
 on:
   release:
@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: Published Snow Shot release tag (including v and optional _snow-shot)
+        description: Published KXCapture release tag (including v and optional _snow-shot)
         required: true
         type: string
 
@@ -29,7 +29,7 @@ jobs:
         run: |
           ./scripts/test-snow-shot-winget.ps1
           ./scripts/test-snow-shot-arm64-distribution.ps1
-      - name: Resolve Snow Shot tag
+      - name: Resolve KXCapture tag
         id: release
         shell: pwsh
         env:

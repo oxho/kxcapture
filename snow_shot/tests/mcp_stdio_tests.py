@@ -108,10 +108,10 @@ def exercise(executable, recognition_only=False):
             assert not status.get("isError", False), status
             assert status["structuredContent"]["reachable"] is False, status
             assert status["structuredContent"]["error"]["code"] == "unavailable", status
-            assert "Snow Shot is not running" in status["content"][0]["text"], status
+            assert "KXCapture is not running" in status["content"][0]["text"], status
             send({"jsonrpc":"2.0","id":4,"method":"resources/list","params":{}})
             assert len(response(4)["resources"]) >= 3
-            send({"jsonrpc":"2.0","id":5,"method":"resources/read","params":{"uri":"snow-shot://capabilities"}})
+            send({"jsonrpc":"2.0","id":5,"method":"resources/read","params":{"uri":"kxcapture://capabilities"}})
             capabilities = response(5)
             catalog = json.loads(capabilities["contents"][0]["text"])
             assert {tool["name"] for tool in catalog["tools"]} == names

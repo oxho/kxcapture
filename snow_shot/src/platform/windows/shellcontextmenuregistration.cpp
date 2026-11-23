@@ -38,9 +38,9 @@ QString contextMenuText(const char* source) {
 QString menuLabel(const QString& accessKey) {
     QString label = app::edition::isMini
                         ? contextMenuText(QT_TRANSLATE_NOOP("ShellContextMenuRegistration",
-                                                            "Edit with Snow Shot Mini"))
+                                                            "Edit with KXCapture Mini"))
                         : contextMenuText(QT_TRANSLATE_NOOP("ShellContextMenuRegistration",
-                                                            "Edit with Snow Shot"));
+                                                            "Edit with KXCapture"));
     label.replace(QLatin1Char('&'), QStringLiteral("&&"));
     if (!accessKey.isEmpty())
         label += QStringLiteral(" (&%1)").arg(accessKey);
@@ -307,7 +307,7 @@ ShellContextMenuMode ShellContextMenuRegistration::modeFromValue(const QString& 
 }
 
 QString ShellContextMenuRegistration::expectedCommand() const {
-    return QStringLiteral("\"%1\" --edit-with-snow-shot \"%2\"")
+    return QStringLiteral("\"%1\" --edit-with-kxcapture \"%2\"")
         .arg(m_executable, QStringLiteral("%1"));
 }
 

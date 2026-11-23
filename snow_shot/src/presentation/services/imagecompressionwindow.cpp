@@ -278,7 +278,7 @@ class ImageCompressionWindow final : public ImageExportEditor {
                 if (!result.succeeded() || selection->error != platform::SelectedFileError::None) {
                     showError(
                         selection->error == platform::SelectedFileError::PermissionDenied
-                            ? tr("Allow Snow Shot to access Finder in System Settings > Privacy & "
+                            ? tr("Allow KXCapture to access Finder in System Settings > Privacy & "
                                  "Security > Automation, then try again")
                             : tr("Could not read the selected image files. Please try again"));
                     return;

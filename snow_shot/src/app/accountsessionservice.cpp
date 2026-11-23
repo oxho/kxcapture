@@ -53,7 +53,7 @@ QString accountError(const QString& code) {
     if (code == u"wechat_link_conflict")
         return QString::fromUtf8(QT_TRANSLATE_NOOP(
             "AccountSessionService",
-            "This purchase must use the WeChat account linked to your Snow Shot account"));
+            "This purchase must use the WeChat account linked to your KXCapture account"));
     if (code == u"request_expired")
         return QString::fromUtf8(
             QT_TRANSLATE_NOOP("AccountSessionService",
@@ -204,6 +204,11 @@ QString AccountSessionService::formatCreditAmount(const QString& nanos) {
 void AccountSessionService::send(const QByteArray& method, const QString& path,
                                  const QJsonObject& body, Completion completion, bool authenticated,
                                  const QString& proof, const QString& operation, bool retried) {
+    if (m_origin.isEmpty()) {
+        if (completion)
+            completion({}, RequestFailure{QStringLiteral("api_unconfigured"), 0});
+        return;
+    }
     const quint64 generation = m_generation;
     const QString requestId =
         operation.isEmpty() ? QUuid::createUuid().toString(QUuid::Id128) : operation;
@@ -215,7 +220,7 @@ void AccountSessionService::send(const QByteArray& method, const QString& path,
     request.setRawHeader("Content-Type", "application/json");
     request.setRawHeader("X-Request-ID", requestId.toUtf8());
     if (path == u"/registration/requests" || path == u"/purchases/requests")
-        request.setRawHeader("X-SnowShot-Accept-Jpeg", "1");
+        request.setRawHeader("X-KXCapture-Accept-Jpeg", "1");
     if (authenticated && !m_accessToken.isEmpty())
         request.setRawHeader("Authorization", "Bearer " + m_accessToken.toUtf8());
     if (!proof.isEmpty())

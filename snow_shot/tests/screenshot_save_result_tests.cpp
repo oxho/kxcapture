@@ -118,7 +118,7 @@ void settingContracts() {
     require(!adapter.showSaveResult() && !session.state(id).enabled && session.state(id).visible &&
                 !backend.applySwitchValue(binding, true),
             "system dialog must show a disabled false switch and reject UI writes");
-    require(adapter.setSaveAsFileDialog(QStringLiteral("snow_shot")), "select Snow Shot");
+    require(adapter.setSaveAsFileDialog(QStringLiteral("snow_shot")), "select KXCapture");
     await([&] { return session.state(id).enabled; });
     require(session.submitDraft(id, true), "enable save result");
     await([&] { return adapter.showSaveResult() && session.state(id).acceptedValue.toBool(); });
@@ -126,7 +126,7 @@ void settingContracts() {
     await([&] { return !session.state(id).enabled; });
     require(adapter.showSaveResult() && session.state(id).acceptedValue.toBool(),
             "disabled preference survives");
-    require(adapter.setSaveAsFileDialog(QStringLiteral("snow_shot")), "restore Snow Shot");
+    require(adapter.setSaveAsFileDialog(QStringLiteral("snow_shot")), "restore KXCapture");
     await([&] { return session.state(id).enabled; });
     require(backend.resetSection(settings::SettingsSectionReset::ScreenshotSettings) &&
                 adapter.showSaveResult(),

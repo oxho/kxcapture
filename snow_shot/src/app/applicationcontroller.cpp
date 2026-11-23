@@ -424,7 +424,7 @@ class ApplicationController::Impl {
                                "%1 %2 is available. Open About for update options")
                                .arg(edition::productName(), version)
                          : ApplicationController::tr(
-                               "Snow Shot %1 is available. Open About for update options")
+                               "KXCapture %1 is available. Open About for update options")
                                .arg(version)));
             });
 #ifndef Q_OS_MACOS
@@ -435,7 +435,7 @@ class ApplicationController::Impl {
                            "An update is ready. Open About to restart and update %1")
                            .arg(edition::productName())
                      : ApplicationController::tr(
-                           "An update is ready. Open About to restart and update Snow Shot")));
+                           "An update is ready. Open About to restart and update KXCapture")));
         });
 #endif
         platform::windows::setAdministratorRestartGuard([this] { return restartAllowed(); });
@@ -1293,7 +1293,7 @@ class ApplicationController::Impl {
         auto outcome = mcpGraph.start(std::move(graphPorts));
         if (!outcome.available) {
             app.setProperty("snowShotMcpStartError", QVariant::fromValue(mcpGraph.startupError()));
-            qWarning("Unable to start Snow Shot MCP server: %s", qPrintable(outcome.error));
+            qWarning("Unable to start KXCapture MCP server: %s", qPrintable(outcome.error));
         }
         return outcome;
     }

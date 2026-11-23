@@ -235,10 +235,10 @@ int runMcpApplicationLifecycleTests(int argc, char** argv) try {
                 application.property("snowShotMcpStartError").value<McpStartupError>();
             const QString message = mcpStartupErrorText(error);
             const QString expected =
-                locale == u"zh_CN" ? QStringLiteral("另一个 Snow Shot 实例正在使用 MCP 端点")
+                locale == u"zh_CN" ? QStringLiteral("另一个 KXCapture 实例正在使用 MCP 端点")
                 : locale == u"zh_TW"
-                    ? QStringLiteral("另一個 Snow Shot 執行個體正在使用 MCP 端點")
-                    : QStringLiteral("Another Snow Shot instance owns the MCP endpoint");
+                    ? QStringLiteral("另一個 KXCapture 執行個體正在使用 MCP 端點")
+                    : QStringLiteral("Another KXCapture instance owns the MCP endpoint");
             require(error == McpStartupError::EndpointOwned && message == expected &&
                         !initiallyUnavailable->isRunning() && failedRuntimeStarts == 0,
                     "real catalogs retranslate retained startup failures without restarting MCP");

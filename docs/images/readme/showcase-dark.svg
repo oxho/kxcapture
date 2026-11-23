@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="600" viewBox="0 0 1200 600" fill="none">
-  <title>Capture, annotate, pin, recognize, and record with Snow Shot</title>
+  <title>Capture, annotate, pin, recognize, and record with KXCapture</title>
   <desc>Original feature illustration, not an application screenshot. A selected landscape, annotation tools, a pinned note, recognized text, and a recording timeline.</desc>
   <defs>
     <linearGradient id="sky" x1="75" y1="170" x2="610" y2="440" gradientUnits="userSpaceOnUse"><stop stop-color="#332942"/><stop offset="1" stop-color="#473257"/></linearGradient>
@@ -22,7 +22,7 @@
       <path d="m463 103 8-19 11 5-8 20m-12 3h17"/>
     </g>
     <path d="M493 82v28" stroke="#393141"/>
-    <circle cx="514" cy="95" r="6" fill="#81D550"/>
+    <circle cx="514" cy="95" r="6" fill="#1EC9A8"/>
     <text x="63" y="153" fill="#A69AB7" font-size="12" font-weight="600" letter-spacing="2">CAPTURE &amp; ANNOTATE</text>
     <!-- A graphic landscape within a selection. -->
     <g clip-path="url(#scene)">
@@ -42,7 +42,7 @@
     <g transform="translate(111 342) rotate(-4)">
       <rect x="-10" y="-31" width="215" height="48" rx="5" fill="#221E2B" fill-opacity=".94"/>
       <text fill="#EDE6F5" font-size="26" font-weight="650">A closer look.</text>
-      <path d="M-1 9c66 5 125-2 186 0" stroke="#81D550" stroke-width="4" stroke-linecap="round"/>
+      <path d="M-1 9c66 5 125-2 186 0" stroke="#1EC9A8" stroke-width="4" stroke-linecap="round"/>
     </g>
     <path d="M359 346c-9-57-31-73-71-83m0 0 13 23m-13-23 25-2" stroke="#BB91ED" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
     <!-- Recognition: image selection becomes editable text. -->

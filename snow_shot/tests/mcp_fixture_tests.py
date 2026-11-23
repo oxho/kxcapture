@@ -258,7 +258,7 @@ def document_workflow(client, directory, samples):
                             "idempotency_key": "fixture-open"})
     assert duplicate["result"]["document_id"] == identifier
     arguments = {"document_id": identifier, "expected_revision": revision}
-    uri = "snow-shot://documents/" + identifier
+    uri = "kxcapture://documents/" + identifier
     subscription = client.listen(uri)
     changed = client.tool("snow_shot_document_apply_annotations", dict(arguments,
                           operations=[{"type": "rectangle", "bounds": [10, 10, 20, 20]}]))
@@ -274,7 +274,7 @@ def document_workflow(client, directory, samples):
     saved = client.tool("snow_shot_document_save", dict(arguments, path=str(directory / "output.png")))
     assert (directory / "output.png").is_file(), saved
     job = client.tool("snow_shot_document_recognize", dict(arguments, kind="text"))["result"]
-    job_uri = "snow-shot://jobs/" + job["job_id"]
+    job_uri = "kxcapture://jobs/" + job["job_id"]
     job_subscription = client.listen(job_uri)
     deadline = time.monotonic() + 10
     while job["status"] == "running" and time.monotonic() < deadline:
@@ -319,7 +319,7 @@ def modern_task_workflow(executable, descriptor, directory):
             assert opened["result"]["status"] == "completed", opened
             document = opened["result"]["result"]
         arguments = {"document_id": document["document_id"], "expected_revision": document["revision"]}
-        uri = "snow-shot://documents/" + arguments["document_id"]
+        uri = "kxcapture://documents/" + arguments["document_id"]
         subscription = client.listen(uri)
         changed = client.tool("snow_shot_document_apply_annotations", dict(arguments,
                               operations=[{"type": "rectangle", "bounds": [1, 1, 12, 12]}]))
@@ -453,7 +453,7 @@ def complete_document_surface(client, directory):
         time.sleep(.025)
         job = client.tool("snow_shot_job_get", {"job_id": job["job_id"]})["result"]
     assert job["status"] == "completed", job
-    resource = client.request("resources/read", {"uri": "snow-shot://jobs/" + job["job_id"]})
+    resource = client.request("resources/read", {"uri": "kxcapture://jobs/" + job["job_id"]})
     assert json.loads(resource["contents"][0]["text"])["result"]["status"] == "completed"
     arguments["expected_revision"] = client.tool("snow_shot_document_state", {"document_id": arguments["document_id"]})["revision"]
     mutate("close")
@@ -805,7 +805,7 @@ def screenshot_contract_outcomes(client, directory, resources=False):
         assert result.get("isError", False) == (not envelope["ok"]), result
         assert envelope["ok"], (name, envelope)
         if resources and name == "snow_shot_screenshot_state":
-            resource = client.request("resources/read", {"uri": "snow-shot://screenshots/" + arguments["session_id"]})
+            resource = client.request("resources/read", {"uri": "kxcapture://screenshots/" + arguments["session_id"]})
             assert json.loads(resource["contents"][0]["text"])["session_id"] == arguments["session_id"]
         if name in ("snow_shot_screenshot_recognize", "snow_shot_screenshot_translate", "snow_shot_screenshot_auto_filter"):
             completed = screenshot_wait_operation(client, envelope["session_id"], envelope["result"]["operation_id"])
@@ -915,7 +915,7 @@ def run(args, provider):
                     before = process_metrics(client.process)
                     client.request("tools/list")
                     client.tool("snow_shot_mcp_status")
-                    for uri in ("snow-shot://capabilities", "snow-shot://application/status", "snow-shot://settings"):
+                    for uri in ("kxcapture://capabilities", "kxcapture://application/status", "kxcapture://settings"):
                         resource = client.request("resources/read", {"uri": uri})
                         assert isinstance(json.loads(resource["contents"][0]["text"]), dict)
                     for _ in range(args.samples):

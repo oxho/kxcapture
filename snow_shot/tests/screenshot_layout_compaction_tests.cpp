@@ -344,7 +344,7 @@ void sparseRasterMatchesReference(int decoration) {
         require(canvas.canvasHistoryState().canUndo, "large scene drawing committed");
     } else if (decoration == 2) {
         SnowCanvasWatermarkConfig watermark;
-        watermark.text = QStringLiteral("Snow Shot");
+        watermark.text = QStringLiteral("KXCapture");
         watermark.gap = 120;
         require(canvas.setCanvasWatermarkConfig(watermark), "large scene watermark");
     }

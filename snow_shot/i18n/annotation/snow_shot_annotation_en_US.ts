@@ -1319,8 +1319,8 @@
             <translation>Smooth movement</translation>
         </message>
         <message>
-            <source>Snow Shot visual understanding</source>
-            <translation>Snow Shot visual understanding</translation>
+            <source>KXCapture visual understanding</source>
+            <translation>KXCapture visual understanding</translation>
         </message>
         <message>
             <source>Solid arrow line</source>

@@ -473,7 +473,7 @@ void transport() {
     await([&] { return bool(pending); });
     server.publishEvent(owner,
                         {{QStringLiteral("event"), QStringLiteral("resource_changed")},
-                         {QStringLiteral("uri"), QStringLiteral("snow-shot://jobs/private")}});
+                         {QStringLiteral("uri"), QStringLiteral("kxcapture://jobs/private")}});
     const auto event = receive(subscribed);
     require(event.value(QStringLiteral("kind")) == QStringLiteral("event") &&
                 !event.contains(QStringLiteral("request_id")),

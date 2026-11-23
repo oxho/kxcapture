@@ -1068,14 +1068,14 @@ void sourceSwitchesInvalidateBuiltinsAndPreserveIndependentCustomEndpoints() {
     session.setTarget(target(seed.key));
     session.seedRecognitionResults(seed);
     session.activate(Mode::Table);
-    require(api.setBaseUrl(replacement.url()), "change Snow Shot recognition server");
+    require(api.setBaseUrl(replacement.url()), "change KXCapture recognition server");
     const auto remaining = session.cachedRecognitionResults();
     require(remaining.tableEntries.size() == 1 &&
                 remaining.tableEntries[0].model == custom.selectionId() &&
                 session.workflowResult().value(QStringLiteral("text")) ==
                     QStringLiteral("Custom source") &&
                 replacement.connections == 0,
-            "switching the Snow Shot server invalidates builtin and dedicated results while "
+            "switching the KXCapture server invalidates builtin and dedicated results while "
             "preserving an independently configured custom endpoint");
     session.setRecognitionModel(QStringLiteral("vision-a"));
     require(session.workflowResult().isEmpty() &&
@@ -1121,7 +1121,7 @@ void unavailableSelectionsOfferRetryWithoutDedicatedOrCustomFallback() {
             !noProvider.workflowState().value(QStringLiteral("error")).toString().isEmpty() &&
             noProvider.recognitionModelSelection(Mode::Latex) ==
                 screenshotDefaultVisionRecognitionModelId(),
-        "default Snow Shot vision without a provider remains a visible unavailable-model error");
+        "default KXCapture vision without a provider remains a visible unavailable-model error");
 
     RecognitionServer customOnly;
     customOnly.includeBuiltinVision = false;
@@ -1142,7 +1142,7 @@ void unavailableSelectionsOfferRetryWithoutDedicatedOrCustomFallback() {
         builtinDefault.workflowResult().isEmpty() &&
             !builtinDefault.workflowState().value(QStringLiteral("error")).toString().isEmpty() &&
             customOnly.visionRequests.isEmpty() && customOnly.dedicatedRequests == 0,
-        "Snow Shot's default vision alias must never resolve to a custom model or dedicated "
+        "KXCapture's default vision alias must never resolve to a custom model or dedicated "
         "fallback");
 }
 
@@ -1388,7 +1388,7 @@ void catalogFetchIsSharedAndCancelledSubscribersDoNotAffectOtherTools() {
                 server.visionRequests[0].value(QStringLiteral("model")) ==
                     QStringLiteral("vision-a") &&
                 latex.latexDraft() == QStringLiteral("x^2") && !table.active(),
-            "default LaTeX resolves Snow Shot builtin vision without reviving a deactivated tool");
+            "default LaTeX resolves KXCapture builtin vision without reviving a deactivated tool");
 }
 
 void providerDestructionDuringDiscoveryPublishesRetryableFailure() {

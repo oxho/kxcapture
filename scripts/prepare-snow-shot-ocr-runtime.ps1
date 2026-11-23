@@ -48,7 +48,7 @@ if ($nativeTarget) {
 $platform = $target.Platform
 $runtimeName = "snow-ocr-process-$runtimeVersion-$platform.exe"
 $archiveName = "snow-ocr-runtime-$runtimeVersion-$platform.zip"
-$uploadUrl = "https://www.modelscope.cn/models/mgchao/SnowShotOCR/resolve/master/runtime/$runtimeVersion/$platform/$archiveName"
+$uploadUrl = ""
 $cache = Get-Content -LiteralPath (Join-Path $buildRoot 'CMakeCache.txt')
 if (-not ($cache -cmatch "^SNOW_WINDOWS_ARCHITECTURE:(?:STRING|INTERNAL)=$Architecture$") -or
     -not ($cache -cmatch "^VCPKG_TARGET_TRIPLET:(?:STRING|INTERNAL)=$([regex]::Escape($target.Triplet))$")) {

@@ -8,6 +8,7 @@
 #include "widgets/tooltip.h"
 
 #include <QApplication>
+#include <QLocale>
 #include <QStyleFactory>
 #include <QStyleHints>
 
@@ -24,10 +25,12 @@ adqt::theme::ThemeScheme initialThemeScheme() {
 
 void configureViewerApplicationIdentity(QApplication& app) {
     Q_UNUSED(app)
-    QApplication::setOrganizationName(QStringLiteral("Snow Shot"));
-    QApplication::setOrganizationDomain(QStringLiteral("snow-shot.app"));
-    QApplication::setApplicationName(QStringLiteral("snow_image_viewer"));
-    QApplication::setApplicationDisplayName(QStringLiteral("Snow Image Viewer"));
+    QApplication::setOrganizationName(QStringLiteral("oxho"));
+    QApplication::setOrganizationDomain(QString());
+    QApplication::setApplicationName(QStringLiteral("kxcapture_viewer"));
+    QApplication::setApplicationDisplayName(QLocale().language() == QLocale::Chinese
+                                                ? QStringLiteral("KX截屏 看图")
+                                                : QStringLiteral("KXCapture Image Viewer"));
     QApplication::setApplicationVersion(QStringLiteral("0.1.0"));
 }
 

@@ -1206,7 +1206,7 @@ mod windows_coordination {
             require(
                 platform::registered_target_matches(&root)?,
                 "elevation_target_invalid",
-                "Elevation requires a registered Snow Shot installation",
+                "Elevation requires a registered KXCapture installation",
             )?;
         }
         let registry_needs_elevation = platform::registered_version_requires_elevation(&root)?;
@@ -1221,7 +1221,7 @@ mod windows_coordination {
             require(
                 !elevated && platform::registered_target_matches(&root)?,
                 "elevation_target_invalid",
-                "Elevation requires a registered Snow Shot installation",
+                "Elevation requires a registered KXCapture installation",
             )?;
             let launched = platform::launch_elevated(
                 &std::env::current_exe().map_err(|error| {
@@ -1473,7 +1473,7 @@ mod windows_coordination {
             let foreground = vec![
                 "--show-main-window".to_owned(),
                 "--skip-startup-update".to_owned(),
-                "--edit-with-snow-shot".to_owned(),
+                "--edit-with-kxcapture".to_owned(),
                 directory
                     .path()
                     .join(format!("{} 雪.png", "x".repeat(6000)))
@@ -1604,7 +1604,7 @@ mod tests {
     fn broker_context_preserves_the_theme_and_localized_text_after_application_exit() {
         let context = ProgressContext {
             texts: ProgressTexts {
-                title: "正在更新 Snow Shot".to_owned(),
+                title: "正在更新 KXCapture".to_owned(),
                 ..Default::default()
             },
             appearance: Some(ProgressAppearance {
@@ -1648,13 +1648,13 @@ mod tests {
         let temporary = tempfile::tempdir().unwrap();
         let image_arguments = vec![
             "--skip-startup-update".to_owned(),
-            "--edit-with-snow-shot".to_owned(),
+            "--edit-with-kxcapture".to_owned(),
             temporary
                 .path()
                 .join("first image 安.png")
                 .display()
                 .to_string(),
-            "--edit-with-snow-shot".to_owned(),
+            "--edit-with-kxcapture".to_owned(),
             temporary
                 .path()
                 .join("second image.png")
@@ -1681,7 +1681,7 @@ mod tests {
         let directory = tempfile::tempdir().unwrap();
         let arguments = vec![
             "--skip-startup-update".to_owned(),
-            "--edit-with-snow-shot".to_owned(),
+            "--edit-with-kxcapture".to_owned(),
             directory
                 .path()
                 .join(format!("{} 雪.png", "x".repeat(6000)))

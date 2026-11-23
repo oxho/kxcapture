@@ -943,10 +943,10 @@ constexpr SchemaEntryDescriptor kEntryDescriptors[] = {
     {u"system/launch_as_administrator", booleanDefault(false), ConfigurationValueKind::Boolean},
     {u"mcp/enabled", booleanDefault(false), ConfigurationValueKind::Boolean},
 #ifdef Q_OS_MACOS
-    {u"updates/mode", stringDefault(u"next_launch"), ConfigurationValueKind::String, nullptr,
+    {u"updates/mode", stringDefault(u"manual"), ConfigurationValueKind::String, nullptr,
      &kSchemaAllowed8},
 #else
-    {u"updates/mode", stringDefault(u"next_launch"), ConfigurationValueKind::String, nullptr,
+    {u"updates/mode", stringDefault(u"manual"), ConfigurationValueKind::String, nullptr,
      &kSchemaAllowed9},
 #endif
     {u"network/proxy", stringDefault(u"none"), ConfigurationValueKind::String, nullptr,

@@ -22,7 +22,7 @@ struct RunLevelInformation {
 
 #[test]
 fn updater_declares_unelevated_startup_in_embedded_manifest() {
-    let executable = Path::new(env!("CARGO_BIN_EXE_snow-shot-updater"));
+    let executable = Path::new(env!("CARGO_BIN_EXE_kxcapture-updater"));
     let source: Vec<u16> = executable
         .as_os_str()
         .encode_wide()
@@ -61,18 +61,18 @@ fn updater_declares_unelevated_startup_in_embedded_manifest() {
 #[test]
 fn startup_transaction_query_runs_from_a_fresh_installation_path() {
     let directory = tempfile::tempdir().unwrap();
-    let root = directory.path().join("Snow Shot");
+    let root = directory.path().join("KXCapture");
     let bin = root.join("bin");
     std::fs::create_dir_all(&bin).unwrap();
     let executable = bin.join("snow-shot-updater.exe");
-    std::fs::copy(env!("CARGO_BIN_EXE_snow-shot-updater"), &executable).unwrap();
+    std::fs::copy(env!("CARGO_BIN_EXE_kxcapture-updater"), &executable).unwrap();
     for pending in [false, true] {
         if pending {
             let work = root.join(snow_shot_updater::transaction::UPDATE_WORK);
             std::fs::create_dir_all(&work).unwrap();
             std::fs::write(work.join("journal.json"), b"{}").unwrap();
         }
-        // Matches QProcess's non-shell launch before Snow Shot creates its UI.
+        // Matches QProcess's non-shell launch before KXCapture creates its UI.
         let output = Command::new(&executable)
             .arg("--transaction-state")
             .arg("--target")

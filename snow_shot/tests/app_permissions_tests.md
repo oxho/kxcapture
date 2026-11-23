@@ -17,7 +17,7 @@ For native inspection, run the rendered page with the cocoa platform and verify 
 button opens the matching System Settings pane. Also inspect light/dark mode, narrow layouts,
 VoiceOver, and displays with different scale factors.
 
-A final real-grant check needs the signed Snow Shot development bundle launched
+A final real-grant check needs the signed KXCapture development bundle launched
 through `scripts/run-snow-shot.sh`. On a dedicated test account, grant/revoke the
 four permissions, check refresh on returning to the app, restart if macOS asks,
 verify startup and tray redirection, and ensure optional microphone access does
@@ -49,7 +49,7 @@ normal test presets. Start only one native fixture at a time.
 
 Inspect first-click dragging and Escape cancellation, move/resize System Settings,
 switch applications, minimize/restore, and change Spaces/displays. The guide must
-follow Settings, hide while it is inactive, and return without activating Snow Shot.
+follow Settings, hide while it is inactive, and return without activating KXCapture.
 It remains during an active drag and closes only after a confirmed grant or dismissal.
 Use a dedicated test account to verify accepted drops into Screen Recording,
 Accessibility, and Input Monitoring, and the Microphone request/denied/restricted

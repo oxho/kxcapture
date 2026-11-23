@@ -212,8 +212,8 @@
             <translation>Sign in</translation>
         </message>
         <message>
-            <source>Sign in to Snow Shot</source>
-            <translation>Sign in to Snow Shot</translation>
+            <source>Sign in to KXCapture</source>
+            <translation>Sign in to KXCapture</translation>
         </message>
         <message>
             <source>Sign in to an existing account</source>
@@ -319,8 +319,8 @@
             <translation>This purchase code has expired. Generate a new code to continue</translation>
         </message>
         <message>
-            <source>This purchase must use the WeChat account linked to your Snow Shot account</source>
-            <translation>This purchase must use the WeChat account linked to your Snow Shot account</translation>
+            <source>This purchase must use the WeChat account linked to your KXCapture account</source>
+            <translation>This purchase must use the WeChat account linked to your KXCapture account</translation>
         </message>
         <message>
             <source>This username is already taken or temporarily reserved</source>
@@ -346,8 +346,8 @@
             <translation> Recovery failed: %1</translation>
         </message>
         <message>
-            <source> Settings recovery failed. Retry before closing Snow Shot</source>
-            <translation> Settings recovery failed. Retry before closing Snow Shot</translation>
+            <source> Settings recovery failed. Retry before closing KXCapture</source>
+            <translation> Settings recovery failed. Retry before closing KXCapture</translation>
         </message>
         <message>
             <source>Administrator authorization was declined</source>
@@ -476,8 +476,8 @@
     <context>
         <name>AutoStartRegistration</name>
         <message>
-            <source>Enable Snow Shot in Windows Settings &gt; Apps &gt; Startup</source>
-            <translation>Enable Snow Shot in Windows Settings &gt; Apps &gt; Startup</translation>
+            <source>Enable KXCapture in Windows Settings &gt; Apps &gt; Startup</source>
+            <translation>Enable KXCapture in Windows Settings &gt; Apps &gt; Startup</translation>
         </message>
         <message>
             <source>Startup is managed by your organization</source>
@@ -802,8 +802,8 @@
             <translation>The API key must not contain line breaks</translation>
         </message>
         <message>
-            <source>The model name displayed in Snow Shot</source>
-            <translation>The model name displayed in Snow Shot</translation>
+            <source>The model name displayed in KXCapture</source>
+            <translation>The model name displayed in KXCapture</translation>
         </message>
         <message>
             <source>This model was deleted. Close this form and create a new model</source>
@@ -1066,8 +1066,8 @@
             <translation>A launch-at-login change is already in progress</translation>
         </message>
         <message>
-            <source>Approval required. Allow Snow Shot in System Settings &gt; General &gt; Login Items</source>
-            <translation>Approval required. Allow Snow Shot in System Settings &gt; General &gt; Login Items</translation>
+            <source>Approval required. Allow KXCapture in System Settings &gt; General &gt; Login Items</source>
+            <translation>Approval required. Allow KXCapture in System Settings &gt; General &gt; Login Items</translation>
         </message>
         <message>
             <source>Could not change launch at login: %1</source>
@@ -1273,8 +1273,8 @@
             <translation>Add this configuration to your MCP client, then restart the client to connect. Keep %1 running while using MCP</translation>
         </message>
         <message>
-            <source>Add this configuration to your MCP client, then restart the client to connect. Keep Snow Shot running while using MCP</source>
-            <translation>Add this configuration to your MCP client, then restart the client to connect. Keep Snow Shot running while using MCP</translation>
+            <source>Add this configuration to your MCP client, then restart the client to connect. Keep KXCapture running while using MCP</source>
+            <translation>Add this configuration to your MCP client, then restart the client to connect. Keep KXCapture running while using MCP</translation>
         </message>
         <message>
             <source>Connected clients: %1</source>
@@ -1566,8 +1566,8 @@
             <translation>Add a mask to highlight text recognition results</translation>
         </message>
         <message>
-            <source>Add edit with Snow Shot to the Windows context menu to pin a supported image or document file to the screen</source>
-            <translation>Add edit with Snow Shot to the Windows context menu to pin a supported image or document file to the screen</translation>
+            <source>Add edit with KXCapture to the Windows context menu to pin a supported image or document file to the screen</source>
+            <translation>Add edit with KXCapture to the Windows context menu to pin a supported image or document file to the screen</translation>
         </message>
         <message>
             <source>Adjust MP4 quality and file size</source>
@@ -1610,8 +1610,8 @@
             <translation>All windows</translation>
         </message>
         <message>
-            <source>Allow MCP clients running as your OS user to control Snow Shot. Snow Shot must be running</source>
-            <translation>Allow MCP clients running as your OS user to control Snow Shot. Snow Shot must be running</translation>
+            <source>Allow MCP clients running as your OS user to control KXCapture. KXCapture must be running</source>
+            <translation>Allow MCP clients running as your OS user to control KXCapture. KXCapture must be running</translation>
         </message>
         <message>
             <source>Allow resizing the selection from its borders while non-move tools are active</source>
@@ -1814,8 +1814,8 @@
             <translation>Automatically disable when a focused fullscreen window exists</translation>
         </message>
         <message>
-            <source>Automatically enable annotation mode in new pin to screen windows opened with edit with Snow Shot</source>
-            <translation>Automatically enable annotation mode in new pin to screen windows opened with edit with Snow Shot</translation>
+            <source>Automatically enable annotation mode in new pin to screen windows opened with edit with KXCapture</source>
+            <translation>Automatically enable annotation mode in new pin to screen windows opened with edit with KXCapture</translation>
         </message>
         <message>
             <source>Automatically exit screen recording after the recording is saved</source>
@@ -1826,8 +1826,8 @@
             <translation>Automatically select newly created elements</translation>
         </message>
         <message>
-            <source>Automatically start Snow Shot in the background when you log in to your Mac</source>
-            <translation>Automatically start Snow Shot in the background when you log in to your Mac</translation>
+            <source>Automatically start KXCapture in the background when you log in to your Mac</source>
+            <translation>Automatically start KXCapture in the background when you log in to your Mac</translation>
         </message>
         <message>
             <source>Autostart</source>
@@ -2018,8 +2018,8 @@
             <translation>Child elements</translation>
         </message>
         <message>
-            <source>Choose an image for Snow Shot's custom tray menu. Native system menus keep their system appearance. Clear the path to remove this skin</source>
-            <translation>Choose an image for Snow Shot's custom tray menu. Native system menus keep their system appearance. Clear the path to remove this skin</translation>
+            <source>Choose an image for KXCapture's custom tray menu. Native system menus keep their system appearance. Clear the path to remove this skin</source>
+            <translation>Choose an image for KXCapture's custom tray menu. Native system menus keep their system appearance. Clear the path to remove this skin</translation>
         </message>
         <message>
             <source>Choose an image for the screenshot, pin-to-screen, full-screen canvas and screen recording toolbar rows. Clear the path to remove this skin</source>
@@ -2154,8 +2154,8 @@
             <translation>Choose the primary target language for translation</translation>
         </message>
         <message>
-            <source>Choose the scheduling level for the interface and application workers. Changes take effect after restarting Snow Shot</source>
-            <translation>Choose the scheduling level for the interface and application workers. Changes take effect after restarting Snow Shot</translation>
+            <source>Choose the scheduling level for the interface and application workers. Changes take effect after restarting KXCapture</source>
+            <translation>Choose the scheduling level for the interface and application workers. Changes take effect after restarting KXCapture</translation>
         </message>
         <message>
             <source>Choose the server for built-in online services. Application updates are not affected</source>
@@ -2338,8 +2338,8 @@
             <translation>Confirm before exiting screenshot via shortcut</translation>
         </message>
         <message>
-            <source>Connect AI clients to Snow Shot</source>
-            <translation>Connect AI clients to Snow Shot</translation>
+            <source>Connect AI clients to KXCapture</source>
+            <translation>Connect AI clients to KXCapture</translation>
         </message>
         <message>
             <source>Contain</source>
@@ -2742,12 +2742,12 @@
             <translation>Edit selection</translation>
         </message>
         <message>
-            <source>Edit with Snow Shot</source>
-            <translation>Edit with Snow Shot</translation>
+            <source>Edit with KXCapture</source>
+            <translation>Edit with KXCapture</translation>
         </message>
         <message>
-            <source>Edit with Snow Shot Mini</source>
-            <translation>Edit with Snow Shot Mini</translation>
+            <source>Edit with KXCapture Mini</source>
+            <translation>Edit with KXCapture Mini</translation>
         </message>
         <message>
             <source>Enable MCP integration</source>
@@ -3246,8 +3246,8 @@
             <translation>Keep selection width and height consistent</translation>
         </message>
         <message>
-            <source>Keep the Snow Shot save dialog open after saving to show the result</source>
-            <translation>Keep the Snow Shot save dialog open after saving to show the result</translation>
+            <source>Keep the KXCapture save dialog open after saving to show the result</source>
+            <translation>Keep the KXCapture save dialog open after saving to show the result</translation>
         </message>
         <message>
             <source>Keep the first button of each toolbar group visible instead of the last used button</source>
@@ -3262,8 +3262,8 @@
             <translation>Keyboard shortcuts</translation>
         </message>
         <message>
-            <source>Keyboard shortcuts used within Snow Shot tools</source>
-            <translation>Keyboard shortcuts used within Snow Shot tools</translation>
+            <source>Keyboard shortcuts used within KXCapture tools</source>
+            <translation>Keyboard shortcuts used within KXCapture tools</translation>
         </message>
         <message>
             <source>Landscape A4</source>
@@ -3390,8 +3390,8 @@
             <translation>Main interface skin position</translation>
         </message>
         <message>
-            <source>Manage macOS permissions for Snow Shot</source>
-            <translation>Manage macOS permissions for Snow Shot</translation>
+            <source>Manage macOS permissions for KXCapture</source>
+            <translation>Manage macOS permissions for KXCapture</translation>
         </message>
         <message>
             <source>Manual</source>
@@ -4090,8 +4090,8 @@
             <translation>Restart</translation>
         </message>
         <message>
-            <source>Restart Snow Shot with administrator privileges</source>
-            <translation>Restart Snow Shot with administrator privileges</translation>
+            <source>Restart KXCapture with administrator privileges</source>
+            <translation>Restart KXCapture with administrator privileges</translation>
         </message>
         <message>
             <source>Restart app</source>
@@ -4510,8 +4510,8 @@
             <translation>Set how much Ctrl+mouse wheel changes pinned window opacity</translation>
         </message>
         <message>
-            <source>Set quality for image files saved outside the Snow Shot dialog</source>
-            <translation>Set quality for image files saved outside the Snow Shot dialog</translation>
+            <source>Set quality for image files saved outside the KXCapture dialog</source>
+            <translation>Set quality for image files saved outside the KXCapture dialog</translation>
         </message>
         <message>
             <source>Set the border color of locked pinned screenshots</source>
@@ -4810,12 +4810,12 @@
             <translation>Smart selection</translation>
         </message>
         <message>
-            <source>Snow Shot</source>
-            <translation>Snow Shot</translation>
+            <source>KXCapture</source>
+            <translation>KXCapture</translation>
         </message>
         <message>
-            <source>Snow Shot server</source>
-            <translation>Snow Shot server</translation>
+            <source>KXCapture server</source>
+            <translation>KXCapture server</translation>
         </message>
         <message>
             <source>Snowflake</source>
@@ -4882,16 +4882,16 @@
             <translation>Standalone translation window</translation>
         </message>
         <message>
-            <source>Start Snow Shot in the background when Windows starts</source>
-            <translation>Start Snow Shot in the background when Windows starts</translation>
+            <source>Start KXCapture in the background when Windows starts</source>
+            <translation>Start KXCapture in the background when Windows starts</translation>
         </message>
         <message>
-            <source>Start Snow Shot in the background when you log in</source>
-            <translation>Start Snow Shot in the background when you log in</translation>
+            <source>Start KXCapture in the background when you log in</source>
+            <translation>Start KXCapture in the background when you log in</translation>
         </message>
         <message>
-            <source>Start Snow Shot with administrator privileges when you sign in</source>
-            <translation>Start Snow Shot with administrator privileges when you sign in</translation>
+            <source>Start KXCapture with administrator privileges when you sign in</source>
+            <translation>Start KXCapture with administrator privileges when you sign in</translation>
         </message>
         <message>
             <source>Start a screen recording from a confirmed selection</source>
@@ -5535,12 +5535,12 @@
             <translation>Could not save the Windows context menu preference</translation>
         </message>
         <message>
-            <source>Edit with Snow Shot</source>
-            <translation>Edit with Snow Shot</translation>
+            <source>Edit with KXCapture</source>
+            <translation>Edit with KXCapture</translation>
         </message>
         <message>
-            <source>Edit with Snow Shot Mini</source>
-            <translation>Edit with Snow Shot Mini</translation>
+            <source>Edit with KXCapture Mini</source>
+            <translation>Edit with KXCapture Mini</translation>
         </message>
         <message>
             <source>The Windows context menu entry is owned by another application</source>
@@ -6153,12 +6153,12 @@ Unavailable: %2</translation>
     <context>
         <name>snow_shot::presentation::GlobalMouseManager</name>
         <message>
-            <source>Allow Snow Shot in System Settings &gt; Privacy &amp; Security &gt; Accessibility to use global mouse gestures</source>
-            <translation>Allow Snow Shot in System Settings &gt; Privacy &amp; Security &gt; Accessibility to use global mouse gestures</translation>
+            <source>Allow KXCapture in System Settings &gt; Privacy &amp; Security &gt; Accessibility to use global mouse gestures</source>
+            <translation>Allow KXCapture in System Settings &gt; Privacy &amp; Security &gt; Accessibility to use global mouse gestures</translation>
         </message>
         <message>
-            <source>Allow Snow Shot in System Settings &gt; Privacy &amp; Security &gt; Input Monitoring to use global mouse gestures</source>
-            <translation>Allow Snow Shot in System Settings &gt; Privacy &amp; Security &gt; Input Monitoring to use global mouse gestures</translation>
+            <source>Allow KXCapture in System Settings &gt; Privacy &amp; Security &gt; Input Monitoring to use global mouse gestures</source>
+            <translation>Allow KXCapture in System Settings &gt; Privacy &amp; Security &gt; Input Monitoring to use global mouse gestures</translation>
         </message>
         <message>
             <source>Checking global mouse permissions...</source>
@@ -6211,12 +6211,12 @@ Unavailable: %2</translation>
             <translation>The configuration archive could not be created</translation>
         </message>
         <message>
-            <source>The configuration archive was created by a newer version of Snow Shot</source>
-            <translation>The configuration archive was created by a newer version of Snow Shot</translation>
+            <source>The configuration archive was created by a newer version of KXCapture</source>
+            <translation>The configuration archive was created by a newer version of KXCapture</translation>
         </message>
         <message>
-            <source>The file is not a Snow Shot configuration archive</source>
-            <translation>The file is not a Snow Shot configuration archive</translation>
+            <source>The file is not a KXCapture configuration archive</source>
+            <translation>The file is not a KXCapture configuration archive</translation>
         </message>
         <message>
             <source>The file is not a valid configuration archive</source>

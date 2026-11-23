@@ -19714,7 +19714,7 @@ void pinnedSaveDialogRoutingAndCancellation() {
             "restore custom save directory failed");
     require(settings.setLastManualSaveFormat(QStringLiteral("png")) &&
                 settings.setSaveAsFileDialog(QStringLiteral("snow_shot")),
-            "Snow Shot routing setup failed");
+            "KXCapture routing setup failed");
     auto* editButton = buttonNamed(*window, QStringLiteral("Enable annotation mode"));
     require(editButton, "pinned save test drawing button missing");
     editButton->click();
@@ -19725,7 +19725,7 @@ void pinnedSaveDialogRoutingAndCancellation() {
     action->trigger();
     auto* modal = window->findChild<AdModal*>(QStringLiteral("screenshotSaveAsFileModal"));
     require(modal && modal->mode() == AdModal::Mode::Window,
-            "pinned save must open Snow Shot dialog");
+            "pinned save must open KXCapture dialog");
     require(toolbar->isVisible(), "pinned save must retain its editing toolbar");
     require(!adqt::widgets::detail::blockingModalWindow(
                 modal->contentWidget()->window()->windowHandle()),
@@ -21634,7 +21634,7 @@ void pinnedControlledResizeCursorReturnsToDrawingTool() {
     const Qt::CursorShape drawingCursor = canvas->cursor().shape();
     require(canvas->cursor() ==
                 snow_shot::presentation::crosshairCursor(canvas->devicePixelRatioF()),
-            "pinned annotation tools must use Snow Shot's crosshair");
+            "pinned annotation tools must use KXCapture's crosshair");
     require(drawingCursor != Qt::SizeHorCursor && drawingCursor != Qt::SizeVerCursor &&
                 drawingCursor != Qt::SizeFDiagCursor && drawingCursor != Qt::SizeBDiagCursor,
             "drawing tool must start with its own cursor");

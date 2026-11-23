@@ -23,7 +23,7 @@
       ]
     },
     "snow-shot": {
-      "description": "Build the minimal native dependency set required by Snow Shot on the selected architecture.",
+      "description": "Build the minimal native dependency set required by KXCapture on the selected architecture.",
       "dependencies": [
         "giflib",
         { "name": "crashpad", "platform": "windows | osx" },
@@ -81,7 +81,7 @@
       ]
     },
     "image-viewer": {
-      "description": "Build the native dependencies required by Snow Image Viewer.",
+      "description": "Build the native dependencies required by KXCapture Image Viewer.",
       "dependencies": [
         "vulkan-headers"
       ]

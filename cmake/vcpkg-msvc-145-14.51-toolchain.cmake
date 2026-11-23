@@ -1,5 +1,5 @@
 if(NOT WIN32)
-    message(FATAL_ERROR "The Snow Apps MSVC toolchain is Windows-only.")
+    message(FATAL_ERROR "The oxho MSVC toolchain is Windows-only.")
 endif()
 
 if(DEFINED _VCPKG_ROOT_DIR)

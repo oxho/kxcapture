@@ -44,14 +44,20 @@ inline constexpr bool apiConfiguration = SNOW_SHOT_ENABLE_API_CONFIGURATION != 0
 inline constexpr bool extendedFeatures = SNOW_SHOT_ENABLE_EXTENDED_FEATURES != 0;
 
 [[nodiscard]] inline QString productName() {
-    return isMini ? QCoreApplication::translate("EditionMetadata", "Snow Shot Mini")
-                  : QCoreApplication::translate("EditionMetadata", "Snow Shot");
+    return isMini ? QCoreApplication::translate("EditionMetadata", "KXCapture Mini")
+                  : QCoreApplication::translate("EditionMetadata", "KXCapture");
+}
+[[nodiscard]] inline QString organizationName() {
+    return QStringLiteral("oxho");
 }
 [[nodiscard]] inline QString applicationName() {
-    return isMini ? QStringLiteral("snow_shot_mini") : QStringLiteral("snow_shot");
+    return isMini ? QStringLiteral("kxcapture_mini") : QStringLiteral("kxcapture");
 }
 [[nodiscard]] inline QString registryName() {
-    return isMini ? QStringLiteral("SnowShotMini") : QStringLiteral("SnowShot");
+    return isMini ? QStringLiteral("KXCaptureMini") : QStringLiteral("KXCapture");
+}
+[[nodiscard]] inline QString appUserModelId() {
+    return isMini ? QStringLiteral("oxho.KXCaptureMini") : QStringLiteral("oxho.KXCapture");
 }
 [[nodiscard]] inline QString executableName() {
 #ifdef Q_OS_WIN
@@ -61,7 +67,7 @@ inline constexpr bool extendedFeatures = SNOW_SHOT_ENABLE_EXTENDED_FEATURES != 0
 #endif
 }
 [[nodiscard]] inline QString productId() {
-    return isMini ? QStringLiteral("snow-shot-mini") : QStringLiteral("snow-shot");
+    return isMini ? QStringLiteral("kxcapture-mini") : QStringLiteral("kxcapture");
 }
 [[nodiscard]] inline QString portableMarkerName() {
     return isMini ? QStringLiteral("__mini_data_directory") : QStringLiteral("__data_directory");
@@ -81,7 +87,8 @@ inline constexpr bool extendedFeatures = SNOW_SHOT_ENABLE_EXTENDED_FEATURES != 0
 #endif
 }
 [[nodiscard]] inline QString bundleId() {
-    return QStringLiteral("com.snowshot.") + applicationName();
+    return isMini ? QStringLiteral("io.github.oxho.kxcapture.mini")
+                  : QStringLiteral("io.github.oxho.kxcapture");
 }
 } // namespace snow_shot::app::edition
 

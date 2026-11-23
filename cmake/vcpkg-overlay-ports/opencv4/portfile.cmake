@@ -2,7 +2,7 @@ set(USE_QT_VERSION "6")
 
 if(VCPKG_TARGET_IS_WINDOWS)
     vcpkg_check_linkage(ONLY_STATIC_LIBRARY)
-    # Snow Shot links the static Qt kit and therefore uses the static CRT even
+    # KXCapture links the static Qt kit and therefore uses the static CRT even
     # in its debug preset. OpenCV is linked into that executable directly, so
     # the library must match the static CRT or every std::string/std::vector
     # returned by the decoders would cross CRT heap boundaries.
@@ -43,7 +43,7 @@ vcpkg_from_github(
 )
 # Disallow accidental build of vendored copies. 3rdparty/protobuf is the one
 # exception: the dnn module consumes it, and vcpkg's protobuf is a shared-CRT
-# package that cannot be linked into Snow Shot's static-CRT executables.
+# package that cannot be linked into KXCapture's static-CRT executables.
 file(GLOB third_party "${SOURCE_PATH}/3rdparty/*")
 list(FILTER third_party EXCLUDE REGEX "/ippicv\$")
 list(FILTER third_party EXCLUDE REGEX "/protobuf\$")
@@ -145,7 +145,7 @@ vcpkg_check_features(OUT_FEATURE_OPTIONS FEATURE_OPTIONS
  "fs"         OPENCV_DISABLE_FILESYSTEM_SUPPORT
 )
 
-# Snow Apps overlay: the dnn module only ever loads the WeChat Caffe models,
+# oxho overlay: the dnn module only ever loads the WeChat Caffe models,
 # so the TFLite importer (and its flatbuffers dependency) stays disabled and
 # no schema regeneration is needed.
 
@@ -431,16 +431,16 @@ vcpkg_cmake_configure(
         -DBUILD_OPENEXR=OFF
         -DBUILD_OPENJPEG=OFF
         -DBUILD_PNG=OFF
-        # Snow Apps overlay: build OpenCV's bundled protobuf. The vcpkg
+        # oxho overlay: build OpenCV's bundled protobuf. The vcpkg
         # protobuf package is a shared-CRT DLL on this triplet and cannot be
-        # linked into Snow Shot's static-CRT executables.
+        # linked into KXCapture's static-CRT executables.
         -DBUILD_PROTOBUF=ON
         -DBUILD_TBB=OFF
         -DBUILD_TIFF=OFF
         -DBUILD_WEBP=OFF
         -DBUILD_ZLIB=OFF
         ###### OpenCV Build components
-        # Snow Apps overlay: Snow Shot consumes OpenCV only for barcode
+        # oxho overlay: KXCapture consumes OpenCV only for barcode
         # recognition. Narrow the module build to the contrib wechat_qrcode
         # closure (core, imgproc, dnn, calib3d, objdetect and their
         # dependencies are pulled in automatically); objdetect provides
@@ -477,7 +477,7 @@ vcpkg_cmake_configure(
         -DWITH_AVIF=OFF
         -DWITH_DIRECTML=OFF
         -DWITH_CPUFEATURES=${WITH_CPUFEATURES}
-        # Snow Apps overlay: only Caffe models are loaded; keep the TFLite
+        # oxho overlay: only Caffe models are loaded; keep the TFLite
         # importer off so flatbuffers is not needed at all. The bundled
         # protobuf is used as-is, so proto regeneration stays off too.
         -DWITH_FLATBUFFERS=OFF
@@ -514,7 +514,7 @@ vcpkg_cmake_configure(
 vcpkg_cmake_install()
 vcpkg_cmake_config_fixup()
 file(APPEND "${CURRENT_PACKAGES_DIR}/share/opencv4/OpenCVConfig.cmake"
-    "\n# Snow Shot's bundled Caffe graphs define the supported DNN layer closure.\n"
+    "\n# KXCapture's bundled Caffe graphs define the supported DNN layer closure.\n"
     "set(OpenCV_SNOW_SHOT_QR_PROFILE TRUE)\n")
 vcpkg_copy_pdbs()
 
@@ -528,7 +528,7 @@ if (NOT VCPKG_BUILD_TYPE)
 endif()
 
 file(READ "${CURRENT_PACKAGES_DIR}/share/opencv4/OpenCVModules.cmake" OPENCV_MODULES)
-# Snow Apps overlay: protobuf is built from OpenCV's bundled sources and
+# oxho overlay: protobuf is built from OpenCV's bundled sources and
 # exported with the module targets, so consumers must not look for the vcpkg
 # protobuf package here.
 set(DEPS_STRING "include(CMakeFindDependencyMacro)

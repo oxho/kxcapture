@@ -43,7 +43,7 @@ class SourceWindow final : public QWidget {
     QColor color{32, 96, 192};
     bool patterned = false;
     SourceWindow() {
-        setWindowTitle(QStringLiteral("Snow Shot live-window macOS native fixture"));
+        setWindowTitle(QStringLiteral("KXCapture live-window macOS native fixture"));
         setWindowFlag(Qt::WindowStaysOnTopHint);
         resize(320, 240);
     }
@@ -415,7 +415,7 @@ int main(int argc, char** argv) {
     if (application.arguments().contains(QStringLiteral("--request-permission"))) {
         if (CGPreflightScreenCaptureAccess() || CGRequestScreenCaptureAccess())
             return EXIT_SUCCESS;
-        std::cout << "Enable Screen Recording for Snow Shot Live Window Tests in System Settings, "
+        std::cout << "Enable Screen Recording for KXCapture Live Window Tests in System Settings, "
                      "then rerun the fixture.\n";
         return 77;
     }

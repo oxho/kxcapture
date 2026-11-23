@@ -1,4 +1,4 @@
-name: Publish Snow Shot Homebrew cask
+name: Publish KXCapture Homebrew cask
 
 on:
   release:
@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: Published stable or beta Snow Shot tag (v<version> with optional _snow-shot)
+        description: Published stable or beta KXCapture tag (v<version> with optional _snow-shot)
         required: true
         type: string
       repair_architectures:

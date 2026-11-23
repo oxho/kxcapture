@@ -19,7 +19,7 @@ shared storage retains a single reservation instead of duplicating charges.
 image. Descriptors validate dimensions, multiplication/addition, strides, sample
 types, significant bits, orientation, alpha and color conventions.
 
-The default Snow Shot policy separates these limits:
+The default KXCapture policy separates these limits:
 
 | Resource | Default |
 | --- | --- |

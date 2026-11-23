@@ -60,7 +60,7 @@ void requestAndStreaming() {
                     require(result.succeeded(), "free stream succeeds");
                     ++completions;
                 }) != 0,
-            "free service works without a Snow Shot server");
+            "free service works without a KXCapture server");
     waitUntil([&] { return server.streams.size() == 1; }, "public endpoint receives request");
     const auto& stream = server.streams.first();
     const auto body = stream.body;
@@ -111,7 +111,7 @@ void requestAndStreaming() {
     const auto fingerprint = client.modelFingerprint(freeTranslationId);
     require(client.setBaseUrl(QStringLiteral("http://127.0.0.1:1")) &&
                 client.modelFingerprint(freeTranslationId) == fingerprint,
-            "free service identity does not depend on the Snow Shot server");
+            "free service identity does not depend on the KXCapture server");
 }
 
 void failuresAndCancellation() {

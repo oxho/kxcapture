@@ -119,7 +119,7 @@ ctest --preset test-windows-msvc-debug -R '^snow-canvas-smart-erase(-quality)?-t
 
 Build `snow-canvas-smart-erase-benchmark` using `windows-msvc-performance` (Release).
 The benchmark links the algorithm directly; its geometry helpers also require the
-Rust engine target. In a Snow Shot workspace, the shared Rust bundle propagates its
+Rust engine target. In a KXCapture workspace, the shared Rust bundle propagates its
 native FFmpeg dependencies to these standalone consumers.
 
 The optional positional output directory still saves before/after crops, and now

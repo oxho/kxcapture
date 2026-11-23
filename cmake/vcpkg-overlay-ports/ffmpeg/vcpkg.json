@@ -630,7 +630,7 @@
       ]
     },
     "snow-recording-compat": {
-      "description": "Extend the Snow Shot profile for standalone legacy capture, AVI export, and software Main10 encoding",
+      "description": "Extend the KXCapture profile for standalone legacy capture, AVI export, and software Main10 encoding",
       "supports": "windows & !uwp",
       "dependencies": [
         {
@@ -648,7 +648,7 @@
       ]
     },
     "snow-shot-minimal": {
-      "description": "Build only the codecs, containers, and hardware paths used by Snow Shot",
+      "description": "Build only the codecs, containers, and hardware paths used by KXCapture",
       "supports": "windows & !uwp",
       "dependencies": [
         {
@@ -850,7 +850,7 @@
       ]
     },
     "snow-shot-macos-minimal": {
-      "description": "Snow Shot macOS recording and export without standalone compatibility outputs",
+      "description": "KXCapture macOS recording and export without standalone compatibility outputs",
       "supports": "osx",
       "dependencies": [
         {

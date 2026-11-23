@@ -131,7 +131,7 @@ int main(int argc, char* argv[]) {
         if (argc != 2)
             return 64;
         QCoreApplication probe(argc, argv);
-        QCoreApplication::setOrganizationName(snow_shot::app::edition::registryName());
+        QCoreApplication::setOrganizationName(snow_shot::app::edition::organizationName());
         QCoreApplication::setApplicationName(snow_shot::app::edition::applicationName());
         const auto policy = snow_shot::app::distribution::policy();
         const auto diagnostics =
@@ -155,8 +155,11 @@ int main(int argc, char* argv[]) {
                    ? 0
                    : 1;
     }
-    QCoreApplication::setOrganizationName(snow_shot::app::edition::registryName());
+    QCoreApplication::setOrganizationName(snow_shot::app::edition::organizationName());
     QString applicationName = snow_shot::app::edition::applicationName();
+#ifdef Q_OS_WIN
+    snow_shot::platform::windows::setExplicitAppUserModelId();
+#endif
     QString e2eInstanceId;
     bool e2eCaptureEnabled = false;
     for (int index = 1; index < argc; ++index) {

@@ -9881,7 +9881,7 @@ void ScreenshotToolPalette::refreshRecognitionModelSelect() {
     QString selectedLabel;
     if (!selection.isEmpty() && unavailable) {
         selectedLabel = selection == screenshotDefaultVisionRecognitionModelId()
-                            ? tr("Snow Shot visual understanding")
+                            ? tr("KXCapture visual understanding")
                             : tr("Selected model (%1)").arg(selection);
         options.insert(options.size() - int(hasDedicatedModel),
                        {selection, selectedLabel, true, tr("Vision model")});

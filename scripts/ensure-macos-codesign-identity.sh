@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-identity_name='Snow Shot Development (Local)'
+identity_name='KXCapture Development (Local)'
 
 find_identity_hash() {
     local line

@@ -1,4 +1,4 @@
-name: Snow Shot WinGet verification
+name: KXCapture WinGet verification
 
 on:
   push:

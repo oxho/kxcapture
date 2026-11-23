@@ -22,17 +22,17 @@
 #include <QClipboard>
 #include <QDesktopServices>
 #include <QEvent>
-#include <QFile>
 #include <QFrame>
 #include <QGridLayout>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QProgressBar>
+#include <QLocale>
 #include <QPainter>
 #include <QPainterPath>
+#include <QPixmap>
 #include <QRegularExpression>
 #include <QStackedLayout>
-#include <QSvgRenderer>
 #include <QTimer>
 #include <QVBoxLayout>
 
@@ -136,55 +136,16 @@ class AboutArtwork final : public QWidget {
         setObjectName(QStringLiteral("aboutArtwork"));
         setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         setAttribute(Qt::WA_TransparentForMouseEvents);
-        QFile file(QStringLiteral(":/snow_shot/about/illustration.svg"));
-        if (file.open(QIODevice::ReadOnly)) {
-            m_source = file.readAll();
-        }
     }
 
     void refresh(const styles::ThemeColorScheme& scheme) {
-        QByteArray svg = m_source;
-        const auto translated = [](const char* source) {
-            return QCoreApplication::translate("AboutPageWidget", source).toHtmlEscaped().toUtf8();
-        };
-        svg.replace("{{product}}",
-                    snow_shot::app::edition::isMini
-                        ? snow_shot::app::edition::productName().toHtmlEscaped().toUtf8()
-                        : translated(QT_TRANSLATE_NOOP("AboutPageWidget", "Snow Shot")));
-        svg.replace("{{moment}}",
-                    translated(QT_TRANSLATE_NOOP("AboutPageWidget", "Make every moment clear")));
-        svg.replace("{{ocr}}",
-                    translated(QT_TRANSLATE_NOOP("AboutPageWidget", "Text recognition")));
-        svg.replace("{{pixels}}", translated(QT_TRANSLATE_NOOP("AboutPageWidget",
-                                                               "Turn pixels into usable text")));
-        svg.replace("{{font}}", font().family().toHtmlEscaped().toUtf8());
-        if (scheme.appearance == styles::ThemeAppearance::Dark) {
-            // Scene colors complement the dark theme without changing the original brand mark.
-            svg.replace("#DDEFFF", "#253E57");
-            svg.replace("#F5F9FF", "#253349");
-            svg.replace("#D3DEFA", "#485879");
-            svg.replace("#B7CDEF", "#374C6A");
-            svg.replace("#F8FBFF", "#9BACCD");
-            svg.replace("#F3F8FF", "#526684");
-            svg.replace("#E5D6FF", "#5B427B");
-            svg.replace("#9254DE", "#B58AEC");
-            svg.replace("#F3EBFC", "#443357");
-            svg.replace("#ECF7E7", "#2C4333");
-            svg.replace("#579C33", "#9AC776");
-            svg.replace("#57714A", "#ADCE9B");
-            svg.replace("#343C4C", "#E1E6F0");
-            svg.replace("#34384A", "#E1E6F0");
-            svg.replace("#717B8C", "#AEBBD0");
-            svg.replace("#6A7890", "#AAB8CF");
-            svg.replace("#D9E3EF", "#48566B");
-            svg.replace("#EDF1F7", "#3C4A60");
-            svg.replace("#E0E6EF", "#48566B");
-            svg.replace("#E1E9F2", "#48566B");
-            svg.replace("#8AA4BE", "#0B1220");
-            svg.replace("fill=\"white\"", "fill=\"#263246\"");
-        }
-        m_renderer.load(svg);
-        m_renderer.setAspectRatioMode(Qt::KeepAspectRatio);
+        const bool dark = scheme.appearance == styles::ThemeAppearance::Dark;
+        const bool chinese = QLocale().language() == QLocale::Chinese;
+        const char* resource = dark ? (chinese ? ":/snow_shot/about/lockup-zh-dark.png"
+                                               : ":/snow_shot/about/lockup-en-dark.png")
+                                    : (chinese ? ":/snow_shot/about/lockup-zh-light.png"
+                                               : ":/snow_shot/about/lockup-en-light.png");
+        m_pixmap.load(QString::fromLatin1(resource));
         setAccessibleName(QCoreApplication::translate(
             "AboutPageWidget", "Screenshot selection, annotation tools, and recognized text"));
         update();
@@ -192,14 +153,19 @@ class AboutArtwork final : public QWidget {
 
   protected:
     void paintEvent(QPaintEvent*) override {
+        if (m_pixmap.isNull())
+            return;
         QPainter painter(this);
         painter.setRenderHint(QPainter::Antialiasing);
-        m_renderer.render(&painter, QRectF(rect()));
+        painter.setRenderHint(QPainter::SmoothPixmapTransform);
+        const QSize fitted = m_pixmap.size().scaled(size(), Qt::KeepAspectRatio);
+        painter.drawPixmap(QRect(QPoint((width() - fitted.width()) / 2, (height() - fitted.height()) / 2),
+                                 fitted),
+                           m_pixmap);
     }
 
   private:
-    QByteArray m_source;
-    QSvgRenderer m_renderer;
+    QPixmap m_pixmap;
 };
 
 class AboutResourceButton final : public AdButton {
@@ -705,7 +671,7 @@ void AboutPageWidget::applyTheme(const styles::ThemeColorScheme& scheme) {
     m_ui->backgroundOpacity = styles::mainWindowBackgroundOpacity(this);
     const auto& metric = scheme.metricAlias;
     const auto& colors = scheme.map;
-    const QColor violet(scheme.appearance == styles::ThemeAppearance::Dark ? "#b58aec" : "#7052d8");
+    const QColor violet(scheme.appearance == styles::ThemeAppearance::Dark ? "#1EC9A8" : "#0D7A6B");
     m_ui->hero->setTheme(scheme);
     m_ui->heroLayout->setContentsMargins(metric.paddingLG, metric.paddingXXS, metric.paddingSM,
                                          metric.paddingXXS);
@@ -807,7 +773,7 @@ void AboutPageWidget::updateBackgroundStyles() {
     const auto& scheme = m_ui->scheme;
     const auto& metric = scheme.metricAlias;
     const auto& colors = scheme.map;
-    const QColor violet(scheme.appearance == styles::ThemeAppearance::Dark ? "#b58aec" : "#7052d8");
+    const QColor violet(scheme.appearance == styles::ThemeAppearance::Dark ? "#1EC9A8" : "#0D7A6B");
     if (m_ui->updateStatus != nullptr) {
         const int progressHeight = qMax(4, metric.paddingXXS);
         m_ui->updateProgress->setStyleSheet(
@@ -847,14 +813,14 @@ void AboutPageWidget::retranslateUi() {
     const bool hasVersion = !m_version.trimmed().isEmpty();
     setAccessibleName(snow_shot::app::edition::isMini
                           ? tr("About %1").arg(snow_shot::app::edition::productName())
-                          : tr("About Snow Shot"));
+                          : tr("About KXCapture"));
     m_ui->productName->setText(snow_shot::app::edition::productName());
     m_ui->logo->setAccessibleName(snow_shot::app::edition::isMini
                                       ? tr("%1 logo").arg(snow_shot::app::edition::productName())
-                                      : tr("Snow Shot logo"));
+                                      : tr("KXCapture logo"));
     m_ui->openSource->setText(tr("Free · open source"));
-    const QColor violet(m_ui->scheme.appearance == styles::ThemeAppearance::Dark ? "#b58aec"
-                                                                                 : "#7052d8");
+    const QColor violet(m_ui->scheme.appearance == styles::ThemeAppearance::Dark ? "#1EC9A8"
+                                                                                 : "#0D7A6B");
     m_ui->tagline->setText(QStringLiteral("<span style=\"color:%1\">%2</span>%3")
                                .arg(violet.name(), tr("Elegant screenshots").toHtmlEscaped(),
                                     tr(", excellent work").toHtmlEscaped()));
@@ -910,11 +876,21 @@ void AboutPageWidget::retranslateUi() {
     m_ui->userAgreement->setToolTip(
         QUrl(snow_shot::app::distribution::userAgreementUrl()).toDisplayString());
     m_ui->copyright->setText(
-        tr("Copyright © %1 %2").arg(QStringLiteral("2025–2026"), QStringLiteral("mg-chao")));
+        tr("Copyright © %1 %2").arg(QStringLiteral("2025–2026"), QStringLiteral("mg-chao")) +
+        QStringLiteral("\n") +
+        tr("Modified by %1, %2").arg(QStringLiteral("oxho"), QStringLiteral("2026")));
     m_ui->slogan->setText(
-        snow_shot::app::edition::isMini
-            ? tr("%1 · Make expression clearer").arg(snow_shot::app::edition::productName())
-            : tr("Snow Shot · make expression clearer"));
+        tr("%1 · make expression clearer").arg(snow_shot::app::edition::productName()));
+    const auto showLink = [](QWidget* widget, const QUrl& url) {
+        widget->setVisible(url.isValid() && !url.scheme().isEmpty() && !url.host().isEmpty());
+    };
+    showLink(m_ui->resources[0], QUrl(QStringLiteral(SNOW_SHOT_WEBSITE_URL)));
+    showLink(m_ui->resources[1], aboutProjectUrl());
+    showLink(m_ui->resources[2], aboutProjectUrl(QStringLiteral("/issues")));
+    showLink(m_ui->resources[3], QUrl(QStringLiteral(SNOW_SHOT_QQ_GROUP_4_URL)));
+    showLink(m_ui->releaseNotes, aboutChangelogUrl());
+    showLink(m_ui->privacyPolicy, QUrl(snow_shot::app::distribution::privacyPolicyUrl()));
+    showLink(m_ui->userAgreement, QUrl(snow_shot::app::distribution::userAgreementUrl()));
     m_ui->linkError->setText(m_failedUrl.isEmpty()
                                  ? QString()
                                  : tr("Could not open the link. Open %1 in your browser")
@@ -1054,7 +1030,7 @@ void AboutPageWidget::refreshUpdateStatus() {
         text = status.version.isEmpty() ? (snow_shot::app::edition::isMini
                                                ? tr("Check for a newer version of %1")
                                                      .arg(snow_shot::app::edition::productName())
-                                               : tr("Check for a newer version of Snow Shot"))
+                                               : tr("Check for a newer version of KXCapture"))
                                         : tr("You are up to date");
         if (!status.version.isEmpty()) {
             statusIcon = outlined::CheckCircle();

@@ -64,10 +64,10 @@ try {
         $global:SnowLaunchFixtureProcess = $null
         $output = (& $launcher -Edition $edition -NoBuild 6>&1 | Out-String)
         Require $global:SnowLaunchFixtureProcess.Waited 'Foreground launches must wait for the GUI process.'
-        Require ($output.Contains('Starting Snow Shot:') -and
+        Require ($output.Contains('Starting KXCapture:') -and
             $output.Contains('waiting for it to exit') -and $output.Contains('-Detached')) `
             'Explain that launch succeeded and the terminal is waiting for application exit.'
-        Require (-not $output.Contains('Building Snow Shot')) 'NoBuild must skip the build stage.'
+        Require (-not $output.Contains('Building KXCapture')) 'NoBuild must skip the build stage.'
         $target = if ($edition -eq 'Mini') { 'snow_shot_mini' } else { 'snow_shot' }
         Require ($global:SnowLaunchPath.EndsWith("$target.exe")) 'Select the requested edition.'
     }
@@ -75,7 +75,7 @@ try {
     $global:SnowLaunchFixtureProcess = $null
     $failure = ''
     try { & $launcher -Edition Mini -NoBuild } catch { $failure = $_.Exception.Message }
-    Require ($failure -eq 'Snow Shot exited with code -1073741515.') 'Report the actual loader failure.'
+    Require ($failure -eq 'KXCapture exited with code -1073741515.') 'Report the actual loader failure.'
     $global:SnowLaunchFixtureProcess = $null
     $output = (& $launcher -Edition Mini -NoBuild -Detached 6>&1 | Out-String)
     Require ($null -eq $global:SnowLaunchFixtureProcess) 'Detached launches must return immediately.'
@@ -102,7 +102,7 @@ try {
             $expectedPath = Join-Path $fixture 'build\windows-msvc-performance\snow_shot_mini\Release\snow_shot_mini.exe'
             # PowerShell 7's concise error view wraps long paths with gutter bars.
             $normalizedOutput = $output -replace '[\s|]', ''
-            $expectedOutput = "Snow Shot executable was not found at '$expectedPath'." -replace '\s', ''
+            $expectedOutput = "KXCapture executable was not found at '$expectedPath'." -replace '\s', ''
             Require ($normalizedOutput.Contains($expectedOutput)) `
                 "Both batch PowerShell hosts must load the helper and forward arguments. Output: $output"
         }
@@ -175,8 +175,8 @@ function dumpbin.exe {}
             Remove-Item Env:VCPKG_FORCE_DOWNLOADED_BINARIES -ErrorAction SilentlyContinue
             $global:SnowLaunchBuildCalls = @()
             $output = (& $launcher -Edition $edition -Detached 6>&1 | Out-String)
-            Require ($output.Contains("Building Snow Shot ($edition, windows-msvc-debug) before launch...") -and
-                $output.IndexOf('Building Snow Shot') -lt $output.IndexOf('Starting Snow Shot:')) `
+            Require ($output.Contains("Building KXCapture ($edition, windows-msvc-debug) before launch...") -and
+                $output.IndexOf('Building KXCapture') -lt $output.IndexOf('Starting KXCapture:')) `
                 'Announce the build stage before launching the application.'
             $expectedCalls = if ($firstBuild) { 2 } else { 1 }
             Require ($global:SnowLaunchBuildCalls.Count -eq $expectedCalls) `

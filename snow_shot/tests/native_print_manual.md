@@ -18,7 +18,7 @@ the logs exclude screenshot pixels, recognition text, printer names, and snapsho
 
 ## Windows
 
-Snow Shot uses the modern print UI on Windows 11 and falls back to the Windows
+KXCapture uses the modern print UI on Windows 11 and falls back to the Windows
 Photo Printing Wizard (the native Print Pictures dialog) on older Windows versions
 or when the modern interface is unavailable or fails before final-document generation
 starts. Recovery stops the modern document before releasing its preview and print UI,

@@ -1,7 +1,7 @@
 # Installed Mini bundles retain the local OCR runtime on macOS. Models are
 # downloaded on demand; no model folders or Full helpers may be packaged.
 if(NOT DEFINED SNOW_SHOT_MINI_APP OR NOT IS_DIRECTORY "${SNOW_SHOT_MINI_APP}/Contents")
-    message(FATAL_ERROR "Snow Shot Mini bundle was not found")
+    message(FATAL_ERROR "KXCapture Mini bundle was not found")
 endif()
 set(_mini_runtime "${SNOW_SHOT_MINI_APP}/Contents/MacOS")
 foreach(_mini_area IN ITEMS MacOS Resources)
@@ -49,7 +49,7 @@ endif()
 # Inspect directories too, so unused model or Full resource folders cannot be
 # carried forward by a reused staging directory even when they are empty.
 set(_mini_resources "${SNOW_SHOT_MINI_APP}/Contents/Resources")
-set(_mini_allowed_resources assets snow-shot.icns
+set(_mini_allowed_resources assets kxcapture.icns
     en.lproj en.lproj/InfoPlist.strings
     zh-Hans.lproj zh-Hans.lproj/InfoPlist.strings
     zh-Hant.lproj zh-Hant.lproj/InfoPlist.strings

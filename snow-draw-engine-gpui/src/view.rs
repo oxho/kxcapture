@@ -37,7 +37,7 @@ use crate::{
     vector::{TextLayout, VectorContext},
 };
 
-/// Semantic notifications for a containing toolbar or future Snow Shot shell.
+/// Semantic notifications for a containing toolbar or future KXCapture shell.
 pub enum CanvasEvent {
     /// A primary double-click which neither the editor nor text input consumed.
     UnhandledDoubleClick {

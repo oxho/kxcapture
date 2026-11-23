@@ -1,4 +1,4 @@
-# Snow Shot releases and updates
+# KXCapture releases and updates
 
 Approved specification: the user accepted the implementation plan on 2026-09-10.
 Priorities: data preservation and authenticity > recovery > testability > maintainability.
@@ -119,8 +119,8 @@ Before deletion, the complete removal plan must match local names, byte sizes, e
 download URLs, and distinct attachment ids. Keep the local manifest and
 all referenced files until both public release pages and asset downloads are verified.
 
-Gitee retains the newest Snow Shot release. After a publication passes all attachment
-checks, the publisher deletes older published Snow Shot release entries and their
+Gitee retains the newest KXCapture release. After a publication passes all attachment
+checks, the publisher deletes older published KXCapture release entries and their
 attachments. SemVer ordering protects the current version and any newer version;
 drafts and unrelated releases are excluded. Source Git tags and GitHub releases are
 retained. Verification-only runs never delete releases.
@@ -201,9 +201,9 @@ to MP4, GIF, APNG and WebP. GIF packets use the Rust encoder directly, without
 opening or bundling a second FFmpeg GIF encoder. The standalone compatibility
 profiles retain their additional encoders and Matroska, AVI and WAV outputs.
 
-### Snow Shot Mini paired releases
+### KXCapture Mini paired releases
 
-Snow Shot and Snow Shot Mini are built from one CMake configuration and published
+KXCapture and KXCapture Mini are built from one CMake configuration and published
 under the same `v<version>_snow-shot` tag. The `snow_shot` and `snow_shot_mini`
 targets keep separate executable, helper, install, storage, and MCP identities.
 `SNOW_APPS_BUILD_SNOW_SHOT_MINI=ON` enables Mini alongside the full edition in
@@ -272,7 +272,7 @@ The limits are 8 MiB for metadata, 20,000 files and 4 GiB expanded payload per p
 | Initial state/event | Result |
 | --- | --- |
 | Fresh install | Background download mode; short cache probe at startup, first check after 30 seconds |
-| Completed automatic check | Updater exits; Snow Shot schedules the next check after 24 hours |
+| Completed automatic check | Updater exits; KXCapture schedules the next check after 24 hours |
 | Settings mode `manual` / `check` / `download` | No scheduled requests / metadata only / metadata and payload |
 | Newer authenticated release | Select the same installation variant; download with bounded retries |
 | Interrupted transfer with a strong ETag | Resume with Range and If-Range; verify full signed size/hash |
@@ -287,7 +287,7 @@ The limits are 8 MiB for metadata, 20,000 files and 4 GiB expanded payload per p
 | Helper watchdog fires after handoff | Do not start a possibly incomplete app; manual launch enters recovery |
 | Development copy without installation metadata | Show updates unavailable; never infer an install layout |
 
-The GPL-3.0-only Rust sidecar is an operation-scoped child. Snow Shot briefly launches it to
+The GPL-3.0-only Rust sidecar is an operation-scoped child. KXCapture briefly launches it to
 restore cached state at startup and launches a fresh child for each check, download, or apply
 handoff; the child exits after reporting a stable result. A lightweight Qt timer schedules the
 30-second startup check and subsequent 24-hour checks. Private inherited stdin/stdout pipes
@@ -330,7 +330,7 @@ and opens the verified release page for manual installation.
 
 ### Scoop
 
-Snow Shot targets Scoop's official [Extras bucket](https://github.com/ScoopInstaller/Extras).
+KXCapture targets Scoop's official [Extras bucket](https://github.com/ScoopInstaller/Extras).
 The initial [package request](https://github.com/ScoopInstaller/Extras/issues/18870)
 includes the verified 1.1.8 manifest and is awaiting maintainer acceptance.
 After upstream accepts the package, on Windows x64 with Scoop installed:
@@ -344,13 +344,13 @@ scoop uninstall snowshot
 ```
 
 The package installs the portable ZIP, including default OCR resources, without an
-administrator installer. Launch **Snow Shot** from the Start Menu or run `snowshot`.
+administrator installer. Launch **KXCapture** from the Start Menu or run `snowshot`.
 The `snowshot` package follows stable releases. Drafts, GitHub prereleases, beta
-tags, other Snow Apps releases, and releases without a Windows x64 portable ZIP
+tags, other oxho releases, and releases without a Windows x64 portable ZIP
 are excluded.
 
-Quit Snow Shot and finish recordings before upgrading or uninstalling. Use Scoop
-for updates instead of Snow Shot's built-in updater: the app's updater remains
+Quit KXCapture and finish recordings before upgrading or uninstalling. Use Scoop
+for updates instead of KXCapture's built-in updater: the app's updater remains
 available, but using it can leave Scoop's recorded version out of sync with the
 installed files. Existing manual and WinGet installations are not migrated.
 
@@ -365,7 +365,7 @@ data directories selected by the user are outside Scoop's persistence management
 #### Migrating from the retired bucket
 
 The self-maintained `snow-apps` bucket has been removed. Once `extras/snowshot`
-is available, quit Snow Shot and switch an existing Scoop installation with:
+is available, quit KXCapture and switch an existing Scoop installation with:
 
 ```powershell
 scoop bucket add extras
@@ -405,14 +405,14 @@ and merge.
 
 The generated manifest includes `checkver` and `autoupdate` for Scoop's official
 update automation. Version discovery reads the latest 100 GitHub releases,
-filters eligible stable Snow Shot portable assets, and sorts numeric versions.
+filters eligible stable KXCapture portable assets, and sorts numeric versions.
 The captured tag preserves the optional `_snow-shot` suffix in the download URL.
 Autoupdate reads the corresponding `<portable.zip>.sha256` sidecar. Publish a
 higher version for corrections to immutable release assets. Once merged, the
 official bucket maintains updates; no local manifest commits, publishing token,
 or release-triggered bucket workflow is required.
 
-The **Snow Shot Scoop** workflow verifies Scoop-related changes and supports
+The **KXCapture Scoop** workflow verifies Scoop-related changes and supports
 manual dispatch to produce a verified submission artifact for a stable release.
 It uses only Contents read permission. The generated manifest is retained as the
 `snow-shot-scoop-manifest` workflow artifact when generation succeeds, including
@@ -447,12 +447,12 @@ settings/history persistence through upgrade and ordinary uninstall. It also
 reinstalls the package after uninstall to verify retained data reconnects
 when migrating buckets. It redirects
 Start Menu and PATH integration into an isolated process/directory, never launches
-Snow Shot, and does not modify an existing Scoop installation. It tests lifecycle
+KXCapture, and does not modify an existing Scoop installation. It tests lifecycle
 functions rather than the complete interactive Scoop CLI.
 
 ### WinGet
 
-The independent **Snow Shot WinGet** GitHub Actions workflow submits Full's offline
+The independent **KXCapture WinGet** GitHub Actions workflow submits Full's offline
 Windows x64 and ARM64 installers as `mg-chao.snow-shot` to `microsoft/winget-pkgs`.
 Historical x64-only releases remain supported. Mini is not distributed through WinGet;
 its assets are not required for WinGet generation, validation, or submission. Stable and
@@ -478,8 +478,8 @@ Maintainer setup:
    `WINGET_CREATE_GITHUB_TOKEN`; the default Actions token cannot submit cross-repository PRs.
    WinGetCreate synchronizes the account's fork before opening a PR. The `workflow` scope
    lets that synchronization include upstream changes under `.github/workflows/`, even
-   though the Snow Shot submission itself only adds manifests.
-3. Publish a release or manually run **Snow Shot WinGet** with its tag. The workflow
+   though the KXCapture submission itself only adds manifests.
+3. Publish a release or manually run **KXCapture WinGet** with its tag. The workflow
    uploads manifests before validation/submission, validates them using WinGet, and
    submits with WinGetCreate 1.12.13.0 (verified against its pinned SHA-256).
 4. Follow the upstream PR through validation and review. Submission does not imply
@@ -493,7 +493,7 @@ GitHub lookup failures stop submission instead of treating a failed lookup as ab
 Before invoking WinGetCreate, submission verifies the token's repository and `workflow`
 scopes using the same read-only check as the credential verification script. If older
 credentials have only `public_repo`, add `workflow` to that PAT (or replace the repository
-secret with a PAT that has both scopes), then rerun **Snow Shot WinGet** for the tag.
+secret with a PAT that has both scopes), then rerun **KXCapture WinGet** for the tag.
 WinGetCreate 1.12.13.0 reports HTTP 422 from fork synchronization only as
 "The forked repository could not be synced with the upstream commits." A missing
 `workflow` scope can cause that response when the fork is behind upstream workflow changes.
@@ -527,10 +527,10 @@ winget uninstall --exact --id mg-chao.snow-shot --source winget
 
 Installation is machine-wide and requires elevation. Newly built silent installers
 (`winget upgrade --silent` or the installer executable with `/S`) close the affected
-Snow Shot installation, install the update, and restart it on the interactive desktop
+KXCapture installation, install the update, and restart it on the interactive desktop
 after successful installation. Closing may interrupt tasks and discard unsaved screenshots
 or annotations. Fresh silent installations and upgrades of an already stopped app do not
-launch it. Interactive setup still asks before closing; close Snow Shot before a standalone
+launch it. Interactive setup still asks before closing; close KXCapture before a standalone
 silent uninstall. Installer exit code 10 maps to WinGet's `packageInUse` response.
 The existing in-app updater remains enabled and updates the uninstall registration.
 WinGet uses that registration to identify the installed version.
@@ -553,7 +553,7 @@ launch the app, and an upgrade of a running app closes and restarts it after ins
 Finally uninstall silently and verify owned files/registration are removed and user data
 is preserved. Fixture tests and manifest validation do not substitute for this VM check.
 
-The **Snow Shot WinGet verification** workflow automates this lifecycle on a disposable
+The **KXCapture WinGet verification** workflow automates this lifecycle on a disposable
 GitHub-hosted Windows runner. It runs installation checks for WinGet changes in pull
 requests; manual runs accept `tag`, `previous_tag`, and `running_app_behavior`. Choose
 `Restart` for releases containing the silent-upgrade restart change; the default `Refuse`
@@ -573,7 +573,7 @@ The default installation fixtures are
 releases. Logs and generated manifests are retained in the
 `snow-shot-winget-verification` workflow artifact. The underlying
 `scripts/test-snow-shot-winget-install.ps1` refuses to run outside a GitHub-hosted
-Windows runner or when Snow Shot is already installed.
+Windows runner or when KXCapture is already installed.
 
 The published beta installers are unsigned and may trigger a SmartScreen reputation
 prompt when testing local manifests. The verification workflow explicitly enables
@@ -670,7 +670,7 @@ For a website-only retry, rerun `publish-snow-shot-website.ps1` without republis
 release packages. Server settings can be overridden on that command. Focused website
 workflow tests and their commands are documented in the website repository README.
 
-### Snow Shot Mini website downloads
+### KXCapture Mini website downloads
 
 The official website deploys both editions in one operation. Publish and verify
 the paired release on GitHub and Gitee first, including Mini's online installer,
@@ -733,7 +733,7 @@ ctest --preset test-windows-msvc-debug -R '^snow-shot-(macos-update|update-adapt
 Run `python3 scripts/test-macos-installer.py` on macOS for the standalone
 installer's native JXA and package validation checks. The full CTest suite is
 not part of this release change. Public rollout requires a configured
-`GITEE_TOKEN`, a successful mirror for a published Snow Shot release, and
+`GITEE_TOKEN`, a successful mirror for a published KXCapture release, and
 verification of both channels' asset bytes.
 
 ## macOS version checks
@@ -812,7 +812,7 @@ Repeating the migration is harmless; the release publisher's same-version and
 immutable-asset guards remain in effect.
 
 Missing macOS assets fail without updating the tap. After uploading the missing
-pair, retry with Actions → Publish Snow Shot Homebrew cask → Run workflow, supplying
+pair, retry with Actions → Publish KXCapture Homebrew cask → Run workflow, supplying
 the stable tag. With GitHub CLI:
 
 ```sh
@@ -859,7 +859,7 @@ preserving the real HOME without creating or changing Keychain identities. The r
 unavailable signing key again. Uninstall removes prepared and installed copies
 while retaining signing state and user data.
 
-After saving or rotating the tap token, run **Check Snow Shot Homebrew support**
+After saving or rotating the tap token, run **Check KXCapture Homebrew support**
 manually. In addition to the focused tests, its manual-only job checks out the
 existing tap using `HOMEBREW_TAP_TOKEN` and performs `git push --dry-run` to verify
 push authentication without changing the tap or publishing release assets.

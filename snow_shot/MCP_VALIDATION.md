@@ -1,6 +1,6 @@
 # MCP validation
 
-Snow Shot's MCP surface targets protocol version `2026-07-28`. The public tool
+KXCapture's MCP surface targets protocol version `2026-07-28`. The public tool
 catalog and Qt dispatch use `snow_shot_<domain>_<verb>` names. The private
 `snow-shot-mcp/1` connection includes resource events and request cancellation
 on every authenticated connection.

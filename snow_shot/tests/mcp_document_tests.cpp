@@ -373,19 +373,19 @@ int serve(QApplication& application, const QString& directory) {
         [&](quint64 owner, const QString& id) {
             server.publishEvent(
                 owner, {{QStringLiteral("event"), QStringLiteral("resource_changed")},
-                        {QStringLiteral("uri"), QStringLiteral("snow-shot://artifacts/") + id}});
+                        {QStringLiteral("uri"), QStringLiteral("kxcapture://artifacts/") + id}});
         });
     QObject::connect(
         &registry, &McpJobRegistry::changed, &server, [&](quint64 owner, const QString& id) {
             server.publishEvent(
                 owner, {{QStringLiteral("event"), QStringLiteral("resource_changed")},
-                        {QStringLiteral("uri"), QStringLiteral("snow-shot://jobs/") + id}});
+                        {QStringLiteral("uri"), QStringLiteral("kxcapture://jobs/") + id}});
         });
     QObject::connect(
         &documents, &McpDocumentService::changed, &server, [&](quint64 owner, const QString& id) {
             server.publishEvent(
                 owner, {{QStringLiteral("event"), QStringLiteral("resource_changed")},
-                        {QStringLiteral("uri"), QStringLiteral("snow-shot://documents/") + id}});
+                        {QStringLiteral("uri"), QStringLiteral("kxcapture://documents/") + id}});
         });
     QString error;
     require(server.start(&error), qPrintable(error));

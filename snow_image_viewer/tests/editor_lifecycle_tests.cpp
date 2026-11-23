@@ -198,7 +198,7 @@ int main(int argc, char* argv[]) {
     QApplication app(argc, argv);
     QTemporaryDir directory;
     require(directory.isValid(), "create editor lifecycle test directory");
-    QApplication::setOrganizationName(QStringLiteral("Snow Image Viewer Tests"));
+    QApplication::setOrganizationName(QStringLiteral("KXCapture Image Viewer Tests"));
     QApplication::setApplicationName(QStringLiteral("editor-lifecycle"));
     QSettings::setDefaultFormat(QSettings::IniFormat);
     QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, directory.path());

@@ -5,7 +5,7 @@ $ErrorActionPreference = 'Stop'
 
 function Get-SnowShotWingetVersion([string]$Tag) {
     if ($Tag -cnotmatch '^v(?<version>(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?)(?:_snow-shot)?\z') {
-        throw "Not a Snow Shot release tag: $Tag"
+        throw "Not a KXCapture release tag: $Tag"
     }
     return $Matches.version
 }
@@ -141,7 +141,7 @@ InstallationMetadata:
   DefaultInstallLocation: '%ProgramFiles%\$($product.Registry)'
 AppsAndFeaturesEntries:
   - DisplayName: $($product.Name)
-    Publisher: Snow Apps
+    Publisher: oxho
     ProductCode: $($product.Registry)
 ExpectedReturnCodes:
   - InstallerReturnCode: 10
@@ -155,11 +155,11 @@ ManifestVersion: 1.12.0
 # yaml-language-server: `$schema=https://aka.ms/winget-manifest.defaultLocale.1.12.0.schema.json
 $common
 PackageLocale: en-US
-Publisher: Snow Apps
+Publisher: oxho
 PublisherUrl: https://github.com/mg-chao
 PublisherSupportUrl: https://github.com/$repository/issues
 PackageName: $($product.Name)
-PackageUrl: https://snowshot.top
+PackageUrl: 
 License: GPL-3.0-or-later
 LicenseUrl: https://github.com/$repository/blob/$Tag/snow_shot/COPYRIGHT
 ShortDescription: A screenshot utility for capturing, annotating, pinning, and recognizing screen content.

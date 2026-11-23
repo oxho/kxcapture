@@ -51,7 +51,7 @@ using adqt::widgets::AdModal;
     QT_TRANSLATE_NOOP("ImageStitchingWindow", "%1: %2"),
     QT_TRANSLATE_NOOP("ImageStitchingWindow", "Add images"),
     QT_TRANSLATE_NOOP("ImageStitchingWindow",
-                      "Allow Snow Shot to access Finder in System Settings > "
+                      "Allow KXCapture to access Finder in System Settings > "
                       "Privacy & Security > Automation, then try again"),
     QT_TRANSLATE_NOOP("ImageStitchingWindow",
                       "All images will be removed from this stitching session"),
@@ -122,7 +122,7 @@ QString imageFilter() {
 QString selectedFileErrorText(platform::SelectedFileError error) {
     switch (error) {
     case platform::SelectedFileError::PermissionDenied:
-        return imageStitchingText("Allow Snow Shot to access Finder in System Settings > Privacy & "
+        return imageStitchingText("Allow KXCapture to access Finder in System Settings > Privacy & "
                                   "Security > Automation, then try again");
     case platform::SelectedFileError::Timeout:
         return imageStitchingText(

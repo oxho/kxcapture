@@ -1,4 +1,4 @@
-# Building Snow Shot on macOS
+# Building KXCapture on macOS
 
 The app presets target macOS 15 or newer, with separate Apple Silicon (`arm64`)
 and Intel (`x64`) builds. Each build uses one architecture throughout CMake,
@@ -17,10 +17,10 @@ Deployed apps do not require Xcode. Hardware acceleration defaults off and uses
 CPU while device discovery is pending or unavailable. Intel builds remain
 CPU-only; the preference does not enable resident OCR or model hot start.
 
-## Snow Shot Mini
+## KXCapture Mini
 
 Apple Silicon presets build both `snow_shot` and `snow_shot_mini` from the same
-configuration. Intel presets build Snow Shot only; Snow Shot Mini requires
+configuration. Intel presets build KXCapture only; KXCapture Mini requires
 `arm64` on macOS. `SNOW_APPS_BUILD_SNOW_SHOT_MINI` controls the additional target
 and defaults to `ON` in the Apple Silicon presets. Use an explicit `--target`
 to build one edition, or configure with this option `OFF` for a full-only build.
@@ -46,8 +46,8 @@ bash install-snow-shot-macos.sh --edition mini --lang en
 The Apple Silicon package command produces both
 `snow-shot-<version>-macos-arm64.dmg` and
 `snow-shot-mini-<version>-macos-arm64.dmg`, each with a `.sha256` sidecar.
-Mini installs as `Snow Shot Mini.app`, with executable `snow_shot_mini` and
-bundle ID `com.snowshot.snow_shot_mini`. Its settings, launch-at-login entry,
+Mini installs as `KXCapture Mini.app`, with executable `snow_shot_mini` and
+bundle ID `io.github.oxho.kxcapture.mini`. Its settings, launch-at-login entry,
 MCP discovery, and installer state use separate product identities. For direct
 staging, use `cmake --install build/<preset> --component SnowShotMini --prefix
 /path/to/staging`. Both editions share a version and release tag.
@@ -65,7 +65,7 @@ preferences and retains all four options, its updater, and its startup installat
 
 On macOS, automatic updates download and verify in the background, then wait
 for the application process to quit normally. Closing the main window while
-Snow Shot remains in the menu bar does not install an update. The installer
+KXCapture remains in the menu bar does not install an update. The installer
 replaces the application after quit, so the next launch runs the new version.
 Changing the setting after preparation leaves that prepared installation intact.
 Only the explicit **Restart & update** action requests an immediate restart,
@@ -125,7 +125,7 @@ Tags accept `v<version>` with an optional `_snow-shot` suffix; beta versions use
 `-beta` or `-beta.<number>`. Other prerelease versions are not supported.
 Homebrew installation supports Apple Silicon and Intel on macOS 15 or later
 when the matching release includes that architecture. Historical releases may
-contain only Apple Silicon packages. Snow Shot Mini remains Apple Silicon-only.
+contain only Apple Silicon packages. KXCapture Mini remains Apple Silicon-only.
 Keep Homebrew current with `brew update`.
 
 ```sh
@@ -137,7 +137,7 @@ brew uninstall --cask snow-shot
 
 For beta releases, use `brew install --cask mg-chao/tap/snow-shot@beta` and
 `brew upgrade --cask snow-shot@beta`. Quit the app and uninstall the current cask
-before switching channels because both install `Snow Shot.app`. User data and
+before switching channels because both install `KXCapture.app`. User data and
 the signing identity are retained. Each release needs its versioned DMG and a
 GitHub SHA-256 digest or matching `.sha256` asset. When both are present, both
 must match; the workflow packages only verified release assets.
@@ -171,9 +171,9 @@ cannot resolve it while the remote cask still requires Intel; maintainers should
 follow the repair procedure below.
 
 Finish captures and recordings before upgrading or uninstalling. When the
-installed cask includes `quit:`, Homebrew asks a running Snow Shot to quit and
+installed cask includes `quit:`, Homebrew asks a running KXCapture to quit and
 reopens it after a successful upgrade if it was able to quit the app. For the
-first upgrade from a cask without `quit:`, quit Snow Shot before upgrading and
+first upgrade from a cask without `quit:`, quit KXCapture before upgrading and
 open it afterward. If Homebrew reports a quit failure during an upgrade, quit
 and reopen the app manually.
 
@@ -192,7 +192,7 @@ installer bundled with the new release: old scripts still re-sign applications.
 
 ### Migrating an existing installation
 
-Quit Snow Shot and move `/Applications/Snow Shot.app` (or the legacy
+Quit KXCapture and move `/Applications/KXCapture.app` (or the legacy
 `/Applications/snow_shot.app`) to a backup folder outside Applications before
 running `brew install`. Keep legacy installer state and keys if rollback is needed. Do not use `--force` to overwrite an existing app. Confirm that the new
 copy launches and can capture before deleting the backup. If installation fails,
@@ -220,7 +220,7 @@ uploading later can expose only one architecture to that job.
 The Homebrew publisher now requires every architecture and edition already
 present in the channel's tap to have a valid DMG and checksum in the new release.
 An incomplete snapshot fails before downloads, archive uploads, or tap changes.
-After all uploads finish, rerun **Publish Snow Shot Homebrew cask** for that tag.
+After all uploads finish, rerun **Publish KXCapture Homebrew cask** for that tag.
 Single-architecture historical releases can still be packaged locally, but cannot
 replace a cask that already supports both architectures.
 
@@ -268,7 +268,7 @@ bash -n scripts/install-snow-shot-macos.sh
 Native release qualification uses a disposable macOS desktop account with
 Homebrew: install, launch, upgrade between two stable releases, uninstall, and
 repeat with `--appdir`. When upgrading from a cask with `quit:`, verify that
-running Snow Shot restarts with the new version. Check that the signing identity
+running KXCapture restarts with the new version. Check that the signing identity
 stays the same, the OCR helper and manifest bytes remain unchanged, and
 uninstall preserves user data.
 In that disposable account, test a package with the wrong signer and verify that
@@ -280,18 +280,18 @@ and interactive privacy consent, including DMG → script → Homebrew → DMG u
 
 The standalone installer supports macOS 15+, Apple Silicon (including a terminal
 running under Rosetta), and Intel. It uses only macOS system tools. After the
-release assets are published, choose a Snow Shot release tag and run its installer
+release assets are published, choose a KXCapture release tag and run its installer
 asset as your normal desktop user:
 
 ```sh
 curl --fail --location --proto '=https' --proto-redir '=https' \
   --output install-snow-shot-macos.sh \
-  "https://github.com/mg-chao/snow-shot/releases/download/v<version>_snow-shot/install-snow-shot-macos.sh"
+  "<version>_snow-shot/install-snow-shot-macos.sh"
 bash install-snow-shot-macos.sh --lang en
 ```
 
 The installer verifies the downloaded package and its pinned project signature,
-gracefully closes Snow Shot, and installs `/Applications/Snow Shot.app` without
+gracefully closes KXCapture, and installs `/Applications/KXCapture.app` without
 changing the signature. Publish this installer only with matching project-signed
 DMGs; it intentionally rejects the old ad-hoc packages, including 1.5.8.
 Existing `/Applications/snow_shot.app` installations migrate to the new name,
@@ -320,7 +320,7 @@ bash install-snow-shot-macos.sh --lang zh-CN
 ```
 
 脚本会自动识别芯片架构，并行检查 GitHub 和 Gitee Releases，优先使用先完成验证的渠道，
-验证后安装到 `/Applications/Snow Shot.app`（已有旧路径安装会迁移到新名称）。仅在替换应用需要管理员权限时请求密码，
+验证后安装到 `/Applications/KXCapture.app`（已有旧路径安装会迁移到新名称）。仅在替换应用需要管理员权限时请求密码，
 无需在命令前添加 `sudo`。1.5.8 之后采用项目统一签名的发布版本不再创建本地证书或访问用户钥匙串。
 DMG 拖拽、安装脚本和 Homebrew 均保留发布者签名。请使用新版安装脚本，旧脚本仍会重新签名。
 首次安装或从旧签名迁移后，仍需按系统提示授予屏幕录制和辅助功能权限。
@@ -340,7 +340,7 @@ bash install-snow-shot-macos.sh --lang zh-TW
 
 不需要 Homebrew、Python、Xcode 或 Apple 開發者會員。指令碼會自動辨識晶片架構，
 並行檢查 GitHub 與 Gitee Releases，優先使用先完成驗證的管道，驗證後安裝到
-`/Applications/Snow Shot.app`（既有舊路徑安裝會遷移至新名稱）。不必加上 `sudo`；需要管理員權限時才會要求密碼。
+`/Applications/KXCapture.app`（既有舊路徑安裝會遷移至新名稱）。不必加上 `sudo`；需要管理員權限時才會要求密碼。
 1.5.8 之後採用專案統一簽署的發行版本不再建立本機憑證或存取使用者鑰匙圈。
 DMG 拖移、安裝指令碼和 Homebrew 均保留發行者簽章。請使用新版指令碼，舊指令碼仍會重新簽署。
 首次安裝或從舊簽署移轉後，請依系統提示授予螢幕錄製和輔助使用權限。
@@ -371,20 +371,20 @@ names and release download URLs. The first ready channel provides the package;
 if download or validation fails, the installer tries the same version on the
 other channel. The checksum and DMG come from one channel over HTTPS.
 
-The DMG contains `Snow Shot.app` at its root (the installer also accepts legacy
+The DMG contains `KXCapture.app` at its root (the installer also accepts legacy
 `snow_shot.app` packages), with bundle ID
-`com.snowshot.snow_shot`, executable `snow_shot`, a minimum macOS version, and a
+`io.github.oxho.kxcapture`, executable `snow_shot`, a minimum macOS version, and a
 valid bundle signature from the pinned project release certificate (ad-hoc is rejected). Publishing these assets and this
 installer remains a separate release operation. Nothing is uploaded by the script.
 
 ### DMG installation window
 
-The release DMG opens a branded Finder window with Snow Shot on the left, an
+The release DMG opens a branded Finder window with KXCapture on the left, an
 Applications shortcut on the right, and drag-to-install instructions in English,
 Simplified Chinese, and Traditional Chinese. Finder backgrounds are static images,
 so all three languages appear together rather than selecting the packaging
 machine’s language. Native privacy prompts use macOS language selection. Drag the
-app to Applications, eject the image, and open Snow Shot from Applications.
+app to Applications, eject the image, and open KXCapture from Applications.
 The bundle includes its icon, full release version, copyright, Productivity
 category, supported languages, and localized macOS privacy prompts. The internal
 executable and settings identifier remain `snow_shot`.
@@ -398,7 +398,7 @@ steps.
 
 ### Project signing identity, recovery, and qualification
 
-The publisher owns one persistent self-signed certificate, `Snow Shot Project
+The publisher owns one persistent self-signed certificate, `KXCapture Project
 Release`. Its public certificate is tracked in
 `snow_shot/packaging/macos/release-signing.pem`; the standalone installer pins its
 SHA-1 certificate fingerprint. The SHA-1 value identifies the certificate for
@@ -421,7 +421,7 @@ This command refuses to overwrite an existing certificate. It imports the privat
 key into the publishing account's login Keychain with access for `/usr/bin/codesign`,
 removes temporary private-key files, and changes no certificate trust settings.
 Its public recovery copy lives under
-`~/Library/Application Support/Snow Shot/ReleaseSigning`. An interrupted operation
+`~/Library/Application Support/KXCapture/ReleaseSigning`. An interrupted operation
 leaves a `creating` marker; recover the existing key and certificate before retrying.
 Do not delete the marker to generate a different identity.
 
@@ -570,7 +570,7 @@ but emits native x264 objects to avoid conflicting LLVM LTO module flags. Qt,
 the application, and the other dependencies retain their LTO settings.
 
 The static Qt script pins
-the architecture and Qt's supported 14.4 library deployment target (the Snow Shot
+the architecture and Qt's supported 14.4 library deployment target (the KXCapture
 app still targets macOS 15.0), enables LTO and system libpng/zlib, installs Qt
 source-license metadata, disables the macOS-27-only `dup3` path for compatibility
 with the supported deployment range, and records an audited build stamp. It
@@ -702,7 +702,7 @@ interactive, end-to-end and benchmark labels. Build a benchmark explicitly with
 `--target` using the performance preset. Running an Intel executable on Apple
 Silicon requires Rosetta. `build.sh` defaults to the application target; use
 `--target snow-all` only when all enabled targets are needed. On Apple Silicon,
-the default application build includes both Snow Shot editions.
+the default application build includes both KXCapture editions.
 
 For direct CMake use, put the host tools on PATH and supply `-DQt6_DIR=...`:
 `cmake --preset snow-shot-macos-arm64-debug`, then
@@ -756,7 +756,7 @@ DMG mounting and app installation on the supported macOS versions before publish
 The release script builds and produces edition DMGs plus SHA-256 checksums under the
 preset's build directory. Pass `--parallel N` to control the build or
 `--skip-build` to package an already validated release cache. CPack installs only
-the corresponding Snow Shot component and verifies the bundle signature. Static packages import
+the corresponding KXCapture component and verifies the bundle signature. Static packages import
 the Cocoa, macOS style, Secure Transport, SVG, and offscreen Qt plugins at link
 time and reject every non-system Mach-O dependency. The bundle includes the OCR
 helper, shutter audio, and project license notices; the full edition also includes
@@ -771,7 +771,7 @@ Cargo targets and feature selections. Missing notices stop packaging. A plain
 performs the same deployment and static-link audit without a DMG. Shared Debug
 and performance deployments continue to put libraries in `Contents/Frameworks`.
 
-Debug and performance presets automatically create `Snow Shot Development (Local)`,
+Debug and performance presets automatically create `KXCapture Development (Local)`,
 a self-signed code-signing identity in the user's default keychain. The private key
 is restricted to `/usr/bin/codesign`. CMake signs the raw app executable for direct
 IDE debugging, and the run script uses the same certificate for its deployed copy.
@@ -802,11 +802,11 @@ and microphone permissions when using the corresponding capabilities.
 ### Accessibility enabled in Settings but reported missing
 
 Ad-hoc signatures identify a particular build by its code hash. After rebuilding,
-TCC can reject the old grant while System Settings still shows Snow Shot enabled.
+TCC can reject the old grant while System Settings still shows KXCapture enabled.
 The system log then reports `Failed to match existing code requirement` for
-`com.snowshot.snow_shot` and `kTCCServiceAccessibility`.
+`io.github.oxho.kxcapture` and `kTCCServiceAccessibility`.
 
-Quit Snow Shot, remove its old entry from System Settings > Privacy & Security >
+Quit KXCapture, remove its old entry from System Settings > Privacy & Security >
 Accessibility with the minus button, then add and enable the exact deployed app:
 `build/<preset>/run/snow_shot.app`. Restart that copy with
 `scripts/run-snow-shot.sh <preset> --no-build`. This option launches the existing
@@ -911,9 +911,9 @@ spaces or Unicode and test the exact bundle with the matching shared-runtime
 recognition helper, without modifying its signature:
 
 ```sh
-"$OCR_TEST" --bundle="/path/to/Relocated Snow Shot.app" --offline
-"$OCR_TEST" --bundle="/path/to/Relocated Snow Shot.app" --model=extra_small --cache="/tmp/snow-ocr-cache"
-"$OCR_TEST" --bundle="/path/to/Relocated Snow Shot.app" --model=extra_small --cache="/tmp/snow-ocr-cache" --offline
+"$OCR_TEST" --bundle="/path/to/Relocated KXCapture.app" --offline
+"$OCR_TEST" --bundle="/path/to/Relocated KXCapture.app" --model=extra_small --cache="/tmp/snow-ocr-cache"
+"$OCR_TEST" --bundle="/path/to/Relocated KXCapture.app" --model=extra_small --cache="/tmp/snow-ocr-cache" --offline
 ```
 
 For a static Release package, verify its finalized runtime and startup separately:
@@ -921,9 +921,9 @@ For a static Release package, verify its finalized runtime and startup separatel
 ```sh
 python3 scripts/snow-shot-macos-ocr.py verify \
   --static-runtime \
-  --runtime-dir="/path/to/Relocated Snow Shot.app/Contents/MacOS" \
-  --app="/path/to/Relocated Snow Shot.app"
-"/path/to/Relocated Snow Shot.app/Contents/MacOS/snow_shot" --startup-probe
+  --runtime-dir="/path/to/Relocated KXCapture.app/Contents/MacOS" \
+  --app="/path/to/Relocated KXCapture.app"
+"/path/to/Relocated KXCapture.app/Contents/MacOS/snow_shot" --startup-probe
 ```
 
 The recognition helper's first run uses a fresh temporary cache and an unreachable
@@ -933,7 +933,7 @@ Run with `DYLD_LIBRARY_PATH`, `DYLD_FALLBACK_LIBRARY_PATH`, and `ORT_DYLIB_PATH`
 Also launch the packaged app through Finder and check its screenshot-to-OCR flow.
 
 For Mini, add `--runtime-only` to the Python verification command and use
-`Snow Shot Mini.app` / `snow_shot_mini` for the app and executable paths. A fresh Mini
+`KXCapture Mini.app` / `snow_shot_mini` for the app and executable paths. A fresh Mini
 cache needs the selected model download before offline recognition can work;
 repeat recognition with the same cache to verify offline reuse.
 
@@ -962,18 +962,18 @@ not migrated.
 
 ## Launch at login
 
-**Settings > System > General > Open at login** controls whether Snow Shot starts
+**Settings > System > General > Open at login** controls whether KXCapture starts
 in the background when you log in to your Mac. The setting is off by default.
 Turning it on registers the app with macOS; turning it off unregisters it without
 quitting the running app. Resetting the General section turns it off.
 
-Starting Snow Shot never changes login-item registration. Existing registrations
+Starting KXCapture never changes login-item registration. Existing registrations
 are preserved when upgrading, and an old enabled preference does not restore an
 item removed in System Settings. The app reads native status when its settings
 page opens or it becomes active, so the toggle reflects changes made elsewhere.
 Existing `macos-login-item.ini` initialization markers are ignored.
 
-Registration uses `SMAppService.mainAppService` directly, without Snow Shot imposing
+Registration uses `SMAppService.mainAppService` directly, without KXCapture imposing
 an Applications-folder requirement. macOS determines whether registration succeeds;
 native errors, including signing failures, are displayed by the setting. Both
 `SMAppServiceStatusNotRegistered` and `SMAppServiceStatusNotFound` allow an explicit
@@ -991,14 +991,14 @@ missing required permissions still open the existing permission guide.
 Record the app's original login-item state before checking. Automated tests use
 injected operations and do not register real login items.
 
-1. With fresh preferences and no existing registration, launch Snow Shot and open
+1. With fresh preferences and no existing registration, launch KXCapture and open
    settings. Confirm **Open at login** is off and no Login Items entry was added.
-2. Turn it on and verify one Snow Shot entry appears in Login Items. If macOS
+2. Turn it on and verify one KXCapture entry appears in Login Items. If macOS
    reports pending approval, verify the inline hint and approve it in System
-   Settings. Return to Snow Shot and verify the refreshed state.
-3. Turn it off and verify the entry is removed while Snow Shot keeps running.
+   Settings. Return to KXCapture and verify the refreshed state.
+3. Turn it off and verify the entry is removed while KXCapture keeps running.
    Turn it on again, then reset General settings and confirm it is unregistered.
-4. Enable it, then remove or disable it in System Settings. Reopen Snow Shot and
+4. Enable it, then remove or disable it in System Settings. Reopen KXCapture and
    confirm registration is not restored. Also verify that an existing enabled
    registration survives an app upgrade or restart.
 5. With launch at login enabled, log out and back in. Confirm one running instance,

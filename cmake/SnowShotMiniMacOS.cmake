@@ -1,7 +1,7 @@
-snow_embed_sparkle(snow_shot_mini snow_shot_mini.app SnowShotMini)
+snow_embed_sparkle(snow_shot_mini kxcapture_mini.app SnowShotMini)
 set_target_properties(snow_shot_mini PROPERTIES
     MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/packaging/macos/Info-mini.plist.in"
-    MACOSX_BUNDLE_ICON_FILE snow-shot.icns
+    MACOSX_BUNDLE_ICON_FILE kxcapture.icns
     INSTALL_RPATH "@executable_path/../Frameworks" INSTALL_RPATH_USE_LINK_PATH TRUE)
 target_sources(snow_shot_mini PRIVATE "${_snow_macos_icon}")
 foreach(_language IN ITEMS en zh-Hans zh-Hant)
@@ -28,7 +28,7 @@ if(NOT SNOW_MACOS_CODESIGN_IDENTITY STREQUAL "-")
         COMMAND "${CMAKE_COMMAND}" -E copy "$<TARGET_FILE:snow_shot_mini>"
             "$<TARGET_FILE:snow_shot_mini>.snow-signing"
         COMMAND /usr/bin/codesign --force --sign "${SNOW_MACOS_CODESIGN_IDENTITY}"
-            --identifier com.snowshot.snow_shot_mini "$<TARGET_FILE:snow_shot_mini>.snow-signing"
+            --identifier io.github.oxho.kxcapture.mini "$<TARGET_FILE:snow_shot_mini>.snow-signing"
         COMMAND /usr/bin/codesign --verify --strict "$<TARGET_FILE:snow_shot_mini>.snow-signing"
         COMMAND "${CMAKE_COMMAND}" -E copy "$<TARGET_FILE:snow_shot_mini>.snow-signing"
             "$<TARGET_FILE:snow_shot_mini>"
@@ -49,7 +49,7 @@ install(DIRECTORY "$<TARGET_FILE_DIR:snow_shot_mini>/assets/ocr"
     DESTINATION "${_mini_bindir}/assets" COMPONENT SnowShotMini PATTERN models EXCLUDE)
 if(NOT SNOW_SHOT_QT_STATIC)
     install(FILES "$<TARGET_FILE:Qt6::QOffscreenIntegrationPlugin>"
-        DESTINATION "snow_shot_mini.app/Contents/PlugIns/platforms" COMPONENT SnowShotMini)
+        DESTINATION "kxcapture_mini.app/Contents/PlugIns/platforms" COMPONENT SnowShotMini)
 endif()
 if(SNOW_SHOT_RELEASE_STATIC)
     install(DIRECTORY "${_snow_static_qt_licenses}/"
@@ -61,13 +61,13 @@ endif()
 include("${CMAKE_CURRENT_LIST_DIR}/SnowRustLicenses.cmake")
 snow_install_rust_licenses(
     COMPONENT SnowShotMini
-    DESTINATION "snow_shot_mini.app/Contents/Resources/snow-shot-mini/licenses/third-party/cargo"
+    DESTINATION "kxcapture_mini.app/Contents/Resources/snow-shot-mini/licenses/third-party/cargo"
     TARGETS snow_shot_rust_ffi_bundle snow_ocr_process snow_shot_mini_mcp)
 file(READ "${CMAKE_CURRENT_LIST_DIR}/DeploySnowShotMacOS.cmake.in" _mini_deploy)
 string(REPLACE "@SNOW_MACOS_OCR_RUNTIME_ONLY@" "ON" _mini_deploy "${_mini_deploy}")
-string(REPLACE "snow_shot.app" "snow_shot_mini.app" _mini_deploy "${_mini_deploy}")
-string(REPLACE "snow-shot-mcp" "snow-shot-mini-mcp" _mini_deploy "${_mini_deploy}")
-string(REPLACE "snow-shot-updater" "snow-shot-mini-updater" _mini_deploy "${_mini_deploy}")
+string(REPLACE "kxcapture.app" "kxcapture_mini.app" _mini_deploy "${_mini_deploy}")
+string(REPLACE "kxcapture-mcp" "kxcapture-mini-mcp" _mini_deploy "${_mini_deploy}")
+string(REPLACE "kxcapture-updater" "kxcapture-mini-updater" _mini_deploy "${_mini_deploy}")
 string(REPLACE "macos-ocr-verification.json" "macos-mini-ocr-verification.json" _mini_deploy "${_mini_deploy}")
 string(APPEND _mini_deploy [==[
 set(SNOW_SHOT_MINI_APP "${_app}")

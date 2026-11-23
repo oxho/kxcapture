@@ -57,7 +57,7 @@ if ($restore -lt 0 -or $restore -lt $init.IndexOf('!insertmacro SnowShotLanguage
     $restore -gt $init.IndexOf('ExecWait')) {
     throw 'Directory restoration must follow registry context selection and precede the old uninstaller.'
 }
-if (-not $init.Contains('"Software\Snow Apps\SnowShotInstallerTest"')) {
+if (-not $init.Contains('"Software\oxho\SnowShotInstallerTest"')) {
     throw 'Directory restoration must use the registry key written by CPack.'
 }
 Write-Output 'PASS: CPack compiles directory restoration before upgrade removal.'

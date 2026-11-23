@@ -55,6 +55,17 @@ namespace custom_outlined_icons = snow_shot::presentation::icons::custom::outlin
 namespace outlined_icons = adqt::icons::antd::outlined;
 
 const QHash<QString, QString>& bundledIconResources() {
+#ifdef Q_OS_MACOS
+    const QString trayIcon = QStringLiteral(":/snow-shot/app-icons/macos-tray-template.png");
+    static const QHash<QString, QString> resources{
+        {QStringLiteral("default"), trayIcon},
+        {QStringLiteral("light"), trayIcon},
+        {QStringLiteral("dark"), trayIcon},
+        {QStringLiteral("snow-default"), trayIcon},
+        {QStringLiteral("snow-light"), trayIcon},
+        {QStringLiteral("snow-dark"), trayIcon},
+    };
+#else
     static const QHash<QString, QString> resources{
         {QStringLiteral("default"),
          QStringLiteral(":/snow-shot/app-icons/snow-shot-tray-default.png")},
@@ -67,6 +78,7 @@ const QHash<QString, QString>& bundledIconResources() {
         {QStringLiteral("snow-dark"),
          QStringLiteral(":/snow-shot/app-icons/snow-shot-tray-snow-dark.png")},
     };
+#endif
     return resources;
 }
 

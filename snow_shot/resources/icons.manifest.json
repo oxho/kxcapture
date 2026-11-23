@@ -3,7 +3,7 @@
   "pack": "snow-shot",
   "cppNamespace": "snow_shot::presentation::icons::custom",
   "headerInclude": "snow_shot/presentation/components/icons/snowshoticons.h",
-  "source": "Snow Shot project-owned static SVG assets",
+  "source": "KXCapture project-owned static SVG assets",
   "entries": [
     {
       "variant": "app",
@@ -1797,7 +1797,7 @@
       "colorModel": "twoTone",
       "fit": "contain",
       "defaultColors": {
-        "secondary": "#9254DE"
+        "secondary": "#0D7A6B"
       }
     }
   ]

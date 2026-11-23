@@ -1,7 +1,7 @@
 # Snow Canvas watermark benchmark
 
 `snow-canvas-watermark-benchmark` measures watermark rendering in isolation and through
-the engine workflows used by Snow Shot. It is intended for same-machine performance tuning,
+the engine workflows used by KXCapture. It is intended for same-machine performance tuning,
 not for comparing different computers. The executable writes versioned benchmark CSV output.
 
 ## Build

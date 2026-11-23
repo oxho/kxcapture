@@ -138,7 +138,7 @@ It also produces larger files than H.264 hardware on the simple UI fixture.
 Quality was not reduced to hide that tradeoff; PSNR is a limited synthetic metric,
 not a substitute for checking small text and real desktop recordings.
 
-The complete Snow Shot application built successfully with the macOS ARM64
+The complete KXCapture application built successfully with the macOS ARM64
 performance preset. Local validation also passed the streaming/recovery tests (48), codec policy
 tests (6), direct C ABI tests (15), adapter mapping, runtime fallback policy,
 settings/automation/storage checks, translation validation, Clippy with warnings

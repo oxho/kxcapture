@@ -38,7 +38,7 @@ class SourceWindow final : public QWidget {
     SourceWindow() {
         setAttribute(Qt::WA_DeleteOnClose);
         setWindowFlag(Qt::WindowStaysOnTopHint);
-        setWindowTitle(QStringLiteral("Snow Shot live-window native fixture"));
+        setWindowTitle(QStringLiteral("KXCapture live-window native fixture"));
         resize(320, 240);
     }
     void paintEvent(QPaintEvent*) override {

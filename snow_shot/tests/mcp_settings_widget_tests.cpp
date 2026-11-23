@@ -190,7 +190,7 @@ void mcpSettingsWidget() {
     };
     const FailureCase failures[] = {
         {McpStartupError::RuntimeDirectory, "Could not secure the MCP runtime directory"},
-        {McpStartupError::EndpointOwned, "Another Snow Shot instance owns the MCP endpoint"},
+        {McpStartupError::EndpointOwned, "Another KXCapture instance owns the MCP endpoint"},
         {McpStartupError::LocalEndpoint, "Could not open the local MCP endpoint"},
         {McpStartupError::Descriptor, "Could not write the private MCP descriptor"},
     };

@@ -1,6 +1,6 @@
 # Administrator launch: interactive Windows verification
 
-Run these cases in a disposable Windows VM with a packaged Snow Shot installation,
+Run these cases in a disposable Windows VM with a packaged KXCapture installation,
 an administrator account using a filtered UAC token, and a standard account. These
 checks intentionally require a person to respond to Windows authorization dialogs.
 The automated tests do not approve UAC or modify live startup registrations.
@@ -17,7 +17,7 @@ The automated tests do not approve UAC or modify live startup registrations.
    Inspect the task's user SID, interactive logon trigger, highest run level,
    executable, `--autostart` argument, working directory, battery settings, and
    unlimited execution time.
-4. Sign out and back in. Expect one elevated Snow Shot process in the user's desktop
+4. Sign out and back in. Expect one elevated KXCapture process in the user's desktop
    session and no foreground main window caused by auto-start.
 5. From an unelevated app, turn administrator launch off and decline UAC. Expect one
    error, the switch still on, and the task unchanged. Approve a second attempt;

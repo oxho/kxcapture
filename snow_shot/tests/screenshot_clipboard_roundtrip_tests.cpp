@@ -232,7 +232,7 @@ void publishAndReadThroughQt(bool includeFile) {
     auto payload = ScreenshotClipboardService::prepareImage(source, {}, {}, appearance);
     QTemporaryDir directory;
     require(directory.isValid(), "clipboard file fixture unavailable");
-    const QString path = directory.filePath(QStringLiteral("Snow Shot \u56fe\u50cf.png"));
+    const QString path = directory.filePath(QStringLiteral("KXCapture \u56fe\u50cf.png"));
     if (includeFile) {
         require(source.save(path, "PNG"), "clipboard file fixture save failed");
         payload = ScreenshotClipboardService::withFile(std::move(payload), path);
@@ -275,9 +275,9 @@ void publishAndReadThroughQt(bool includeFile) {
                   QApplication::clipboard()->image().convertToFormat(QImage::Format_ARGB32));
     auto snapshot = ScreenshotClipboardContentReader::snapshot(QApplication::clipboard(), 1.0);
     require(snapshot.has_value() && !snapshot->encodedImages.isEmpty(),
-            "Snow Shot must capture encoded PNG before considering a bitmap");
+            "KXCapture must capture encoded PNG before considering a bitmap");
     const auto decoded = ScreenshotClipboardContentReader::decode(std::move(*snapshot));
-    require(decoded.has_value(), "Snow Shot PNG readback failed");
+    require(decoded.has_value(), "KXCapture PNG readback failed");
     require(decoded->appearance && decoded->appearance->checkerboardEnabled,
             "image appearance metadata must survive both publication modes");
     comparePixels(source, decoded->image.convertToFormat(QImage::Format_ARGB32));
