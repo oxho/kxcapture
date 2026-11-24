@@ -55,15 +55,21 @@ jobs:
           # on native arm64 with full Xcode.
           # clang-format is required when CMake regenerates the icon pack.
           brew install bash ninja pkgconf nasm clang-format
-          # Homebrew xz otherwise satisfies pkg-config and the release binary
-          # links /opt/homebrew/opt/xz/lib/liblzma.5.dylib, which static
-          # packaging rejects.
-          brew unlink xz || true
           # pkgconf's executable is pkgconf; the build scripts require pkg-config.
           if ! command -v pkg-config >/dev/null; then
             brew_bin="$(brew --prefix)/bin"
             ln -sf "$(command -v pkgconf)" "$brew_bin/pkg-config"
           fi
+          # Homebrew's /opt/homebrew/lib symlink farm is on CMake's default
+          # search path. The release binary then links cellar dylibs such as
+          # liblzma.5.dylib and libzstd.1.dylib, and static packaging rejects
+          # them. Installed tools keep absolute cellar install names, so
+          # hiding the farm does not stop bash, ninja, or pkgconf.
+          if [[ -d /opt/homebrew/lib && ! -e /opt/homebrew/lib.kxcapture-hidden ]]; then
+            mv /opt/homebrew/lib /opt/homebrew/lib.kxcapture-hidden
+          fi
+          printf 'PKG_CONFIG_LIBDIR=/usr/lib/pkgconfig\n' >> "$GITHUB_ENV"
+          printf 'PKG_CONFIG_PATH=\n' >> "$GITHUB_ENV"
 
       - name: Install Rust 1.97.1
         uses: dtolnay/rust-toolchain@master
@@ -146,12 +152,11 @@ jobs:
             ${{ github.workspace }}/.tools/macos/installed/static
             ${{ github.workspace }}/.tools/sparkle
             /Users/runner/Qt/6.12.0/macos-static-arm64
-          key: kxcapture-macos-arm64-no-homebrew-xz-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json', 'scripts/qt-toolchain.json', 'scripts/static-qt-features.json', 'scripts/build-static-qt.sh', 'cmake/vcpkg-overlay-ports/**', 'cmake/vcpkg-overlay-triplets/**', 'snow_shot/packaging/macos/sparkle.json') }}
+          key: kxcapture-macos-arm64-no-homebrew-lib-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json', 'scripts/qt-toolchain.json', 'scripts/static-qt-features.json', 'scripts/build-static-qt.sh', 'cmake/vcpkg-overlay-ports/**', 'cmake/vcpkg-overlay-triplets/**', 'snow_shot/packaging/macos/sparkle.json') }}
 
       - name: Bootstrap static macOS dependencies
         run: |
           set -euo pipefail
-          brew unlink xz || true
           scripts/bootstrap-macos.sh snow-shot-macos-arm64-release --skip-qt-validation
 
       - name: Build static Qt 6.12.0
