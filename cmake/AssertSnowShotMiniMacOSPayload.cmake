@@ -11,7 +11,7 @@ foreach(_mini_area IN ITEMS MacOS Resources)
     endif()
 endforeach()
 if(SNOW_SHOT_MINI_STATIC)
-    set(_mini_expected_binaries snow_shot_mini snow-ocr-process crashpad_handler)
+    set(_mini_expected_binaries snow_shot_mini kxcapture-ocr crashpad_handler)
     if(SNOW_SHOT_MINI_MCP)
         list(APPEND _mini_expected_binaries snow-shot-mini-mcp)
     endif()
@@ -53,7 +53,7 @@ set(_mini_allowed_resources assets kxcapture.icns
     en.lproj en.lproj/InfoPlist.strings
     zh-Hans.lproj zh-Hans.lproj/InfoPlist.strings
     zh-Hant.lproj zh-Hant.lproj/InfoPlist.strings
-    snow-shot-mini snow-shot-mini/licenses)
+    kxcapture-mini kxcapture-mini/licenses)
 foreach(_mini_asset IN LISTS _mini_expected_assets)
     list(APPEND _mini_allowed_resources "assets/${_mini_asset}")
 endforeach()
@@ -66,7 +66,7 @@ file(GLOB_RECURSE _mini_resource_entries LIST_DIRECTORIES TRUE RELATIVE "${_mini
 foreach(_mini_resource IN LISTS _mini_resource_entries)
     list(FIND _mini_allowed_resources "${_mini_resource}" _mini_allowed_index)
     if(_mini_allowed_index EQUAL -1 AND
-            NOT _mini_resource MATCHES "^snow-shot-mini/licenses/")
+            NOT _mini_resource MATCHES "^kxcapture-mini/licenses/")
         message(FATAL_ERROR "Mini macOS contains an unexpected resource: ${_mini_resource}")
     endif()
 endforeach()

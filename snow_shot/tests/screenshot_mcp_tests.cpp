@@ -185,7 +185,7 @@ void sessionCompletionReentry() {
         ScreenshotMcpRequest begin;
         begin.connectionId = 1;
         begin.requestId = begin.idempotencyKey = QStringLiteral("begin");
-        begin.method = QStringLiteral("snow_shot_screenshot_begin");
+        begin.method = QStringLiteral("kxcapture_screenshot_begin");
         int completions = 0;
         session->request(begin, [&](auto response) {
             ++completions;
@@ -277,8 +277,8 @@ void drainAdmission() {
     // queued, but no domain handler has run. This does not depend on thread scheduling.
     client.write(
         frame(request(QStringLiteral("not-dispatched"),
-                      QStringLiteral("snow_shot_document_sample_color"))) +
-        frame(request(QStringLiteral("worker-barrier"), QStringLiteral("snow_shot_request_cancel"),
+                      QStringLiteral("kxcapture_document_sample_color"))) +
+        frame(request(QStringLiteral("worker-barrier"), QStringLiteral("kxcapture_request_cancel"),
                       {{QStringLiteral("request_id"), QStringLiteral("absent")}})));
     client.flush();
     QElapsedTimer deadline;
@@ -343,11 +343,11 @@ void transport() {
         ++requests;
         owner = r.connectionId;
         if (r.method == QStringLiteral("pending") ||
-            r.method == QStringLiteral("snow_shot_document_render")) {
+            r.method == QStringLiteral("kxcapture_document_render")) {
             pending = std::move(completion);
             return;
         }
-        if (r.method == QStringLiteral("snow_shot_document_sample_color")) {
+        if (r.method == QStringLiteral("kxcapture_document_sample_color")) {
             ScreenshotMcpResponse response;
             response.ok = true;
             completion(response);
@@ -422,7 +422,7 @@ void transport() {
     client.write(frame(request(QStringLiteral("one"), QStringLiteral("pending"))));
     await([&] { return bool(pending); });
     client.write(
-        frame(request(QStringLiteral("cancel"), QStringLiteral("snow_shot_screenshot_cancel"))));
+        frame(request(QStringLiteral("cancel"), QStringLiteral("kxcapture_screenshot_cancel"))));
     require(receive(client).value(QStringLiteral("request_id")).toString() == QStringLiteral("one"),
             "pending request ID preserved");
     require(receive(client).value(QStringLiteral("request_id")).toString() ==
@@ -430,24 +430,24 @@ void transport() {
             "bypass cancellation response preserved");
     require(requests == 2, "authenticated dispatch count");
     client.write(frame(
-        request(QStringLiteral("background-render"), QStringLiteral("snow_shot_document_render"))));
+        request(QStringLiteral("background-render"), QStringLiteral("kxcapture_document_render"))));
     await([&] { return bool(pending); });
     client.write(frame(request(QStringLiteral("other-document"),
-                               QStringLiteral("snow_shot_document_sample_color"))));
+                               QStringLiteral("kxcapture_document_sample_color"))));
     require(receive(client).value(QStringLiteral("request_id")) ==
                     QStringLiteral("other-document") &&
                 bool(pending),
             "same-client background document operations dispatch independently");
     client.write(frame(request(QStringLiteral("cancel-background"),
-                               QStringLiteral("snow_shot_screenshot_cancel"))));
+                               QStringLiteral("kxcapture_screenshot_cancel"))));
     require(receive(client).value(QStringLiteral("request_id")) ==
                     QStringLiteral("background-render") &&
                 receive(client).value(QStringLiteral("request_id")) ==
                     QStringLiteral("cancel-background"),
             "reserved cancellation remains responsive with background work active");
     for (const auto& method :
-         {QStringLiteral("snow_shot_app_status"), QStringLiteral("snow_shot_recording_state"),
-          QStringLiteral("snow_shot_recording_control")}) {
+         {QStringLiteral("kxcapture_app_status"), QStringLiteral("kxcapture_recording_state"),
+          QStringLiteral("kxcapture_recording_control")}) {
         client.write(frame(request(QStringLiteral("blocking"), QStringLiteral("pending"))));
         await([&] { return bool(pending); });
         client.write(frame(request(QStringLiteral("priority"), method)));
@@ -480,7 +480,7 @@ void transport() {
             "events remain separate from response correlation");
     require(client.bytesAvailable() == 0, "resource events do not reach other clients");
     subscribed.write(
-        frame(request(QStringLiteral("cancel-active"), QStringLiteral("snow_shot_request_cancel"),
+        frame(request(QStringLiteral("cancel-active"), QStringLiteral("kxcapture_request_cancel"),
                       {{QStringLiteral("request_id"), QStringLiteral("active")}})));
     const auto canceled = receive(subscribed);
     const auto cancelAck = receive(subscribed);
@@ -732,24 +732,24 @@ void session() {
                            session.state().value(QStringLiteral("revision")).toInteger()));
         std::optional<ScreenshotMcpResponse> response;
         session.request(r, [&](auto value) { response = std::move(value); });
-        if (method == QStringLiteral("snow_shot_screenshot_begin") && !response) {
+        if (method == QStringLiteral("kxcapture_screenshot_begin") && !response) {
             editor.insert(QStringLiteral("capture_phase"), QStringLiteral("editing"));
             session.capturePresented();
         }
         await([&] { return response.has_value(); });
         return *response;
     };
-    require(call(QStringLiteral("snow_shot_screenshot_begin")).ok,
+    require(call(QStringLiteral("kxcapture_screenshot_begin")).ok,
             "begin completes on capture presented");
-    require(call(QStringLiteral("snow_shot_screenshot_begin"), {}, 2).errorCode ==
+    require(call(QStringLiteral("kxcapture_screenshot_begin"), {}, 2).errorCode ==
                 QStringLiteral("busy"),
             "one session globally");
-    const auto intruderState = call(QStringLiteral("snow_shot_screenshot_state"), {}, 2);
+    const auto intruderState = call(QStringLiteral("kxcapture_screenshot_state"), {}, 2);
     require(intruderState.errorCode == QStringLiteral("session_not_found") &&
                 intruderState.sessionId.isEmpty() && !intruderState.revision &&
                 !intruderState.errorDetails.contains(QStringLiteral("state")),
             "another client cannot read document state through an error");
-    const auto intruderBegin = call(QStringLiteral("snow_shot_screenshot_begin"), {}, 2);
+    const auto intruderBegin = call(QStringLiteral("kxcapture_screenshot_begin"), {}, 2);
     require(intruderBegin.sessionId.isEmpty() && !intruderBegin.revision &&
                 intruderBegin.errorDetails.isEmpty(),
             "busy response does not disclose the current owner");
@@ -758,17 +758,17 @@ void session() {
     editor.insert(QStringLiteral("user_edit"), true);
     session.observe();
     require(
-        call(QStringLiteral("snow_shot_screenshot_set_selection"), {}, 1, oldRevision).errorCode ==
+        call(QStringLiteral("kxcapture_screenshot_set_selection"), {}, 1, oldRevision).errorCode ==
             QStringLiteral("stale_revision"),
         "user edit conflicts");
     require(mutations == 0, "stale mutation not applied");
-    require(call(QStringLiteral("snow_shot_screenshot_set_selection")).ok,
+    require(call(QStringLiteral("kxcapture_screenshot_set_selection")).ok,
             "current revision applies");
     QTemporaryDir coldOutput(QDir(QDir::tempPath()).canonicalPath() +
                              QStringLiteral("/mcp-save-XXXXXX"));
     for (const auto* format : {"jpeg", "tiff", "pdf"}) {
         const QString coldPath = coldOutput.filePath(QString::fromLatin1(format) + u'.' + format);
-        const auto saved = call(QStringLiteral("snow_shot_screenshot_save"),
+        const auto saved = call(QStringLiteral("kxcapture_screenshot_save"),
                                 {{QStringLiteral("path"), coldPath},
                                  {QStringLiteral("format"), QLatin1String(format)}});
         const QString savedPath = saved.result.value(QStringLiteral("path")).toString();
@@ -798,7 +798,7 @@ void session() {
     }
     const QString customPngPath = coldOutput.filePath(QStringLiteral("custom-compression.png"));
     for (int index = 0; index < 2; ++index) {
-        const auto saved = call(QStringLiteral("snow_shot_screenshot_save"),
+        const auto saved = call(QStringLiteral("kxcapture_screenshot_save"),
                                 {{QStringLiteral("path"), customPngPath},
                                  {QStringLiteral("format"), QStringLiteral("png")},
                                  {QStringLiteral("compression_level"), QStringLiteral("high")}});
@@ -816,13 +816,13 @@ void session() {
                             .size() == QSize(32, 20),
                 "PNG saves encode only their requested compression and reuse committed bytes");
     }
-    auto rendered = call(QStringLiteral("snow_shot_screenshot_render"));
+    auto rendered = call(QStringLiteral("kxcapture_screenshot_render"));
     require(rendered.ok && !rendered.attachment.isEmpty() && pngEncodes == 2,
             "render prepares canonical PNG metadata after saves with different compression");
-    require(call(QStringLiteral("snow_shot_screenshot_render")).ok && artifacts == 1,
+    require(call(QStringLiteral("kxcapture_screenshot_render")).ok && artifacts == 1,
             "render cache reused across output revisions");
-    require(call(QStringLiteral("snow_shot_screenshot_undo")).ok, "history mutation");
-    require(call(QStringLiteral("snow_shot_screenshot_render")).ok && artifacts == 2,
+    require(call(QStringLiteral("kxcapture_screenshot_undo")).ok, "history mutation");
+    require(call(QStringLiteral("kxcapture_screenshot_render")).ok && artifacts == 2,
             "history invalidates render cache");
     QTemporaryDir output;
     const QString path = output.filePath(QStringLiteral("test.png"));
@@ -832,16 +832,16 @@ void session() {
                                                       nullptr),
             "URL save rejected");
     require(
-        call(QStringLiteral("snow_shot_screenshot_save"), {{QStringLiteral("path"), path}}).ok &&
+        call(QStringLiteral("kxcapture_screenshot_save"), {{QStringLiteral("path"), path}}).ok &&
             QFile::exists(path),
         "explicit atomic save");
-    require(call(QStringLiteral("snow_shot_screenshot_copy")).ok,
+    require(call(QStringLiteral("kxcapture_screenshot_copy")).ok,
             "canonical clipboard publication");
-    require(call(QStringLiteral("snow_shot_screenshot_pin")).ok, "pin completion");
+    require(call(QStringLiteral("kxcapture_screenshot_pin")).ok, "pin completion");
     ScreenshotMcpRequest idempotent;
     idempotent.connectionId = 1;
     idempotent.sessionId = session.state().value(QStringLiteral("session_id")).toString();
-    idempotent.method = QStringLiteral("snow_shot_screenshot_set_selection");
+    idempotent.method = QStringLiteral("kxcapture_screenshot_set_selection");
     idempotent.idempotencyKey = QStringLiteral("same-edit");
     idempotent.expectedRevision =
         static_cast<quint64>(session.state().value(QStringLiteral("revision")).toInteger());
@@ -856,22 +856,22 @@ void session() {
     require(second.errorCode == QStringLiteral("idempotency_conflict"),
             "idempotency key cannot change payload");
     deferImage = true;
-    call(QStringLiteral("snow_shot_screenshot_undo"));
+    call(QStringLiteral("kxcapture_screenshot_undo"));
     ScreenshotMcpRequest pending;
     pending.connectionId = 1;
     pending.requestId = QStringLiteral("deferred-render");
-    pending.method = QStringLiteral("snow_shot_screenshot_render");
+    pending.method = QStringLiteral("kxcapture_screenshot_render");
     pending.sessionId = session.state().value(QStringLiteral("session_id")).toString();
     pending.expectedRevision =
         static_cast<quint64>(session.state().value(QStringLiteral("revision")).toInteger());
     std::optional<ScreenshotMcpResponse> deferredResponse;
     session.request(pending, [&](auto response) { deferredResponse = response; });
     await([&] { return bool(deliverImage); });
-    require(call(QStringLiteral("snow_shot_screenshot_state"))
+    require(call(QStringLiteral("kxcapture_screenshot_state"))
                     .result.value(QStringLiteral("pending_operation"))
                     .toString() == pending.method,
             "state reports pending output");
-    require(call(QStringLiteral("snow_shot_screenshot_cancel"),
+    require(call(QStringLiteral("kxcapture_screenshot_cancel"),
                  {{QStringLiteral("request_id"), pending.requestId}})
                 .ok,
             "cancel a pending output");
@@ -881,30 +881,30 @@ void session() {
     deliverImage(QImage(2, 2, QImage::Format_ARGB32));
     deliverImage = {};
     deferImage = false;
-    require(call(QStringLiteral("snow_shot_screenshot_render")).ok,
+    require(call(QStringLiteral("kxcapture_screenshot_render")).ok,
             "render recovers after output cancellation");
     session.disconnected(1);
     require(canceled == 0 && !session.state().value(QStringLiteral("active")).toBool(),
             "visible disconnect preserves work");
     editor.insert(QStringLiteral("capture_phase"), QStringLiteral("idle"));
-    require(call(QStringLiteral("snow_shot_screenshot_begin"),
+    require(call(QStringLiteral("kxcapture_screenshot_begin"),
                  {{QStringLiteral("presentation"), QStringLiteral("silent")}})
                 .ok,
             "silent begin");
     session.disconnected(1);
     require(canceled == 1, "silent disconnect cancels capture");
-    auto direct = call(QStringLiteral("snow_shot_screenshot_direct_capture"));
+    auto direct = call(QStringLiteral("kxcapture_screenshot_direct_capture"));
     require(direct.ok && !direct.attachment.isEmpty() &&
                 !session.state().value(QStringLiteral("active")).toBool(),
             "direct output finishes session");
     session.shutdown();
 }
 void selectionReplacementPreservesOperationsUntilAccepted() {
-    for (const auto& method : {QStringLiteral("snow_shot_screenshot_recognize"),
+    for (const auto& method : {QStringLiteral("kxcapture_screenshot_recognize"),
 #if SNOW_SHOT_ENABLE_TEXT_TRANSLATION
-                               QStringLiteral("snow_shot_screenshot_translate"),
+                               QStringLiteral("kxcapture_screenshot_translate"),
 #endif
-                               QStringLiteral("snow_shot_screenshot_auto_filter")}) {
+                               QStringLiteral("kxcapture_screenshot_auto_filter")}) {
         for (const bool completed : {false, true}) {
             QJsonObject editor{{QStringLiteral("capture_phase"), QStringLiteral("idle")}};
             QString selectionError = QStringLiteral("busy");
@@ -961,7 +961,7 @@ void selectionReplacementPreservesOperationsUntilAccepted() {
                 response.reset();
                 session.request(request, [&](auto value) { response = std::move(value); });
             };
-            call(makeRequest(QStringLiteral("snow_shot_screenshot_begin")));
+            call(makeRequest(QStringLiteral("kxcapture_screenshot_begin")));
             session.capturePresented();
             require(response && response->ok, "selection operation fixture starts an editor");
             call(makeRequest(method));
@@ -970,7 +970,7 @@ void selectionReplacementPreservesOperationsUntilAccepted() {
             if (completed)
                 deliver({{QStringLiteral("text"), QStringLiteral("retained")}}, {});
             const auto before = session.state();
-            auto stale = makeRequest(QStringLiteral("snow_shot_screenshot_set_selection"));
+            auto stale = makeRequest(QStringLiteral("kxcapture_screenshot_set_selection"));
             --*stale.expectedRevision;
             call(stale);
             require(response && response->errorCode == QStringLiteral("stale_revision") &&
@@ -978,14 +978,14 @@ void selectionReplacementPreservesOperationsUntilAccepted() {
                     "revision admission precedes selection and operation side effects");
             for (const auto& error : {QStringLiteral("busy"), QStringLiteral("bounds")}) {
                 selectionError = error;
-                call(makeRequest(QStringLiteral("snow_shot_screenshot_set_selection")));
+                call(makeRequest(QStringLiteral("kxcapture_screenshot_set_selection")));
                 require(response &&
                             response->errorCode == (error == QStringLiteral("busy")
                                                         ? error
                                                         : QStringLiteral("invalid_parameters")) &&
                             cancellations == 0 && session.state() == before,
                         "refused selection preserves running work, retained results and revisions");
-                auto query = makeRequest(QStringLiteral("snow_shot_screenshot_operation"));
+                auto query = makeRequest(QStringLiteral("kxcapture_screenshot_operation"));
                 query.params.insert(QStringLiteral("operation_id"), id);
                 call(query);
                 require(
@@ -996,7 +996,7 @@ void selectionReplacementPreservesOperationsUntilAccepted() {
             }
             if (!completed) {
                 deliver({{QStringLiteral("text"), QStringLiteral("completed after refusal")}}, {});
-                auto query = makeRequest(QStringLiteral("snow_shot_screenshot_operation"));
+                auto query = makeRequest(QStringLiteral("kxcapture_screenshot_operation"));
                 query.params.insert(QStringLiteral("operation_id"), id);
                 call(query);
                 require(response && response->ok &&
@@ -1011,7 +1011,7 @@ void selectionReplacementPreservesOperationsUntilAccepted() {
                 require(response && response->ok, "start new work before accepted replacement");
             }
             selectionError.clear();
-            const auto replace = makeRequest(QStringLiteral("snow_shot_screenshot_set_selection"));
+            const auto replace = makeRequest(QStringLiteral("kxcapture_screenshot_set_selection"));
             call(replace);
             require(response && response->ok && cancellations == (completed ? 0 : 1) &&
                         session.state().value(QStringLiteral("operations")).toArray().isEmpty(),
@@ -1061,11 +1061,11 @@ void selectionReplacementSurvivesSessionRetirement() {
             request.method = method;
             session->request(request, std::move(completion));
         };
-        call(QStringLiteral("snow_shot_screenshot_begin"), [](auto) {});
+        call(QStringLiteral("kxcapture_screenshot_begin"), [](auto) {});
         session->capturePresented();
-        call(QStringLiteral("snow_shot_screenshot_recognize"), [](auto) {});
+        call(QStringLiteral("kxcapture_screenshot_recognize"), [](auto) {});
         int completions = 0;
-        call(QStringLiteral("snow_shot_screenshot_set_selection"), [&](auto) { ++completions; });
+        call(QStringLiteral("kxcapture_screenshot_set_selection"), [&](auto) { ++completions; });
         require(!session && completions == 0,
                 "selection or cancellation callback retirement prevents trailing session access");
         deliver({}, {});
@@ -1087,7 +1087,7 @@ void workflowOperations() {
     ScreenshotMcpSession::Ports::CommandCompletion deliver;
     ports.command = [&](const QString& method, const QJsonObject& params, auto completion) {
         ++commands;
-        if (method == QStringLiteral("snow_shot_screenshot_scroll_once")) {
+        if (method == QStringLiteral("kxcapture_screenshot_scroll_once")) {
             completion({{QStringLiteral("direction"), params.value(QStringLiteral("direction"))},
                         {QStringLiteral("dispatch_status"), QStringLiteral("posted")}},
                        {});
@@ -1121,10 +1121,10 @@ void workflowOperations() {
         response.reset();
         session.request(r, [&](auto value) { response = value; });
     };
-    call(makeRequest(QStringLiteral("snow_shot_screenshot_begin")));
+    call(makeRequest(QStringLiteral("kxcapture_screenshot_begin")));
     session.capturePresented();
     require(response && response->ok, "workflow begin completes");
-    auto start = makeRequest(QStringLiteral("snow_shot_screenshot_recognize"));
+    auto start = makeRequest(QStringLiteral("kxcapture_screenshot_recognize"));
     start.params.insert(QStringLiteral("kind"), QStringLiteral("text"));
     call(start);
     require(response && response->ok && commands == 1, "recognition returns promptly");
@@ -1135,12 +1135,12 @@ void workflowOperations() {
     call(start);
     require(response && response->ok && commands == 1,
             "idempotent start never repeats provider work");
-    auto expiredCancel = makeRequest(QStringLiteral("snow_shot_screenshot_cancel"));
+    auto expiredCancel = makeRequest(QStringLiteral("kxcapture_screenshot_cancel"));
     expiredCancel.params.insert(QStringLiteral("request_id"), start.requestId);
     call(expiredCancel);
     require(response && response->errorCode == QStringLiteral("request_not_found") && canceled == 0,
             "canceling a completed request cannot stop a running background operation");
-    auto query = makeRequest(QStringLiteral("snow_shot_screenshot_operation"));
+    auto query = makeRequest(QStringLiteral("kxcapture_screenshot_operation"));
     query.params.insert(QStringLiteral("operation_id"), operation);
     query.expectedRevision.reset();
     query.idempotencyKey.clear();
@@ -1151,7 +1151,7 @@ void workflowOperations() {
     call(intruder);
     require(response && response->errorCode == QStringLiteral("session_not_found"),
             "results remain private to owner");
-    call(makeRequest(QStringLiteral("snow_shot_screenshot_set_tool_style")));
+    call(makeRequest(QStringLiteral("kxcapture_screenshot_set_tool_style")));
     require(response && response->errorCode == QStringLiteral("busy"),
             "conflicting edit rejected while recognition runs");
     deliver({{QStringLiteral("text"), QStringLiteral("recognized")}}, {});
@@ -1162,11 +1162,11 @@ void workflowOperations() {
                         .toObject()
                         .value(QStringLiteral("text")) == QStringLiteral("recognized"),
             "typed operation result retained");
-    auto translationRequest = makeRequest(QStringLiteral("snow_shot_screenshot_translate"));
+    auto translationRequest = makeRequest(QStringLiteral("kxcapture_screenshot_translate"));
     call(translationRequest);
     const auto second = response->result.value(QStringLiteral("operation_id")).toString();
     auto late = deliver;
-    auto cancel = makeRequest(QStringLiteral("snow_shot_screenshot_cancel"));
+    auto cancel = makeRequest(QStringLiteral("kxcapture_screenshot_cancel"));
     cancel.params.insert(QStringLiteral("operation_id"), second);
     call(cancel);
     require(response && response->ok && canceled > 0, "operation cancellation reaches provider");
@@ -1176,7 +1176,7 @@ void workflowOperations() {
     require(response &&
                 response->result.value(QStringLiteral("status")) == QStringLiteral("canceled"),
             "late completion cannot resurrect canceled operation");
-    auto step = makeRequest(QStringLiteral("snow_shot_screenshot_scroll_once"));
+    auto step = makeRequest(QStringLiteral("kxcapture_screenshot_scroll_once"));
     step.params.insert(QStringLiteral("direction"), QStringLiteral("down"));
     call(step);
     require(response && response->ok &&
@@ -1190,7 +1190,7 @@ void workflowOperations() {
     call(step);
     require(response && response->ok && commands == before,
             "scroll replay cannot dispatch another notch");
-    auto scrollingStart = makeRequest(QStringLiteral("snow_shot_screenshot_scrolling"));
+    auto scrollingStart = makeRequest(QStringLiteral("kxcapture_screenshot_scrolling"));
     scrollingStart.params.insert(QStringLiteral("action"), QStringLiteral("start"));
     std::optional<ScreenshotMcpResponse> startResponse;
     int startCompletions = 0;
@@ -1204,7 +1204,7 @@ void workflowOperations() {
     require(response && response->errorCode == QStringLiteral("request_not_found") &&
                 canceled == cancellationsBefore && !startResponse,
             "a mismatched cancellation leaves the pending scrolling start running");
-    cancel = makeRequest(QStringLiteral("snow_shot_screenshot_cancel"));
+    cancel = makeRequest(QStringLiteral("kxcapture_screenshot_cancel"));
     cancel.params.insert(QStringLiteral("request_id"), scrollingStart.requestId);
     completeOnCancel = true;
     call(cancel);

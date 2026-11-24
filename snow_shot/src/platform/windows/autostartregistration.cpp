@@ -46,7 +46,7 @@ AutoStartRegistrationSnapshot storeStartupState(std::optional<bool> enabled = st
                        const auto factory = winrt::get_activation_factory<
                            winrt::Windows::ApplicationModel::IStartupTaskStatics>(
                            winrt::name_of<winrt::Windows::ApplicationModel::StartupTask>());
-                       auto task = factory.GetAsync(L"SnowShotStartup").get();
+                       auto task = factory.GetAsync(L"KXCaptureStartup").get();
                        if (!task) {
                            result.error = QCoreApplication::translate(
                                "AutoStartRegistration", "Windows startup settings are unavailable");

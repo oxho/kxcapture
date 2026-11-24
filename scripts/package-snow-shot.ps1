@@ -576,12 +576,19 @@ if (-not $store) {
     }
 }
 
+$ocrProcessEnabled = $true
+if (Test-Path -LiteralPath $cachePath) {
+    $cacheText = Get-Content -LiteralPath $cachePath -Raw
+    if ($cacheText -match '(?m)^KXCAPTURE_ENABLE_OCR:BOOL=OFF\s*$') {
+        $ocrProcessEnabled = $false
+    }
+}
 $requiredStageFiles = @(
     "bin\kxcapture.exe",
     "bin\crashpad_handler.exe",
-    "bin\snow-ocr-process.exe",
-    "share\snow-shot\licenses\LICENSES.txt"
+    "share\kxcapture\licenses\LICENSES.txt"
 )
+if ($ocrProcessEnabled) { $requiredStageFiles += "bin\kxcapture-ocr.exe" }
 if ($store) { $requiredStageFiles += 'bin\KXCaptureExplorerCommand.dll' }
 $missingStageFiles = @($requiredStageFiles | Where-Object {
     -not (Test-Path -LiteralPath (Join-Path $installDirectory $_) -PathType Leaf)
@@ -589,7 +596,7 @@ $missingStageFiles = @($requiredStageFiles | Where-Object {
 if ($missingStageFiles.Count -gt 0) {
     throw "Release staging is missing required runtime files: $($missingStageFiles -join ', ')"
 }
-$licenseFiles = @(Get-ChildItem -LiteralPath (Join-Path $installDirectory 'share/snow-shot/licenses') -Recurse -File -Force)
+$licenseFiles = @(Get-ChildItem -LiteralPath (Join-Path $installDirectory 'share/kxcapture/licenses') -Recurse -File -Force)
 if ($licenseFiles.Count -ne 1 -or $licenseFiles[0].Length -eq 0) {
     throw 'Windows releases must contain one nonempty consolidated LICENSES.txt.'
 }
@@ -612,7 +619,8 @@ if (Test-Path -LiteralPath $stagedQtPluginDirectory -PathType Container) {
 }
 
 $stagedExecutables = @(Get-ChildItem -LiteralPath $installDirectory -Recurse -File -Filter "*.exe")
-$expectedExecutables = @("kxcapture.exe", "snow-ocr-process.exe", "crashpad_handler.exe", "kxcapture-updater.exe", "kxcapture-mcp.exe")
+$expectedExecutables = @("kxcapture.exe", "crashpad_handler.exe", "kxcapture-updater.exe", "kxcapture-mcp.exe")
+if ($ocrProcessEnabled) { $expectedExecutables += "kxcapture-ocr.exe" }
 if ($store) { $expectedExecutables = @($expectedExecutables | Where-Object { $_ -ne 'kxcapture-updater.exe' }) }
 $unexpectedExecutables = @($stagedExecutables | Where-Object { $_.Name -notin $expectedExecutables })
 if ($unexpectedExecutables.Count -gt 0) {
@@ -638,9 +646,9 @@ $expectedBinaryPaths = @(
     "bin\kxcapture.exe",
     "bin\kxcapture-updater.exe",
     "bin\kxcapture-mcp.exe",
-    "bin\crashpad_handler.exe",
-    "bin\snow-ocr-process.exe"
+    "bin\crashpad_handler.exe"
 )
+if ($ocrProcessEnabled) { $expectedBinaryPaths += "bin\kxcapture-ocr.exe" }
 if ($store) {
     $expectedBinaryPaths = @($expectedBinaryPaths | Where-Object { $_ -ne 'bin\kxcapture-updater.exe' })
     $expectedBinaryPaths += 'bin\KXCaptureExplorerCommand.dll'
@@ -730,7 +738,7 @@ $allowedLocalImports = @{
     "kxcapture-updater.exe" = @()
     "kxcapture-mcp.exe" = @()
     "crashpad_handler.exe" = @()
-    "snow-ocr-process.exe" = @()
+    "kxcapture-ocr.exe" = @()
     "snowshotexplorercommand.dll" = @()
 }
 foreach ($binary in $stagedBinaries) {
@@ -1344,7 +1352,10 @@ foreach ($variant in $variantStages.Keys) {
     $stage = $variantStages[$variant]
     Reset-ReleaseDirectory -Path $stage
     Copy-Item -Path (Join-Path $installDirectory "*") -Destination $stage -Recurse -Force
-    Remove-Item -LiteralPath (Join-Path $stage "bin\snow-ocr-process.exe") -Force
+    $compiledOcrWorker = Join-Path $stage "bin\kxcapture-ocr.exe"
+    if (Test-Path -LiteralPath $compiledOcrWorker) {
+        Remove-Item -LiteralPath $compiledOcrWorker -Force
+    }
     $assetRoot = Join-Path $stage "bin\assets\ocr"
     Reset-ReleaseDirectory -Path $assetRoot
     Copy-Item -LiteralPath $assetManifestSource -Destination (Join-Path $assetRoot "asset-manifest.json")

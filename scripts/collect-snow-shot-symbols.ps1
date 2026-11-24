@@ -91,7 +91,7 @@ if ($OcrAssetManifest) {
 }
 foreach ($binary in Get-ChildItem -LiteralPath (Join-Path $installRoot "bin") -File) {
     if ($binary.Extension -notin @(".exe", ".dll")) { continue }
-    if ($OcrAssetManifest -and $binary.Name -eq 'snow-ocr-process.exe') { continue }
+    if ($OcrAssetManifest -and $binary.Name -eq 'kxcapture-ocr.exe') { continue }
     Assert-SnowPeArchitecture -Path $binary.FullName -Architecture $Architecture
     $headers = @(& $dumpbin /nologo /headers $binary.FullName 2>&1)
     if ($LASTEXITCODE -ne 0) { throw "Unable to inspect $($binary.FullName)" }
@@ -127,7 +127,7 @@ foreach ($binary in Get-ChildItem -LiteralPath (Join-Path $installRoot "bin") -F
             break
         }
     }
-    if ($binary.Name -in @("$($product.Executable).exe", "$($product.Product)-updater.exe", "snow-ocr-process.exe") -and -not $record.pdb) {
+    if ($binary.Name -in @("$($product.Executable).exe", "$($product.Product)-updater.exe", "kxcapture-ocr.exe") -and -not $record.pdb) {
         throw "The matching PDB is missing for $($binary.Name); release symbols are incomplete."
     }
     $manifest.binaries += $record

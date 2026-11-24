@@ -142,7 +142,7 @@ class InstallerTests(unittest.TestCase):
         self.executable = self.bundle / 'Contents/MacOS/kxcapture'
         self.executable.write_bytes(b'fixture executable')
         self.executable.chmod(0o755)
-        (self.bundle / 'Contents/MacOS/snow-ocr-process').write_bytes(b'signed helper')
+        (self.bundle / 'Contents/MacOS/kxcapture-ocr').write_bytes(b'signed helper')
         (self.bundle / 'Contents/Resources/assets/ocr/asset-manifest.json').write_bytes(b'unchanged manifest')
         self.dmg = self.root / 'package.dmg'
         self.dmg.write_bytes(b'GOOD fixture disk image')
@@ -539,7 +539,7 @@ prepare_application
         self.assertFalse((self.state / 'requirement').exists())
         for name in ('curl', 'open', 'sudo', 'osascript', 'pgrep', 'openssl'):
             self.assertFalse(self.calls(name), name)
-        for path in ['Contents/MacOS/snow-ocr-process', 'Contents/Resources/assets/ocr/asset-manifest.json']:
+        for path in ['Contents/MacOS/kxcapture-ocr', 'Contents/Resources/assets/ocr/asset-manifest.json']:
             self.assertEqual((self.bundle / path).read_bytes(), (output / path).read_bytes())
         self.assertFalse(self.work.exists())
         self.assertFalse((self.state / 'lock').exists())

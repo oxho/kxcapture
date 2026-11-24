@@ -417,7 +417,7 @@ class ScreenshotMcpServer::SocketWorker final : public QObject {
                 write(c, failure(requestId, QStringLiteral("disabled")));
                 continue;
             }
-            if (method == QStringLiteral("snow_shot_request_cancel")) {
+            if (method == QStringLiteral("kxcapture_request_cancel")) {
                 const auto target = request.value(QStringLiteral("params"))
                                         .toObject()
                                         .value(QStringLiteral("request_id"))
@@ -445,17 +445,17 @@ class ScreenshotMcpServer::SocketWorker final : public QObject {
                     continue;
                 }
             }
-            if ((method == QStringLiteral("snow_shot_screenshot_cancel") ||
-                 method == QStringLiteral("snow_shot_request_cancel") ||
-                 method == QStringLiteral("snow_shot_screenshot_state") ||
-                 method == QStringLiteral("snow_shot_screenshot_operation") ||
-                 method == QStringLiteral("snow_shot_job_get") ||
-                 method == QStringLiteral("snow_shot_job_cancel") ||
-                 method == QStringLiteral("snow_shot_document_state") ||
-                 method == QStringLiteral("snow_shot_app_status") ||
-                 method == QStringLiteral("snow_shot_recording_state") ||
-                 method == QStringLiteral("snow_shot_recording_control") ||
-                 method == QStringLiteral("snow_shot_mcp_status")) &&
+            if ((method == QStringLiteral("kxcapture_screenshot_cancel") ||
+                 method == QStringLiteral("kxcapture_request_cancel") ||
+                 method == QStringLiteral("kxcapture_screenshot_state") ||
+                 method == QStringLiteral("kxcapture_screenshot_operation") ||
+                 method == QStringLiteral("kxcapture_job_get") ||
+                 method == QStringLiteral("kxcapture_job_cancel") ||
+                 method == QStringLiteral("kxcapture_document_state") ||
+                 method == QStringLiteral("kxcapture_app_status") ||
+                 method == QStringLiteral("kxcapture_recording_state") ||
+                 method == QStringLiteral("kxcapture_recording_control") ||
+                 method == QStringLiteral("kxcapture_mcp_status")) &&
                 (!c.activeId.isEmpty() || !c.backgroundIds.isEmpty())) {
                 // Cancellation must not sit behind the operation it cancels. The session adapter
                 // completes the active request before completing this cancellation request.
@@ -467,7 +467,7 @@ class ScreenshotMcpServer::SocketWorker final : public QObject {
                 emit requestReceived(id, request, {}, activity);
                 continue;
             }
-            if (method.startsWith(QStringLiteral("snow_shot_document_"))) {
+            if (method.startsWith(QStringLiteral("kxcapture_document_"))) {
                 // Background documents have independent ordered worker lanes. Do not serialize
                 // all of them behind a single connection's active visible-editor request.
                 if (c.backgroundIds.size() >= 8) {
@@ -717,7 +717,7 @@ void ScreenshotMcpServer::handleRequest(quint64 connection, const QJsonObject& o
                                          QStringLiteral("disabled")));
         return;
     }
-    if (object.value(QStringLiteral("method")) == QStringLiteral("snow_shot_request_cancel")) {
+    if (object.value(QStringLiteral("method")) == QStringLiteral("kxcapture_request_cancel")) {
         const auto target = object.value(QStringLiteral("params"))
                                 .toObject()
                                 .value(QStringLiteral("request_id"))

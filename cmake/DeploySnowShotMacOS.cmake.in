@@ -33,9 +33,14 @@ else()
     execute_process(COMMAND "@Python3_EXECUTABLE@" "@SNOW_MACOS_OCR_TOOL@" prepare-bundle
         --app "${_app}" ${_snow_ocr_model_arguments} COMMAND_ERROR_IS_FATAL ANY)
 endif()
+if(@SNOW_MACOS_OCR_ASSETS_ENABLED@)
+    set(_snow_ocr_deploy_arguments "-executable=${_app}/Contents/MacOS/kxcapture-ocr")
+else()
+    set(_snow_ocr_deploy_arguments)
+endif()
 if(NOT @SNOW_SHOT_QT_STATIC@)
     execute_process(COMMAND "@SNOW_MACDEPLOYQT@" "${_app}"
-        "-executable=${_app}/Contents/MacOS/snow-ocr-process"
+        ${_snow_ocr_deploy_arguments}
         ${_snow_mcp_deploy_arguments}
         "-executable=${_app}/Contents/MacOS/crashpad_handler"
         "-executable=${_app}/Contents/PlugIns/platforms/libqoffscreen.dylib"

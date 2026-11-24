@@ -238,7 +238,7 @@ if(WIN32)
     if(NOT SNOW_SHOT_IMAGE_CODEC_BACKEND_STATIC)
         _snow_shot_stage_image_runtime(snow_shot_mini)
     endif()
-    if(EXISTS "${SNOW_SHOT_OCR_ASSET_MANIFEST}")
+    if(KXCAPTURE_ENABLE_OCR AND EXISTS "${SNOW_SHOT_OCR_ASSET_MANIFEST}")
         add_custom_command(TARGET snow_shot_mini POST_BUILD
             COMMAND "${CMAKE_COMMAND}" -E make_directory "$<TARGET_FILE_DIR:snow_shot_mini>/assets/ocr"
             COMMAND "${CMAKE_COMMAND}" -E copy_if_different
@@ -271,21 +271,21 @@ if(WIN32)
     snow_install_license_bundle(
         SOURCE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
         THIRD_PARTY_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/third-party-licenses/third-party"
-        DESTINATION "${_mini_datadir}/snow-shot-mini/licenses"
+        DESTINATION "${_mini_datadir}/kxcapture-mini/licenses"
         COMPONENT SnowShotMini PRODUCT "KXCapture Mini")
 else()
     install(FILES LICENSE COPYRIGHT THIRD_PARTY_NOTICES.md
-        DESTINATION "${_mini_datadir}/snow-shot-mini/licenses"
+        DESTINATION "${_mini_datadir}/kxcapture-mini/licenses"
         COMPONENT SnowShotMini)
     install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../ant_design_qt/THIRD_PARTY_NOTICES.md"
-        DESTINATION "${_mini_datadir}/snow-shot-mini/licenses/third-party/project-notices/ant-design-icons"
+        DESTINATION "${_mini_datadir}/kxcapture-mini/licenses/third-party/project-notices/ant-design-icons"
         COMPONENT SnowShotMini)
     install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/third-party-licenses/third-party/"
-        DESTINATION "${_mini_datadir}/snow-shot-mini/licenses/third-party" OPTIONAL COMPONENT SnowShotMini)
+        DESTINATION "${_mini_datadir}/kxcapture-mini/licenses/third-party" OPTIONAL COMPONENT SnowShotMini)
     foreach(_project IN ITEMS snow_image ant_design_qt snow-crates snow_draw_engine_qt snow_rust_ffi)
         install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../${_project}/LICENSE"
             "${CMAKE_CURRENT_SOURCE_DIR}/../${_project}/COPYRIGHT"
-            DESTINATION "${_mini_datadir}/snow-shot-mini/licenses/components/${_project}"
+            DESTINATION "${_mini_datadir}/kxcapture-mini/licenses/components/${_project}"
             COMPONENT SnowShotMini)
     endforeach()
 endif()

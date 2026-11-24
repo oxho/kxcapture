@@ -378,25 +378,28 @@ class ApplicationController::Impl {
         // OCR process ownership is application-scoped. ScreenshotController
         // instances receive a consumer of this service instead of creating a
         // second child process for each controller.
-        ScreenshotOcrRecognitionService::Options ocrOptions;
-        ocrOptions.offlineRoot =
-            QDir(QCoreApplication::applicationDirPath()).filePath(QStringLiteral("assets/ocr"));
-        if (applicationStorage.isInitialized() &&
-            !applicationStorage.configurationDirectory().trimmed().isEmpty()) {
-            ocrOptions.cacheRoot = QDir(applicationStorage.configurationDirectory())
-                                       .filePath(QStringLiteral("assets/ocr"));
+        if (features::ocrEnabled()) {
+            ScreenshotOcrRecognitionService::Options ocrOptions;
+            ocrOptions.offlineRoot =
+                QDir(QCoreApplication::applicationDirPath()).filePath(QStringLiteral("assets/ocr"));
+            if (applicationStorage.isInitialized() &&
+                !applicationStorage.configurationDirectory().trimmed().isEmpty()) {
+                ocrOptions.cacheRoot = QDir(applicationStorage.configurationDirectory())
+                                           .filePath(QStringLiteral("assets/ocr"));
+            }
+            ocrOptions.modelType = screenshotOcrModelTypeFromValue(
+                applicationStorage.configuration()
+                    .value(QStringLiteral("text_recognition/model_type"))
+                    .toString());
+            ocrOptions.detectorResizePolicy = screenshotOcrDetectorResizePolicyFromValue(
+                applicationStorage.configuration().value(kOcrDetectorResizePolicyKey).toString());
+            ocrOptions.textDetectionProcessing = screenshotOcrTextDetectionProcessingFromValue(
+                applicationStorage.configuration().value(kOcrTextDetectionProcessingKey).toString());
+            ocrRecognition = std::make_unique<ScreenshotOcrRecognitionService>(ocrOptions, &q);
         }
-        ocrOptions.modelType = screenshotOcrModelTypeFromValue(
-            applicationStorage.configuration()
-                .value(QStringLiteral("text_recognition/model_type"))
-                .toString());
-        ocrOptions.detectorResizePolicy = screenshotOcrDetectorResizePolicyFromValue(
-            applicationStorage.configuration().value(kOcrDetectorResizePolicyKey).toString());
-        ocrOptions.textDetectionProcessing = screenshotOcrTextDetectionProcessingFromValue(
-            applicationStorage.configuration().value(kOcrTextDetectionProcessingKey).toString());
-        ocrRecognition = std::make_unique<ScreenshotOcrRecognitionService>(ocrOptions, &q);
         auto& configuration = applicationStorage.configuration();
-        presentation::bindOcrProxyConfiguration(*ocrRecognition, configuration);
+        if (ocrRecognition)
+            presentation::bindOcrProxyConfiguration(*ocrRecognition, configuration);
         updates = new update::UpdateService(update::defaultUpdateServiceOptions(), &app);
         updates->setProgressAppearance(
             presentation::styles::ThemeManager::instance().updateProgressAppearance());

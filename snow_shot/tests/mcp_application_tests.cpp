@@ -215,7 +215,7 @@ void runMcpApplicationReplayTests() {
     original.connectionId = 71;
     original.requestId = QStringLiteral("application-original");
     original.idempotencyKey = QStringLiteral("application-export");
-    original.method = QStringLiteral("snow_shot_configuration_export");
+    original.method = QStringLiteral("kxcapture_configuration_export");
     original.params = {
         {QStringLiteral("path"), directory.filePath(QStringLiteral("settings.json"))}};
     auto service = std::make_unique<McpApplicationService>(ports);
@@ -342,14 +342,14 @@ void runMcpApplicationTests() {
         ScreenshotMcpRequest request;
         request.connectionId = 71;
         request.requestId = QStringLiteral("store-status");
-        request.method = QStringLiteral("snow_shot_updates_status");
+        request.method = QStringLiteral("kxcapture_updates_status");
         std::optional<ScreenshotMcpResponse> response;
         storeService.request(request, [&](auto result) { response = std::move(result); });
         require(response && response->ok &&
                     response->result.value(QStringLiteral("installation")) ==
                         QStringLiteral("microsoft_store"),
                 "Store update discovery identifies the Store provider");
-        request.method = QStringLiteral("snow_shot_updates_action");
+        request.method = QStringLiteral("kxcapture_updates_action");
         for (const auto* action : {"check", "download", "apply", "cancel"}) {
             request.requestId = QStringLiteral("store-") + QString::fromLatin1(action);
             request.params = {{QStringLiteral("action"), QString::fromLatin1(action)}};
@@ -369,7 +369,7 @@ void runMcpApplicationTests() {
         ScreenshotMcpRequest request;
         request.connectionId = owner;
         request.requestId = QString::number(++sequence);
-        request.method = QStringLiteral("snow_shot_") + method;
+        request.method = QStringLiteral("kxcapture_") + method;
         request.params = std::move(params);
         request.expectedRevision = revision;
         request.idempotencyKey = std::move(key);
@@ -907,7 +907,7 @@ void runMcpApplicationTests() {
     ScreenshotMcpRequest updateRequest;
     updateRequest.connectionId = 71;
     updateRequest.requestId = QString::number(++sequence);
-    updateRequest.method = QStringLiteral("snow_shot_updates_action");
+    updateRequest.method = QStringLiteral("kxcapture_updates_action");
     updateRequest.params = {{QStringLiteral("action"), QStringLiteral("check")}};
     ScreenshotMcpResponse update;
     service.request(updateRequest, [&](auto response) {
@@ -941,19 +941,19 @@ void runMcpApplicationTests() {
         request.connectionId = 74;
         request.requestId = QString::number(++sequence);
         if (variant == 0) {
-            request.method = QStringLiteral("snow_shot_updates_action");
+            request.method = QStringLiteral("kxcapture_updates_action");
             request.params = {{QStringLiteral("action"), QStringLiteral("check")}};
         } else if (variant == 1 || variant == 2) {
-            request.method = QStringLiteral("snow_shot_translation_start");
+            request.method = QStringLiteral("kxcapture_translation_start");
             request.params =
                 variant == 1 ? QJsonObject{{QStringLiteral("texts"),
                                             QJsonArray{QStringLiteral("response teardown")}}}
                              : QJsonObject{{QStringLiteral("source"), QStringLiteral("selection")}};
         } else if (variant == 3) {
-            request.method = QStringLiteral("snow_shot_history_clear");
+            request.method = QStringLiteral("kxcapture_history_clear");
             request.expectedRevision = storage.captureHistory().recordsSnapshot().revision;
         } else {
-            request.method = QStringLiteral("snow_shot_settings_action");
+            request.method = QStringLiteral("kxcapture_settings_action");
             const auto action = std::find_if(
                 registry.fields().cbegin(), registry.fields().cend(), [](const auto& item) {
                     const auto* definition =
@@ -990,10 +990,10 @@ void runMcpApplicationTests() {
                 QFile::remove(thumbnailPath);
         });
         if (variant == 0) {
-            request.method = QStringLiteral("snow_shot_updates_action");
+            request.method = QStringLiteral("kxcapture_updates_action");
             request.params = {{QStringLiteral("action"), QStringLiteral("check")}};
         } else if (variant == 1) {
-            request.method = QStringLiteral("snow_shot_settings_update");
+            request.method = QStringLiteral("kxcapture_settings_update");
             request.params = {
                 {QStringLiteral("values"),
                  QJsonObject{
@@ -1023,8 +1023,8 @@ void runMcpApplicationTests() {
                            storage.status().appUsage.thumbnailCacheBytes >= 64;
                 },
                 "thumbnail cleanup is admitted after the seeded cache usage scan finishes");
-            request.method = variant == 2 ? QStringLiteral("snow_shot_settings_action")
-                                          : QStringLiteral("snow_shot_storage_cleanup");
+            request.method = variant == 2 ? QStringLiteral("kxcapture_settings_action")
+                                          : QStringLiteral("kxcapture_storage_cleanup");
             request.params =
                 variant == 2
                     ? QJsonObject{{QStringLiteral("field_id"),
@@ -1080,7 +1080,7 @@ void runMcpApplicationTests() {
         ScreenshotMcpRequest request;
         request.connectionId = 73;
         request.requestId = QString::number(++sequence);
-        request.method = QStringLiteral("snow_shot_translation_start");
+        request.method = QStringLiteral("kxcapture_translation_start");
         request.params = {{QStringLiteral("texts"), QJsonArray{QStringLiteral("teardown")}},
                           {QStringLiteral("model_id"), QStringLiteral("general")}};
         std::optional<ScreenshotMcpResponse> startedJob;
@@ -1166,7 +1166,7 @@ void runMcpTranslationTests() {
         ScreenshotMcpRequest request;
         request.connectionId = owner;
         request.requestId = QString::number(++sequence);
-        request.method = QStringLiteral("snow_shot_") + method;
+        request.method = QStringLiteral("kxcapture_") + method;
         request.params = std::move(params);
         request.expectedRevision = revision;
         request.idempotencyKey = std::move(key);
@@ -1232,7 +1232,7 @@ void runMcpLoginItemImportTests() {
         ScreenshotMcpRequest request;
         request.connectionId = 71;
         request.requestId = QStringLiteral("login-import");
-        request.method = QStringLiteral("snow_shot_configuration_import");
+        request.method = QStringLiteral("kxcapture_configuration_import");
         request.params = {{QStringLiteral("path"), path}};
         request.expectedRevision = configuration.revision();
         std::optional<ScreenshotMcpResponse> response;

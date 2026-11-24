@@ -62,31 +62,31 @@ pub(super) fn templates() -> ListResourceTemplatesResult {
 }
 pub(super) fn resource_request(uri: &str) -> Result<(&'static str, Value), McpError> {
     match uri {
-        "kxcapture://application/status" => return Ok(("snow_shot_app_status", json!({}))),
-        "kxcapture://settings" => return Ok(("snow_shot_settings_get", json!({}))),
+        "kxcapture://application/status" => return Ok(("kxcapture_app_status", json!({}))),
+        "kxcapture://settings" => return Ok(("kxcapture_settings_get", json!({}))),
         _ => {}
     }
     for (prefix, method, key) in [
         (
             "kxcapture://documents/",
-            "snow_shot_document_state",
+            "kxcapture_document_state",
             "document_id",
         ),
-        ("kxcapture://jobs/", "snow_shot_job_get", "job_id"),
+        ("kxcapture://jobs/", "kxcapture_job_get", "job_id"),
         (
             "kxcapture://screenshots/",
-            "snow_shot_screenshot_state",
+            "kxcapture_screenshot_state",
             "session_id",
         ),
-        ("kxcapture://pinned/", "snow_shot_pinned_get", "id"),
+        ("kxcapture://pinned/", "kxcapture_pinned_get", "id"),
         (
             "kxcapture://artifacts/",
-            "snow_shot_artifact_read",
+            "kxcapture_artifact_read",
             "artifact_id",
         ),
         (
             "kxcapture://history/",
-            "snow_shot_history_get",
+            "kxcapture_history_get",
             "history_id",
         ),
     ] {
@@ -175,7 +175,7 @@ pub(super) fn prompt(request: GetPromptRequestParams) -> Result<GetPromptResult,
             "Read application status, begin a screenshot, retain the returned session_id and revision, edit in canvas coordinates, then render/save/copy/pin as requested and finish the session. Refresh state after stale_revision; do not blindly replay mutations."
         }
         "background_image_workflow" => {
-            "Open the explicit source path with snow_shot_document_open. Retain document_id and revision; use background document selection and annotation tools. Render to inspect, save only to the requested absolute destination, and close the document when done. Poll job handles for recognition. Do not open the visible editor unless requested."
+            "Open the explicit source path with kxcapture_document_open. Retain document_id and revision; use background document selection and annotation tools. Render to inspect, save only to the requested absolute destination, and close the document when done. Poll job handles for recognition. Do not open the visible editor unless requested."
         }
         _ => {
             "Read recording state and displays. Start the requested region with explicit options. Retain recording_id and expected_revision for controls, report actual state, then stop to finalize the output. Never claim a file is saved before finalization succeeds."
@@ -242,7 +242,7 @@ mod tests {
         }
         assert_eq!(
             resource_request("kxcapture://jobs/abc-123").unwrap(),
-            ("snow_shot_job_get", json!({"job_id":"abc-123"}))
+            ("kxcapture_job_get", json!({"job_id":"abc-123"}))
         );
         assert_eq!(
             resource_result("kxcapture://settings", json!({}), false).cache_scope,

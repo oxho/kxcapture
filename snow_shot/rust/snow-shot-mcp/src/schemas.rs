@@ -1084,36 +1084,36 @@ pub fn schema(name: &str, input: Option<Value>) -> Result<Map<String, Value>, se
         ));
     }
     match name {
-        "snow_shot_mcp_status" => model::<Empty>(input),
-        "snow_shot_screenshot_set_selection_style" => model::<Mutation<SelectionStyle>>(input),
-        "snow_shot_screenshot_set_tool_style" => model::<ScreenshotToolStyleMutation>(input),
-        "snow_shot_screenshot_edit_elements" => model::<Mutation<EditElements>>(input),
-        "snow_shot_screenshot_recapture" => model::<Mutation<Empty>>(input),
-        "snow_shot_screenshot_scrolling" => model::<Mutation<Scrolling>>(input),
-        "snow_shot_screenshot_scroll_once" => model::<Mutation<ScrollOnce>>(input),
-        "snow_shot_screenshot_recognize" => model::<Mutation<Recognize>>(input),
+        "kxcapture_mcp_status" => model::<Empty>(input),
+        "kxcapture_screenshot_set_selection_style" => model::<Mutation<SelectionStyle>>(input),
+        "kxcapture_screenshot_set_tool_style" => model::<ScreenshotToolStyleMutation>(input),
+        "kxcapture_screenshot_edit_elements" => model::<Mutation<EditElements>>(input),
+        "kxcapture_screenshot_recapture" => model::<Mutation<Empty>>(input),
+        "kxcapture_screenshot_scrolling" => model::<Mutation<Scrolling>>(input),
+        "kxcapture_screenshot_scroll_once" => model::<Mutation<ScrollOnce>>(input),
+        "kxcapture_screenshot_recognize" => model::<Mutation<Recognize>>(input),
         #[cfg(not(feature = "mini"))]
-        "snow_shot_screenshot_translate" => model::<Mutation<Empty>>(input),
-        "snow_shot_screenshot_auto_filter" => model::<Mutation<AutoFilter>>(input),
-        "snow_shot_screenshot_operation" => model::<Operation>(input),
-        "snow_shot_screenshot_edit_recognition" => model::<Mutation<EditRecognition>>(input),
-        "snow_shot_screenshot_export_recognition" => model::<Mutation<ExportRecognition>>(input),
-        "snow_shot_screenshot_draw_template" => model::<Mutation<DrawTemplate>>(input),
-        "snow_shot_screenshot_undo" => model::<Mutation<History>>(input),
-        "snow_shot_screenshot_redo" => model::<Mutation<History>>(input),
+        "kxcapture_screenshot_translate" => model::<Mutation<Empty>>(input),
+        "kxcapture_screenshot_auto_filter" => model::<Mutation<AutoFilter>>(input),
+        "kxcapture_screenshot_operation" => model::<Operation>(input),
+        "kxcapture_screenshot_edit_recognition" => model::<Mutation<EditRecognition>>(input),
+        "kxcapture_screenshot_export_recognition" => model::<Mutation<ExportRecognition>>(input),
+        "kxcapture_screenshot_draw_template" => model::<Mutation<DrawTemplate>>(input),
+        "kxcapture_screenshot_undo" => model::<Mutation<History>>(input),
+        "kxcapture_screenshot_redo" => model::<Mutation<History>>(input),
 
-        "snow_shot_screenshot_begin" => model::<Begin>(input),
-        "snow_shot_screenshot_state" => model::<Session>(input),
-        "snow_shot_screenshot_set_selection" => model::<Mutation<Selection>>(input),
-        "snow_shot_screenshot_set_tool" => model::<Mutation<ToolInput>>(input),
-        "snow_shot_screenshot_apply_annotations" => model::<Mutation<Annotations>>(input),
-        "snow_shot_screenshot_render"
-        | "snow_shot_screenshot_copy"
-        | "snow_shot_screenshot_pin" => model::<Mutation<Render>>(input),
-        "snow_shot_screenshot_save" => model::<Mutation<Save>>(input),
-        "snow_shot_screenshot_finish" => model::<Mutation<Finish>>(input),
-        "snow_shot_screenshot_cancel" => model::<Cancel>(input),
-        "snow_shot_screenshot_direct_capture" => model::<Direct>(input),
+        "kxcapture_screenshot_begin" => model::<Begin>(input),
+        "kxcapture_screenshot_state" => model::<Session>(input),
+        "kxcapture_screenshot_set_selection" => model::<Mutation<Selection>>(input),
+        "kxcapture_screenshot_set_tool" => model::<Mutation<ToolInput>>(input),
+        "kxcapture_screenshot_apply_annotations" => model::<Mutation<Annotations>>(input),
+        "kxcapture_screenshot_render"
+        | "kxcapture_screenshot_copy"
+        | "kxcapture_screenshot_pin" => model::<Mutation<Render>>(input),
+        "kxcapture_screenshot_save" => model::<Mutation<Save>>(input),
+        "kxcapture_screenshot_finish" => model::<Mutation<Finish>>(input),
+        "kxcapture_screenshot_cancel" => model::<Cancel>(input),
+        "kxcapture_screenshot_direct_capture" => model::<Direct>(input),
         _ => domains::schema(name, input),
     }
 }
@@ -1127,19 +1127,19 @@ mod tests {
         for compression in ["low", "medium", "high"] {
             for (name, mut input) in [
                 (
-                    "snow_shot_screenshot_save",
+                    "kxcapture_screenshot_save",
                     json!({"session_id":"s","expected_revision":1}),
                 ),
                 (
-                    "snow_shot_screenshot_finish",
+                    "kxcapture_screenshot_finish",
                     json!({"session_id":"s","expected_revision":1,"output":"save"}),
                 ),
                 (
-                    "snow_shot_screenshot_direct_capture",
+                    "kxcapture_screenshot_direct_capture",
                     json!({"target":"current_monitor","output":"save"}),
                 ),
                 (
-                    "snow_shot_document_save",
+                    "kxcapture_document_save",
                     json!({"document_id":"d","expected_revision":1}),
                 ),
             ] {
@@ -1168,19 +1168,19 @@ mod tests {
             "id":"11111111-1111-4111-8111-111111111111","name":"Provider",
             "base_url":"https://example.invalid/v1","model":"test-model"
         }]});
-        assert!(schema("snow_shot_models_update", Some(legacy.clone())).is_ok());
+        assert!(schema("kxcapture_models_update", Some(legacy.clone())).is_ok());
         for provider in ["openai", "qwen", "deepseek", "doubao"] {
             let mut input = legacy.clone();
             input["models"][0]["provider"] = json!(provider);
             assert!(
-                schema("snow_shot_models_update", Some(input)).is_ok(),
+                schema("kxcapture_models_update", Some(input)).is_ok(),
                 "{provider}"
             );
         }
         for provider in [json!("unknown"), json!(""), json!(1), json!(false)] {
             let mut input = legacy.clone();
             input["models"][0]["provider"] = provider;
-            assert!(schema("snow_shot_models_update", Some(input)).is_err());
+            assert!(schema("kxcapture_models_update", Some(input)).is_err());
         }
     }
 
@@ -1206,8 +1206,8 @@ mod tests {
                 let valid = matches!(mode, "border" | "solid" | "cross_line" | "line");
                 let patch = json!({"target":target,"style":{"fill_style":mode}});
                 for (name, owner) in [
-                    ("snow_shot_screenshot_set_tool_style", "session_id"),
-                    ("snow_shot_document_set_tool_style", "document_id"),
+                    ("kxcapture_screenshot_set_tool_style", "session_id"),
+                    ("kxcapture_document_set_tool_style", "document_id"),
                 ] {
                     let mut input = patch.clone();
                     input[owner] = json!("fixture");
@@ -1220,7 +1220,7 @@ mod tests {
                     );
                 }
                 let result = schema(
-                    "snow_shot_pinned_edit",
+                    "kxcapture_pinned_edit",
                     Some(json!({"id":"fixture","expected_revision":1,
                         "action":"tool_style","payload":patch})),
                 );
@@ -1236,8 +1236,8 @@ mod tests {
     #[test]
     fn eraser_tool_ids_are_accepted_for_screenshots_and_documents() {
         for (name, owner) in [
-            ("snow_shot_screenshot_set_tool", "session_id"),
-            ("snow_shot_document_set_tool", "document_id"),
+            ("kxcapture_screenshot_set_tool", "session_id"),
+            ("kxcapture_document_set_tool", "document_id"),
         ] {
             for tool in ["eraser", "rectangle_eraser", "brush_eraser"] {
                 let input = json!({owner:"owned","expected_revision":1,"tool":tool});
@@ -1259,8 +1259,8 @@ mod tests {
     #[test]
     fn eraser_brush_style_requires_only_a_bounded_width() {
         for (name, owner) in [
-            ("snow_shot_screenshot_set_tool_style", "session_id"),
-            ("snow_shot_document_set_tool_style", "document_id"),
+            ("kxcapture_screenshot_set_tool_style", "session_id"),
+            ("kxcapture_document_set_tool_style", "document_id"),
         ] {
             for width in [1.0, 30.5, 72.0] {
                 let result = schema(
@@ -1337,7 +1337,7 @@ mod tests {
         for tool in ["rectangle_eraser", "brush_eraser"] {
             assert!(
                 schema(
-                    "snow_shot_pinned_edit",
+                    "kxcapture_pinned_edit",
                     Some(json!({"id":"pinned",
                 "expected_revision":1,"action":"tool","payload":{"tool":tool}}))
                 )
@@ -1346,7 +1346,7 @@ mod tests {
         }
         assert!(
             schema(
-                "snow_shot_pinned_edit",
+                "kxcapture_pinned_edit",
                 Some(json!({"id":"pinned",
             "expected_revision":1,"action":"tool_style","payload":{
                 "target":"brush_eraser","style":{"stroke_width":30}}}))
@@ -1359,7 +1359,7 @@ mod tests {
         ] {
             assert!(
                 schema(
-                    "snow_shot_pinned_edit",
+                    "kxcapture_pinned_edit",
                     Some(json!({"id":"pinned",
                 "expected_revision":1,"action":"tool_style","payload":{
                     "target":"brush_eraser","style":style}}))
@@ -1371,12 +1371,12 @@ mod tests {
     #[test]
     fn full_only_tools_and_recognition_fields_follow_the_compiled_edition() {
         for name in [
-            "snow_shot_screenshot_translate",
-            "snow_shot_models_list",
-            "snow_shot_models_update",
-            "snow_shot_credentials_set",
-            "snow_shot_translation_catalog",
-            "snow_shot_translation_start",
+            "kxcapture_screenshot_translate",
+            "kxcapture_models_list",
+            "kxcapture_models_update",
+            "kxcapture_credentials_set",
+            "kxcapture_translation_catalog",
+            "kxcapture_translation_start",
         ] {
             assert_eq!(
                 schema(name, None).is_ok(),
@@ -1390,8 +1390,8 @@ mod tests {
             assert_eq!(included, !crate::edition::MINI, "{name}");
         }
         for name in [
-            "snow_shot_screenshot_edit_recognition",
-            "snow_shot_document_edit_recognition",
+            "kxcapture_screenshot_edit_recognition",
+            "kxcapture_document_edit_recognition",
         ] {
             let published = schema(name, None).unwrap();
             for (field, value) in [
@@ -1419,8 +1419,8 @@ mod tests {
     #[test]
     fn recognition_modes_share_the_screenshot_and_document_contract() {
         for name in [
-            "snow_shot_screenshot_recognize",
-            "snow_shot_document_recognize",
+            "kxcapture_screenshot_recognize",
+            "kxcapture_document_recognize",
         ] {
             let published = Value::Object(schema(name, None).unwrap());
             let property = &published["properties"]["kind"];
@@ -1492,7 +1492,7 @@ mod tests {
                 "unit":unit,"decimal_places":3,"endpoint_scale":0.5,"endpoint_style":"bar"});
             assert!(
                 schema(
-                    "snow_shot_screenshot_set_tool_style",
+                    "kxcapture_screenshot_set_tool_style",
                     Some(json!({
                         "session_id":"s","expected_revision":1,"target":"distance","style":style
                     }))
@@ -1501,7 +1501,7 @@ mod tests {
             );
             assert!(
                 schema(
-                    "snow_shot_document_set_tool_style",
+                    "kxcapture_document_set_tool_style",
                     Some(json!({
                         "document_id":"d","expected_revision":1,"target":"distance","style":style
                     }))
@@ -1510,7 +1510,7 @@ mod tests {
             );
             assert!(
                 schema(
-                    "snow_shot_screenshot_apply_annotations",
+                    "kxcapture_screenshot_apply_annotations",
                     Some(json!({
                         "session_id":"s","expected_revision":1,"operations":[{
                             "type":"distance","points":[[0,0],[3,4]],"style":style
@@ -1531,7 +1531,7 @@ mod tests {
         ] {
             assert!(
                 schema(
-                    "snow_shot_screenshot_set_tool_style",
+                    "kxcapture_screenshot_set_tool_style",
                     Some(json!({
                         "session_id":"s","expected_revision":1,"target":"distance","style":style
                     }))
@@ -1542,7 +1542,7 @@ mod tests {
         for points in [json!([[0, 0]]), json!([[0, 0], [3, 4], [5, 6]])] {
             assert!(
                 schema(
-                    "snow_shot_screenshot_apply_annotations",
+                    "kxcapture_screenshot_apply_annotations",
                     Some(json!({
                         "session_id":"s","expected_revision":1,"operations":[{
                             "type":"distance","points":points
@@ -1555,7 +1555,7 @@ mod tests {
         // Image calibration belongs to the host, never caller-controlled annotation style.
         assert!(
             schema(
-                "snow_shot_screenshot_apply_annotations",
+                "kxcapture_screenshot_apply_annotations",
                 Some(json!({
                     "session_id":"s","expected_revision":1,"operations":[{
                         "type":"distance","points":[[0,0],[3,4]],"pixel_scale":[2,2]
@@ -1566,7 +1566,7 @@ mod tests {
         );
         assert!(
             schema(
-                "snow_shot_screenshot_set_tool",
+                "kxcapture_screenshot_set_tool",
                 Some(json!({
                     "session_id":"s","expected_revision":1,"tool":"distance"
                 }))
@@ -1575,7 +1575,7 @@ mod tests {
         );
         assert!(
             schema(
-                "snow_shot_document_set_tool",
+                "kxcapture_document_set_tool",
                 Some(json!({
                     "document_id":"d","expected_revision":1,"tool":"distance"
                 }))
@@ -1587,16 +1587,16 @@ mod tests {
     #[test]
     fn speech_bubble_tools_and_styles_are_exposed_without_a_creation_operation() {
         for (method, owner) in [
-            ("snow_shot_screenshot_set_tool", "session_id"),
-            ("snow_shot_document_set_tool", "document_id"),
+            ("kxcapture_screenshot_set_tool", "session_id"),
+            ("kxcapture_document_set_tool", "document_id"),
         ] {
             let mut input = json!({"expected_revision": 1, "tool": "speech_bubble"});
             input[owner] = json!("fixture");
             assert!(schema(method, Some(input)).is_ok());
         }
         for (method, owner) in [
-            ("snow_shot_screenshot_set_tool_style", "session_id"),
-            ("snow_shot_document_set_tool_style", "document_id"),
+            ("kxcapture_screenshot_set_tool_style", "session_id"),
+            ("kxcapture_document_set_tool_style", "document_id"),
         ] {
             let mut input = json!({"expected_revision": 1, "target": "speech_bubble",
                 "style": {"shape": "diamond", "stroke": [245, 34, 45, 255],
@@ -1621,7 +1621,7 @@ mod tests {
         }
         assert!(
             schema(
-                "snow_shot_screenshot_edit",
+                "kxcapture_screenshot_edit",
                 Some(json!({"session_id":"s",
             "expected_revision":1,"operations":[{"type":"speech_bubble",
                 "bounds":[0,0,100,100]}]}))
@@ -1633,8 +1633,8 @@ mod tests {
     #[test]
     fn magnifier_schemas_validate_tools_and_independent_style_bounds() {
         for (name, owner) in [
-            ("snow_shot_screenshot_set_tool", "session_id"),
-            ("snow_shot_document_set_tool", "document_id"),
+            ("kxcapture_screenshot_set_tool", "session_id"),
+            ("kxcapture_document_set_tool", "document_id"),
         ] {
             assert!(
                 schema(
@@ -1647,8 +1647,8 @@ mod tests {
             );
         }
         for (name, owner) in [
-            ("snow_shot_screenshot_set_tool_style", "session_id"),
-            ("snow_shot_document_set_tool_style", "document_id"),
+            ("kxcapture_screenshot_set_tool_style", "session_id"),
+            ("kxcapture_document_set_tool_style", "document_id"),
         ] {
             for shape in ["rectangle", "ellipse", "diamond"] {
                 for factor in [1.0, 2.0, 10.0] {
@@ -1707,7 +1707,7 @@ mod tests {
         }
         assert!(
             schema(
-                "snow_shot_pinned_edit",
+                "kxcapture_pinned_edit",
                 Some(json!({"id":"pinned",
             "expected_revision":1, "action":"tool_style", "payload":{
             "target":"magnifier", "style":{"factor":2.0, "connection_type":"leader_line", "source_outline":true}}}))
@@ -1720,7 +1720,7 @@ mod tests {
     fn angle_types_accept_both_ranges_and_reject_unknown_values() {
         for angle_type in ["directed", "interior", "unknown"] {
             let result = schema(
-                "snow_shot_screenshot_set_tool_style",
+                "kxcapture_screenshot_set_tool_style",
                 Some(json!({
                     "session_id":"owned", "expected_revision":1, "target":"angle",
                     "style":{"angle_type":angle_type}
@@ -1733,8 +1733,8 @@ mod tests {
     #[test]
     fn bracket_schemas_match_the_three_point_and_two_property_contract() {
         for (name, owner) in [
-            ("snow_shot_screenshot_set_tool", "session_id"),
-            ("snow_shot_document_set_tool", "document_id"),
+            ("kxcapture_screenshot_set_tool", "session_id"),
+            ("kxcapture_document_set_tool", "document_id"),
         ] {
             assert!(
                 schema(
@@ -1745,8 +1745,8 @@ mod tests {
             );
         }
         for (name, owner) in [
-            ("snow_shot_screenshot_set_tool_style", "session_id"),
-            ("snow_shot_document_set_tool_style", "document_id"),
+            ("kxcapture_screenshot_set_tool_style", "session_id"),
+            ("kxcapture_document_set_tool_style", "document_id"),
         ] {
             for width in [1., 2.5, 72.] {
                 assert!(schema(name,Some(json!({owner:"owned","expected_revision":1,"target":"bracket","style":{"stroke_width":width,"stroke":[10,20,30,128]}}))).is_ok());
@@ -1761,8 +1761,8 @@ mod tests {
             }
         }
         for (name, owner) in [
-            ("snow_shot_screenshot_apply_annotations", "session_id"),
-            ("snow_shot_document_apply_annotations", "document_id"),
+            ("kxcapture_screenshot_apply_annotations", "session_id"),
+            ("kxcapture_document_apply_annotations", "document_id"),
         ] {
             for points in [
                 json!([[0, 0], [80, 100], [0, 200]]),
@@ -1777,8 +1777,8 @@ mod tests {
     #[test]
     fn angle_annotation_schemas_accept_tools_styles_and_three_ordered_points() {
         for (name, owner) in [
-            ("snow_shot_screenshot_set_tool", "session_id"),
-            ("snow_shot_document_set_tool", "document_id"),
+            ("kxcapture_screenshot_set_tool", "session_id"),
+            ("kxcapture_document_set_tool", "document_id"),
         ] {
             let input = json!({owner:"owned","expected_revision":1,"tool":"angle"});
             assert!(schema(name, Some(input.clone())).is_ok(), "{name}");
@@ -1792,8 +1792,8 @@ mod tests {
                     let style = json!({"stroke":[245,34,45,255],"stroke_width":width,
                         "unit":unit,"decimal_places":decimals});
                     for (name, owner) in [
-                        ("snow_shot_screenshot_set_tool_style", "session_id"),
-                        ("snow_shot_document_set_tool_style", "document_id"),
+                        ("kxcapture_screenshot_set_tool_style", "session_id"),
+                        ("kxcapture_document_set_tool_style", "document_id"),
                     ] {
                         assert!(
                             schema(
@@ -1806,8 +1806,8 @@ mod tests {
                         );
                     }
                     for (name, owner) in [
-                        ("snow_shot_screenshot_apply_annotations", "session_id"),
-                        ("snow_shot_document_apply_annotations", "document_id"),
+                        ("kxcapture_screenshot_apply_annotations", "session_id"),
+                        ("kxcapture_document_apply_annotations", "document_id"),
                     ] {
                         for full_turn in [false, true] {
                             let input = json!({owner:"owned","expected_revision":1,"operations":[{
@@ -1818,7 +1818,7 @@ mod tests {
                     }
                     assert!(
                         schema(
-                            "snow_shot_pinned_edit",
+                            "kxcapture_pinned_edit",
                             Some(json!({"id":"pinned",
                         "expected_revision":1,"action":"tool_style","payload":{
                             "target":"angle","style":style}}))
@@ -1830,7 +1830,7 @@ mod tests {
         }
         assert!(
             schema(
-                "snow_shot_pinned_edit",
+                "kxcapture_pinned_edit",
                 Some(json!({"id":"pinned",
             "expected_revision":1,"action":"tool","payload":{"tool":"angle"}}))
             )
@@ -1838,7 +1838,7 @@ mod tests {
         );
         assert!(
             schema(
-                "snow_shot_pinned_edit",
+                "kxcapture_pinned_edit",
                 Some(json!({"id":"pinned",
             "expected_revision":1,"action":"annotations","payload":{"operations":[{
                 "type":"angle","points":[[100,0],[0,0],[0,100]]}]}}))
@@ -1846,8 +1846,8 @@ mod tests {
             .is_ok()
         );
         for (name, owner) in [
-            ("snow_shot_screenshot_apply_annotations", "session_id"),
-            ("snow_shot_document_apply_annotations", "document_id"),
+            ("kxcapture_screenshot_apply_annotations", "session_id"),
+            ("kxcapture_document_apply_annotations", "document_id"),
         ] {
             assert!(
                 schema(
@@ -1878,8 +1878,8 @@ mod tests {
             json!({"full_turn":true}),
         ] {
             for (name, owner) in [
-                ("snow_shot_screenshot_set_tool_style", "session_id"),
-                ("snow_shot_document_set_tool_style", "document_id"),
+                ("kxcapture_screenshot_set_tool_style", "session_id"),
+                ("kxcapture_document_set_tool_style", "document_id"),
             ] {
                 assert!(
                     schema(
@@ -1892,8 +1892,8 @@ mod tests {
                 );
             }
             for (name, owner) in [
-                ("snow_shot_screenshot_apply_annotations", "session_id"),
-                ("snow_shot_document_apply_annotations", "document_id"),
+                ("kxcapture_screenshot_apply_annotations", "session_id"),
+                ("kxcapture_document_apply_annotations", "document_id"),
             ] {
                 assert!(
                     schema(
@@ -1907,7 +1907,7 @@ mod tests {
             }
             assert!(
                 schema(
-                    "snow_shot_pinned_edit",
+                    "kxcapture_pinned_edit",
                     Some(json!({"id":"pinned",
                 "expected_revision":1,"action":"tool_style","payload":{
                     "target":"angle","style":style}}))
@@ -1925,8 +1925,8 @@ mod tests {
             "brush_eraser",
         ] {
             for (name, owner) in [
-                ("snow_shot_screenshot_set_tool_style", "session_id"),
-                ("snow_shot_document_set_tool_style", "document_id"),
+                ("kxcapture_screenshot_set_tool_style", "session_id"),
+                ("kxcapture_document_set_tool_style", "document_id"),
             ] {
                 assert!(
                     schema(
@@ -1947,8 +1947,8 @@ mod tests {
             json!([[0, 0], [10, 10], [20]]),
         ] {
             for (name, owner) in [
-                ("snow_shot_screenshot_apply_annotations", "session_id"),
-                ("snow_shot_document_apply_annotations", "document_id"),
+                ("kxcapture_screenshot_apply_annotations", "session_id"),
+                ("kxcapture_document_apply_annotations", "document_id"),
             ] {
                 assert!(
                     schema(
@@ -1964,7 +1964,7 @@ mod tests {
         for value in [json!(0), json!("true")] {
             assert!(
                 schema(
-                    "snow_shot_screenshot_apply_annotations",
+                    "kxcapture_screenshot_apply_annotations",
                     Some(json!({
                         "session_id":"owned","expected_revision":1,"operations":[{
                             "type":"angle","points":[[100,0],[0,0],[0,100]],"full_turn":value}]
@@ -2008,8 +2008,8 @@ mod tests {
         ] {
             let valid = width.as_f64().is_some_and(|v| (0.0..=72.0).contains(&v));
             for (tool, owner) in [
-                ("snow_shot_screenshot_set_tool_style", "session_id"),
-                ("snow_shot_document_set_tool_style", "document_id"),
+                ("kxcapture_screenshot_set_tool_style", "session_id"),
+                ("kxcapture_document_set_tool_style", "document_id"),
             ] {
                 assert_eq!(
                     schema(
@@ -2026,7 +2026,7 @@ mod tests {
             }
             assert_eq!(
                 schema(
-                    "snow_shot_screenshot_apply_annotations",
+                    "kxcapture_screenshot_apply_annotations",
                     Some(json!({
                         "session_id":"s", "expected_revision":1, "operations":[{
                             "type":"arrow", "points":[[0,0],[100,80]],
@@ -2056,8 +2056,8 @@ mod tests {
             (json!([255, 204, 0, "128"]), false),
         ] {
             for (tool, owner) in [
-                ("snow_shot_screenshot_set_tool_style", "session_id"),
-                ("snow_shot_document_set_tool_style", "document_id"),
+                ("kxcapture_screenshot_set_tool_style", "session_id"),
+                ("kxcapture_document_set_tool_style", "document_id"),
             ] {
                 assert_eq!(
                     schema(
@@ -2074,7 +2074,7 @@ mod tests {
             }
             assert_eq!(
                 schema(
-                    "snow_shot_screenshot_apply_annotations",
+                    "kxcapture_screenshot_apply_annotations",
                     Some(json!({
                         "session_id":"s", "expected_revision":1, "operations":[{
                             "type":"arrow", "points":[[0,0],[100,80]],
@@ -2101,7 +2101,7 @@ mod tests {
             ] {
                 assert!(
                     schema(
-                        "snow_shot_screenshot_set_tool_style",
+                        "kxcapture_screenshot_set_tool_style",
                         Some(json!({
                             "session_id":"s", "expected_revision":1, "target":target,
                             "style":{"stroke_rendering_style":value}
@@ -2112,7 +2112,7 @@ mod tests {
             }
             assert!(
                 schema(
-                    "snow_shot_screenshot_apply_annotations",
+                    "kxcapture_screenshot_apply_annotations",
                     Some(json!({
                         "session_id":"s", "expected_revision":1, "operations":[{
                             "type":"rectangle", "bounds":[0,0,20,20],
@@ -2125,7 +2125,7 @@ mod tests {
         }
         for value in [json!("rough"), json!(1)] {
             let result = schema(
-                "snow_shot_screenshot_set_tool_style",
+                "kxcapture_screenshot_set_tool_style",
                 Some(json!({
                     "session_id":"s", "expected_revision":1, "target":"rectangle",
                     "style":{"stroke_rendering_style":value}
@@ -2138,8 +2138,8 @@ mod tests {
     #[test]
     fn selection_border_styles_are_typed_for_both_hosts() {
         for (name, owner) in [
-            ("snow_shot_screenshot_set_selection_style", "session_id"),
-            ("snow_shot_document_set_selection_style", "document_id"),
+            ("kxcapture_screenshot_set_selection_style", "session_id"),
+            ("kxcapture_document_set_selection_style", "document_id"),
         ] {
             for border_type in ["shadow", "border"] {
                 assert!(
@@ -2172,20 +2172,20 @@ mod tests {
     #[test]
     fn workflow_schemas_are_typed() {
         for ratio in [0.5, 0.6, 1.0] {
-            assert!(schema("snow_shot_screenshot_set_tool_style", Some(json!({"session_id":"s","expected_revision":1,"target":"arrow","style":{"arrow_ratio":ratio}}))).is_ok());
+            assert!(schema("kxcapture_screenshot_set_tool_style", Some(json!({"session_id":"s","expected_revision":1,"target":"arrow","style":{"arrow_ratio":ratio}}))).is_ok());
         }
         for ratio in [0.0, 0.4] {
-            assert!(schema("snow_shot_screenshot_set_tool_style", Some(json!({"session_id":"s","expected_revision":1,"target":"arrow","style":{"arrow_ratio":ratio}}))).is_err());
+            assert!(schema("kxcapture_screenshot_set_tool_style", Some(json!({"session_id":"s","expected_revision":1,"target":"arrow","style":{"arrow_ratio":ratio}}))).is_err());
         }
-        assert!(schema("snow_shot_screenshot_set_tool_style", Some(json!({"session_id":"s","expected_revision":1,"target":"arrow","style":{"arrow_shaft_type":"tapered","arrow_ratio":3}}))).is_ok());
-        assert!(schema("snow_shot_screenshot_set_tool_style", Some(json!({"session_id":"s","expected_revision":1,"target":"arrow","style":{"arrow_ratio":3.1}}))).is_err());
-        assert!(schema("snow_shot_screenshot_set_tool_style", Some(json!({"session_id":"s","expected_revision":1,"target":"text","style":{"horizontal_align":"center","vertical_align":"bottom","corner_radii":[0,1,2,3]}}))).is_ok());
-        assert!(schema("snow_shot_screenshot_set_tool_style", Some(json!({"session_id":"s","expected_revision":1,"target":"serial_number","style":{"serial_type":"solid_square","number":9007199254740991_u64}}))).is_ok());
-        assert!(schema("snow_shot_screenshot_set_tool_style", Some(json!({"session_id":"s","expected_revision":1,"target":"serial_number","style":{"number":9007199254740992_u64}}))).is_err());
+        assert!(schema("kxcapture_screenshot_set_tool_style", Some(json!({"session_id":"s","expected_revision":1,"target":"arrow","style":{"arrow_shaft_type":"tapered","arrow_ratio":3}}))).is_ok());
+        assert!(schema("kxcapture_screenshot_set_tool_style", Some(json!({"session_id":"s","expected_revision":1,"target":"arrow","style":{"arrow_ratio":3.1}}))).is_err());
+        assert!(schema("kxcapture_screenshot_set_tool_style", Some(json!({"session_id":"s","expected_revision":1,"target":"text","style":{"horizontal_align":"center","vertical_align":"bottom","corner_radii":[0,1,2,3]}}))).is_ok());
+        assert!(schema("kxcapture_screenshot_set_tool_style", Some(json!({"session_id":"s","expected_revision":1,"target":"serial_number","style":{"serial_type":"solid_square","number":9007199254740991_u64}}))).is_ok());
+        assert!(schema("kxcapture_screenshot_set_tool_style", Some(json!({"session_id":"s","expected_revision":1,"target":"serial_number","style":{"number":9007199254740992_u64}}))).is_err());
         for direction in ["up", "down", "left", "right"] {
             assert!(
                 schema(
-                    "snow_shot_screenshot_scroll_once",
+                    "kxcapture_screenshot_scroll_once",
                     Some(json!({"session_id":"s","expected_revision":1,"direction":direction}))
                 )
                 .is_ok()
@@ -2195,26 +2195,26 @@ mod tests {
             json!({"session_id":"s","expected_revision":1,"direction":"diagonal"}),
             json!({"session_id":"s","expected_revision":1,"direction":"down","count":100}),
         ] {
-            assert!(schema("snow_shot_screenshot_scroll_once", Some(bad)).is_err());
+            assert!(schema("kxcapture_screenshot_scroll_once", Some(bad)).is_err());
         }
         assert!(
             schema(
-                "snow_shot_screenshot_operation",
+                "kxcapture_screenshot_operation",
                 Some(json!({"session_id":"s","operation_id":"o"}))
             )
             .is_ok()
         );
         assert!(
             schema(
-                "snow_shot_screenshot_scrolling",
+                "kxcapture_screenshot_scrolling",
                 Some(json!({"session_id":"s","expected_revision":1,"action":"execute"}))
             )
             .is_err()
         );
-        assert_eq!(schema("snow_shot_screenshot_edit_recognition", Some(json!({"session_id":"s","expected_revision":1,"action":"set_cell","row":0,"column":1,"text":"value"}))).is_ok(), !crate::edition::MINI);
+        assert_eq!(schema("kxcapture_screenshot_edit_recognition", Some(json!({"session_id":"s","expected_revision":1,"action":"set_cell","row":0,"column":1,"text":"value"}))).is_ok(), !crate::edition::MINI);
         assert!(
             schema(
-                "snow_shot_screenshot_undo",
+                "kxcapture_screenshot_undo",
                 Some(json!({"session_id":"s","expected_revision":1,"target":"table"}))
             )
             .is_ok()
@@ -2223,12 +2223,12 @@ mod tests {
     }
     #[test]
     fn typed_inputs_require_revision_and_reject_unknown_operations() {
-        assert!(schema("snow_shot_screenshot_undo", Some(json!({"session_id":"s"}))).is_err());
-        assert!(schema("snow_shot_screenshot_apply_annotations",Some(json!({"session_id":"s","expected_revision":2,"operations":[{"type":"execute"}]}))).is_err());
-        assert!(schema("snow_shot_screenshot_set_selection",Some(json!({"session_id":"s","expected_revision":2,"type":"rectangle","bounds":[0,0,20,20]}))).is_ok());
-        assert!(schema("snow_shot_screenshot_apply_annotations",Some(json!({"session_id":"s","expected_revision":2,"operations":[{"type":"rectangle","bounds":[0,0,20,20],"style":{}}]}))).is_ok());
+        assert!(schema("kxcapture_screenshot_undo", Some(json!({"session_id":"s"}))).is_err());
+        assert!(schema("kxcapture_screenshot_apply_annotations",Some(json!({"session_id":"s","expected_revision":2,"operations":[{"type":"execute"}]}))).is_err());
+        assert!(schema("kxcapture_screenshot_set_selection",Some(json!({"session_id":"s","expected_revision":2,"type":"rectangle","bounds":[0,0,20,20]}))).is_ok());
+        assert!(schema("kxcapture_screenshot_apply_annotations",Some(json!({"session_id":"s","expected_revision":2,"operations":[{"type":"rectangle","bounds":[0,0,20,20],"style":{}}]}))).is_ok());
         let finish = schema(
-            "snow_shot_screenshot_finish",
+            "kxcapture_screenshot_finish",
             Some(json!({
                 "session_id": "s", "expected_revision": 2, "output": "render"
             })),
@@ -2236,7 +2236,7 @@ mod tests {
         assert!(finish.is_ok(), "{finish:?}");
         assert!(
             schema(
-                "snow_shot_screenshot_finish",
+                "kxcapture_screenshot_finish",
                 Some(json!({
                     "session_id": "s", "expected_revision": 2, "output": "save",
                     "path": "C:\\capture.png", "format": "png"
@@ -2246,7 +2246,7 @@ mod tests {
         );
         assert!(
             schema(
-                "snow_shot_screenshot_direct_capture",
+                "kxcapture_screenshot_direct_capture",
                 Some(json!({
                     "target": "current_monitor", "output": "render"
                 }))
@@ -2255,7 +2255,7 @@ mod tests {
         );
         assert!(
             schema(
-                "snow_shot_screenshot_direct_capture",
+                "kxcapture_screenshot_direct_capture",
                 Some(json!({
                     "target": "current_monitor", "output": "save",
                     "path": "C:\\capture.png", "format": "png"
@@ -2265,7 +2265,7 @@ mod tests {
         );
         assert!(
             schema(
-                "snow_shot_screenshot_direct_capture",
+                "kxcapture_screenshot_direct_capture",
                 Some(json!({
                     "target": "current_monitor"
                 }))

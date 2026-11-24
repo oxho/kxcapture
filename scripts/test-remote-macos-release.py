@@ -43,7 +43,7 @@ class RemotePackageTests(unittest.TestCase):
         self.image.with_suffix('.dmg.sha256').write_text(
             (checksum or remote.digest(self.image)) + '  ' + self.image.name + '\n')
         self.write_signing_report(self.image)
-        for name in ['snow_shot', 'snow-ocr-process', 'snow_shot_mini']:
+        for name in ['snow_shot', 'kxcapture-ocr', 'snow_shot_mini']:
             path = self.build / 'symbols' / (name + '.dSYM') / 'Contents/Resources/DWARF' / name
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(('DWARF fixture: ' + name).encode())
@@ -193,7 +193,7 @@ class RemotePackageTests(unittest.TestCase):
 
     def test_cargo_worker_symbols_retain_the_hashed_executable_name(self):
         self.write_package()
-        path = self.build / 'symbols/snow-ocr-process.dSYM/Contents/Resources/DWARF/snow-ocr-process'
+        path = self.build / 'symbols/kxcapture-ocr.dSYM/Contents/Resources/DWARF/kxcapture-ocr'
         hashed = path.with_name('snow_ocr_process-2682fb017056abac')
         path.rename(hashed)
         symbols = remote.symbols_inventory(self.build, ['snow-shot', 'snow-shot-mini'])
@@ -203,7 +203,7 @@ class RemotePackageTests(unittest.TestCase):
 
     def test_worker_symbols_require_exactly_one_dwarf_file(self):
         self.write_package()
-        path = self.build / 'symbols/snow-ocr-process.dSYM/Contents/Resources/DWARF/unexpected'
+        path = self.build / 'symbols/kxcapture-ocr.dSYM/Contents/Resources/DWARF/unexpected'
         path.write_bytes(b'extra DWARF')
         with self.assertRaisesRegex(ValueError, 'symbols'):
             remote.symbols_inventory(self.build, ['snow-shot'])

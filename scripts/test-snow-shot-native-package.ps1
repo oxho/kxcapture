@@ -97,13 +97,13 @@ function Invoke-SnowNativePackageProbe {
             $assets.runtime.version -cnotmatch '^\d+\.\d+\.\d+$' -or $assets.default_model -cne 'small') {
             throw 'Packaged OCR asset manifest identity differs from the native target.'
         }
-        $standaloneRuntime = Join-Path $Stage 'bin/snow-ocr-process.exe'
+        $standaloneRuntime = Join-Path $Stage 'bin/kxcapture-ocr.exe'
         if (Test-Path -LiteralPath $standaloneRuntime -PathType Leaf) {
             $packagedRuntimes += Get-Item -LiteralPath $standaloneRuntime
         }
     }
     foreach ($runtime in $packagedRuntimes) {
-        if ($runtime.Name -ceq 'snow-ocr-process.exe') {
+        if ($runtime.Name -ceq 'kxcapture-ocr.exe') {
             $version = $assets.runtime.version
         } else {
             if ($runtime.Name -cnotmatch '^snow-ocr-process-(\d+\.\d+\.\d+)-windows-(x64|arm64)\.exe$' -or
@@ -118,12 +118,12 @@ function Invoke-SnowNativePackageProbe {
         }
     }
     $modelsRoot = Join-Path $assetRoot 'models'
-    if (@($packagedRuntimes | Where-Object { $_.Name -cne 'snow-ocr-process.exe' }).Count -and
+    if (@($packagedRuntimes | Where-Object { $_.Name -cne 'kxcapture-ocr.exe' }).Count -and
         -not (Test-Path -LiteralPath $modelsRoot -PathType Container)) {
         throw 'Packaged versioned OCR runtime has no bundled models.'
     }
     if (Test-Path -LiteralPath $modelsRoot -PathType Container) {
-        $runtime = @($packagedRuntimes | Where-Object { $_.Name -cne 'snow-ocr-process.exe' })
+        $runtime = @($packagedRuntimes | Where-Object { $_.Name -cne 'kxcapture-ocr.exe' })
         if ($runtime.Count -ne 1) { throw 'Bundled OCR models require exactly one packaged versioned runtime.' }
         $models = @(Get-ChildItem -LiteralPath $modelsRoot -Directory)
         if (-not $models.Count) { throw 'Packaged OCR model directory is empty.' }

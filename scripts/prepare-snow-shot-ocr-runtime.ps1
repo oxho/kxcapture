@@ -31,7 +31,7 @@ if (-not $SkipBuild) {
 
 # Runtime-only preparation intentionally has no dependency on the application,
 # updater, installer, translations, or application symbol bundles.
-$executable = Join-Path $buildRoot "cargo/$($target.RustTarget)/release/snow-ocr-process.exe"
+$executable = Join-Path $buildRoot "cargo/$($target.RustTarget)/release/kxcapture-ocr.exe"
 $cargoManifest = Get-Content -LiteralPath (Join-Path $repoRoot 'snow-crates/crates/snow-ocr-process/Cargo.toml') -Raw
 if ($cargoManifest -cnotmatch '(?m)^version\s*=\s*"(\d+\.\d+\.\d+)"\s*$') { throw 'OCR package version was not found.' }
 $runtimeVersion = $Matches[1]

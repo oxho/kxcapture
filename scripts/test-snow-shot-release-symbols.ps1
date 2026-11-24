@@ -45,7 +45,7 @@ foreach ($pdbAgeOffset in $pdbAgeOffsets) {
 $updaterName = if ($Edition -eq 'Mini') { 'kxcapture-mini-updater.exe' } else { 'kxcapture-updater.exe' }
 Copy-Item -LiteralPath (Join-Path $bin "$($product.Executable).exe") -Destination (Join-Path $bin $updaterName)
 if ($Edition -ne 'Mini') {
-    Copy-Item -LiteralPath (Join-Path $bin "$($product.Executable).exe") -Destination (Join-Path $bin 'snow-ocr-process.exe')
+    Copy-Item -LiteralPath (Join-Path $bin "$($product.Executable).exe") -Destination (Join-Path $bin 'kxcapture-ocr.exe')
 }
 foreach ($external in @($false, $true)) {
     $options = @{}
@@ -59,7 +59,7 @@ foreach ($external in @($false, $true)) {
         if ($manifest.binaries.Count -ne $expected -or @($manifest.binaries | Where-Object { -not $_.pdb }).Count) {
             throw 'Symbol inventory is incomplete.'
         }
-        if ($external -and ($null -ne $archive.GetEntry('snow-ocr-process/snow-ocr-process.exe') -or
+        if ($external -and ($null -ne $archive.GetEntry('kxcapture-ocr/kxcapture-ocr.exe') -or
             $manifest.externalOcrRuntime.version -cne (Get-Content -LiteralPath $options.OcrAssetManifest -Raw | ConvertFrom-Json).runtime.version)) { throw 'External OCR runtime was misrepresented as a local build.' }
         if ($manifest.product -cne $product.Product -or
             $null -eq $archive.GetEntry("$($product.Executable)/$($product.Executable).exe")) {

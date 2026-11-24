@@ -409,16 +409,18 @@ if(APPLE)
         "CARGO_PROFILE_RELEASE_SPLIT_DEBUGINFO=packed"
         "CARGO_PROFILE_RELEASE_FAST_SPLIT_DEBUGINFO=packed")
 endif()
-snow_add_rust_executable(snow_ocr_process
-    PACKAGE snow-ocr-process
-    MANIFEST_DIR "${SNOW_SHOT_CAPTURE_CRATES_DIR}"
-    OUTPUT_NAME snow-ocr-process
-    PERFORMANCE_PROFILE
-    REPRODUCIBLE
-    TOOLCHAIN "${SNOW_SHOT_OCR_TOOLCHAIN}"
-    FEATURES ${SNOW_SHOT_OCR_PROCESS_FEATURES}
-    ENVIRONMENT ${SNOW_SHOT_OCR_PROCESS_ENVIRONMENT}
-)
+if(KXCAPTURE_ENABLE_OCR)
+    snow_add_rust_executable(snow_ocr_process
+        PACKAGE snow-ocr-process
+        MANIFEST_DIR "${SNOW_SHOT_CAPTURE_CRATES_DIR}"
+        OUTPUT_NAME kxcapture-ocr
+        PERFORMANCE_PROFILE
+        REPRODUCIBLE
+        TOOLCHAIN "${SNOW_SHOT_OCR_TOOLCHAIN}"
+        FEATURES ${SNOW_SHOT_OCR_PROCESS_FEATURES}
+        ENVIRONMENT ${SNOW_SHOT_OCR_PROCESS_ENVIRONMENT}
+    )
+endif()
 
 # The MCP bridge is deliberately a small standalone process.  It only speaks
 # MCP over stdio and connects to an already running KXCapture instance through
@@ -446,7 +448,7 @@ if(SNOW_SHOT_ENABLE_MCP)
     )
 endif()
 
-if(WIN32 OR APPLE)
+if(KXCAPTURE_ENABLE_OCR AND (WIN32 OR APPLE))
     add_dependencies(snow_ocr_process_build snow_ocr_diagnostics_bridge)
 endif()
 
@@ -11106,7 +11108,9 @@ target_link_libraries(
 target_compile_definitions(snow_shot PRIVATE
     $<$<CONFIG:Release>:QT_NO_DEBUG_OUTPUT>
 )
-add_dependencies(snow_shot snow_ocr_process)
+if(KXCAPTURE_ENABLE_OCR)
+    add_dependencies(snow_shot snow_ocr_process)
+endif()
 if(SNOW_SHOT_ENABLE_MCP)
     add_dependencies(snow_shot snow_shot_mcp)
     add_custom_command(TARGET snow_shot POST_BUILD
@@ -11458,7 +11462,7 @@ snow_shot_add_translations(snow_shot)
 include("${CMAKE_CURRENT_SOURCE_DIR}/../cmake/SnowShotUpdateUiTests.cmake")
 
 foreach(_ocr_process_host_target IN ITEMS snow_shot snow-shot-ocr-recognition-service-tests)
-    if(TARGET ${_ocr_process_host_target})
+    if(KXCAPTURE_ENABLE_OCR AND TARGET ${_ocr_process_host_target} AND TARGET snow_ocr_process)
         add_dependencies(${_ocr_process_host_target} snow_ocr_process)
         add_custom_command(TARGET ${_ocr_process_host_target} POST_BUILD
             COMMAND "${CMAKE_COMMAND}" -E copy_if_different
@@ -11785,9 +11789,11 @@ install(TARGETS snow_shot
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
-install(PROGRAMS "$<TARGET_FILE:snow_ocr_process>"
-    DESTINATION ${CMAKE_INSTALL_BINDIR}
-)
+if(KXCAPTURE_ENABLE_OCR AND TARGET snow_ocr_process)
+    install(PROGRAMS "$<TARGET_FILE:snow_ocr_process>"
+        DESTINATION ${CMAKE_INSTALL_BINDIR}
+    )
+endif()
 if(SNOW_SHOT_ENABLE_MCP)
     install(PROGRAMS "$<TARGET_FILE:snow_shot_mcp>"
         DESTINATION ${CMAKE_INSTALL_BINDIR}
@@ -11943,47 +11949,47 @@ if(WIN32)
     snow_install_license_bundle(
         SOURCE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
         THIRD_PARTY_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/third-party-licenses/third-party"
-        DESTINATION "${CMAKE_INSTALL_DATADIR}/snow-shot/licenses"
+        DESTINATION "${CMAKE_INSTALL_DATADIR}/kxcapture/licenses"
         COMPONENT SnowShot PRODUCT "KXCapture")
 else()
     install(FILES
         "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE"
         "${CMAKE_CURRENT_SOURCE_DIR}/COPYRIGHT"
         "${CMAKE_CURRENT_SOURCE_DIR}/THIRD_PARTY_NOTICES.md"
-        DESTINATION "${CMAKE_INSTALL_DATADIR}/snow-shot/licenses"
+        DESTINATION "${CMAKE_INSTALL_DATADIR}/kxcapture/licenses"
     )
     install(FILES
         "${CMAKE_CURRENT_SOURCE_DIR}/../ant_design_qt/THIRD_PARTY_NOTICES.md"
-        DESTINATION "${CMAKE_INSTALL_DATADIR}/snow-shot/licenses/third-party/project-notices/ant-design-icons"
+        DESTINATION "${CMAKE_INSTALL_DATADIR}/kxcapture/licenses/third-party/project-notices/ant-design-icons"
     )
     install(FILES
         "${CMAKE_CURRENT_SOURCE_DIR}/../snow_image/LICENSE"
         "${CMAKE_CURRENT_SOURCE_DIR}/../snow_image/COPYRIGHT"
-        DESTINATION "${CMAKE_INSTALL_DATADIR}/snow-shot/licenses/components/snow-image"
+        DESTINATION "${CMAKE_INSTALL_DATADIR}/kxcapture/licenses/components/snow-image"
     )
     install(FILES
         "${CMAKE_CURRENT_SOURCE_DIR}/../ant_design_qt/LICENSE"
         "${CMAKE_CURRENT_SOURCE_DIR}/../ant_design_qt/COPYRIGHT"
-        DESTINATION "${CMAKE_INSTALL_DATADIR}/snow-shot/licenses/components/ant-design-qt"
+        DESTINATION "${CMAKE_INSTALL_DATADIR}/kxcapture/licenses/components/ant-design-qt"
     )
     install(FILES
         "${CMAKE_CURRENT_SOURCE_DIR}/../snow-crates/LICENSE"
         "${CMAKE_CURRENT_SOURCE_DIR}/../snow-crates/COPYRIGHT"
-        DESTINATION "${CMAKE_INSTALL_DATADIR}/snow-shot/licenses/components/snow-crates"
+        DESTINATION "${CMAKE_INSTALL_DATADIR}/kxcapture/licenses/components/snow-crates"
     )
     install(FILES
         "${CMAKE_CURRENT_SOURCE_DIR}/../snow_draw_engine_qt/LICENSE"
         "${CMAKE_CURRENT_SOURCE_DIR}/../snow_draw_engine_qt/COPYRIGHT"
-        DESTINATION "${CMAKE_INSTALL_DATADIR}/snow-shot/licenses/components/snow-draw-engine-qt"
+        DESTINATION "${CMAKE_INSTALL_DATADIR}/kxcapture/licenses/components/snow-draw-engine-qt"
     )
     install(FILES
         "${CMAKE_CURRENT_SOURCE_DIR}/../snow_rust_ffi/LICENSE"
         "${CMAKE_CURRENT_SOURCE_DIR}/../snow_rust_ffi/COPYRIGHT"
-        DESTINATION "${CMAKE_INSTALL_DATADIR}/snow-shot/licenses/components/snow-rust-ffi"
+        DESTINATION "${CMAKE_INSTALL_DATADIR}/kxcapture/licenses/components/snow-rust-ffi"
     )
     install(DIRECTORY
         "${CMAKE_CURRENT_BINARY_DIR}/third-party-licenses/third-party/"
-        DESTINATION "${CMAKE_INSTALL_DATADIR}/snow-shot/licenses/third-party"
+        DESTINATION "${CMAKE_INSTALL_DATADIR}/kxcapture/licenses/third-party"
         OPTIONAL
     )
 endif()

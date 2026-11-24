@@ -637,12 +637,12 @@ include([==[{(ROOT / 'cmake/SnowShotMiniMacOS.cmake').as_posix()}]==])
             runtime = bundle / 'Contents/MacOS'
             assets = bundle / 'Contents/Resources/assets'
             files = [runtime / name for name in ('snow_shot_mini', 'snow-shot-mini-mcp',
-                                                'snow-ocr-process', 'crashpad_handler')]
+                                                'kxcapture-ocr', 'crashpad_handler')]
             files.extend([assets / 'ocr/asset-manifest.json',
                           bundle / 'Contents/Resources/snow-shot.icns'])
             files.extend(bundle / ('Contents/Resources/' + language + '.lproj/InfoPlist.strings')
                          for language in ('en', 'zh-Hans', 'zh-Hant'))
-            files.extend(bundle / ('Contents/Resources/snow-shot-mini/licenses/' + relative)
+            files.extend(bundle / ('Contents/Resources/kxcapture-mini/licenses/' + relative)
                          for relative in ('LICENSE', 'components/snow_rust_ffi/COPYRIGHT',
                                           'third-party/qt/LICENSES/Qt-GPL-exception-1.0.txt',
                                           'third-party/vcpkg/zlib/copyright'))
@@ -673,7 +673,7 @@ include([==[{(ROOT / 'cmake/SnowShotMiniMacOS.cmake').as_posix()}]==])
                              'Contents/Resources/unused-model.zip',
                              'Contents/Resources/snow_shot_en_US.qm',
                              'Contents/Resources/en.lproj/snow_shot_en_US.qm',
-                             'Contents/Resources/snow-shot/licenses/LICENSE',
+                             'Contents/Resources/kxcapture/licenses/LICENSE',
                              'Contents/Resources/snow-shot-mini/unused-model.zip'):
                 with self.subTest(relative=relative):
                     forbidden = bundle / relative
@@ -2025,9 +2025,9 @@ if name == 'ocr' and 'verify' in sys.argv and '--app' in sys.argv:
             bridge = 'kxcapture-mini-mcp' if mini else 'kxcapture-mcp'
             runtime = root / (product + '.app') / 'Contents/MacOS'
             runtime.mkdir(parents=True)
-            for name in (product, bridge, 'snow-ocr-process', 'crashpad_handler'):
+            for name in (product, bridge, 'kxcapture-ocr', 'crashpad_handler'):
                 (runtime / name).write_text('executable fixture')
-            (runtime / 'helper-link').symlink_to('snow-ocr-process')
+            (runtime / 'helper-link').symlink_to('kxcapture-ocr')
             resources = runtime.parent / 'Resources'
             resources.mkdir()
             (resources / 'note.txt').write_text('resource fixture')
@@ -2140,7 +2140,7 @@ class MacOSPackageStripping(unittest.TestCase):
                 resources.mkdir()
                 note = resources / 'note.txt'
                 note.write_text('resource fixture')
-                (runtime / 'helper-link').symlink_to('snow-ocr-process')
+                (runtime / 'helper-link').symlink_to('kxcapture-ocr')
                 (app / 'Contents/Info.plist').write_bytes(plistlib.dumps({
                     'CFBundleExecutable': product, 'CFBundleIdentifier': 'com.snowshot.' + product,
                     'CFBundlePackageType': 'APPL', 'CFBundleName': 'KXCapture Fixture',
@@ -2161,12 +2161,12 @@ class MacOSPackageStripping(unittest.TestCase):
                 # Reinstalling replaces stripped staging copies with build bytes.
                 for attempt in range(2):
                     with self.subTest(product=product, attempt=attempt):
-                        for name in (product, 'snow-ocr-process', 'crashpad_handler'):
+                        for name in (product, 'kxcapture-ocr', 'crashpad_handler'):
                             shutil.copy2(binary, runtime / name)
                         run(cmake, '-DCMAKE_INSTALL_PREFIX=' + str(root),
                             '-DCMAKE_INSTALL_CONFIG_NAME=Release', '-P', str(deployment))
                         run('/usr/bin/codesign', '--verify', '--deep', '--strict', str(app))
-                        for name in (product, 'snow-ocr-process', 'crashpad_handler'):
+                        for name in (product, 'kxcapture-ocr', 'crashpad_handler'):
                             deployed = runtime / name
                             self.assertEqual(sections(deployed), original_sections)
                             self.assertEqual(run('/usr/bin/nm', '-gUj', str(deployed)), original_exports)
@@ -2242,7 +2242,7 @@ class MacOSBundle(unittest.TestCase):
             collector = app / "Contents/MacOS/crashpad_handler"
             self.assertTrue(collector.is_file())
             run(str(collector), "--version", cwd="/")
-            for name in ("snow_shot", "snow-ocr-process"):
+            for name in ("snow_shot", "kxcapture-ocr"):
                 binary = app / "Contents/MacOS" / name
                 run(str(binary), cwd="/")
                 rpaths = run("otool", "-l", str(binary))

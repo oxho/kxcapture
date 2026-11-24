@@ -25,112 +25,112 @@ mod tasks;
 
 pub(crate) const TOOLS: &[(&str, &str, bool)] = &[
     (
-        "snow_shot_mcp_status",
+        "kxcapture_mcp_status",
         "Report KXCapture MCP availability and capabilities.",
         true,
     ),
     (
-        "snow_shot_screenshot_begin",
+        "kxcapture_screenshot_begin",
         "Start a KXCapture screenshot editing session.",
         false,
     ),
     (
-        "snow_shot_screenshot_state",
+        "kxcapture_screenshot_state",
         "Read the current screenshot session state.",
         true,
     ),
     (
-        "snow_shot_screenshot_set_selection",
+        "kxcapture_screenshot_set_selection",
         "Set or modify the screenshot selection.",
         false,
     ),
     (
-        "snow_shot_screenshot_set_tool",
+        "kxcapture_screenshot_set_tool",
         "Select a KXCapture annotation tool.",
         false,
     ),
     (
-        "snow_shot_screenshot_apply_annotations",
+        "kxcapture_screenshot_apply_annotations",
         "Apply a typed annotation transaction.",
         false,
     ),
     (
-        "snow_shot_screenshot_undo",
+        "kxcapture_screenshot_undo",
         "Undo the latest screenshot annotation transaction.",
         false,
     ),
     (
-        "snow_shot_screenshot_redo",
+        "kxcapture_screenshot_redo",
         "Redo the latest screenshot annotation transaction.",
         false,
     ),
     (
-        "snow_shot_screenshot_render",
+        "kxcapture_screenshot_render",
         "Render the current screenshot selection as an image.",
         true,
     ),
     (
-        "snow_shot_screenshot_save",
+        "kxcapture_screenshot_save",
         "Save the current screenshot selection to a file.",
         false,
     ),
     (
-        "snow_shot_screenshot_copy",
+        "kxcapture_screenshot_copy",
         "Copy the current screenshot selection to the clipboard.",
         false,
     ),
     (
-        "snow_shot_screenshot_pin",
+        "kxcapture_screenshot_pin",
         "Pin the current screenshot selection to the screen.",
         false,
     ),
     (
-        "snow_shot_screenshot_finish",
+        "kxcapture_screenshot_finish",
         "Finish and release a screenshot session.",
         false,
     ),
     (
-        "snow_shot_screenshot_cancel",
+        "kxcapture_screenshot_cancel",
         "Cancel a screenshot session.",
         false,
     ),
     (
-        "snow_shot_screenshot_direct_capture",
+        "kxcapture_screenshot_direct_capture",
         "Capture the current monitor or focused window directly.",
         false,
     ),
     (
-        "snow_shot_screenshot_set_selection_style",
+        "kxcapture_screenshot_set_selection_style",
         "Set selection decoration and aspect ratio lock.",
         false,
     ),
     (
-        "snow_shot_screenshot_set_tool_style",
+        "kxcapture_screenshot_set_tool_style",
         "Apply a partial toolbar style to the selected elements and drawing tool.",
         false,
     ),
     (
-        "snow_shot_screenshot_edit_elements",
+        "kxcapture_screenshot_edit_elements",
         "Edit selected screenshot elements using typed toolbar actions.",
         false,
     ),
     (
-        "snow_shot_screenshot_recapture",
+        "kxcapture_screenshot_recapture",
         "Replace the screenshot capture while retaining this session.",
         false,
     ),
     (
-        "snow_shot_screenshot_scrolling",
+        "kxcapture_screenshot_scrolling",
         "Control scrolling capture, axis, automatic scrolling, crop, and position.",
         false,
     ),
     (
-        "snow_shot_screenshot_scroll_once",
+        "kxcapture_screenshot_scroll_once",
         "Post one native wheel notch and return its dispatch status. Capture and stitching continue asynchronously.",
         false,
     ),
     (
-        "snow_shot_screenshot_recognize",
+        "kxcapture_screenshot_recognize",
         if crate::edition::MINI {
             "Start local text recognition; poll the returned operation ID."
         } else {
@@ -140,22 +140,22 @@ pub(crate) const TOOLS: &[(&str, &str, bool)] = &[
     ),
     #[cfg(not(feature = "mini"))]
     (
-        "snow_shot_screenshot_translate",
+        "kxcapture_screenshot_translate",
         "Translate recognized text with the configured provider; poll the returned operation ID.",
         false,
     ),
     (
-        "snow_shot_screenshot_auto_filter",
+        "kxcapture_screenshot_auto_filter",
         "Detect and filter sensitive information categories; poll the returned operation ID.",
         false,
     ),
     (
-        "snow_shot_screenshot_operation",
+        "kxcapture_screenshot_operation",
         "Read status and typed results for a screenshot operation.",
         true,
     ),
     (
-        "snow_shot_screenshot_edit_recognition",
+        "kxcapture_screenshot_edit_recognition",
         if crate::edition::MINI {
             "Edit recognized text."
         } else {
@@ -164,12 +164,12 @@ pub(crate) const TOOLS: &[(&str, &str, bool)] = &[
         false,
     ),
     (
-        "snow_shot_screenshot_export_recognition",
+        "kxcapture_screenshot_export_recognition",
         "Return, copy, or save recognized content without dialogs.",
         false,
     ),
     (
-        "snow_shot_screenshot_draw_template",
+        "kxcapture_screenshot_draw_template",
         "Export selected drawing elements or insert a validated drawing template.",
         false,
     ),
@@ -240,15 +240,15 @@ impl SnowShotMcp {
         let tool_timer = std::time::Instant::now();
         let progress = if matches!(
             name,
-            "snow_shot_job_get"
-                | "snow_shot_job_cancel"
-                | "snow_shot_document_recognize"
-                | "snow_shot_document_auto_filter"
-                | "snow_shot_translation_start"
-                | "snow_shot_updates_action"
-                | "snow_shot_document_open"
-                | "snow_shot_settings_action"
-                | "snow_shot_settings_update"
+            "kxcapture_job_get"
+                | "kxcapture_job_cancel"
+                | "kxcapture_document_recognize"
+                | "kxcapture_document_auto_filter"
+                | "kxcapture_translation_start"
+                | "kxcapture_updates_action"
+                | "kxcapture_document_open"
+                | "kxcapture_settings_action"
+                | "kxcapture_settings_update"
         ) {
             None
         } else {
@@ -287,7 +287,7 @@ impl SnowShotMcp {
         }
         match reply {
             Ok(reply) => {
-                let artifact_chunk = name == "snow_shot_artifact_read";
+                let artifact_chunk = name == "kxcapture_artifact_read";
                 if reply.json_bytes + reply.attachment.len() > 256 * 1024 {
                     static ASSEMBLY: tokio::sync::Semaphore = tokio::sync::Semaphore::const_new(2);
                     let permit = ASSEMBLY
@@ -311,7 +311,7 @@ impl SnowShotMcp {
                     _ => None,
                 };
                 let structured = json!({"reachable":reachable,"mcp_enabled":null,"error":{"code":error.code(),"message":error.to_string()}});
-                let mut result = if matches!(name, "snow_shot_mcp_status" | "snow_shot_app_status")
+                let mut result = if matches!(name, "kxcapture_mcp_status" | "kxcapture_app_status")
                 {
                     CallToolResult::success(vec![ContentBlock::text(structured.to_string())])
                 } else {
@@ -379,33 +379,33 @@ impl Default for SnowShotMcp {
 fn destructive(name: &str) -> bool {
     !matches!(
         name,
-        "snow_shot_screenshot_begin"
-            | "snow_shot_screenshot_recognize"
-            | "snow_shot_screenshot_translate"
-            | "snow_shot_screenshot_pin"
-            | "snow_shot_document_open"
-            | "snow_shot_document_clone"
-            | "snow_shot_document_recognize"
-            | "snow_shot_pinned_create"
-            | "snow_shot_recording_start"
-            | "snow_shot_translation_start"
-            | "snow_shot_document_pin"
-            | "snow_shot_document_present"
-            | "snow_shot_history_action"
-            | "snow_shot_permissions_request"
+        "kxcapture_screenshot_begin"
+            | "kxcapture_screenshot_recognize"
+            | "kxcapture_screenshot_translate"
+            | "kxcapture_screenshot_pin"
+            | "kxcapture_document_open"
+            | "kxcapture_document_clone"
+            | "kxcapture_document_recognize"
+            | "kxcapture_pinned_create"
+            | "kxcapture_recording_start"
+            | "kxcapture_translation_start"
+            | "kxcapture_document_pin"
+            | "kxcapture_document_present"
+            | "kxcapture_history_action"
+            | "kxcapture_permissions_request"
     )
 }
 fn open_world(name: &str) -> bool {
     matches!(
         name,
-        "snow_shot_screenshot_recognize"
-            | "snow_shot_screenshot_translate"
-            | "snow_shot_screenshot_auto_filter"
-            | "snow_shot_document_recognize"
-            | "snow_shot_document_auto_filter"
-            | "snow_shot_pinned_edit"
-            | "snow_shot_updates_action"
-            | "snow_shot_translation_start"
+        "kxcapture_screenshot_recognize"
+            | "kxcapture_screenshot_translate"
+            | "kxcapture_screenshot_auto_filter"
+            | "kxcapture_document_recognize"
+            | "kxcapture_document_auto_filter"
+            | "kxcapture_pinned_edit"
+            | "kxcapture_updates_action"
+            | "kxcapture_translation_start"
     )
 }
 fn output_schema() -> serde_json::Map<String, Value> {
@@ -437,7 +437,7 @@ impl ServerHandler for SnowShotMcp {
     fn get_info(&self) -> ServerConfig {
         ServerConfig::new(ServerCapabilities::builder().enable_tools().enable_resources().enable_resources_subscribe().enable_prompts().enable_completions().enable_tasks().build()).with_protocol_version(rmcp::model::ProtocolVersion::V_2026_07_28).with_instructions(
             format!("{} provides local application, screenshot, background document, recording and pinned-image workflows. ", crate::edition::PRODUCT_NAME)
-                + "Start with snow_shot_app_status. Keep returned resource IDs and revisions; refresh after conflicts. Background documents are silent and client-owned. The application must have MCP enabled."
+                + "Start with kxcapture_app_status. Keep returned resource IDs and revisions; refresh after conflicts. Background documents are silent and client-owned. The application must have MCP enabled."
                 + if crate::edition::MINI { "" } else { " Credentials are write-only." },
         )
     }
@@ -536,7 +536,7 @@ impl ServerHandler for SnowShotMcp {
     ) -> Result<rmcp::model::GetTaskResult, McpError> {
         let result = self
             .invoke(
-                "snow_shot_job_get",
+                "kxcapture_job_get",
                 json!({"job_id":request.task_id}),
                 context,
             )
@@ -550,7 +550,7 @@ impl ServerHandler for SnowShotMcp {
     ) -> Result<(), McpError> {
         let result = self
             .invoke(
-                "snow_shot_job_cancel",
+                "kxcapture_job_cancel",
                 json!({"job_id":request.task_id}),
                 context,
             )
@@ -567,7 +567,7 @@ impl ServerHandler for SnowShotMcp {
         // while still enforcing existence and same-client ownership through the application.
         let result = self
             .invoke(
-                "snow_shot_job_get",
+                "kxcapture_job_get",
                 json!({"job_id":request.task_id}),
                 context,
             )
@@ -603,12 +603,12 @@ impl ServerHandler for SnowShotMcp {
             && context
                 .client_capabilities()
                 .is_some_and(|c| c.supports_tasks());
-        if task_capable && name == "snow_shot_document_open" {
+        if task_capable && name == "kxcapture_document_open" {
             arguments["as_job"] = Value::Bool(true);
         }
         let result = self.invoke(&name, arguments, context.clone()).await?;
         if task_capable
-            && !name.starts_with("snow_shot_job_")
+            && !name.starts_with("kxcapture_job_")
             && result.is_error != Some(true)
             && result
                 .structured_content
@@ -624,7 +624,7 @@ impl ServerHandler for SnowShotMcp {
             // Some application commands return only the handle plus committed field
             // metadata. Resolve the actual owned registry entry before creating a Task.
             let job = self
-                .invoke("snow_shot_job_get", json!({"job_id":job_id}), context)
+                .invoke("kxcapture_job_get", json!({"job_id":job_id}), context)
                 .await?;
             return Ok(rmcp::model::CreateTaskResult::new(tasks::detailed(job)?.task).into());
         }
@@ -640,9 +640,9 @@ mod tests {
     fn border_fill_is_advertised_for_every_canvas_domain() {
         let tools = SnowShotMcp::tools();
         for name in [
-            "snow_shot_screenshot_set_tool_style",
-            "snow_shot_document_set_tool_style",
-            "snow_shot_pinned_edit",
+            "kxcapture_screenshot_set_tool_style",
+            "kxcapture_document_set_tool_style",
+            "kxcapture_pinned_edit",
         ] {
             let tool = tools.iter().find(|tool| tool.name == name).unwrap();
             assert_eq!(
@@ -657,8 +657,8 @@ mod tests {
     fn eraser_discovery_exposes_tools_and_width_only_style_for_both_domains() {
         let tools = SnowShotMcp::tools();
         for (name, enumeration) in [
-            ("snow_shot_screenshot_set_tool", "CanvasTool"),
-            ("snow_shot_document_set_tool", "DocumentCanvasTool"),
+            ("kxcapture_screenshot_set_tool", "CanvasTool"),
+            ("kxcapture_document_set_tool", "DocumentCanvasTool"),
         ] {
             let tool = tools.iter().find(|tool| tool.name == name).unwrap();
             let values = tool.input_schema["$defs"][enumeration]["enum"]
@@ -669,8 +669,8 @@ mod tests {
             }
         }
         for name in [
-            "snow_shot_screenshot_set_tool_style",
-            "snow_shot_document_set_tool_style",
+            "kxcapture_screenshot_set_tool_style",
+            "kxcapture_document_set_tool_style",
         ] {
             let tool = tools.iter().find(|tool| tool.name == name).unwrap();
             let definitions = &tool.input_schema["$defs"];
