@@ -77,10 +77,10 @@ PY
     rmdir "$mount" 2>/dev/null || true
 }
 
-stage_one SnowShot kxcapture.app 'KXCapture.app' 'KXCapture' "kxcapture-${version}-macos-${arch}.dmg"
+stage_one SnowShot kxcapture.app 'KXCapture.app' 'KXCapture' "KXCapture-${version}-macos-${arch}.dmg"
 verify_image "$LAST_IMAGE"
 if grep -Eq '^SNOW_APPS_BUILD_SNOW_SHOT_MINI:BOOL=(ON|TRUE|1)$' "$build/CMakeCache.txt"; then
-    stage_one SnowShotMini kxcapture_mini.app 'KXCapture Mini.app' 'KXCapture Mini' "kxcapture-mini-${version}-macos-${arch}.dmg"
+    stage_one SnowShotMini kxcapture_mini.app 'KXCapture Mini.app' 'KXCapture Mini' "KXCapture-Mini-${version}-macos-${arch}.dmg"
     verify_image "$LAST_IMAGE"
 fi
 

@@ -97,7 +97,11 @@ function Invoke-SnowShotMiniPackaging {
         [ordered]@{ schema = 1; product = 'snow-shot-mini'; platform = $ocrPlatform; version = $packageVersion; variant = $variant; files = $owned } |
             ConvertTo-Json -Depth 8 | Set-Content (Join-Path $stage 'snow-shot-mini-installation.json') -Encoding utf8NoBOM
         Assert-SnowNativeStartup -Stage $stage -Executable kxcapture_mini -Updater kxcapture-mini-updater -Version $packageVersion
-        $base = "snow-shot-mini-$packageVersion-$ocrPlatform-$variant"
+        $base = if ($variant -eq 'online') {
+            "kxcapture-mini-$packageVersion-$ocrPlatform-setup"
+        } else {
+            "kxcapture-mini-$packageVersion-$ocrPlatform-$variant"
+        }
         $zipBase = if ($variant -eq 'online') { "$base-update" } else { $base }
         $zip = Join-Path $buildDirectory "$zipBase.zip"
         New-DeterministicZip $stage $zip
@@ -124,7 +128,7 @@ set(CPACK_INSTALL_CMAKE_PROJECTS "")
 set(CPACK_INSTALLED_DIRECTORIES "$stagePath;/")
 set(CPACK_PACKAGE_DIRECTORY "$nsisWork")
 set(CPACK_PACKAGE_FILE_NAME "$base")
-string(REPLACE "snow-shot-mini-$packageVersion-$ocrPlatform.exe" "$base.exe" CPACK_NSIS_DEFINES "`${CPACK_NSIS_DEFINES}")
+string(REPLACE "kxcapture-mini-$packageVersion-$ocrPlatform.exe" "$base.exe" CPACK_NSIS_DEFINES "`${CPACK_NSIS_DEFINES}")
 "@ | Set-Content $variantConfig -Encoding utf8NoBOM
             Add-Content -LiteralPath $variantConfig -Value $nsisPayload.CPackDefinitions -Encoding utf8NoBOM
             & cpack --config $variantConfig -G NSIS -C Release

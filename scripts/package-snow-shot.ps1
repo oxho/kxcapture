@@ -1485,7 +1485,7 @@ $producedPackages = @()
 Assert-SnowNativeStartup -Stage $variantStages.online -Executable kxcapture -Updater kxcapture-updater -Version $packageVersion
 $nativeProbesPassed = $nativeTarget
 foreach ($variant in @('online', 'offline')) {
-    $updateName = "snow-shot-$packageVersion-$ocrPlatform-$variant-update"
+    $updateName = "kxcapture-$packageVersion-$ocrPlatform-$variant-update"
     $updatePath = Join-Path $buildDirectory "$updateName.zip"
     New-DeterministicZip -SourceDirectory $variantStages[$variant] -Destination $updatePath
     $files = Get-ReleaseTreeFileManifest -Root $variantStages[$variant]
@@ -1503,7 +1503,11 @@ foreach ($variant in @('online', 'offline')) {
 $nsisWorkDirectory = Join-Path $repoRoot "build\nsis-$Architecture"
 New-Item -ItemType Directory -Path $nsisWorkDirectory -Force | Out-Null
 foreach ($variant in @("online", "offline")) {
-    $packageBaseName = "snow-shot-$packageVersion-$ocrPlatform-$variant"
+    $packageBaseName = if ($variant -eq 'online') {
+        "kxcapture-$packageVersion-$ocrPlatform-setup"
+    } else {
+        "kxcapture-$packageVersion-$ocrPlatform-offline"
+    }
     $variantConfig = Join-Path $buildDirectory "CPackConfig-$variant.cmake"
     $baseConfigPath = $cpackConfig.Replace('\', '/')
     $stagePath = $variantStages[$variant].Replace('\', '/')
@@ -1517,7 +1521,7 @@ set(CPACK_INSTALL_CMAKE_PROJECTS "")
 set(CPACK_INSTALLED_DIRECTORIES "$stagePath;/")
 set(CPACK_PACKAGE_DIRECTORY "$packageDirectory")
 set(CPACK_PACKAGE_FILE_NAME "$packageBaseName")
-string(REPLACE "snow-shot-$packageVersion-$ocrPlatform.exe" "$packageBaseName.exe" CPACK_NSIS_DEFINES "`${CPACK_NSIS_DEFINES}")
+string(REPLACE "kxcapture-$packageVersion-$ocrPlatform.exe" "$packageBaseName.exe" CPACK_NSIS_DEFINES "`${CPACK_NSIS_DEFINES}")
 "@ | Set-Content -LiteralPath $variantConfig -Encoding utf8
     Add-Content -LiteralPath $variantConfig -Value $nsisPayload.CPackDefinitions -Encoding utf8
     $packagePath = Join-Path $buildDirectory "$packageBaseName.exe"
@@ -1540,7 +1544,7 @@ string(REPLACE "snow-shot-$packageVersion-$ocrPlatform.exe" "$packageBaseName.ex
         CompanyName = "oxho"
         FileDescription = "KXCapture installer"
         FileVersion = "$packageVersionNumeric.0"
-        InternalName = "snow-shot-installer"
+        InternalName = "kxcapture-installer"
         LegalCopyright = "Copyright (C) 2025-2026 mg-chao. Modified by oxho, 2026."
         OriginalFilename = "$packageBaseName.exe"
         ProductName = "KXCapture"
@@ -1590,7 +1594,7 @@ string(REPLACE "snow-shot-$packageVersion-$ocrPlatform.exe" "$packageBaseName.ex
     Write-Output "KXCapture $variant release manifest: $manifestPath"
 }
 
-$portableBaseName = "snow-shot-$packageVersion-$ocrPlatform-portable"
+$portableBaseName = "kxcapture-$packageVersion-$ocrPlatform-portable"
 $portableArchivePath = Join-Path $buildDirectory "$portableBaseName.zip"
 New-DeterministicZip -SourceDirectory $variantStages.portable -Destination $portableArchivePath
 $portableArchiveHash =

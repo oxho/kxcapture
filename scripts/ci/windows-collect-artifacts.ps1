@@ -16,11 +16,11 @@ if (Test-Path -LiteralPath $out) { Remove-Item -LiteralPath $out -Recurse -Force
 New-Item -ItemType Directory -Path $out | Out-Null
 
 $patterns = @(
-    'snow-shot-*-windows-*-online.exe',
-    'snow-shot-*-windows-*-offline.exe',
-    'snow-shot-*-windows-*-portable.zip',
-    'snow-shot-mini-*-windows-*-online.exe',
-    'snow-shot-mini-*-windows-*-portable.zip'
+    'kxcapture-*-windows-*-setup.exe',
+    'kxcapture-*-windows-*-offline.exe',
+    'kxcapture-*-windows-*-portable.zip',
+    'kxcapture-mini-*-windows-*-setup.exe',
+    'kxcapture-mini-*-windows-*-portable.zip'
 )
 $files = foreach ($pattern in $patterns) {
     Get-ChildItem -LiteralPath $build -File -Filter $pattern -ErrorAction SilentlyContinue

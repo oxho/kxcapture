@@ -61,7 +61,7 @@ function(snow_shot_configure_mini_package)
             "VIAddVersionKey /LANG=1033 \"CompanyName\" \"${SNOW_SHOT_VENDOR}\"\n"
             "VIAddVersionKey /LANG=1033 \"FileDescription\" \"KXCapture Mini installer\"\n"
             "VIAddVersionKey /LANG=1033 \"FileVersion\" \"${SNOW_SHOT_VERSION_NUMERIC}.0\"\n"
-            "VIAddVersionKey /LANG=1033 \"InternalName\" \"snow-shot-mini-installer\"\n"
+            "VIAddVersionKey /LANG=1033 \"InternalName\" \"kxcapture-mini-installer\"\n"
             "VIAddVersionKey /LANG=1033 \"LegalCopyright\" \"${SNOW_SHOT_COPYRIGHT}\"\n"
             "VIAddVersionKey /LANG=1033 \"OriginalFilename\" \"${CPACK_PACKAGE_FILE_NAME}.exe\"\n"
             "VIAddVersionKey /LANG=1033 \"ProductName\" \"KXCapture Mini\"\n"
