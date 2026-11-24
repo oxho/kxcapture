@@ -34,6 +34,19 @@ permissions:
   actions: read
 
 jobs:
+  cert-script:
+    name: macOS self-signed cert script
+    runs-on: macos-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Prove the certificate script
+        run: bash scripts/ci/test-create-selfsigned-cert.sh
+
   gate:
     name: macOS workflow gate
     if: ${{ !contains(github.event.head_commit.message, '[skip-macos]') }}
@@ -315,8 +328,11 @@ jobs:
         with:
           toolchain: 1.97.1
 
-      - name: Create a job-local signing identity
-        run: bash scripts/ci/macos-test-identity.sh create
+      - name: Import the long-lived signing identity
+        env:
+          KXCAPTURE_MAC_CERT_P12_BASE64: ${{ secrets.KXCAPTURE_MAC_CERT_P12_BASE64 }}
+          KXCAPTURE_MAC_CERT_P12_PASSWORD: ${{ secrets.KXCAPTURE_MAC_CERT_P12_PASSWORD }}
+        run: bash scripts/ci/macos-import-signing-cert.sh
 
       - name: Restore static Qt and vcpkg
         uses: actions/cache/restore@v4

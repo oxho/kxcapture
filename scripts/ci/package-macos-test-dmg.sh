@@ -142,6 +142,49 @@ assess_gatekeeper() {
     classify_gatekeeper spctl "$output" "$rc"
 }
 
+signing_fingerprint_record="${TMPDIR:-/tmp}/kxcapture-signing-fingerprint.txt"
+rm -f "$signing_fingerprint_record"
+
+assert_signing_lifetime() {
+    local app="$1"
+    local dir der subject not_before not_after fingerprint sha previous
+    dir="$(mktemp -d "${TMPDIR:-/tmp}/kxcapture-cert.XXXXXX")"
+    codesign -d --extract-certificates="$dir/cert" "$app"
+    der="$dir/cert0"
+    if [[ ! -f "$der" ]]; then
+        printf 'FATAL: codesign did not extract a signing certificate from %s\n' "$app" >&2
+        rm -rf "$dir"
+        return 1
+    fi
+    subject="$(/usr/bin/openssl x509 -in "$der" -inform DER -noout -subject)"
+    not_before="$(/usr/bin/openssl x509 -in "$der" -inform DER -noout -startdate)"
+    not_after="$(/usr/bin/openssl x509 -in "$der" -inform DER -noout -enddate)"
+    fingerprint="$(/usr/bin/openssl x509 -in "$der" -inform DER -noout -fingerprint -sha256)"
+    printf 'signing subject: %s\n' "$subject"
+    printf 'signing %s\n' "$not_before"
+    printf 'signing %s\n' "$not_after"
+    printf 'signing %s\n' "$fingerprint"
+    if ! /usr/bin/openssl x509 -in "$der" -inform DER -noout -checkend $((365 * 24 * 3600)); then
+        printf 'FATAL: signing certificate has fewer than 365 days of validity remaining\n' >&2
+        rm -rf "$dir"
+        return 1
+    fi
+    sha="$(printf '%s\n' "$fingerprint" | awk -F= '{print $2}' | tr -d ':')"
+    if [[ -f "$signing_fingerprint_record" ]]; then
+        previous="$(cat "$signing_fingerprint_record")"
+        if [[ "$previous" != "$sha" ]]; then
+            printf 'FATAL: main and Mini signing certificate fingerprints differ\n' >&2
+            printf 'main=%s mini-or-later=%s\n' "$previous" "$sha" >&2
+            rm -rf "$dir"
+            return 1
+        fi
+        printf 'signing fingerprint matches the other application\n'
+    else
+        printf '%s\n' "$sha" >"$signing_fingerprint_record"
+    fi
+    rm -rf "$dir"
+}
+
 verify_image() {
     local image="$1"
     local mount app
@@ -166,6 +209,7 @@ verify_image() {
     assert_mounted_executables "$app"
     printf '\n===== codesign --verify --deep --strict --verbose=2 %s =====\n' "$(basename "$app")"
     codesign --verify --deep --strict --verbose=2 "$app"
+    assert_signing_lifetime "$app"
     printf '\n===== codesign -dvv %s =====\n' "$(basename "$app")"
     codesign -dvv "$app"
     assess_gatekeeper "$app"
