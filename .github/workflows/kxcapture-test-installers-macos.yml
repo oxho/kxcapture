@@ -376,13 +376,13 @@ jobs:
           run-id: ${{ inputs.build_run_id }}
           github-token: ${{ github.token }}
 
-      - name: Download the macOS build from run 45387141314
+      - name: Download the macOS build from run 45438505949
         if: ${{ contains(github.event.head_commit.message, '[package-macos]') }}
         uses: actions/download-artifact@v4
         with:
           name: kxcapture-macos-arm64-build
           path: build-transfer
-          run-id: 45387141314
+          run-id: 45438505949
           github-token: ${{ github.token }}
 
       - name: Package and verify DMGs
