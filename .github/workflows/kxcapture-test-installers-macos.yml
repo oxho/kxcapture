@@ -34,9 +34,18 @@ permissions:
   actions: read
 
 jobs:
+  gate:
+    name: macOS workflow gate
+    if: ${{ !contains(github.event.head_commit.message, '[skip-macos]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo ok
+
   build:
     name: macOS arm64 build
+    needs: gate
     # A commit message containing [skip-macos] retries Windows only.
+    # [package-macos] reuses a saved build artifact, so this job stays skipped.
     if: ${{ (github.event_name != 'workflow_dispatch' || inputs.stage != 'package-only') && !contains(github.event.head_commit.message, '[skip-macos]') && !contains(github.event.head_commit.message, '[package-macos]') }}
     # xcode-27 is the free arm64 image that carries Xcode 27. The OCR Metal
     # archive was qualified on Xcode 27.1; contention_relief is a Metal
@@ -252,8 +261,8 @@ jobs:
 
   package:
     name: macOS arm64 DMG
-    needs: build
-    if: ${{ always() && !contains(github.event.head_commit.message, '[skip-macos]') && (needs.build.result == 'success' || contains(github.event.head_commit.message, '[package-macos]') || (github.event_name == 'workflow_dispatch' && inputs.stage == 'package-only')) }}
+    needs: [gate, build]
+    if: ${{ always() && needs.gate.result == 'success' && (needs.build.result == 'success' || contains(github.event.head_commit.message, '[package-macos]') || (github.event_name == 'workflow_dispatch' && inputs.stage == 'package-only')) }}
     runs-on: xcode-27
     timeout-minutes: 120
     env:
