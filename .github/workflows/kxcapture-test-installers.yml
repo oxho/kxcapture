@@ -319,6 +319,10 @@ jobs:
           if ((Test-Path -LiteralPath $plainTargets) -and -not (Test-Path -LiteralPath $releaseTargets)) {
             Copy-Item -LiteralPath $plainTargets -Destination $releaseTargets
           }
+          # Install copies WeChat QR models from artifacts/qr-models-wechat using
+          # the absolute path recorded on the build runner.
+          cmake -P scripts/ci/fetch-qr-models.cmake
+          if ($LASTEXITCODE -ne 0) { throw 'WeChat QR model fetch failed' }
           if ('${{ inputs.ocr }}' -eq 'off' -and '${{ inputs.stage }}' -eq 'package-only') {
             throw 'ocr=off needs stage=all so the binaries are rebuilt with -DKXCAPTURE_ENABLE_OCR=OFF.'
           }
