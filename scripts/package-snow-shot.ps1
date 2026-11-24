@@ -888,15 +888,17 @@ if ($versionInfo.FileVersion -ne "$packageVersionNumeric.0" -or
     throw "KXCapture binary version '$($versionInfo.FileVersion)'/'$($versionInfo.ProductVersion)' does not match package version '$packageVersion'."
 }
 
-$pinnedRuntime = (Get-Content -LiteralPath $ocrAssetManifestPath -Raw | ConvertFrom-Json).runtime
+$checkedInOcrManifest = Get-Content -LiteralPath $ocrAssetManifestPath -Raw | ConvertFrom-Json
+$pinnedRuntime = $checkedInOcrManifest.runtime
 $ocrRuntimeVersion = $pinnedRuntime.version
 $ocrPlatform = $windowsTarget.Platform
 $ocrDefaultModelType = "small"
 $ocrDefaultModelId = "ppocrv6-small-463ea9f"
-$ocrModelRootUrl = ""
 $ocrRuntimeFileName = "snow-ocr-process-$ocrRuntimeVersion-$ocrPlatform.exe"
 $ocrRuntimeArchiveName = "snow-ocr-runtime-$ocrRuntimeVersion-$ocrPlatform.zip"
-$ocrRuntimeUrl = ""
+# The checked-in manifest currently carries the temporary ModelScope URLs.
+# The release identity check below requires this value to match that manifest.
+$ocrRuntimeUrl = [string]$pinnedRuntime.archive.url
 $ocrModels = @(
     [ordered]@{
         Type = "extra_small"
@@ -1168,7 +1170,15 @@ foreach ($model in $ocrModels) {
     $files = @()
     foreach ($file in $model.Files) {
         $path = Join-Path $modelCache $file.Name
-        $url = "$ocrModelRootUrl/$($model.Directory)/$($file.Name)"
+        $manifestModel = @($checkedInOcrManifest.models | Where-Object { $_.id -ceq $model.Id })
+        if ($manifestModel.Count -ne 1) {
+            throw "The checked-in OCR manifest has no model $($model.Id)."
+        }
+        $manifestFile = @($manifestModel[0].files | Where-Object { $_.name -ceq $file.Name })
+        if ($manifestFile.Count -ne 1) {
+            throw "The checked-in OCR manifest has no file $($file.Name) for $($model.Id)."
+        }
+        $url = [string]$manifestFile[0].url
         $valid = $false
         if (Test-Path -LiteralPath $path -PathType Leaf) {
             try {
