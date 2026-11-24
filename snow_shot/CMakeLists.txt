@@ -14,7 +14,8 @@ cmake_minimum_required(VERSION 3.30)
 project(snow_shot VERSION ${SNOW_SHOT_VERSION_NUMERIC} LANGUAGES CXX)
 
 add_compile_definitions(SNOW_SHOT_CONFIGURED_STORE_BUILD=${_SNOW_SHOT_CONFIGURED_STORE_BUILD}
-    "SNOW_SHOT_PRIVACY_POLICY_URL=\"${SNOW_SHOT_PRIVACY_POLICY_URL}\"")
+    "SNOW_SHOT_PRIVACY_POLICY_URL=\"${SNOW_SHOT_PRIVACY_POLICY_URL}\""
+    "SNOW_SHOT_TERMS_URL=\"${SNOW_SHOT_TERMS_URL}\"")
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../cmake")
@@ -94,20 +95,22 @@ if(APPLE)
 endif()
 
 option(SNOW_SHOT_ENABLE_STRICT_COMPILE "Enable strict compiler warnings and treat warnings as errors." ON)
-option(SNOW_SHOT_BUILD_TESTS "Build Snow Shot test executables." OFF)
+option(SNOW_SHOT_BUILD_TESTS "Build KXCapture test executables." OFF)
 option(SNOW_SHOT_BUILD_RUNTIME_TESTS
     "Build focused OCR and crash diagnostics tests without unrelated test targets." OFF)
 option(SNOW_SHOT_BUILD_IMAGE_CODEC_SMOKE_TEST
-    "Build the Snow Shot image-codec smoke test without the full QtTest suite." OFF)
-option(SNOW_SHOT_BUILD_BENCHMARKS "Build opt-in native Snow Shot benchmarks." OFF)
-option(SNOW_SHOT_ENABLE_MCP "Build and package the local Snow Shot MCP bridge." ON)
+    "Build the KXCapture image-codec smoke test without the full QtTest suite." OFF)
+option(SNOW_SHOT_BUILD_BENCHMARKS "Build opt-in native KXCapture benchmarks." OFF)
+option(SNOW_SHOT_ENABLE_MCP "Build and package the local KXCapture MCP bridge." ON)
+option(KXCAPTURE_ENABLE_TRANSLATION "Show translation menus, shortcuts, settings, tray items, and MCP actions." OFF)
+option(KXCAPTURE_ENABLE_OCR "Show OCR menus, shortcuts, settings, tray items, and MCP actions." ON)
 option(SNOW_SHOT_SCROLLING_PERF_DETAIL "Compile detailed scrolling C++ and Rust timings." OFF)
-option(SNOW_SHOT_RELEASE_STATIC "Prefer static Snow Shot release linkage." OFF)
-option(SNOW_SHOT_QT_STATIC "Link Snow Shot against a static Qt build." OFF)
-set(SNOW_SHOT_WEBSITE_URL "https://snowshot.top" CACHE STRING "Public Snow Shot website URL.")
-set(SNOW_SHOT_PROJECT_URL "https://github.com/mg-chao/snow-shot" CACHE STRING
-    "Public Snow Shot source repository URL.")
-set(SNOW_SHOT_QQ_GROUP_4_URL "https://qm.qq.com/q/GfZvSHi6E" CACHE STRING
+option(SNOW_SHOT_RELEASE_STATIC "Prefer static KXCapture release linkage." OFF)
+option(SNOW_SHOT_QT_STATIC "Link KXCapture against a static Qt build." OFF)
+set(SNOW_SHOT_WEBSITE_URL "" CACHE STRING "Public KXCapture website URL.")
+set(SNOW_SHOT_PROJECT_URL "" CACHE STRING
+    "Public source repository URL. Empty hides project links. The upstream Snow Shot repository is credited in the README, not used as this app's project link.")
+set(SNOW_SHOT_QQ_GROUP_4_URL "" CACHE STRING
     "QQ group 4 join URL.")
 unset(SNOW_SHOT_CAMERA_SHUTTER_AUDIO_SOURCE CACHE)
 set(
@@ -132,13 +135,25 @@ endif()
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/../cmake/SnowQt.cmake")
 snow_find_qt(COMPONENTS Widgets LinguistTools Svg Network)
+# The ads module refuses to build its tests unless Qt6::Test already exists.
+if(SNOW_SHOT_BUILD_TESTS)
+    snow_find_qt(COMPONENTS Test)
+    set(SNOW_SHOT_ADS_BUILD_TESTS ON CACHE BOOL "Build snow-shot-ads-tests" FORCE)
+endif()
+include("${CMAKE_CURRENT_SOURCE_DIR}/ads.cmake")
+if(TARGET snow-shot-ads-tests)
+    add_test(NAME snow-shot-ads-tests COMMAND snow-shot-ads-tests)
+    set_tests_properties(snow-shot-ads-tests PROPERTIES
+        LABELS "unit" TIMEOUT 60
+        ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+endif()
 
 add_library(snow_shot_distribution STATIC
     include/snow_shot/app/distribution.h
     src/app/distribution.cpp)
 target_include_directories(snow_shot_distribution PUBLIC include)
 target_link_libraries(snow_shot_distribution PUBLIC Qt6::Core)
-# Every Snow Shot target follows the same channel policy. Keep native SDK headers out of
+# Every KXCapture target follows the same channel policy. Keep native SDK headers out of
 # the shared policy header so their macros cannot change unrelated callers' C++ tokens.
 link_libraries(snow_shot_distribution)
 
@@ -253,14 +268,14 @@ endif()
 
 if(NOT DEFINED SNOW_SHOT_API_BASE_URL OR SNOW_SHOT_API_BASE_URL STREQUAL "")
     if(CMAKE_CONFIGURATION_TYPES)
-        set(SNOW_SHOT_API_BASE_URL "https://snowshot.top" CACHE STRING
-            "Snow Shot API base URL." FORCE)
+        set(SNOW_SHOT_API_BASE_URL "" CACHE STRING
+            "KXCapture API base URL." FORCE)
     elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
-        set(SNOW_SHOT_API_BASE_URL "https://test.snowshot.top" CACHE STRING
-            "Snow Shot API base URL." FORCE)
+        set(SNOW_SHOT_API_BASE_URL "" CACHE STRING
+            "KXCapture API base URL." FORCE)
     else()
-        set(SNOW_SHOT_API_BASE_URL "https://snowshot.top" CACHE STRING
-            "Snow Shot API base URL." FORCE)
+        set(SNOW_SHOT_API_BASE_URL "" CACHE STRING
+            "KXCapture API base URL." FORCE)
     endif()
 endif()
 snow_find_qt_private(Gui)
@@ -394,44 +409,53 @@ if(APPLE)
         "CARGO_PROFILE_RELEASE_SPLIT_DEBUGINFO=packed"
         "CARGO_PROFILE_RELEASE_FAST_SPLIT_DEBUGINFO=packed")
 endif()
-snow_add_rust_executable(snow_ocr_process
-    PACKAGE snow-ocr-process
-    MANIFEST_DIR "${SNOW_SHOT_CAPTURE_CRATES_DIR}"
-    OUTPUT_NAME snow-ocr-process
-    PERFORMANCE_PROFILE
-    REPRODUCIBLE
-    TOOLCHAIN "${SNOW_SHOT_OCR_TOOLCHAIN}"
-    FEATURES ${SNOW_SHOT_OCR_PROCESS_FEATURES}
-    ENVIRONMENT ${SNOW_SHOT_OCR_PROCESS_ENVIRONMENT}
-)
+if(KXCAPTURE_ENABLE_OCR)
+    snow_add_rust_executable(snow_ocr_process
+        PACKAGE snow-ocr-process
+        MANIFEST_DIR "${SNOW_SHOT_CAPTURE_CRATES_DIR}"
+        OUTPUT_NAME kxcapture-ocr
+        PERFORMANCE_PROFILE
+        REPRODUCIBLE
+        TOOLCHAIN "${SNOW_SHOT_OCR_TOOLCHAIN}"
+        FEATURES ${SNOW_SHOT_OCR_PROCESS_FEATURES}
+        ENVIRONMENT ${SNOW_SHOT_OCR_PROCESS_ENVIRONMENT}
+    )
+endif()
 
 # The MCP bridge is deliberately a small standalone process.  It only speaks
-# MCP over stdio and connects to an already running Snow Shot instance through
+# MCP over stdio and connects to an already running KXCapture instance through
 # the per-user local endpoint published by the application.
 if(SNOW_SHOT_ENABLE_MCP)
     set(_snow_shot_mcp_features)
     if(SNOW_SHOT_DISTRIBUTION_CHANNEL STREQUAL "store")
         list(APPEND _snow_shot_mcp_features store)
     endif()
+    if(KXCAPTURE_ENABLE_TRANSLATION)
+        list(APPEND _snow_shot_mcp_features translation)
+    endif()
+    if(KXCAPTURE_ENABLE_OCR)
+        list(APPEND _snow_shot_mcp_features ocr)
+    endif()
     snow_add_rust_executable(snow_shot_mcp
         PACKAGE snow-shot-mcp
         MANIFEST_DIR "${CMAKE_CURRENT_SOURCE_DIR}/rust/snow-shot-mcp"
-        OUTPUT_NAME snow-shot-mcp
+        OUTPUT_NAME kxcapture-mcp
         PRODUCTION_PROFILE release-size
         REPRODUCIBLE
         SIZE_OPTIMIZED
+        NO_DEFAULT_FEATURES
         FEATURES ${_snow_shot_mcp_features}
     )
 endif()
 
-if(WIN32 OR APPLE)
+if(KXCAPTURE_ENABLE_OCR AND (WIN32 OR APPLE))
     add_dependencies(snow_ocr_process_build snow_ocr_diagnostics_bridge)
 endif()
 
 set(SNOW_SHOT_SNOW_IMAGE_DIR
     "${SNOW_IMAGE_SOURCE_DIR}"
     CACHE PATH
-    "Path to the snow_image project used by Snow Shot."
+    "Path to the snow_image project used by KXCapture."
 )
 if(NOT TARGET snow_image::snow_image)
     set(SNOW_IMAGE_BUILD_TESTS OFF CACHE BOOL "Build snow_image tests." FORCE)
@@ -448,7 +472,7 @@ if(NOT TARGET snow_image::snow_image)
 endif()
 if(NOT TARGET snow_image::snow_image_static)
     message(FATAL_ERROR
-        "Snow Shot requires the snow_image static target for its isolated image codec backend.")
+        "KXCapture requires the snow_image static target for its isolated image codec backend.")
 endif()
 if(TARGET snow_image_static)
     set_property(TARGET snow_image_static PROPERTY POSITION_INDEPENDENT_CODE ON)
@@ -461,11 +485,11 @@ set(SNOW_SHOT_IMAGE_CODEC_BACKEND_SOURCES
 )
 if(SNOW_SHOT_RELEASE_STATIC AND SNOW_SHOT_QT_STATIC)
     set(SNOW_SHOT_IMAGE_CODEC_BACKEND_STATIC ON CACHE INTERNAL
-        "Link the Snow Shot image codec backend statically." FORCE)
+        "Link the KXCapture image codec backend statically." FORCE)
     set(_SNOW_SHOT_IMAGE_CODEC_BACKEND_TYPE STATIC)
 else()
     set(SNOW_SHOT_IMAGE_CODEC_BACKEND_STATIC OFF CACHE INTERNAL
-        "Link the Snow Shot image codec backend statically." FORCE)
+        "Link the KXCapture image codec backend statically." FORCE)
     set(_SNOW_SHOT_IMAGE_CODEC_BACKEND_TYPE SHARED)
 endif()
 add_library(snow_shot_image_codec_backend ${_SNOW_SHOT_IMAGE_CODEC_BACKEND_TYPE}
@@ -1252,14 +1276,19 @@ target_link_libraries(snow_shot_settings PUBLIC snow_shot_permissions snow_shot_
 qt_add_resources(snow_shot_settings "snow_shot_about_assets"
     PREFIX "/snow_shot/about"
     BASE "resources/about"
-    FILES resources/about/illustration.svg
+    FILES
+        resources/about/illustration.svg
+        resources/about/lockup-en-dark.png
+        resources/about/lockup-en-light.png
+        resources/about/lockup-zh-dark.png
+        resources/about/lockup-zh-light.png
 )
 target_compile_definitions(snow_shot_settings PRIVATE
     SNOW_SHOT_WEBSITE_URL="${SNOW_SHOT_WEBSITE_URL}"
     SNOW_SHOT_PROJECT_URL="${SNOW_SHOT_PROJECT_URL}"
     SNOW_SHOT_QQ_GROUP_4_URL="${SNOW_SHOT_QQ_GROUP_4_URL}"
 )
-target_link_libraries(snow_shot_settings PRIVATE snow_shot_image_codec Qt6::Svg Qt6::Network snow_shot_administrator)
+target_link_libraries(snow_shot_settings PRIVATE snow_shot_ads snow_shot_image_codec Qt6::Svg Qt6::Network snow_shot_administrator)
 add_library(snow_shot_global_mouse STATIC
     include/snow_shot/presentation/globalmousemanager.h
     include/snow_shot/presentation/globalmousegesture.h
@@ -2255,6 +2284,8 @@ endif()
 
 target_compile_definitions(snow_shot PRIVATE
     SNOW_SHOT_API_BASE_URL=\"${SNOW_SHOT_API_BASE_URL}\"
+    KXCAPTURE_ENABLE_TRANSLATION=$<BOOL:${KXCAPTURE_ENABLE_TRANSLATION}>
+    KXCAPTURE_ENABLE_OCR=$<BOOL:${KXCAPTURE_ENABLE_OCR}>
 )
 if(WIN32)
     target_compile_definitions(snow_shot PRIVATE
@@ -2262,6 +2293,7 @@ if(WIN32)
     )
 endif()
 target_link_libraries(snow_shot PRIVATE
+    snow_shot_ads
     snow_shot_export_naming
     snow_shot_collage
     snow_shot_image_split
@@ -2328,6 +2360,13 @@ qt_add_resources(snow_shot "snow_shot_app_assets"
         "${CMAKE_CURRENT_SOURCE_DIR}/resources/snow-shot-tray-snow-default.png"
         "${CMAKE_CURRENT_SOURCE_DIR}/resources/snow-shot-tray-snow-light.png"
         "${CMAKE_CURRENT_SOURCE_DIR}/resources/snow-shot-tray-snow-dark.png"
+        "${CMAKE_CURRENT_SOURCE_DIR}/resources/macos-tray-template.png"
+        "${CMAKE_CURRENT_SOURCE_DIR}/resources/brand/icons/tray-menubar/macos-template-16.png"
+        "${CMAKE_CURRENT_SOURCE_DIR}/resources/brand/icons/tray-menubar/macos-template-24.png"
+        "${CMAKE_CURRENT_SOURCE_DIR}/resources/brand/icons/tray-menubar/windows-tray-light-taskbar-16.png"
+        "${CMAKE_CURRENT_SOURCE_DIR}/resources/brand/icons/tray-menubar/windows-tray-light-taskbar-24.png"
+        "${CMAKE_CURRENT_SOURCE_DIR}/resources/brand/icons/tray-menubar/windows-tray-dark-taskbar-16.png"
+        "${CMAKE_CURRENT_SOURCE_DIR}/resources/brand/icons/tray-menubar/windows-tray-dark-taskbar-24.png"
 )
 
 function(snow_shot_add_image_codec_smoke_test)
@@ -3813,7 +3852,7 @@ if(SNOW_SHOT_BUILD_TESTS)
         snow_shot_add_translations(snow-shot-macos-permission-guide-tests)
         set_target_properties(snow-shot-macos-permission-guide-tests PROPERTIES
             MACOSX_BUNDLE_GUI_IDENTIFIER "com.snowshot.tests.permission-guide"
-            MACOSX_BUNDLE_BUNDLE_NAME "Snow Shot Permission Guide")
+            MACOSX_BUNDLE_BUNDLE_NAME "KXCapture Permission Guide")
         add_test(NAME snow-shot-macos-permission-guide-tests
             COMMAND snow-shot-macos-permission-guide-tests)
         set_tests_properties(snow-shot-macos-permission-guide-tests PROPERTIES
@@ -3963,6 +4002,12 @@ if(SNOW_SHOT_BUILD_TESTS)
             "${CMAKE_CURRENT_SOURCE_DIR}/resources/snow-shot-tray-snow-default.png"
             "${CMAKE_CURRENT_SOURCE_DIR}/resources/snow-shot-tray-snow-light.png"
             "${CMAKE_CURRENT_SOURCE_DIR}/resources/snow-shot-tray-snow-dark.png"
+            "${CMAKE_CURRENT_SOURCE_DIR}/resources/brand/icons/tray-menubar/macos-template-16.png"
+            "${CMAKE_CURRENT_SOURCE_DIR}/resources/brand/icons/tray-menubar/macos-template-24.png"
+            "${CMAKE_CURRENT_SOURCE_DIR}/resources/brand/icons/tray-menubar/windows-tray-light-taskbar-16.png"
+            "${CMAKE_CURRENT_SOURCE_DIR}/resources/brand/icons/tray-menubar/windows-tray-light-taskbar-24.png"
+            "${CMAKE_CURRENT_SOURCE_DIR}/resources/brand/icons/tray-menubar/windows-tray-dark-taskbar-16.png"
+            "${CMAKE_CURRENT_SOURCE_DIR}/resources/brand/icons/tray-menubar/windows-tray-dark-taskbar-24.png"
     )
     snow_shot_add_translations(snow-shot-system-tray-controller-tests)
     add_test(
@@ -10354,7 +10399,7 @@ if(APPLE AND SNOW_SHOT_BUILD_BENCHMARKS)
         snow_shot_settings "-framework AppKit")
     set_target_properties(snow-shot-permission-guide-benchmark PROPERTIES
         MACOSX_BUNDLE_GUI_IDENTIFIER "com.snowshot.tests.permission-guide-benchmark"
-        MACOSX_BUNDLE_BUNDLE_NAME "Snow Shot Permission Guide Benchmark")
+        MACOSX_BUNDLE_BUNDLE_NAME "KXCapture Permission Guide Benchmark")
 endif()
 
 if(SNOW_SHOT_BUILD_BENCHMARKS)
@@ -11063,14 +11108,16 @@ target_link_libraries(
 target_compile_definitions(snow_shot PRIVATE
     $<$<CONFIG:Release>:QT_NO_DEBUG_OUTPUT>
 )
-add_dependencies(snow_shot snow_ocr_process)
+if(KXCAPTURE_ENABLE_OCR)
+    add_dependencies(snow_shot snow_ocr_process)
+endif()
 if(SNOW_SHOT_ENABLE_MCP)
     add_dependencies(snow_shot snow_shot_mcp)
     add_custom_command(TARGET snow_shot POST_BUILD
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different
             "$<TARGET_FILE:snow_shot_mcp>"
             "$<TARGET_FILE_DIR:snow_shot>/$<TARGET_FILE_NAME:snow_shot_mcp>"
-        COMMENT "Staging Snow Shot MCP bridge"
+        COMMENT "Staging KXCapture MCP bridge"
         VERBATIM
     )
 endif()
@@ -11415,7 +11462,7 @@ snow_shot_add_translations(snow_shot)
 include("${CMAKE_CURRENT_SOURCE_DIR}/../cmake/SnowShotUpdateUiTests.cmake")
 
 foreach(_ocr_process_host_target IN ITEMS snow_shot snow-shot-ocr-recognition-service-tests)
-    if(TARGET ${_ocr_process_host_target})
+    if(KXCAPTURE_ENABLE_OCR AND TARGET ${_ocr_process_host_target} AND TARGET snow_ocr_process)
         add_dependencies(${_ocr_process_host_target} snow_ocr_process)
         add_custom_command(TARGET ${_ocr_process_host_target} POST_BUILD
             COMMAND "${CMAKE_COMMAND}" -E copy_if_different
@@ -11620,7 +11667,7 @@ if(WIN32)
         set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
             ${SNOW_RUNTIME_FILES})
         set(SNOW_SHOT_FFMPEG_RUNTIME_FILES ${SNOW_RUNTIME_FILES}
-            CACHE INTERNAL "FFmpeg runtime files installed with Snow Shot.")
+            CACHE INTERNAL "FFmpeg runtime files installed with KXCapture.")
         unset(SNOW_RUNTIME_FILES)
     endif()
 endif()
@@ -11693,7 +11740,9 @@ if(SNOW_SHOT_ENABLE_STRICT_COMPILE)
 endif()
 
 set_target_properties(snow_shot PROPERTIES
-    MACOSX_BUNDLE_GUI_IDENTIFIER com.snowshot.snow_shot
+    OUTPUT_NAME "${SNOW_SHOT_EXECUTABLE_NAME}"
+    MACOSX_BUNDLE_GUI_IDENTIFIER "io.github.oxho.kxcapture"
+    MACOSX_BUNDLE_BUNDLE_NAME "KXCapture"
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
     MACOSX_BUNDLE TRUE
@@ -11731,18 +11780,20 @@ endif()
 include(GNUInstallDirs)
 if(APPLE)
     set(CMAKE_INSTALL_DEFAULT_COMPONENT_NAME SnowShot)
-    set(CMAKE_INSTALL_BINDIR "snow_shot.app/Contents/MacOS")
-    set(CMAKE_INSTALL_LIBDIR "snow_shot.app/Contents/Frameworks")
-    set(CMAKE_INSTALL_DATADIR "snow_shot.app/Contents/Resources")
+    set(CMAKE_INSTALL_BINDIR "kxcapture.app/Contents/MacOS")
+    set(CMAKE_INSTALL_LIBDIR "kxcapture.app/Contents/Frameworks")
+    set(CMAKE_INSTALL_DATADIR "kxcapture.app/Contents/Resources")
 endif()
 install(TARGETS snow_shot
     BUNDLE DESTINATION .
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
-install(PROGRAMS "$<TARGET_FILE:snow_ocr_process>"
-    DESTINATION ${CMAKE_INSTALL_BINDIR}
-)
+if(KXCAPTURE_ENABLE_OCR AND TARGET snow_ocr_process)
+    install(PROGRAMS "$<TARGET_FILE:snow_ocr_process>"
+        DESTINATION ${CMAKE_INSTALL_BINDIR}
+    )
+endif()
 if(SNOW_SHOT_ENABLE_MCP)
     install(PROGRAMS "$<TARGET_FILE:snow_shot_mcp>"
         DESTINATION ${CMAKE_INSTALL_BINDIR}
@@ -11799,7 +11850,7 @@ endif()
 if(WIN32 AND NOT SNOW_SHOT_QT_STATIC)
     set(_snow_shot_qt_deploy_arguments)
     # The release staging policy keeps only the platform and Schannel TLS
-    # plugins. Snow Shot uses its project-owned resources and statically linked
+    # plugins. KXCapture uses its project-owned resources and statically linked
     # image codecs, so Qt's optional image, style, and generic plugins are not
     # needed in the installer.
     list(APPEND _snow_shot_qt_deploy_arguments
@@ -11857,7 +11908,7 @@ if(WIN32 AND NOT SNOW_SHOT_QT_STATIC)
     ]=])
 
     # windeployqt deploys optional Qt plugins based on broad module metadata.
-    # Snow Shot only needs the Windows platform integration and the Schannel
+    # KXCapture only needs the Windows platform integration and the Schannel
     # TLS backend at runtime. Remove optional image, style, input,
     # network-information, icon-engine, and certificate-only backends.
     install(CODE [=[
@@ -11898,47 +11949,47 @@ if(WIN32)
     snow_install_license_bundle(
         SOURCE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
         THIRD_PARTY_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/third-party-licenses/third-party"
-        DESTINATION "${CMAKE_INSTALL_DATADIR}/snow-shot/licenses"
-        COMPONENT SnowShot PRODUCT "Snow Shot")
+        DESTINATION "${CMAKE_INSTALL_DATADIR}/kxcapture/licenses"
+        COMPONENT SnowShot PRODUCT "KXCapture")
 else()
     install(FILES
         "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE"
         "${CMAKE_CURRENT_SOURCE_DIR}/COPYRIGHT"
         "${CMAKE_CURRENT_SOURCE_DIR}/THIRD_PARTY_NOTICES.md"
-        DESTINATION "${CMAKE_INSTALL_DATADIR}/snow-shot/licenses"
+        DESTINATION "${CMAKE_INSTALL_DATADIR}/kxcapture/licenses"
     )
     install(FILES
         "${CMAKE_CURRENT_SOURCE_DIR}/../ant_design_qt/THIRD_PARTY_NOTICES.md"
-        DESTINATION "${CMAKE_INSTALL_DATADIR}/snow-shot/licenses/third-party/project-notices/ant-design-icons"
+        DESTINATION "${CMAKE_INSTALL_DATADIR}/kxcapture/licenses/third-party/project-notices/ant-design-icons"
     )
     install(FILES
         "${CMAKE_CURRENT_SOURCE_DIR}/../snow_image/LICENSE"
         "${CMAKE_CURRENT_SOURCE_DIR}/../snow_image/COPYRIGHT"
-        DESTINATION "${CMAKE_INSTALL_DATADIR}/snow-shot/licenses/components/snow-image"
+        DESTINATION "${CMAKE_INSTALL_DATADIR}/kxcapture/licenses/components/snow-image"
     )
     install(FILES
         "${CMAKE_CURRENT_SOURCE_DIR}/../ant_design_qt/LICENSE"
         "${CMAKE_CURRENT_SOURCE_DIR}/../ant_design_qt/COPYRIGHT"
-        DESTINATION "${CMAKE_INSTALL_DATADIR}/snow-shot/licenses/components/ant-design-qt"
+        DESTINATION "${CMAKE_INSTALL_DATADIR}/kxcapture/licenses/components/ant-design-qt"
     )
     install(FILES
         "${CMAKE_CURRENT_SOURCE_DIR}/../snow-crates/LICENSE"
         "${CMAKE_CURRENT_SOURCE_DIR}/../snow-crates/COPYRIGHT"
-        DESTINATION "${CMAKE_INSTALL_DATADIR}/snow-shot/licenses/components/snow-crates"
+        DESTINATION "${CMAKE_INSTALL_DATADIR}/kxcapture/licenses/components/snow-crates"
     )
     install(FILES
         "${CMAKE_CURRENT_SOURCE_DIR}/../snow_draw_engine_qt/LICENSE"
         "${CMAKE_CURRENT_SOURCE_DIR}/../snow_draw_engine_qt/COPYRIGHT"
-        DESTINATION "${CMAKE_INSTALL_DATADIR}/snow-shot/licenses/components/snow-draw-engine-qt"
+        DESTINATION "${CMAKE_INSTALL_DATADIR}/kxcapture/licenses/components/snow-draw-engine-qt"
     )
     install(FILES
         "${CMAKE_CURRENT_SOURCE_DIR}/../snow_rust_ffi/LICENSE"
         "${CMAKE_CURRENT_SOURCE_DIR}/../snow_rust_ffi/COPYRIGHT"
-        DESTINATION "${CMAKE_INSTALL_DATADIR}/snow-shot/licenses/components/snow-rust-ffi"
+        DESTINATION "${CMAKE_INSTALL_DATADIR}/kxcapture/licenses/components/snow-rust-ffi"
     )
     install(DIRECTORY
         "${CMAKE_CURRENT_BINARY_DIR}/third-party-licenses/third-party/"
-        DESTINATION "${CMAKE_INSTALL_DATADIR}/snow-shot/licenses/third-party"
+        DESTINATION "${CMAKE_INSTALL_DATADIR}/kxcapture/licenses/third-party"
         OPTIONAL
     )
 endif()
@@ -13101,7 +13152,13 @@ if(SNOW_SHOT_BUILD_BENCHMARKS)
             "${CMAKE_CURRENT_SOURCE_DIR}/resources/snow-shot-tray-dark.png"
             "${CMAKE_CURRENT_SOURCE_DIR}/resources/snow-shot-tray-snow-default.png"
             "${CMAKE_CURRENT_SOURCE_DIR}/resources/snow-shot-tray-snow-light.png"
-            "${CMAKE_CURRENT_SOURCE_DIR}/resources/snow-shot-tray-snow-dark.png")
+            "${CMAKE_CURRENT_SOURCE_DIR}/resources/snow-shot-tray-snow-dark.png"
+            "${CMAKE_CURRENT_SOURCE_DIR}/resources/brand/icons/tray-menubar/macos-template-16.png"
+            "${CMAKE_CURRENT_SOURCE_DIR}/resources/brand/icons/tray-menubar/macos-template-24.png"
+            "${CMAKE_CURRENT_SOURCE_DIR}/resources/brand/icons/tray-menubar/windows-tray-light-taskbar-16.png"
+            "${CMAKE_CURRENT_SOURCE_DIR}/resources/brand/icons/tray-menubar/windows-tray-light-taskbar-24.png"
+            "${CMAKE_CURRENT_SOURCE_DIR}/resources/brand/icons/tray-menubar/windows-tray-dark-taskbar-16.png"
+            "${CMAKE_CURRENT_SOURCE_DIR}/resources/brand/icons/tray-menubar/windows-tray-dark-taskbar-24.png")
     snow_shot_add_translations(snow-shot-skin-surface-performance-benchmark)
     snow_shot_import_offscreen_platform(snow-shot-skin-surface-performance-benchmark)
 endif()
@@ -14286,7 +14343,7 @@ if(SNOW_SHOT_BUILD_TESTS)
         set_target_properties(snow-shot-macos-live-window-native-tests PROPERTIES
             MACOSX_BUNDLE TRUE
             MACOSX_BUNDLE_GUI_IDENTIFIER "top.snowshot.tests.livewindow"
-            MACOSX_BUNDLE_BUNDLE_NAME "Snow Shot Live Window Tests")
+            MACOSX_BUNDLE_BUNDLE_NAME "KXCapture Live Window Tests")
         target_link_libraries(snow-shot-macos-live-window-native-tests PRIVATE
             snow_shot_live_window "-framework AppKit" "-framework ApplicationServices")
         if(SNOW_MACOS_CODESIGN_IDENTITY AND NOT SNOW_MACOS_CODESIGN_IDENTITY STREQUAL "-")

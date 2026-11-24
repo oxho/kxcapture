@@ -215,7 +215,7 @@ void unknownOpacityPreservesSinglePassRows() {
 void combinedPayloadOwnsImageAndFile() {
     QImage image(3, 2, QImage::Format_RGBA8888);
     image.fill(QColor(23, 117, 209, 127));
-    const QString path = QDir::temp().filePath(QStringLiteral("Snow Shot \u56fe\u50cf.png"));
+    const QString path = QDir::temp().filePath(QStringLiteral("KXCapture \u56fe\u50cf.png"));
     auto original = ScreenshotClipboardService::prepareImage(image);
     require(original.isValid() && original.filePath().isEmpty(),
             "image-only copies must not acquire a file reference");

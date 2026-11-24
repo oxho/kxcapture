@@ -462,7 +462,7 @@ void accountRejectionStopsTheBatchAndKeepsItsError(const QString& directory) {
         QStringView message;
     };
     const Scenario scenarios[] = {
-        {false, false, u"Sign in to your Snow Shot account to use this service"},
+        {false, false, u"Sign in to your KXCapture account to use this service"},
         {true, false,
          u"Your available credits cannot cover this request. Purchase credits in Account"},
         {true, true,
@@ -645,7 +645,7 @@ void expertSelectionPersistsAndReportsWalletErrors(const QString& directory) {
                 "Expert uses the selected model and current account authorization");
         if (index == 0)
             require(result->httpStatus == 401 && result->code == u"account_required" &&
-                        result->error == u"Sign in to your Snow Shot account to use Expert Model",
+                        result->error == u"Sign in to your KXCapture account to use Expert Model",
                     "Expert requests show a sign-in message");
         else
             require(result->httpStatus == 402 && result->code == u"insufficient_credits" &&

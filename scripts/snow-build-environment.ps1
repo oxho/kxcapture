@@ -45,7 +45,7 @@ function Get-SnowWindowsHostArchitecture {
     switch ([Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString()) {
         "X64" { return "x64" }
         "Arm64" { return "arm64" }
-        default { throw "Snow Apps requires an x64 or ARM64 Windows build host." }
+        default { throw "oxho requires an x64 or ARM64 Windows build host." }
     }
 }
 

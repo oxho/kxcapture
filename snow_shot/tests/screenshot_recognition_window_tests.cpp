@@ -1259,7 +1259,7 @@ void ocrBoxSelectionUsesCurrentRectangleAndCommitsOnRelease() {
         send(QEvent::MouseMove, QPointF(240, 180));
         require(recognition.cursor() ==
                     snow_shot::presentation::crosshairCursor(recognition.devicePixelRatioF()),
-                "OCR box selection must use Snow Shot's crosshair");
+                "OCR box selection must use KXCapture's crosshair");
         require(presentation->lineSelectionPreview(0) ==
                         ScreenshotOcrLineSelectionPreview::Deselect &&
                     presentation->lineSelectionPreview(1) ==
@@ -3786,7 +3786,7 @@ void tableClipboardPreservesLargeValuesForWholeTableAndSelection() {
     editor.selectionModel()->clearSelection();
     editor.pasteSelection();
     require(session->document.cellText(1, 1) == value,
-            "pasting Snow Shot's protected clipboard should restore the unprefixed value");
+            "pasting KXCapture's protected clipboard should restore the unprefixed value");
 }
 } // namespace
 

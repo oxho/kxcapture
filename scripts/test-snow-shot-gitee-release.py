@@ -29,7 +29,7 @@ class PublisherTests(unittest.TestCase):
         self.addCleanup(self.temporary.cleanup)
         self.directory = Path(self.temporary.name)
         self.release = {"schema": 1, "tag": TAG, "sourceCommit": "a" * 40,
-                        "title": "Snow Shot 1.2.3", "body": "Detailed bilingual notes.\n",
+                        "title": "KXCapture 1.2.3", "body": "Detailed bilingual notes.\n",
                         "assets": []}
         self.add_asset("snow-shot-1.2.3-windows-x64-online-update.zip", b"binary package")
         self.add_asset("latest-version.json", b"signed manifest")
@@ -95,7 +95,7 @@ class PublisherTests(unittest.TestCase):
         record = json.loads(publisher.run('git', '-C', str(remote), 'show', f'{TAG}:release.json'))
         self.assertEqual(record['sourceCommit'], 'a' * 40)
         self.assertEqual(record['tag'], TAG)
-        self.assertEqual(record['sourceRepository'], 'https://github.com/mg-chao/snow-shot')
+        self.assertEqual(record['sourceRepository'], 'https://github.com/oxho/kxcapture')
 
     def test_legacy_source_tags_are_preserved_without_another_push(self):
         with patch.object(publisher, 'git_with_gitee_auth', return_value=f"{'a' * 40}\trefs/tags/{TAG}") as git, \
@@ -124,7 +124,7 @@ class PublisherTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 publisher.checked_tag(bad)
         name = "latest-version.json"
-        good = f"https://gitee.com/mg-chao/snow-apps/releases/download/{TAG}/{name}"
+        good = f""
         self.assertEqual(publisher.asset_url({"name": name, "browser_download_url": good}, TAG, name), good)
         for bad in (good.replace("gitee.com", "example.com"), good + "?token=secret",
                     good.replace(TAG, "v9.9.9_snow-shot")):
@@ -230,7 +230,7 @@ class PublisherTests(unittest.TestCase):
         local = publisher.local_assets(self.release)
         remote = {'id': 7, 'tag_name': TAG, 'name': self.release['title'], 'body': self.release['body']}
         files = [{'id': index, 'name': name, 'size': path.stat().st_size,
-                  'browser_download_url': f'https://gitee.com/mg-chao/snow-apps/releases/download/{TAG}/{name}'}
+                  'browser_download_url': f''}
                  for index, (name, path) in enumerate(local.items(), 1)]
         events = []
         def delete(command, **kwargs):
@@ -263,7 +263,7 @@ class PublisherTests(unittest.TestCase):
         local = publisher.local_assets(self.release)
         selected = publisher.gitee_assets(self.release, local)
         valid = {'id': 1, 'name': extra.name, 'size': extra.stat().st_size,
-                 'browser_download_url': f'https://gitee.com/mg-chao/snow-apps/releases/download/{TAG}/{extra.name}'}
+                 'browser_download_url': f''}
         for changes in ({'id': False}, {'size': 1}, {'browser_download_url': 'https://example.test/archive'}):
             with self.subTest(changes=changes), patch.object(publisher.subprocess, 'check_output') as delete:
                 with self.assertRaises(ValueError):
@@ -393,7 +393,7 @@ class PublisherTests(unittest.TestCase):
         local = publisher.local_assets(self.release)
         remote = {'id': 7, 'tag_name': TAG, 'name': self.release['title'], 'body': self.release['body']}
         files = [{'id': 3, 'name': extra.name, 'size': extra.stat().st_size,
-                  'browser_download_url': f'https://gitee.com/mg-chao/snow-apps/releases/download/{TAG}/{extra.name}'}]
+                  'browser_download_url': f''}]
         attempts = []
         def upload(url, fields, token, file=None):
             attempts.append(file.name)
@@ -717,7 +717,7 @@ class PublisherTests(unittest.TestCase):
             self.assertEqual(api.call_args.args[1], "secret-token")
 
     def test_utf8_release_response_through_real_curl_transport(self):
-        notes = "Snow Shot release notes: 中文，繁體。"
+        notes = "KXCapture release notes: 中文，繁體。"
         body = json.dumps({"body": notes}, ensure_ascii=False).encode("utf-8")
         received = []
         class Handler(BaseHTTPRequestHandler):

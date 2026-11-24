@@ -241,7 +241,8 @@ QString configurationExportDirectory() {
 // siblings are removed and a small history of archives is retained.
 void pruneConfigurationExports(const QString& directory, const QString& currentArchive) {
     QFileInfoList archives =
-        QDir(directory).entryInfoList({QStringLiteral("snow-shot-configuration-*.zip")},
+        QDir(directory).entryInfoList({QStringLiteral("kxcapture-configuration-*.zip"),
+                                       QStringLiteral("snow-shot-configuration-*.zip")},
                                       QDir::Files | QDir::Hidden | QDir::System);
     std::sort(archives.begin(), archives.end(),
               [](const QFileInfo& first, const QFileInfo& second) {
@@ -329,7 +330,7 @@ applyNativeStartupSettings(bool enabled, bool elevated,
     if (!result.success && !save(restoredEnabled, restoredElevated)) {
         auto failed = result;
         failed.error += QCoreApplication::translate(
-            "AdministratorLaunch", " Settings recovery failed. Retry before closing Snow Shot");
+            "AdministratorLaunch", " Settings recovery failed. Retry before closing KXCapture");
         return failed;
     }
     return result;
@@ -2443,7 +2444,7 @@ bool BuiltInSettingsBackend::triggerAction(SettingsActionBinding binding, const 
         }
         const QString directory = configurationExportDirectory();
         const QString archivePath = QDir(directory).filePath(
-            QStringLiteral("snow-shot-configuration-%1-%2.zip")
+            QStringLiteral("kxcapture-configuration-%1-%2.zip")
                 .arg(QDateTime::currentDateTime().toString(QStringLiteral("yyyyMMdd-HHmmss")),
                      QUuid::createUuid().toString(QUuid::Id128).left(8)));
         auto values = applicationStorage.configuration().snapshot();

@@ -379,7 +379,7 @@ void projectLinksAreExplicitAccessibleAndRecoverable() {
         {"aboutReleaseNotes", websiteUrl.resolved(QUrl(QStringLiteral("/changelog.html")))},
         {"aboutQqGroup4", QUrl(QStringLiteral(SNOW_SHOT_TEST_QQ_GROUP_4_URL))},
         {"aboutPrivacyPolicy", QUrl(snow_shot::app::distribution::privacyPolicyUrl())},
-        {"aboutUserAgreement", QUrl(QStringLiteral("https://snowshot.top/terms.html"))},
+        {"aboutUserAgreement", QUrl(QStringLiteral(""))},
     }};
     for (const auto& [name, url] : links) {
         auto* button = child<QAbstractButton>(page, name);
@@ -513,7 +513,7 @@ void updatePolicyAndUnavailableCopy() {
         {},
         0,
         0,
-        QUrl(QStringLiteral("https://github.com/mg-chao/snow-shot/releases/tag/v2.0.0_snow-shot"))};
+        QUrl(QStringLiteral(""))};
     updates.statusChanged();
     auto* action = child<adqt::widgets::AdButton>(page, "aboutUpdateAction");
     require(action->text() == QStringLiteral("View update details"),
@@ -521,7 +521,7 @@ void updatePolicyAndUnavailableCopy() {
     action->click();
     require(opened == QList<QUrl>{status.downloadUrl}, "About opens the exact GitHub release");
     status.downloadUrl =
-        QUrl(QStringLiteral("https://gitee.com/mg-chao/snow-apps/releases/tag/v2.0.0_snow-shot"));
+        QUrl(QStringLiteral(""));
     emit updates.statusChanged();
     flushEvents();
     require(action->text() == QStringLiteral("View update details"),
@@ -1032,7 +1032,7 @@ void mainNavigationSearchThemesAndLanguages() {
     snapshot(window, QStringLiteral("navigation-search-with-tabs"));
     auto* searchSelect = sidebar->findChild<adqt::widgets::AdSelect*>();
     require(searchSelect != nullptr, "global search belongs to the navigation sidebar");
-    searchSelect->selected(QStringLiteral("page:about"), QStringLiteral("About Snow Shot"));
+    searchSelect->selected(QStringLiteral("page:about"), QStringLiteral("About KXCapture"));
     flushEvents();
     page = window.findChild<AboutPageWidget*>();
     require(page != nullptr && sidebar->currentRoute() == QStringLiteral("/about"),
@@ -1054,7 +1054,7 @@ void mainNavigationSearchThemesAndLanguages() {
                     ->styleSheet()
                     .contains(scheme.map.colorBorderSecondary.name(QColor::HexArgb)),
                 "compact version surface follows the neutral theme tokens");
-        require(!child<QLabel>(*page, "aboutLogo")->pixmap().isNull(), "render the Snow Shot icon");
+        require(!child<QLabel>(*page, "aboutLogo")->pixmap().isNull(), "render the KXCapture icon");
         auto* logo = child<QLabel>(*page, "aboutLogo");
         require(qFuzzyCompare(logo->pixmap().devicePixelRatio(), logo->devicePixelRatioF()),
                 "the logo uses the current display pixel ratio");
@@ -1087,7 +1087,7 @@ void mainNavigationSearchThemesAndLanguages() {
                     expectedTranslation(translator, locale, "SidebarWidget", "Search function"),
                 "sidebar search retranslates with each application catalog");
         const QString translatedTitle =
-            expectedTranslation(translator, locale, "AboutPageWidget", "About Snow Shot");
+            expectedTranslation(translator, locale, "AboutPageWidget", "About KXCapture");
         require(!translatedTitle.isEmpty() && page->accessibleName() == translatedTitle,
                 "an open About page retranslates immediately");
         require(child<QLabel>(*page, "aboutVersionValue")->text() ==
@@ -1126,7 +1126,7 @@ void mainNavigationSearchThemesAndLanguages() {
                 "the two-tone headline retranslates");
         require(child<QLabel>(*page, "aboutSlogan")->text() ==
                     expectedTranslation(translator, locale, "AboutPageWidget",
-                                        "Snow Shot · make expression clearer"),
+                                        "KXCapture · make expression clearer"),
                 "the footer slogan retranslates");
         const std::array<const char*, 6> features{"Screenshot capture", "Easy annotation",
                                                   "Text recognition",   "Screen recording",

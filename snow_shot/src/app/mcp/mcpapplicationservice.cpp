@@ -425,36 +425,36 @@ McpApplicationService::~McpApplicationService() {
 
 QStringList McpApplicationService::methods() {
     return {
-        QStringLiteral("snow_shot_app_status"),
-        QStringLiteral("snow_shot_app_displays"),
-        QStringLiteral("snow_shot_app_action"),
-        QStringLiteral("snow_shot_settings_get"),
-        QStringLiteral("snow_shot_settings_update"),
-        QStringLiteral("snow_shot_settings_reset"),
-        QStringLiteral("snow_shot_settings_action"),
+        QStringLiteral("kxcapture_app_status"),
+        QStringLiteral("kxcapture_app_displays"),
+        QStringLiteral("kxcapture_app_action"),
+        QStringLiteral("kxcapture_settings_get"),
+        QStringLiteral("kxcapture_settings_update"),
+        QStringLiteral("kxcapture_settings_reset"),
+        QStringLiteral("kxcapture_settings_action"),
 #if SNOW_SHOT_ENABLE_API_CONFIGURATION
-        QStringLiteral("snow_shot_models_list"),
-        QStringLiteral("snow_shot_models_update"),
-        QStringLiteral("snow_shot_credentials_set"),
+        QStringLiteral("kxcapture_models_list"),
+        QStringLiteral("kxcapture_models_update"),
+        QStringLiteral("kxcapture_credentials_set"),
 #endif
-        QStringLiteral("snow_shot_history_list"),
-        QStringLiteral("snow_shot_history_get"),
-        QStringLiteral("snow_shot_history_delete"),
-        QStringLiteral("snow_shot_history_clear"),
-        QStringLiteral("snow_shot_history_action"),
-        QStringLiteral("snow_shot_configuration_export"),
-        QStringLiteral("snow_shot_configuration_import"),
-        QStringLiteral("snow_shot_storage_status"),
-        QStringLiteral("snow_shot_storage_cleanup"),
-        QStringLiteral("snow_shot_permissions_get"),
-        QStringLiteral("snow_shot_permissions_request"),
-        QStringLiteral("snow_shot_updates_status"),
-        QStringLiteral("snow_shot_updates_action"),
-        QStringLiteral("snow_shot_templates_list"),
-        QStringLiteral("snow_shot_templates_update"),
+        QStringLiteral("kxcapture_history_list"),
+        QStringLiteral("kxcapture_history_get"),
+        QStringLiteral("kxcapture_history_delete"),
+        QStringLiteral("kxcapture_history_clear"),
+        QStringLiteral("kxcapture_history_action"),
+        QStringLiteral("kxcapture_configuration_export"),
+        QStringLiteral("kxcapture_configuration_import"),
+        QStringLiteral("kxcapture_storage_status"),
+        QStringLiteral("kxcapture_storage_cleanup"),
+        QStringLiteral("kxcapture_permissions_get"),
+        QStringLiteral("kxcapture_permissions_request"),
+        QStringLiteral("kxcapture_updates_status"),
+        QStringLiteral("kxcapture_updates_action"),
+        QStringLiteral("kxcapture_templates_list"),
+        QStringLiteral("kxcapture_templates_update"),
 #if SNOW_SHOT_ENABLE_TEXT_TRANSLATION
-        QStringLiteral("snow_shot_translation_catalog"),
-        QStringLiteral("snow_shot_translation_start"),
+        QStringLiteral("kxcapture_translation_catalog"),
+        QStringLiteral("kxcapture_translation_start"),
 #endif
     };
 }
@@ -527,7 +527,7 @@ void McpApplicationService::Impl::handle(const ScreenshotMcpRequest& request,
         finish({{QStringLiteral("revision"), static_cast<qint64>(configuration().revision())}});
     };
 
-    if (method == u"snow_shot_app_status") {
+    if (method == u"kxcapture_app_status") {
         finish(
             {{QStringLiteral("version"), QCoreApplication::applicationVersion()},
              {QStringLiteral("platform"), QSysInfo::productType()},
@@ -535,7 +535,7 @@ void McpApplicationService::Impl::handle(const ScreenshotMcpRequest& request,
              {QStringLiteral("settings_revision"), static_cast<qint64>(configuration().revision())},
              {QStringLiteral("permissions"), permissionJson(ports.permissions)},
              {QStringLiteral("updates"), updateJson(ports.updates)}});
-    } else if (method == u"snow_shot_app_displays") {
+    } else if (method == u"kxcapture_app_displays") {
         QJsonArray displays;
         for (auto* screen : QGuiApplication::screens()) {
             auto display = QJsonObject{
@@ -550,7 +550,7 @@ void McpApplicationService::Impl::handle(const ScreenshotMcpRequest& request,
             displays.append(display);
         }
         finish({{QStringLiteral("displays"), displays}});
-    } else if (method == u"snow_shot_app_action") {
+    } else if (method == u"kxcapture_app_action") {
         const auto action = params.value(QStringLiteral("action")).toString();
         if (action == u"restart" || action == u"quit") {
             if (!ports.restartAllowed || !ports.restartAllowed()) {
@@ -567,9 +567,9 @@ void McpApplicationService::Impl::handle(const ScreenshotMcpRequest& request,
             finish({{QStringLiteral("accepted"), true}});
         } else
             error(QStringLiteral("invalid_parameters"), QStringLiteral("action"));
-    } else if (method == u"snow_shot_settings_get") {
+    } else if (method == u"kxcapture_settings_get") {
         finish(settingsSnapshot(params.value(QStringLiteral("section")).toString()));
-    } else if (method == u"snow_shot_settings_update") {
+    } else if (method == u"kxcapture_settings_update") {
         const auto values = params.value(QStringLiteral("values")).toObject();
         QMap<QString, QVariant> drafts;
         QHash<QString, AuxiliaryIntegerSetting> auxiliaries;
@@ -664,7 +664,7 @@ void McpApplicationService::Impl::handle(const ScreenshotMcpRequest& request,
         if (!lifetime)
             return;
         completion(std::move(response));
-    } else if (method == u"snow_shot_settings_reset") {
+    } else if (method == u"kxcapture_settings_reset") {
         const auto* section = ports.settings->registry().catalog().section(
             params.value(QStringLiteral("page_id")).toString(),
             params.value(QStringLiteral("section_id")).toString());
@@ -708,12 +708,12 @@ void McpApplicationService::Impl::handle(const ScreenshotMcpRequest& request,
             return;
         completion(std::move(response));
 #if SNOW_SHOT_ENABLE_API_CONFIGURATION
-    } else if (method == u"snow_shot_models_list") {
+    } else if (method == u"kxcapture_models_list") {
         finish({{QStringLiteral("models"), publicModels(ports.settings->customAiModels())},
                 {QStringLiteral("revision"), static_cast<qint64>(configuration().revision())}});
-    } else if (method == u"snow_shot_models_update" || method == u"snow_shot_credentials_set") {
+    } else if (method == u"kxcapture_models_update" || method == u"kxcapture_credentials_set") {
         auto models = ports.settings->customAiModels();
-        if (method == u"snow_shot_credentials_set") {
+        if (method == u"kxcapture_credentials_set") {
             const auto id = params.value(QStringLiteral("provider")).toString();
             auto found = std::find_if(models.begin(), models.end(),
                                       [&](const auto& item) { return item.id == id; });
@@ -747,15 +747,15 @@ void McpApplicationService::Impl::handle(const ScreenshotMcpRequest& request,
         }
         change([&] { return ports.settings->applyCustomAiModels(models); });
 #endif
-    } else if (method == u"snow_shot_storage_status") {
+    } else if (method == u"kxcapture_storage_status") {
         auto result = storageJson(ports.storage->status());
         result.insert(QStringLiteral("revision"), static_cast<qint64>(configuration().revision()));
         finish(result);
-    } else if (method == u"snow_shot_permissions_get") {
+    } else if (method == u"kxcapture_permissions_get") {
         if (ports.permissions)
             ports.permissions->refreshNow();
         finish(permissionJson(ports.permissions));
-    } else if (method == u"snow_shot_permissions_request") {
+    } else if (method == u"kxcapture_permissions_request") {
         if (!ports.permissions) {
             error(QStringLiteral("unsupported"));
             return;
@@ -777,9 +777,9 @@ void McpApplicationService::Impl::handle(const ScreenshotMcpRequest& request,
             return;
         }
         error(QStringLiteral("invalid_parameters"), QStringLiteral("permission"));
-    } else if (method == u"snow_shot_updates_status") {
+    } else if (method == u"kxcapture_updates_status") {
         finish(updateJson(ports.updates));
-    } else if (method == u"snow_shot_updates_action") {
+    } else if (method == u"kxcapture_updates_action") {
         if (!ports.updates || !ports.updates->capabilities().check) {
             error(QStringLiteral("unsupported"));
             return;
@@ -888,7 +888,7 @@ void McpApplicationService::Impl::handle(const ScreenshotMcpRequest& request,
             return;
         }
         finish(updateJson(ports.updates));
-    } else if (method == u"snow_shot_history_list") {
+    } else if (method == u"kxcapture_history_list") {
         const auto snapshot = ports.storage->captureHistory().recordsSnapshot();
         const auto cursor = params.value(QStringLiteral("cursor")).toString();
         qsizetype offset = 0;
@@ -923,7 +923,7 @@ void McpApplicationService::Impl::handle(const ScreenshotMcpRequest& request,
                  next < snapshot.records.size()
                      ? QString::number(snapshot.revision) + u':' + QString::number(next)
                      : QString()}});
-    } else if (method == u"snow_shot_history_get" || method == u"snow_shot_history_action") {
+    } else if (method == u"kxcapture_history_get" || method == u"kxcapture_history_action") {
         const auto snapshot = ports.storage->captureHistory().recordsSnapshot();
         const auto id = params.value(QStringLiteral("history_id")).toString();
         const auto it = std::find_if(snapshot.records.cbegin(), snapshot.records.cend(),
@@ -932,7 +932,7 @@ void McpApplicationService::Impl::handle(const ScreenshotMcpRequest& request,
             error(QStringLiteral("not_found"));
             return;
         }
-        if (method == u"snow_shot_history_action") {
+        if (method == u"kxcapture_history_action") {
             if (!ports.historyAction ||
                 !ports.historyAction(id, params.value(QStringLiteral("action")).toString())) {
                 error(QStringLiteral("busy"));
@@ -1006,7 +1006,7 @@ void McpApplicationService::Impl::handle(const ScreenshotMcpRequest& request,
                 }
                 completion(std::move(response));
             });
-    } else if (method == u"snow_shot_history_delete" || method == u"snow_shot_history_clear") {
+    } else if (method == u"kxcapture_history_delete" || method == u"kxcapture_history_clear") {
         if (!expected) {
             error(QStringLiteral("revision_required"));
             return;
@@ -1016,10 +1016,10 @@ void McpApplicationService::Impl::handle(const ScreenshotMcpRequest& request,
             [&] {
                 return ports.storage->captureHistory().removeIfRevision(
                     {params.value(QStringLiteral("history_id")).toString()}, *expected,
-                    method == u"snow_shot_history_clear");
+                    method == u"kxcapture_history_clear");
             },
             std::move(completion));
-    } else if (method == u"snow_shot_configuration_export") {
+    } else if (method == u"kxcapture_configuration_export") {
         QString path;
         if (!ScreenshotMcpSession::validateOutputPath(
                 params.value(QStringLiteral("path")).toString(), &path)) {
@@ -1038,7 +1038,7 @@ void McpApplicationService::Impl::handle(const ScreenshotMcpRequest& request,
                                        {QStringLiteral("credentials_redacted"), true}});
             },
             std::move(completion), false);
-    } else if (method == u"snow_shot_configuration_import") {
+    } else if (method == u"kxcapture_configuration_import") {
         const QFileInfo file(params.value(QStringLiteral("path")).toString());
         if (!file.isAbsolute() || !file.isFile() || file.isSymLink() || !expected) {
             error(QStringLiteral("invalid_parameters"), QStringLiteral("path"));
@@ -1126,9 +1126,9 @@ void McpApplicationService::Impl::handle(const ScreenshotMcpRequest& request,
             return storage::ConfigurationArchive::read(path);
         }));
         finish({{QStringLiteral("job_id"), id}});
-    } else if (method == u"snow_shot_settings_action" || method == u"snow_shot_storage_cleanup") {
+    } else if (method == u"kxcapture_settings_action" || method == u"kxcapture_storage_cleanup") {
         settings::SettingsActionBinding binding;
-        if (method == u"snow_shot_settings_action") {
+        if (method == u"kxcapture_settings_action") {
             const QString fieldId = params.value(QStringLiteral("field_id")).toString();
             const auto* field = ports.settings->registry().field(fieldId);
             const auto* action =
@@ -1163,8 +1163,8 @@ void McpApplicationService::Impl::handle(const ScreenshotMcpRequest& request,
             binding == settings::SettingsActionBinding::ImportConfiguration) {
             auto forwarded = request;
             forwarded.method = binding == settings::SettingsActionBinding::ExportConfiguration
-                                   ? QStringLiteral("snow_shot_configuration_export")
-                                   : QStringLiteral("snow_shot_configuration_import");
+                                   ? QStringLiteral("kxcapture_configuration_export")
+                                   : QStringLiteral("kxcapture_configuration_import");
             handle(forwarded, std::move(completion));
             return;
         }
@@ -1277,7 +1277,7 @@ void McpApplicationService::Impl::handle(const ScreenshotMcpRequest& request,
             return;
         if (binding != settings::SettingsActionBinding::ExportLogs && !cache)
             observe();
-    } else if (method == u"snow_shot_templates_list") {
+    } else if (method == u"kxcapture_templates_list") {
         const auto kind = params.value(QStringLiteral("kind")).toString();
         QJsonArray items;
         if (kind == u"drawing") {
@@ -1295,7 +1295,7 @@ void McpApplicationService::Impl::handle(const ScreenshotMcpRequest& request,
         }
         finish({{QStringLiteral("templates"), items},
                 {QStringLiteral("revision"), static_cast<qint64>(configuration().revision())}});
-    } else if (method == u"snow_shot_templates_update") {
+    } else if (method == u"kxcapture_templates_update") {
         const auto kind = params.value(QStringLiteral("kind")).toString();
         const auto items = params.value(QStringLiteral("templates")).toArray();
         if (items.size() > 128) {
@@ -1334,7 +1334,7 @@ void McpApplicationService::Impl::handle(const ScreenshotMcpRequest& request,
                        : storage::WatermarkTemplateSettings().setTemplates(watermarks);
         });
 #if SNOW_SHOT_ENABLE_TEXT_TRANSLATION
-    } else if (method == u"snow_shot_translation_catalog") {
+    } else if (method == u"kxcapture_translation_catalog") {
         if (!ports.translation) {
             error(QStringLiteral("unavailable"));
             return;
@@ -1357,7 +1357,7 @@ void McpApplicationService::Impl::handle(const ScreenshotMcpRequest& request,
                  QJsonObject{{QStringLiteral("source_language"), preferences.sourceLanguage},
                              {QStringLiteral("target_language"), preferences.targetLanguage},
                              {QStringLiteral("model_id"), preferences.modelId}}}});
-    } else if (method == u"snow_shot_translation_start") {
+    } else if (method == u"kxcapture_translation_start") {
         if (!ports.translation || !ports.jobs) {
             error(QStringLiteral("unavailable"));
             return;

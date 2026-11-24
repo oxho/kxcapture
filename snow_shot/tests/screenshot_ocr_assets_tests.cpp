@@ -41,7 +41,7 @@ const QString kWindowsWorkerName =
 const QString kWindowsArchiveName =
     QStringLiteral("snow-ocr-runtime-1.3.0-%1.zip").arg(kWindowsPlatform);
 #ifdef Q_OS_MACOS
-const QString kWorkerName = QStringLiteral("snow-ocr-process");
+const QString kWorkerName = QStringLiteral("kxcapture-ocr");
 #if defined(Q_PROCESSOR_ARM_64)
 const QString kMacPlatform = QStringLiteral("macos-arm64");
 const QString kOtherMacPlatform = QStringLiteral("macos-x64");

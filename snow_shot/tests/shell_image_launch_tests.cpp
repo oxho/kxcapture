@@ -38,7 +38,7 @@ void launchArguments() {
     require(!normal.requested && normal.valid && normal.paths.isEmpty(),
             "normal launch flags do not become image requests");
 
-    const QString flag = QStringLiteral("--edit-with-snow-shot");
+    const QString flag = QStringLiteral("--edit-with-kxcapture");
     for (const QStringList& invalid :
          {QStringList{flag}, QStringList{flag, QString{}},
           QStringList{flag, QStringLiteral("relative.png")},
@@ -69,7 +69,7 @@ void imageSuffixes() {
                             QStringLiteral("jpg"), QStringLiteral("jpeg"), QStringLiteral("webp"),
                             QStringLiteral("jxl"), QStringLiteral("avif"), QStringLiteral("bmp"),
                             QStringLiteral("tif"), QStringLiteral("tiff")},
-            "shell registration covers the formats accepted by Snow Shot's file image reader");
+            "shell registration covers the formats accepted by KXCapture's file image reader");
     require(!extensions.contains(QStringLiteral("txt")) &&
                 !extensions.contains(QStringLiteral("html")) &&
                 !extensions.contains(QStringLiteral("htm")),

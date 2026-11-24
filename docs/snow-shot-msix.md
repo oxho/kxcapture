@@ -1,6 +1,6 @@
-# Publish Snow Shot to Microsoft Store
+# Publish KXCapture to Microsoft Store
 
-The Store release contains Snow Shot Full for x64. Microsoft Store
+The Store release contains KXCapture Full for x64. Microsoft Store
 manages installation, updates and removal. Standalone NSIS and portable releases
 remain available through their existing release process.
 
@@ -11,14 +11,14 @@ Verify the reserved product's identity in Partner Center against
 
 | Field | Value |
 | --- | --- |
-| Package name | `SnowApps.SnowShot` |
-| Publisher | `CN=E1F3693C-C740-4D31-B5DA-7520890E22DC` |
-| Publisher display name | `Snow Apps` |
-| Package family | `SnowApps.SnowShot_3pp9w6ncw7bs0` |
-| Store product ID | `9NRTJ1GBX69V` |
+| Package name | not configured |
+| Publisher | not configured |
+| Publisher display name | not configured |
+| Package family | not configured |
+| Store product ID | not configured |
 
-Keep this identity across releases. A change also affects startup, MCP and access
-to existing Store data.
+The committed `store-identity.json` leaves these fields empty. Do not restore the
+upstream Store identity. Fill them only when Partner Center values are supplied.
 
 Use PowerShell 7.2+, the repository's Windows build toolchain, static Qt and
 vcpkg dependencies, and Windows SDK 10.0.26100.0 or newer with MakeAppx, MakePri
@@ -38,7 +38,7 @@ Before submission, review the [English privacy policy](snow-shot-privacy-policy.
 [publisher review appendix](snow-shot-privacy-publisher-review.md). Confirm the
 outstanding deployment facts and approve the public text. Publish it through the
 website project at `D:\snow-apps-site`, then verify the live page at
-`https://snowshot.top/privacy.html`. Local package and website builds do not confirm
+` Local package and website builds do not confirm
 live publication or how the deployed service handles data.
 
 ## Build the submission package
@@ -177,7 +177,7 @@ pwsh -File scripts/test-windows-release-workflow.ps1
 ```
 
 The SDK fixture checks resource generation, packing and unpacking for x64 with
-synthetic executables. It does not certify Snow Shot. A release also needs the
+synthetic executables. It does not certify KXCapture. A release also needs the
 optimized production build and audited x64 package, followed by installation
 tests on real systems.
 
@@ -193,7 +193,7 @@ Before submission:
   shortcuts, capture, annotation, pinning and recording.
 - Check denied microphone/camera access, startup enable/disable, user-disabled and
   policy-disabled startup, and Explorer's Edit action. Right-click supported image
-  and text files with another app set as their default: check Edit with Snow Shot
+  and text files with another app set as their default: check Edit with KXCapture
   in Windows 10's classic menu and Windows 11's modern menu and Show more options.
   Test multiple selections, Unicode paths and paths containing spaces; unsupported
   files and folders must not offer the command. Verify the MCP alias with a
@@ -214,11 +214,11 @@ scripts do not run WACK, upload to Partner Center or complete publisher review.
 ## Store behavior and recovery limits
 
 Startup is initially disabled. Users can enable it in Settings, subject to Windows
-policy. The package declares supported file types and an Explorer Edit with Snow Shot
+policy. The package declares supported file types and an Explorer Edit with KXCapture
 command without changing the user's default file associations. The native
-`SnowShotExplorerCommand.dll` implements `IExplorerCommand` and is registered by
+`KXCaptureExplorerCommand.dll` implements `IExplorerCommand` and is registered by
 the MSIX manifest for both classic menus and the Windows 11 modern menu. Windows
-manages registration and removes it when the package is uninstalled; Snow Shot
+manages registration and removes it when the package is uninstalled; KXCapture
 does not write runtime shell registrations. See Microsoft's
 [packaged Explorer command guidance](https://learn.microsoft.com/en-us/windows/apps/desktop/modernize/integrate-packaged-app-with-file-explorer).
 MCP uses the console alias
@@ -228,7 +228,7 @@ The Store build uses separate default settings/data locations from the standalon
 app. It omits administrator launch and runtime shell-registration controls.
 Microphone and camera features remain subject to Windows privacy settings.
 
-During an update, Snow Shot can defer cooperative shutdown while work is active.
+During an update, KXCapture can defer cooperative shutdown while work is active.
 When notified of forced shutdown, it attempts to preserve work for up to four
 seconds. The most recent pin edit may still be lost. Recording recovery can reopen
 a finalized `.snowrec` source or reveal retained files on the next launch.
@@ -239,7 +239,7 @@ that incomplete media can be played or exported.
 
 Follow Microsoft's [MSIX submission guide](https://learn.microsoft.com/en-us/windows/apps/publish/publish-your-app/create-app-submission?pivots=store-installer-msix):
 
-1. Open the reserved Snow Shot product and verify its Product identity before
+1. Open the reserved KXCapture product and verify its Product identity before
    uploading the x64 package. Check the processed OS, architecture and language
    information.
 2. Increase the stable app version for every replacement release. `major.minor.patch`
@@ -260,11 +260,11 @@ Follow Microsoft's [MSIX submission guide](https://learn.microsoft.com/en-us/win
 
 Suggested reviewer notes, to confirm against the submitted build:
 
-> Snow Shot Full is a native desktop capture, annotation, pinning and recording
+> KXCapture Full is a native desktop capture, annotation, pinning and recording
 > app. Core capture and bundled Small OCR work offline without an account. Launch
 > from Start, capture a region, annotate/save it and pin an image. Recording has
 > microphone and camera controls and supports Windows permission denial. Explorer's
-> Snow Shot Edit action opens supported files. Optional official online recognition
+> KXCapture Edit action opens supported files. Optional official online recognition
 > and AI features need a network connection; custom providers need configuration.
 > About links to privacy and feedback. Settings can enable startup and authenticated
 > local MCP through snow-shot-store-mcp.exe. Microsoft Store manages updates.

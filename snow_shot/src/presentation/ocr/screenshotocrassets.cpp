@@ -253,7 +253,7 @@ std::optional<Descriptor> loadDescriptor(const QString& root, QString* error) {
     result.bundled = true;
 #endif
     result.executable = result.bundled
-                            ? QStringLiteral("snow-ocr-process")
+                            ? QStringLiteral("kxcapture-ocr")
                             : QStringLiteral("snow-ocr-process-%1-%2.exe")
                                   .arg(result.runtimeVersion, QString::fromLatin1(kPlatform));
     const auto defaultModel =
@@ -619,7 +619,7 @@ bool downloadOnce(QNetworkAccessManager* manager, const FileDescriptor& descript
     QNetworkRequest request(descriptor.url);
     request.setAttribute(QNetworkRequest::RedirectPolicyAttribute,
                          QNetworkRequest::NoLessSafeRedirectPolicy);
-    request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("SnowShot/ocr-assets"));
+    request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("KXCapture/ocr-assets"));
     request.setRawHeader("Referer", "https://www.modelscope.cn/");
     QNetworkReply* reply = manager->get(request);
     QEventLoop loop;

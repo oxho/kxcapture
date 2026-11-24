@@ -20,7 +20,7 @@
         "VCPKG_FORCE_SYSTEM_BINARIES": null
       },
       "cacheVariables": {
-        "SNOW_APPS_FREE_TRANSLATION_API_BASE_URL": "https://index-translate.bilibili.com/v1",
+        "SNOW_APPS_FREE_TRANSLATION_API_BASE_URL": "",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
         "CMAKE_CXX_EXTENSIONS": "OFF",
         "SNOW_APPS_ENABLE_RELEASE_OPTIMIZATION": "ON",
@@ -74,7 +74,7 @@
         "CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE": "ON",
         "SNOW_APPS_RELEASE_STATIC": "OFF",
         "SNOW_APPS_PACKAGE_SNOW_SHOT": "OFF",
-        "SNOW_APPS_API_BASE_URL": "https://snowshot.top",
+        "SNOW_APPS_API_BASE_URL": "",
         "SNOW_IMAGE_PROFILE": "full",
         "SNOW_IMAGE_DEFAULT_LINKAGE": "static"
       }
@@ -99,14 +99,14 @@
         "SNOW_APPS_BUILD_BENCHMARKS": "OFF",
         "SNOW_APPS_RELEASE_STATIC": "OFF",
         "SNOW_APPS_PACKAGE_SNOW_SHOT": "OFF",
-        "SNOW_APPS_API_BASE_URL": "https://test.snowshot.top",
+        "SNOW_APPS_API_BASE_URL": "",
         "SNOW_IMAGE_PROFILE": "full",
         "SNOW_IMAGE_DEFAULT_LINKAGE": "static"
       }
     },
     {
       "name": "snow-shot-msvc-release",
-      "displayName": "Snow Shot MSVC Static Qt Release",
+      "displayName": "KXCapture MSVC Static Qt Release",
       "inherits": "windows-msvc-base",
       "cacheVariables": {
         "CMAKE_CONFIGURATION_TYPES": "Release",
@@ -126,14 +126,14 @@
         "SNOW_APPS_RELEASE_STATIC": "ON",
         "SNOW_APPS_QT_STATIC": "ON",
         "SNOW_APPS_PACKAGE_SNOW_SHOT": "ON",
-        "SNOW_APPS_API_BASE_URL": "https://snowshot.top",
+        "SNOW_APPS_API_BASE_URL": "",
         "SNOW_IMAGE_PROFILE": "redistributable",
         "SNOW_IMAGE_DEFAULT_LINKAGE": "static"
       }
     },
     {
       "name": "snow-shot-msvc-fast",
-      "displayName": "Snow Shot MSVC Fast Static Build",
+      "displayName": "KXCapture MSVC Fast Static Build",
       "inherits": "snow-shot-msvc-release",
       "binaryDir": "${sourceDir}/build/${presetName}",
       "cacheVariables": {
@@ -159,7 +159,7 @@
         "VCPKG_ROOT": "${sourceDir}/.tools/vcpkg"
       },
       "cacheVariables": {
-        "SNOW_APPS_FREE_TRANSLATION_API_BASE_URL": "https://index-translate.bilibili.com/v1",
+        "SNOW_APPS_FREE_TRANSLATION_API_BASE_URL": "",
         "CMAKE_OSX_DEPLOYMENT_TARGET": "15.0",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
         "VCPKG_INSTALLED_DIR": "${sourceDir}/.tools/macos/installed/dynamic",
@@ -191,12 +191,12 @@
         "SNOW_APPS_ENABLE_RELEASE_SIZE_OPTIMIZATION": "ON",
         "SNOW_APPS_QT_STATIC": "ON",
         "SNOW_MACOS_CODESIGN_IDENTITY": "-",
-        "SNOW_APPS_API_BASE_URL": "https://snowshot.top"
+        "SNOW_APPS_API_BASE_URL": ""
       }
     },
     {
       "name": "snow-shot-macos-arm64-debug",
-      "displayName": "Snow Shot macOS arm64 Debug",
+      "displayName": "KXCapture macOS arm64 Debug",
       "inherits": "macos-base",
       "cacheVariables": {
         "CMAKE_OSX_ARCHITECTURES": "arm64",
@@ -208,13 +208,13 @@
         "SNOW_APPS_RELEASE_STATIC": "OFF",
         "SNOW_APPS_QT_STATIC": "OFF",
         "SNOW_APPS_PACKAGE_SNOW_SHOT": "OFF",
-        "SNOW_APPS_API_BASE_URL": "https://test.snowshot.top",
+        "SNOW_APPS_API_BASE_URL": "",
         "SNOW_APPS_ENABLE_RELEASE_OPTIMIZATION": "ON"
       }
     },
     {
       "name": "snow-shot-macos-arm64-performance",
-      "displayName": "Snow Shot macOS arm64 Performance",
+      "displayName": "KXCapture macOS arm64 Performance",
       "inherits": "macos-base",
       "cacheVariables": {
         "CMAKE_OSX_ARCHITECTURES": "arm64",
@@ -226,13 +226,13 @@
         "SNOW_APPS_RELEASE_STATIC": "OFF",
         "SNOW_APPS_QT_STATIC": "OFF",
         "SNOW_APPS_PACKAGE_SNOW_SHOT": "OFF",
-        "SNOW_APPS_API_BASE_URL": "https://snowshot.top",
+        "SNOW_APPS_API_BASE_URL": "",
         "SNOW_APPS_ENABLE_RELEASE_OPTIMIZATION": "ON"
       }
     },
     {
       "name": "snow-shot-macos-arm64-release",
-      "displayName": "Snow Shot macOS arm64 Static Qt Release",
+      "displayName": "KXCapture macOS arm64 Static Qt Release",
       "inherits": "macos-release-base",
       "cacheVariables": {
         "CMAKE_OSX_ARCHITECTURES": "arm64",
@@ -246,7 +246,7 @@
     },
     {
       "name": "snow-shot-macos-arm64-fast",
-      "displayName": "Snow Shot macOS arm64 Fast Static Build",
+      "displayName": "KXCapture macOS arm64 Fast Static Build",
       "inherits": "macos-release-base",
       "cacheVariables": {
         "CMAKE_OSX_ARCHITECTURES": "arm64",
@@ -262,7 +262,7 @@
     },
     {
       "name": "snow-shot-macos-x64-debug",
-      "displayName": "Snow Shot macOS x64 Debug",
+      "displayName": "KXCapture macOS x64 Debug",
       "inherits": "macos-base",
       "cacheVariables": {
         "CMAKE_OSX_ARCHITECTURES": "x86_64",
@@ -274,14 +274,14 @@
         "SNOW_APPS_RELEASE_STATIC": "OFF",
         "SNOW_APPS_QT_STATIC": "OFF",
         "SNOW_APPS_PACKAGE_SNOW_SHOT": "OFF",
-        "SNOW_APPS_API_BASE_URL": "https://test.snowshot.top",
+        "SNOW_APPS_API_BASE_URL": "",
         "SNOW_APPS_ENABLE_RELEASE_OPTIMIZATION": "ON",
         "SNOW_APPS_BUILD_SNOW_SHOT_MINI": "OFF"
       }
     },
     {
       "name": "snow-shot-macos-x64-performance",
-      "displayName": "Snow Shot macOS x64 Performance",
+      "displayName": "KXCapture macOS x64 Performance",
       "inherits": "macos-base",
       "cacheVariables": {
         "CMAKE_OSX_ARCHITECTURES": "x86_64",
@@ -293,14 +293,14 @@
         "SNOW_APPS_RELEASE_STATIC": "OFF",
         "SNOW_APPS_QT_STATIC": "OFF",
         "SNOW_APPS_PACKAGE_SNOW_SHOT": "OFF",
-        "SNOW_APPS_API_BASE_URL": "https://snowshot.top",
+        "SNOW_APPS_API_BASE_URL": "",
         "SNOW_APPS_ENABLE_RELEASE_OPTIMIZATION": "ON",
         "SNOW_APPS_BUILD_SNOW_SHOT_MINI": "OFF"
       }
     },
     {
       "name": "snow-shot-macos-x64-release",
-      "displayName": "Snow Shot macOS x64 Static Qt Release",
+      "displayName": "KXCapture macOS x64 Static Qt Release",
       "inherits": "macos-release-base",
       "cacheVariables": {
         "CMAKE_OSX_ARCHITECTURES": "x86_64",
@@ -315,7 +315,7 @@
     },
     {
       "name": "snow-shot-macos-x64-fast",
-      "displayName": "Snow Shot macOS x64 Fast Static Build",
+      "displayName": "KXCapture macOS x64 Fast Static Build",
       "inherits": "macos-release-base",
       "cacheVariables": {
         "CMAKE_OSX_ARCHITECTURES": "x86_64",
@@ -343,7 +343,7 @@
         "VCPKG_FORCE_SYSTEM_BINARIES": null
       },
       "cacheVariables": {
-        "SNOW_APPS_FREE_TRANSLATION_API_BASE_URL": "https://index-translate.bilibili.com/v1",
+        "SNOW_APPS_FREE_TRANSLATION_API_BASE_URL": "",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
         "CMAKE_CXX_EXTENSIONS": "OFF",
         "SNOW_APPS_ENABLE_RELEASE_OPTIMIZATION": "ON",
@@ -372,7 +372,7 @@
     },
     {
       "name": "snow-shot-msvc-arm64-debug",
-      "displayName": "Snow Shot MSVC ARM64 Debug",
+      "displayName": "KXCapture MSVC ARM64 Debug",
       "inherits": "snow-shot-msvc-arm64-base",
       "cacheVariables": {
         "CMAKE_CONFIGURATION_TYPES": "Debug",
@@ -381,7 +381,7 @@
         "SNOW_APPS_BUILD_BENCHMARKS": "OFF",
         "SNOW_APPS_RELEASE_STATIC": "OFF",
         "SNOW_APPS_PACKAGE_SNOW_SHOT": "OFF",
-        "SNOW_APPS_API_BASE_URL": "https://test.snowshot.top",
+        "SNOW_APPS_API_BASE_URL": "",
         "SNOW_IMAGE_PROFILE": "full",
         "SNOW_IMAGE_DEFAULT_LINKAGE": "static",
         "VCPKG_MANIFEST_FEATURES": "snow-shot;full-codecs",
@@ -390,7 +390,7 @@
     },
     {
       "name": "snow-shot-msvc-arm64-performance",
-      "displayName": "Snow Shot MSVC ARM64 Performance",
+      "displayName": "KXCapture MSVC ARM64 Performance",
       "inherits": "snow-shot-msvc-arm64-base",
       "cacheVariables": {
         "CMAKE_CONFIGURATION_TYPES": "Release",
@@ -400,7 +400,7 @@
         "CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE": "OFF",
         "SNOW_APPS_RELEASE_STATIC": "OFF",
         "SNOW_APPS_PACKAGE_SNOW_SHOT": "OFF",
-        "SNOW_APPS_API_BASE_URL": "https://snowshot.top",
+        "SNOW_APPS_API_BASE_URL": "",
         "SNOW_IMAGE_PROFILE": "full",
         "SNOW_IMAGE_DEFAULT_LINKAGE": "static",
         "VCPKG_MANIFEST_FEATURES": "snow-shot;full-codecs",
@@ -409,7 +409,7 @@
     },
     {
       "name": "snow-shot-msvc-arm64-release",
-      "displayName": "Snow Shot MSVC ARM64 Release",
+      "displayName": "KXCapture MSVC ARM64 Release",
       "inherits": "snow-shot-msvc-arm64-base",
       "cacheVariables": {
         "CMAKE_CONFIGURATION_TYPES": "Release",
@@ -429,7 +429,7 @@
         "SNOW_APPS_RELEASE_STATIC": "ON",
         "SNOW_APPS_QT_STATIC": "ON",
         "SNOW_APPS_PACKAGE_SNOW_SHOT": "ON",
-        "SNOW_APPS_API_BASE_URL": "https://snowshot.top",
+        "SNOW_APPS_API_BASE_URL": "",
         "SNOW_IMAGE_PROFILE": "redistributable",
         "SNOW_IMAGE_DEFAULT_LINKAGE": "static",
         "SNOW_APPS_BUILD_SNOW_SHOT_MINI": "ON"
@@ -437,7 +437,7 @@
     },
     {
       "name": "snow-shot-msvc-arm64-fast",
-      "displayName": "Snow Shot MSVC ARM64 Fast",
+      "displayName": "KXCapture MSVC ARM64 Fast",
       "inherits": "snow-shot-msvc-arm64-release",
       "binaryDir": "${sourceDir}/build/${presetName}",
       "cacheVariables": {
@@ -452,7 +452,7 @@
     },
     {
       "name": "snow-shot-msvc-store-release",
-      "displayName": "Snow Shot Microsoft Store x64 Release",
+      "displayName": "KXCapture Microsoft Store x64 Release",
       "inherits": "snow-shot-msvc-release",
       "binaryDir": "${sourceDir}/build/${presetName}",
       "cacheVariables": {

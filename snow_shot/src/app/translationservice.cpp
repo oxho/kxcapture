@@ -207,7 +207,8 @@ void TranslationService::publishModels(bool resolveSelection) {
     m_models.removeIf([](const auto& model) {
         return model.id == freeTranslationId || model.id == fastTranslationId;
     });
-    m_models.prepend({freeTranslationId, tr("Free translation"), false, freeTranslationId, false});
+    m_models.prepend({freeTranslationId, tr("Free translation"), false, freeTranslationId, false,
+                      !m_client->freeTranslationConfigured()});
     if (m_fastAvailable)
         m_models.insert(
             1, {fastTranslationId, tr("Fast Translation"), false, fastTranslationId, false});

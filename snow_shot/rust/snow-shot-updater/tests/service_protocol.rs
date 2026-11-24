@@ -9,7 +9,7 @@ use tempfile::TempDir;
 #[test]
 fn operational_commands_reject_offline_architecture_overrides() {
     let temporary = TempDir::new().unwrap();
-    let executable = env!("CARGO_BIN_EXE_snow-shot-updater");
+    let executable = env!("CARGO_BIN_EXE_kxcapture-updater");
     let target = temporary.path().to_str().unwrap();
     let baseline = Command::new(executable)
         .args(["--transaction-state", "--target", target])
@@ -69,7 +69,7 @@ impl ServiceProcess {
             .unwrap(),
         )
         .unwrap();
-        let mut child = Command::new(env!("CARGO_BIN_EXE_snow-shot-updater"))
+        let mut child = Command::new(env!("CARGO_BIN_EXE_kxcapture-updater"))
             .args([
                 "--service",
                 "--target",

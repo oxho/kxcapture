@@ -1,4 +1,4 @@
-// Snow Shot integration for MicroTeX 0e3707f6. This file is compiled into the private dependency.
+// KXCapture integration for MicroTeX 0e3707f6. This file is compiled into the private dependency.
 #ifndef SNOW_MICROTEX_PREVIEW_H
 #define SNOW_MICROTEX_PREVIEW_H
 

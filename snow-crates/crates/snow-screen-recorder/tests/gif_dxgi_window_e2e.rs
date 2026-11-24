@@ -752,7 +752,7 @@ fn dxgi_large_region_remains_complete_through_snow_shot_mp4_export() {
         LARGE_WINDOW_WIDTH as u32,
         LARGE_WINDOW_HEIGHT as u32,
     );
-    assert_large_sparse_frames_are_complete(&exported_frames, "Snow Shot MP4 export");
+    assert_large_sparse_frames_are_complete(&exported_frames, "KXCapture MP4 export");
 }
 
 fn assert_large_sparse_frames_are_complete(frames: &[Vec<u8>], label: &str) {

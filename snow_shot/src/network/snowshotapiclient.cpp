@@ -448,7 +448,7 @@ QString httpFailureMessage(const QNetworkReply& reply, int status, const QString
 
 QString translationSystemPrompt(const SnowShotTranslationRequest& request) {
     return QStringLiteral(
-               "You are the translation engine for Snow Shot's screenshot text editor.\n"
+               "You are the translation engine for KXCapture's screenshot text editor.\n"
                "Source language: %1\n"
                "Target language: %2\n\n"
                "Translate the entire user message faithfully and naturally into the target "
@@ -627,7 +627,7 @@ QString SnowShotApiClient::configuredBaseUrl(const QString& savedUrl) {
     if (const auto url = snow_shot::normalizedServerUrl(savedUrl); url && !url->isEmpty())
         return *url;
     const QString overrideUrl =
-        QProcessEnvironment::systemEnvironment().value(QStringLiteral("SNOW_SHOT_API_BASE_URL"));
+        QProcessEnvironment::systemEnvironment().value(QStringLiteral("KXCAPTURE_API_BASE_URL"));
     if (const auto url = snow_shot::normalizedServerUrl(overrideUrl); url && !url->isEmpty())
         return *url;
     return normalizedBaseUrl(QStringLiteral(SNOW_SHOT_API_BASE_URL));
@@ -757,16 +757,16 @@ QString SnowShotApiClient::formatFailure(int httpStatus, const QString& failureC
                                          const QString& description, QStringView model) {
     if (snowShotExpertModelId(model)) {
         if (failureCode == u"account_required")
-            return tr("Sign in to your Snow Shot account to use Expert Model");
+            return tr("Sign in to your KXCapture account to use Expert Model");
         if (failureCode == u"insufficient_credits")
             return tr("Your credits cannot cover this Expert Model request. "
                       "Purchase credits from Account to continue");
     }
     if (failureCode == u"account_required" ||
         (httpStatus == 401 && description.isEmpty() && failureCode.isEmpty()))
-        return tr("Sign in to your Snow Shot account to use this service");
+        return tr("Sign in to your KXCapture account to use this service");
     if (failureCode == u"invalid_session")
-        return tr("Your Snow Shot session is no longer valid. Sign in again");
+        return tr("Your KXCapture session is no longer valid. Sign in again");
     if (failureCode == u"insufficient_credits")
         return tr("Your available credits cannot cover this request. Purchase credits in Account");
     if (httpStatus == 402 && description.isEmpty() && failureCode.isEmpty())

@@ -33,7 +33,7 @@ try {
     & $workflow -WebsiteDirectory $site -ServerPort 2222 -RemoteWebRoot '/srv/snowshot'
     Require ($global:SnowWebsiteTestSettings.ServerPort -eq 2222 -and
         $global:SnowWebsiteTestSettings.RemoteWebRoot -ceq '/srv/snowshot') 'Forward server overrides.'
-    Write-Output 'Snow Shot website integration tests passed.'
+    Write-Output 'KXCapture website integration tests passed.'
 } finally {
     $resolvedTestRoot = [IO.Path]::GetFullPath($testRoot)
     $tempPrefix = [IO.Path]::GetFullPath([IO.Path]::GetTempPath()).TrimEnd('\') + '\'

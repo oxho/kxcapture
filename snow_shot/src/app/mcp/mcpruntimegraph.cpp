@@ -58,15 +58,15 @@ class McpRuntimeGraph::Impl {
         });
         QObject::connect(jobs.get(), &McpJobRegistry::changed, &q,
                          [this](quint64 owner, const QString& id) {
-                             publishChanged(owner, QStringLiteral("snow-shot://jobs/") + id);
+                             publishChanged(owner, QStringLiteral("kxcapture://jobs/") + id);
                          });
         QObject::connect(documents.get(), &McpDocumentService::changed, &q,
                          [this](quint64 owner, const QString& id) {
-                             publishChanged(owner, QStringLiteral("snow-shot://documents/") + id);
+                             publishChanged(owner, QStringLiteral("kxcapture://documents/") + id);
                          });
         QObject::connect(documents.get(), &McpDocumentService::artifactChanged, &q,
                          [this](quint64 owner, const QString& id) {
-                             publishChanged(owner, QStringLiteral("snow-shot://artifacts/") + id);
+                             publishChanged(owner, QStringLiteral("kxcapture://artifacts/") + id);
                          });
 
         session = std::make_unique<ScreenshotMcpSession>(std::move(ports.session), &q);

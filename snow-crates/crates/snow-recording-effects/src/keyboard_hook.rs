@@ -374,7 +374,7 @@ mod platform {
                 let hwnd = CreateWindowExW(
                     WINDOW_EX_STYLE::default(),
                     w!("STATIC"),
-                    w!("Snow Shot keyboard recording verification"),
+                    w!("KXCapture keyboard recording verification"),
                     WS_OVERLAPPEDWINDOW,
                     30,
                     30,

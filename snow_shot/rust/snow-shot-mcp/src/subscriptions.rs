@@ -107,22 +107,22 @@ mod tests {
         let (sender, mut receiver) = broadcast::channel(2);
         for _ in 0..3 {
             let _ = sender.send(AppEvent {
-                uri: "snow-shot://jobs/one".into(),
+                uri: "kxcapture://jobs/one".into(),
             });
         }
-        let changed = batch(&mut receiver, &["snow-shot://jobs/two".into()])
+        let changed = batch(&mut receiver, &["kxcapture://jobs/two".into()])
             .await
             .unwrap();
         assert_eq!(changed.len(), 2);
-        assert!(changed.contains("snow-shot://jobs/two"));
+        assert!(changed.contains("kxcapture://jobs/two"));
         let filter = accepted(
             &SubscriptionFilter::builder()
-                .resource_subscriptions(["file:///secret", "snow-shot://jobs/one"])
+                .resource_subscriptions(["file:///secret", "kxcapture://jobs/one"])
                 .build(),
         );
         assert_eq!(
             filter.resource_subscriptions.unwrap(),
-            vec!["snow-shot://jobs/one"]
+            vec!["kxcapture://jobs/one"]
         );
     }
 }

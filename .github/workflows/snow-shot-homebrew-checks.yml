@@ -1,4 +1,4 @@
-name: Check Snow Shot Homebrew support
+name: Check KXCapture Homebrew support
 
 on:
   workflow_dispatch:
@@ -60,7 +60,7 @@ jobs:
           brew --version
       - name: Generate an unpublished cask fixture
         run: |
-          export CASK_FIXTURE="$(brew --repository)/Library/Taps/mg-chao/homebrew-preflight/Casks/snow-shot.rb"
+          export CASK_FIXTURE="$(brew --repository)/Library/Taps/oxho/homebrew-preflight/Casks/snow-shot.rb"
           python3 - <<'PY'
           import importlib.util
           import os
@@ -82,16 +82,16 @@ jobs:
           PY
       - name: Check Homebrew style and offline metadata
         run: |
-          brew trust --cask mg-chao/preflight/snow-shot
-          brew style --cask mg-chao/preflight/snow-shot
-          brew audit --cask --arch=all mg-chao/preflight/snow-shot
-          brew trust --cask mg-chao/preflight/snow-shot@beta
-          brew style --cask mg-chao/preflight/snow-shot@beta
-          brew audit --cask --arch=all mg-chao/preflight/snow-shot@beta
+          brew trust --cask oxho/preflight/snow-shot
+          brew style --cask oxho/preflight/snow-shot
+          brew audit --cask --arch=all oxho/preflight/snow-shot
+          brew trust --cask oxho/preflight/snow-shot@beta
+          brew style --cask oxho/preflight/snow-shot@beta
+          brew audit --cask --arch=all oxho/preflight/snow-shot@beta
           for cask in snow-shot-mini snow-shot-mini@beta; do
-            brew trust --cask "mg-chao/preflight/$cask"
-            brew style --cask "mg-chao/preflight/$cask"
-            brew audit --cask --arch=all "mg-chao/preflight/$cask"
+            brew trust --cask "oxho/preflight/$cask"
+            brew style --cask "oxho/preflight/$cask"
+            brew audit --cask --arch=all "oxho/preflight/$cask"
           done
       - name: Verify native installer environment and lifecycle
         run: brew ruby scripts/test-snow-shot-homebrew-installer.rb "$GITHUB_WORKSPACE/scripts/prepare-snow-shot-homebrew.sh"
@@ -100,11 +100,5 @@ jobs:
     if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
-      - name: Verify configured tap credential
-        uses: actions/checkout@v4
-        with:
-          repository: mg-chao/homebrew-tap
-          ref: main
-          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
-      - name: Verify tap push authentication without changing the repository
-        run: git push --dry-run origin HEAD:main
+      - name: Upstream Homebrew tap is not used
+        run: echo "KXCapture does not check out or push mg-chao/homebrew-tap."

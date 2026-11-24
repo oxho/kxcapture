@@ -1,6 +1,6 @@
-# Snow Shot on Windows ARM64
+# KXCapture on Windows ARM64
 
-Snow Shot and Mini target native ARM64 on Windows 11. Builds are supported from
+KXCapture and Mini target native ARM64 on Windows 11. Builds are supported from
 x64 Windows hosts and ARM64 Windows hosts. ARM32 and ARM64EC are not supported.
 Existing x64 presets, artifact names, and update feeds retain their identities.
 
@@ -64,7 +64,7 @@ instructions only after an OS capability check. Optional FP16, dot-product, SVE,
 and SME instructions are not required by these first-party kernels. Existing scalar tails and unsupported
 architecture fallbacks retain the same bounds and rounding contracts.
 
-The Windows Snow Shot application profile uses only the 8-bit software x265
+The Windows KXCapture application profile uses only the 8-bit software x265
 encoder. Its `main8` feature disables loading missing 10/12-bit encoders from DLLs;
 the packaging audit requires the cache-derived schema-2 encoder capability marker.
 Hardware HEVC encoding and HEVC decoding remain available. Standalone compatibility

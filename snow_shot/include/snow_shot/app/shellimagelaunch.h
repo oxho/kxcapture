@@ -18,7 +18,7 @@ struct ShellImageLaunchRequest {
 parseShellImageLaunchRequest(const QStringList& arguments) {
     ShellImageLaunchRequest request;
     for (qsizetype index = 0; index < arguments.size(); ++index) {
-        if (arguments.at(index) != QStringLiteral("--edit-with-snow-shot"))
+        if (arguments.at(index) != QStringLiteral("--edit-with-kxcapture"))
             continue;
         request.requested = true;
         if (++index >= arguments.size()) {
@@ -52,7 +52,7 @@ parseShellImageLaunchRequest(const QStringList& arguments) {
 [[nodiscard]] inline QStringList shellImageLaunchArguments(const QStringList& paths) {
     QStringList arguments;
     for (const QString& path : paths) {
-        arguments.append(QStringLiteral("--edit-with-snow-shot"));
+        arguments.append(QStringLiteral("--edit-with-kxcapture"));
         arguments.append(path);
     }
     return arguments;

@@ -4,7 +4,7 @@ version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
-description = "Bounded, supervised image operations for Snow Shot"
+description = "Bounded, supervised image operations for KXCapture"
 
 [dependencies]
 snow-image-core = { path = "../snow-image-core" }

@@ -50,7 +50,7 @@ void require(bool condition, const char* message) {
 constexpr int kRecognitionTimeoutMs = 30'000;
 
 #ifdef Q_OS_MACOS
-const QString kWorkerName = QStringLiteral("snow-ocr-process");
+const QString kWorkerName = QStringLiteral("kxcapture-ocr");
 #else
 const QString kWorkerName = QStringLiteral("snow-ocr-process.exe");
 #endif

@@ -510,7 +510,7 @@ bool writeDocument(qsizetype pageCount, const PageProducer& produce, QIODevice* 
         options.creationTime.isValid() ? options.creationTime : QDateTime::currentDateTimeUtc();
     const int info =
         writer.object("<< /Title " + pdfString(options.title) + " /Creator " +
-                      pdfString(QStringLiteral("Snow Shot")) + " /CreationDate (D:" +
+                      pdfString(QStringLiteral("KXCapture")) + " /CreationDate (D:" +
                       time.toUTC().toString(QStringLiteral("yyyyMMddHHmmss")).toLatin1() + "Z) >>");
     if (isCancelled(cancelled, error))
         return false;

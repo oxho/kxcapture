@@ -283,7 +283,7 @@ def main():
         read_uris = set().union(*(set(report["read_resources"]) for report in reports))
         discovery = read("rust/snow-shot-mcp/src/discovery.rs")
         catalogs = discovery[discovery.index("fn resources()"):discovery.index("fn resource_request(")]
-        declared = set(re.findall(r'"(snow-shot://[^\"]+)"', catalogs))
+        declared = set(re.findall(r'"(kxcapture://[^\"]+)"', catalogs))
         for uri in declared:
             parts = re.split(r"(\{[^}]+\})", uri)
             pattern = "^" + "".join("[^/]+" if part.startswith("{") else re.escape(part) for part in parts) + "$"

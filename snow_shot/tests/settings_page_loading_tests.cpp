@@ -1024,7 +1024,7 @@ void pinnedTextFontControl(const settings::SettingsRegistry& registry,
     drainEvents();
     font->hidePopup();
     require(font->model()->rowCount() > 1, "pinned font popup loads installed families");
-    const QString unavailable = QStringLiteral("Snow Shot Missing Pin Font");
+    const QString unavailable = QStringLiteral("KXCapture Missing Pin Font");
     require(session.applySelectValue(settings::SettingsSelectBinding::PinTextFont, unavailable),
             "save unavailable pin font");
     drainEvents();

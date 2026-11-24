@@ -22,10 +22,12 @@ function ConvertTo-SnowMsixVersion {
 function Read-SnowMsixIdentity {
     param([string]$Path = (Join-Path $script:SnowMsixRepoRoot 'snow_shot/packaging/msix/store-identity.json'))
     $identity = Get-Content -LiteralPath $Path -Raw | ConvertFrom-Json
+    $configured = $false
     foreach ($name in @('Name', 'Publisher', 'PublisherDisplayName', 'PackageFamilyName', 'StoreId')) {
-        if (-not $identity.PSObject.Properties[$name] -or
-            [string]::IsNullOrWhiteSpace($identity.$name)) { throw "Missing Store identity field: $name" }
+        if (-not $identity.PSObject.Properties[$name]) { throw "Missing Store identity field: $name" }
+        if (-not [string]::IsNullOrWhiteSpace([string]$identity.$name)) { $configured = $true }
     }
+    if (-not $configured) { return $identity }
     if ($identity.Name -cnotmatch '^[A-Za-z0-9.-]{3,50}$' -or
         $identity.Publisher -notmatch '^CN=\S' -or $identity.Publisher.Length -gt 8192 -or
         $identity.PublisherDisplayName.Length -gt 256 -or
@@ -146,8 +148,8 @@ function Assert-SnowMsixAuditedStage {
         } elseif ($binaryExtension) {
             throw "Invalid or unsupported executable in Store payload: $($file.Path)"
         }
-        $license = $file.Path.StartsWith('share/snow-shot/licenses/', [StringComparison]::OrdinalIgnoreCase)
-        if ($license -and ($file.Path -cne 'share/snow-shot/licenses/LICENSES.txt' -or $file.Bytes -eq 0)) {
+        $license = $file.Path.StartsWith('share/kxcapture/licenses/', [StringComparison]::OrdinalIgnoreCase)
+        if ($license -and ($file.Path -cne 'share/kxcapture/licenses/LICENSES.txt' -or $file.Bytes -eq 0)) {
             throw 'Store releases must contain one nonempty consolidated LICENSES.txt.'
         }
         if (-not $license -and $extension -in @('.msi', '.msp', '.mst', '.msix', '.appx', '.msixbundle', '.appxbundle', '.appinstaller', '.lnk', '.url',
@@ -156,20 +158,20 @@ function Assert-SnowMsixAuditedStage {
             throw "Installer or script artifact in Store payload: $($file.Path)"
         }
     }
-    foreach ($required in @('bin/snow_shot.exe', 'bin/snow-shot-mcp.exe', 'bin/crashpad_handler.exe',
-            'bin/SnowShotExplorerCommand.dll',
+    foreach ($required in @('bin/kxcapture.exe', 'bin/kxcapture-mcp.exe', 'bin/crashpad_handler.exe',
+            'bin/KXCaptureExplorerCommand.dll',
             'bin/audios/camera_shutter.mp3', 'bin/assets/ocr/asset-manifest.json',
             'bin/assets/qrcode/detect.prototxt', 'bin/assets/qrcode/detect.caffemodel',
             'bin/assets/qrcode/sr.prototxt', 'bin/assets/qrcode/sr.caffemodel',
-            'share/snow-shot/licenses/LICENSES.txt')) {
+            'share/kxcapture/licenses/LICENSES.txt')) {
         if ($required -cnotin $actual.Path) { throw "Missing Store payload: $required" }
     }
     $manifest = Get-Content -LiteralPath (Join-Path $Stage 'bin/assets/ocr/asset-manifest.json') -Raw | ConvertFrom-Json
     if ($manifest.schema -ne 2 -or $manifest.runtime.platform -cne "windows-$Architecture" -or
         $manifest.default_model -cne 'small') { throw 'Store OCR identity does not match the target.' }
     $runtimeRoot = Join-Path $Stage "bin/assets/ocr/runtimes/$($manifest.runtime.version)/windows-$Architecture"
-    $expectedBinaries = @('bin/snow_shot.exe', 'bin/snow-shot-mcp.exe', 'bin/crashpad_handler.exe',
-        'bin/SnowShotExplorerCommand.dll',
+    $expectedBinaries = @('bin/kxcapture.exe', 'bin/kxcapture-mcp.exe', 'bin/crashpad_handler.exe',
+        'bin/KXCaptureExplorerCommand.dll',
         "bin/assets/ocr/runtimes/$($manifest.runtime.version)/windows-$Architecture/snow-ocr-process-$($manifest.runtime.version)-windows-$Architecture.exe")
     if ((@($binaryPaths | Sort-Object) -join ',') -cne (@($expectedBinaries | Sort-Object) -join ',')) {
         throw 'Store payload executable inventory differs from the static release contract.'
@@ -215,7 +217,7 @@ function Write-SnowMsixManifest {
     $text = $text.Replace('@FileTypes@', ($types -join "`n"))
     $menuTypes = @($extensions | ForEach-Object {
         "            <desktop5:ItemType Type=`"$_`">`n" +
-        '              <desktop5:Verb Id="EditWithSnowShot" Clsid="3F1E90A2-7D4B-4F21-9D8A-6B0C5E2F7093" />' + "`n" +
+        '              <desktop5:Verb Id="EditWithSnowShot" Clsid="125F9C90-A277-4ED7-82AB-8B2AE9B5BE61" />' + "`n" +
         '            </desktop5:ItemType>'
     })
     $text = $text.Replace('@ContextMenuItemTypes@', ($menuTypes -join "`n"))

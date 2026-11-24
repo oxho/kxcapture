@@ -47,7 +47,7 @@ bool AccountSecretStore::write(const QByteArray& value) const {
     DATA_BLOB input{static_cast<DWORD>(value.size()),
                     reinterpret_cast<BYTE*>(const_cast<char*>(value.constData()))};
     DATA_BLOB output{};
-    if (!CryptProtectData(&input, L"Snow Shot account", nullptr, nullptr, nullptr,
+    if (!CryptProtectData(&input, L"KXCapture account", nullptr, nullptr, nullptr,
                           CRYPTPROTECT_UI_FORBIDDEN, &output))
         return false;
     const QByteArray encrypted(reinterpret_cast<const char*>(output.pbData),

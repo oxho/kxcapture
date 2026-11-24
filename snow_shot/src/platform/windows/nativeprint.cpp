@@ -99,7 +99,7 @@ class ModernJob final : public std::enable_shared_from_this<ModernJob> {
                             document = self->m_document;
                         }
                         auto task = event.Request().CreatePrintTask(
-                            L"SnowShot", [self, document](const auto& args) {
+                            L"KXCapture", [self, document](const auto& args) {
                                 try {
                                     args.SetSource(document.template as<IPrintDocumentSource>());
                                 } catch (...) {

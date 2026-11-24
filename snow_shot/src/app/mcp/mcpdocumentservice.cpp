@@ -72,48 +72,48 @@ class NativeDocumentClipboard final : public McpDocumentService::Clipboard {
 constexpr qint64 kMaximumPixels = 64000000;
 constexpr qint64 kMaximumSourceBytes = 512LL * 1024 * 1024;
 constexpr qint64 kMaximumCacheBytes = 64LL * 1024 * 1024;
-const QStringList kTools{QStringLiteral("snow_shot_document_open"),
-                         QStringLiteral("snow_shot_document_list"),
-                         QStringLiteral("snow_shot_document_state"),
-                         QStringLiteral("snow_shot_document_clone"),
-                         QStringLiteral("snow_shot_document_apply_annotations"),
-                         QStringLiteral("snow_shot_document_set_selection"),
-                         QStringLiteral("snow_shot_document_undo"),
-                         QStringLiteral("snow_shot_document_redo"),
-                         QStringLiteral("snow_shot_document_render"),
-                         QStringLiteral("snow_shot_document_save"),
-                         QStringLiteral("snow_shot_document_copy"),
-                         QStringLiteral("snow_shot_document_pin"),
-                         QStringLiteral("snow_shot_document_set_selection_style"),
-                         QStringLiteral("snow_shot_document_close"),
-                         QStringLiteral("snow_shot_document_recognize"),
-                         QStringLiteral("snow_shot_document_present"),
-                         QStringLiteral("snow_shot_document_set_tool"),
-                         QStringLiteral("snow_shot_document_set_tool_style"),
-                         QStringLiteral("snow_shot_document_edit_elements"),
-                         QStringLiteral("snow_shot_document_draw_template"),
-                         QStringLiteral("snow_shot_document_sample_color"),
-                         QStringLiteral("snow_shot_document_recapture"),
-                         QStringLiteral("snow_shot_document_recognition_state"),
-                         QStringLiteral("snow_shot_document_edit_recognition"),
-                         QStringLiteral("snow_shot_document_export_recognition"),
-                         QStringLiteral("snow_shot_document_original_content"),
-                         QStringLiteral("snow_shot_document_auto_filter"),
-                         QStringLiteral("snow_shot_job_get"),
-                         QStringLiteral("snow_shot_job_list"),
-                         QStringLiteral("snow_shot_job_cancel"),
-                         QStringLiteral("snow_shot_artifact_list"),
-                         QStringLiteral("snow_shot_artifact_read"),
-                         QStringLiteral("snow_shot_artifact_release")};
+const QStringList kTools{QStringLiteral("kxcapture_document_open"),
+                         QStringLiteral("kxcapture_document_list"),
+                         QStringLiteral("kxcapture_document_state"),
+                         QStringLiteral("kxcapture_document_clone"),
+                         QStringLiteral("kxcapture_document_apply_annotations"),
+                         QStringLiteral("kxcapture_document_set_selection"),
+                         QStringLiteral("kxcapture_document_undo"),
+                         QStringLiteral("kxcapture_document_redo"),
+                         QStringLiteral("kxcapture_document_render"),
+                         QStringLiteral("kxcapture_document_save"),
+                         QStringLiteral("kxcapture_document_copy"),
+                         QStringLiteral("kxcapture_document_pin"),
+                         QStringLiteral("kxcapture_document_set_selection_style"),
+                         QStringLiteral("kxcapture_document_close"),
+                         QStringLiteral("kxcapture_document_recognize"),
+                         QStringLiteral("kxcapture_document_present"),
+                         QStringLiteral("kxcapture_document_set_tool"),
+                         QStringLiteral("kxcapture_document_set_tool_style"),
+                         QStringLiteral("kxcapture_document_edit_elements"),
+                         QStringLiteral("kxcapture_document_draw_template"),
+                         QStringLiteral("kxcapture_document_sample_color"),
+                         QStringLiteral("kxcapture_document_recapture"),
+                         QStringLiteral("kxcapture_document_recognition_state"),
+                         QStringLiteral("kxcapture_document_edit_recognition"),
+                         QStringLiteral("kxcapture_document_export_recognition"),
+                         QStringLiteral("kxcapture_document_original_content"),
+                         QStringLiteral("kxcapture_document_auto_filter"),
+                         QStringLiteral("kxcapture_job_get"),
+                         QStringLiteral("kxcapture_job_list"),
+                         QStringLiteral("kxcapture_job_cancel"),
+                         QStringLiteral("kxcapture_artifact_list"),
+                         QStringLiteral("kxcapture_artifact_read"),
+                         QStringLiteral("kxcapture_artifact_release")};
 QString identifier() {
     return QUuid::createUuid().toString(QUuid::WithoutBraces);
 }
 bool readOnly(const QString& method) {
     return method.endsWith(QStringLiteral("_list")) || method.endsWith(QStringLiteral("_state")) ||
            method.endsWith(QStringLiteral("_render")) ||
-           method == QStringLiteral("snow_shot_artifact_read") ||
-           method == QStringLiteral("snow_shot_job_get") ||
-           method == QStringLiteral("snow_shot_job_cancel");
+           method == QStringLiteral("kxcapture_artifact_read") ||
+           method == QStringLiteral("kxcapture_job_get") ||
+           method == QStringLiteral("kxcapture_job_cancel");
 }
 ScreenshotMcpResponse failure(const ScreenshotMcpRequest& request, const QString& code,
                               const QString& field = {}) {
@@ -536,13 +536,13 @@ class DocumentWorker final : public QObject {
         if (!request.expectedRevision || *request.expectedRevision != document->revision)
             return execute(request, canceled);
         qint64 charge = 0;
-        const bool clone = method == QStringLiteral("snow_shot_document_clone");
+        const bool clone = method == QStringLiteral("kxcapture_document_clone");
         if (clone)
             charge = document->historyCharge;
-        else if (method == QStringLiteral("snow_shot_document_apply_annotations") ||
-                 method == QStringLiteral("snow_shot_document_set_tool_style") ||
-                 method == QStringLiteral("snow_shot_document_edit_elements") ||
-                 (method == QStringLiteral("snow_shot_document_draw_template") &&
+        else if (method == QStringLiteral("kxcapture_document_apply_annotations") ||
+                 method == QStringLiteral("kxcapture_document_set_tool_style") ||
+                 method == QStringLiteral("kxcapture_document_edit_elements") ||
+                 (method == QStringLiteral("kxcapture_document_draw_template") &&
                   request.params.value(QStringLiteral("action")) == QStringLiteral("insert"))) {
             // Conservative retained-history admission: charge payload and affected elements,
             // including edits with very small inputs that affect a large existing selection.
@@ -574,14 +574,14 @@ class DocumentWorker final : public QObject {
                          const std::shared_ptr<std::atomic_bool>& canceled) {
         const auto& params = request.params;
         const auto& method = request.method;
-        if (method == QStringLiteral("snow_shot_document_list")) {
+        if (method == QStringLiteral("kxcapture_document_list")) {
             QJsonArray list;
             for (const auto& document : std::as_const(documents))
                 if (document->owner == request.connectionId)
                     list.append(document->state());
             return {success(request, {{QStringLiteral("documents"), list}}), {}};
         }
-        if (method == QStringLiteral("snow_shot_document_open")) {
+        if (method == QStringLiteral("kxcapture_document_open")) {
             const QString path = params.value(QStringLiteral("path")).toString();
             if (!QFileInfo(path).isAbsolute() || !QFileInfo(path).isFile() ||
                 path.startsWith(QStringLiteral("\\\\")) || path.startsWith(QStringLiteral("//")))
@@ -649,7 +649,7 @@ class DocumentWorker final : public QObject {
         if (found == documents.end() || (*found)->owner != request.connectionId)
             return {failure(request, QStringLiteral("document_not_found")), {}};
         auto& document = **found;
-        if (method == QStringLiteral("snow_shot_document_state"))
+        if (method == QStringLiteral("kxcapture_document_state"))
             return {success(request, document.state()), {}};
         if (!request.expectedRevision)
             return {failure(request, QStringLiteral("revision_required")), {}};
@@ -658,8 +658,8 @@ class DocumentWorker final : public QObject {
             response.errorDetails.insert(QStringLiteral("state"), document.state());
             return {response, {}};
         }
-        if (method == QStringLiteral("snow_shot_document_present") ||
-            method == QStringLiteral("snow_shot_document_pin")) {
+        if (method == QStringLiteral("kxcapture_document_present") ||
+            method == QStringLiteral("kxcapture_document_pin")) {
             McpDocumentService::Source source;
             source.images = document.sources;
             source.canvasBounds = document.canvasBounds;
@@ -669,7 +669,7 @@ class DocumentWorker final : public QObject {
             source.originalContent = document.originalContent;
             source.recognitionResults = document.recognitionResults;
             source.tool = document.tool;
-            if (method == QStringLiteral("snow_shot_document_pin")) {
+            if (method == QStringLiteral("kxcapture_document_pin")) {
                 SnowCanvasRuntime base;
                 const auto selection = document.selection.pixelSelection();
                 if (workObserved)
@@ -691,11 +691,11 @@ class DocumentWorker final : public QObject {
             }
             return {success(request, document.state()), {}, std::move(source)};
         }
-        if (method == QStringLiteral("snow_shot_document_recognition_state") ||
-            method == QStringLiteral("snow_shot_document_edit_recognition") ||
-            method == QStringLiteral("snow_shot_document_export_recognition"))
+        if (method == QStringLiteral("kxcapture_document_recognition_state") ||
+            method == QStringLiteral("kxcapture_document_edit_recognition") ||
+            method == QStringLiteral("kxcapture_document_export_recognition"))
             return {success(request, document.state()), {}};
-        if (method == QStringLiteral("snow_shot_document_original_content")) {
+        if (method == QStringLiteral("kxcapture_document_original_content")) {
             if (document.originalContent.isEmpty())
                 return {failure(request, QStringLiteral("original_content_unavailable")), {}};
             auto value = document.state();
@@ -704,7 +704,7 @@ class DocumentWorker final : public QObject {
             value.insert(QStringLiteral("local_file_path"), document.originalContent.localFilePath);
             return {success(request, std::move(value)), {}};
         }
-        if (method == QStringLiteral("snow_shot_document_set_tool")) {
+        if (method == QStringLiteral("kxcapture_document_set_tool")) {
             const auto tool = params.value(QStringLiteral("tool")).toString();
             if (!kCanvasTools.contains(tool))
                 return {
@@ -719,7 +719,7 @@ class DocumentWorker final : public QObject {
             }
             return {success(request, document.state()), {}};
         }
-        if (method == QStringLiteral("snow_shot_document_set_tool_style")) {
+        if (method == QStringLiteral("kxcapture_document_set_tool_style")) {
             const auto target = params.value(QStringLiteral("target")).toString();
             if (!kCanvasTools.contains(target))
                 return {failure(request, QStringLiteral("invalid_parameters"),
@@ -748,7 +748,7 @@ class DocumentWorker final : public QObject {
             invalidate(document);
             return {success(request, document.state()), {}};
         }
-        if (method == QStringLiteral("snow_shot_document_draw_template")) {
+        if (method == QStringLiteral("kxcapture_document_draw_template")) {
             if (params.value(QStringLiteral("action")) == QStringLiteral("export")) {
                 const auto payload = document.runtime.serializeSelectedDrawTemplate();
                 if (payload.isEmpty())
@@ -769,7 +769,7 @@ class DocumentWorker final : public QObject {
             invalidate(document);
             return {success(request, document.state()), {}};
         }
-        if (method == QStringLiteral("snow_shot_document_edit_elements")) {
+        if (method == QStringLiteral("kxcapture_document_edit_elements")) {
             SnowCanvasRuntimeEditor editor(document.runtime);
             const auto action = params.value(QStringLiteral("action")).toString();
             bool ok = false;
@@ -847,7 +847,7 @@ class DocumentWorker final : public QObject {
             invalidate(document);
             return {success(request, document.state()), {}};
         }
-        if (method == QStringLiteral("snow_shot_document_sample_color")) {
+        if (method == QStringLiteral("kxcapture_document_sample_color")) {
             const auto point = params.value(QStringLiteral("point")).toArray();
             if (point.size() != 2 || !point[0].isDouble() || !point[1].isDouble() ||
                 !std::isfinite(point[0].toDouble()) || !std::isfinite(point[1].toDouble()))
@@ -875,7 +875,7 @@ class DocumentWorker final : public QObject {
                              {QStringLiteral("hex"), color.name(QColor::HexArgb)}}),
                     {}};
         }
-        if (method == QStringLiteral("snow_shot_document_close")) {
+        if (method == QStringLiteral("kxcapture_document_close")) {
             admission->remove(document.owner, document.sourceBytes, document.historyCharge);
             invalidate(document);
             documents.erase(found);
@@ -883,7 +883,7 @@ class DocumentWorker final : public QObject {
                                       {QStringLiteral("closed"), true}}),
                     {}};
         }
-        if (method == QStringLiteral("snow_shot_document_clone")) {
+        if (method == QStringLiteral("kxcapture_document_clone")) {
             const auto source = *found;
             McpDocumentService::Source input;
             input.images = source->sources;
@@ -907,7 +907,7 @@ class DocumentWorker final : public QObject {
             clone->tool = source->tool;
             return {success(request, clone->state()), {}};
         }
-        if (method == QStringLiteral("snow_shot_document_apply_annotations")) {
+        if (method == QStringLiteral("kxcapture_document_apply_annotations")) {
             for (const auto& value : params.value(QStringLiteral("operations")).toArray()) {
                 const auto operation = value.toObject();
                 if (operation.contains(QStringLiteral("bounds"))) {
@@ -970,7 +970,7 @@ class DocumentWorker final : public QObject {
                          QJsonDocument::fromJson(transaction).object());
             return {success(request, state), {}};
         }
-        if (method == QStringLiteral("snow_shot_document_set_selection")) {
+        if (method == QStringLiteral("kxcapture_document_set_selection")) {
             const auto before = document.selection.selectionRegion().toJson();
             QString field;
             if (!applySelection(document.selection, document.canvasBounds, params, &field))
@@ -981,7 +981,7 @@ class DocumentWorker final : public QObject {
             }
             return {success(request, document.state()), {}};
         }
-        if (method == QStringLiteral("snow_shot_document_set_selection_style")) {
+        if (method == QStringLiteral("kxcapture_document_set_selection_style")) {
             auto candidate = document.selection;
             QString field;
             if (!applySelectionStyle(candidate, params, &field))
@@ -994,8 +994,8 @@ class DocumentWorker final : public QObject {
             }
             return {success(request, document.state()), {}};
         }
-        if (method == QStringLiteral("snow_shot_document_undo") ||
-            method == QStringLiteral("snow_shot_document_redo")) {
+        if (method == QStringLiteral("kxcapture_document_undo") ||
+            method == QStringLiteral("kxcapture_document_redo")) {
             const bool changed = method.endsWith(QStringLiteral("_redo")) ? document.runtime.redo()
                                                                           : document.runtime.undo();
             if (changed) {
@@ -1004,7 +1004,7 @@ class DocumentWorker final : public QObject {
             }
             return {success(request, document.state()), {}};
         }
-        if (method == QStringLiteral("snow_shot_document_auto_filter")) {
+        if (method == QStringLiteral("kxcapture_document_auto_filter")) {
             const auto selection = document.selection.pixelSelection();
             if (workObserved)
                 workObserved(document.id, QStringLiteral("render"));
@@ -1023,13 +1023,13 @@ class DocumentWorker final : public QObject {
         const QRect selection = document.selection.pixelSelection();
         const QSize size(std::max(1, qCeil(selection.width() * scale)),
                          std::max(1, qCeil(selection.height() * scale)));
-        const auto compaction = method == QStringLiteral("snow_shot_document_recognize")
+        const auto compaction = method == QStringLiteral("kxcapture_document_recognize")
                                     ? ScreenshotLayoutCompaction{}
                                     : document.selection.exportLayoutCompaction();
         const auto plan = documentLayoutPlan(document, size, scale, compaction);
         if (!validSize(plan ? plan->outputSize : size))
             return {failure(request, QStringLiteral("output_too_large")), {}};
-        const bool includeBackground = method != QStringLiteral("snow_shot_document_recognize");
+        const bool includeBackground = method != QStringLiteral("kxcapture_document_recognize");
         const bool cacheEligible =
             includeBackground || document.selection.backgroundOpacityPercent() == 0;
         const bool cached = cacheEligible && !document.rendered.isNull() &&
@@ -1068,7 +1068,7 @@ class DocumentWorker final : public QObject {
                      {QStringLiteral("scale"), scale},
                      {QStringLiteral("cache_hit"), cached}}),
             image};
-        if (method == QStringLiteral("snow_shot_document_recognize")) {
+        if (method == QStringLiteral("kxcapture_document_recognize")) {
             McpDocumentService::Source source;
             source.originalContent = document.originalContent;
             source.recognitionResults = document.recognitionResults;
@@ -1258,7 +1258,7 @@ struct McpDocumentService::Impl {
         return ports.clock ? ports.clock() : QDateTime::currentMSecsSinceEpoch();
     }
     std::size_t laneFor(const ScreenshotMcpRequest& request) {
-        if (request.method == QStringLiteral("snow_shot_document_open")) {
+        if (request.method == QStringLiteral("kxcapture_document_open")) {
             const auto lane = nextLane;
             nextLane = (nextLane + 1) % laneCount;
             return lane;
@@ -1285,7 +1285,7 @@ struct McpDocumentService::Impl {
     }
     void readBlob(const ScreenshotMcpRequest& request, ScreenshotMcpServer::Completion done) {
         pruneBlobs();
-        if (request.method == QStringLiteral("snow_shot_artifact_list")) {
+        if (request.method == QStringLiteral("kxcapture_artifact_list")) {
             QJsonArray values;
             for (const auto& blob : std::as_const(blobs))
                 if (blob.owner == request.connectionId)
@@ -1299,7 +1299,7 @@ struct McpDocumentService::Impl {
             done(failure(request, QStringLiteral("artifact_not_found")));
             return;
         }
-        if (request.method == QStringLiteral("snow_shot_artifact_release")) {
+        if (request.method == QStringLiteral("kxcapture_artifact_release")) {
             blobBytes -= found->bytes.size();
             diskBytes -= found->diskSize;
             blobs.erase(found);
@@ -1429,7 +1429,7 @@ struct McpDocumentService::Impl {
         const auto canceled = token(request.connectionId);
         const auto requestCanceled = requestToken(request);
         QPointer<McpDocumentService> guard(&q);
-        if (request.method == QStringLiteral("snow_shot_document_list")) {
+        if (request.method == QStringLiteral("kxcapture_document_list")) {
             auto remaining = std::make_shared<int>(static_cast<int>(laneCount));
             auto values = std::make_shared<QJsonArray>();
             auto completion = std::make_shared<ScreenshotMcpServer::Completion>(std::move(done));
@@ -1465,12 +1465,12 @@ struct McpDocumentService::Impl {
             if (canceled->load() || requestCanceled->load())
                 return;
             auto result =
-                source ? (request.method == QStringLiteral("snow_shot_document_recapture")
+                source ? (request.method == QStringLiteral("kxcapture_document_recapture")
                               ? worker->replace(request, std::move(*source), std::move(reservation))
                               : worker->create(request, std::move(*source), std::move(reservation)))
                        : worker->request(request, requestCanceled);
-            const bool created = request.method == QStringLiteral("snow_shot_document_open") ||
-                                 request.method == QStringLiteral("snow_shot_document_clone");
+            const bool created = request.method == QStringLiteral("kxcapture_document_open") ||
+                                 request.method == QStringLiteral("kxcapture_document_clone");
             if (canceled->load() || requestCanceled->load() || !guard) {
                 if (created && result.response.ok)
                     worker->discard(
@@ -1484,8 +1484,8 @@ struct McpDocumentService::Impl {
                     return;
                 if (canceled->load() || requestCanceled->load()) {
                     if (!stopped && result.response.ok &&
-                        (request.method == QStringLiteral("snow_shot_document_open") ||
-                         request.method == QStringLiteral("snow_shot_document_clone"))) {
+                        (request.method == QStringLiteral("kxcapture_document_open") ||
+                         request.method == QStringLiteral("kxcapture_document_clone"))) {
                         const auto createdId =
                             result.response.result.value(QStringLiteral("document_id")).toString();
                         queueMcpWork(worker, [target = worker, owner = request.connectionId,
@@ -1496,31 +1496,31 @@ struct McpDocumentService::Impl {
                 const auto documentId =
                     request.params.value(QStringLiteral("document_id")).toString();
                 if (result.response.ok) {
-                    if (request.method == QStringLiteral("snow_shot_document_open") ||
-                        request.method == QStringLiteral("snow_shot_document_clone"))
+                    if (request.method == QStringLiteral("kxcapture_document_open") ||
+                        request.method == QStringLiteral("kxcapture_document_clone"))
                         documentLanes.insert(
                             result.response.result.value(QStringLiteral("document_id")).toString(),
                             Affinity{request.connectionId, lane});
-                    else if (request.method == QStringLiteral("snow_shot_document_close"))
+                    else if (request.method == QStringLiteral("kxcapture_document_close"))
                         documentLanes.remove(documentId);
                 }
                 const auto documentRevision = static_cast<quint64>(
                     result.response.result.value(QStringLiteral("revision")).toInteger());
                 if (result.response.ok &&
-                    (request.method == QStringLiteral("snow_shot_document_recognition_state") ||
-                     request.method == QStringLiteral("snow_shot_document_edit_recognition") ||
-                     request.method == QStringLiteral("snow_shot_document_export_recognition"))) {
+                    (request.method == QStringLiteral("kxcapture_document_recognition_state") ||
+                     request.method == QStringLiteral("kxcapture_document_edit_recognition") ||
+                     request.method == QStringLiteral("kxcapture_document_export_recognition"))) {
                     recognitionCommand(request, std::move(result.response), std::move(done));
                     return;
                 }
                 if (result.response.ok &&
-                    request.method == QStringLiteral("snow_shot_document_original_content")) {
+                    request.method == QStringLiteral("kxcapture_document_original_content")) {
                     textOutput(request, std::move(result.response), std::move(done));
                     return;
                 }
                 if (result.response.ok && retainedRecognition.contains(documentId) &&
                     (retainedRecognition.value(documentId).sourceRevision != documentRevision ||
-                     request.method == QStringLiteral("snow_shot_document_close"))) {
+                     request.method == QStringLiteral("kxcapture_document_close"))) {
                     auto entry = retainedRecognition.take(documentId);
                     ports.jobs->cancel(entry.owner, entry.job);
                     if (!guard)
@@ -1534,7 +1534,7 @@ struct McpDocumentService::Impl {
                     }
                 }
                 if (result.response.ok && result.source &&
-                    request.method == QStringLiteral("snow_shot_document_pin")) {
+                    request.method == QStringLiteral("kxcapture_document_pin")) {
                     if (!ports.pinDocument) {
                         done(failure(request, QStringLiteral("unavailable")));
                         return;
@@ -1566,7 +1566,7 @@ struct McpDocumentService::Impl {
                     return;
                 }
                 if (result.response.ok && result.source &&
-                    request.method == QStringLiteral("snow_shot_document_present")) {
+                    request.method == QStringLiteral("kxcapture_document_present")) {
                     if (!ports.present) {
                         done(failure(request, QStringLiteral("unavailable")));
                         return;
@@ -1600,7 +1600,7 @@ struct McpDocumentService::Impl {
                 }
                 if (!result.response.ok || result.image.isNull()) {
                     if (result.response.ok &&
-                        request.method == QStringLiteral("snow_shot_document_close")) {
+                        request.method == QStringLiteral("kxcapture_document_close")) {
                         const auto id =
                             request.params.value(QStringLiteral("document_id")).toString();
                         artifactCacheBytes -= artifactCache.take(id).bytes;
@@ -1616,11 +1616,11 @@ struct McpDocumentService::Impl {
                     done(std::move(result.response));
                     return;
                 }
-                if (request.method == QStringLiteral("snow_shot_document_auto_filter")) {
+                if (request.method == QStringLiteral("kxcapture_document_auto_filter")) {
                     autoFilter(request, std::move(result), std::move(done));
                     return;
                 }
-                if (request.method == QStringLiteral("snow_shot_document_recognize")) {
+                if (request.method == QStringLiteral("kxcapture_document_recognize")) {
                     recognize(request, std::move(result), std::move(done));
                     return;
                 }
@@ -1867,7 +1867,7 @@ struct McpDocumentService::Impl {
             done(failure(request, QStringLiteral("recognition_required")));
             return;
         }
-        if (request.method == QStringLiteral("snow_shot_document_edit_recognition")) {
+        if (request.method == QStringLiteral("kxcapture_document_edit_recognition")) {
             if (request.params.value(QStringLiteral("expected_recognition_revision"))
                     .toInteger(-1) != static_cast<qint64>(entry->revision)) {
                 auto value = failure(request, QStringLiteral("stale_revision"));
@@ -1911,7 +1911,7 @@ struct McpDocumentService::Impl {
         value.insert(QStringLiteral("source_revision"), static_cast<qint64>(entry->sourceRevision));
         value.insert(QStringLiteral("document_id"), documentId);
         response.result = std::move(value);
-        if (request.method == QStringLiteral("snow_shot_document_export_recognition"))
+        if (request.method == QStringLiteral("kxcapture_document_export_recognition"))
             textOutput(request, std::move(response), std::move(done));
         else
             done(std::move(response));
@@ -2022,11 +2022,11 @@ struct McpDocumentService::Impl {
             result.response.result.value(QStringLiteral("revision")).toInteger());
         const auto scale = result.response.result.value(QStringLiteral("scale")).toDouble(1);
         const bool pngSave =
-            request.method == QStringLiteral("snow_shot_document_save") &&
+            request.method == QStringLiteral("kxcapture_document_save") &&
             request.params.value(QStringLiteral("format")).toString(QStringLiteral("png")) ==
                 QStringLiteral("png");
-        const bool reusable = request.method == QStringLiteral("snow_shot_document_render") ||
-                              request.method == QStringLiteral("snow_shot_document_copy") ||
+        const bool reusable = request.method == QStringLiteral("kxcapture_document_render") ||
+                              request.method == QStringLiteral("kxcapture_document_copy") ||
                               pngSave;
         const auto compression = ScreenshotImageFileService::compressionLevelForKey(
             pngSave ? request.params.value(QStringLiteral("compression_level"))
@@ -2081,7 +2081,7 @@ struct McpDocumentService::Impl {
             clipboard.remove(outputId);
             done(std::move(response));
         };
-        if (request.method == QStringLiteral("snow_shot_document_pin")) {
+        if (request.method == QStringLiteral("kxcapture_document_pin")) {
             if (!ports.pin) {
                 finish(failure(request, QStringLiteral("unavailable")));
                 return;
@@ -2105,7 +2105,7 @@ struct McpDocumentService::Impl {
                 finish(failure(request, QStringLiteral("output_failed")));
             return;
         }
-        if (request.method == QStringLiteral("snow_shot_document_copy")) {
+        if (request.method == QStringLiteral("kxcapture_document_copy")) {
             if (!artifact->requestClipboard(
                     &q, [this, request, documentId, artifact, canceled, response = result.response,
                          finish](ScreenshotExportClipboardResult prepared) mutable {
@@ -2128,7 +2128,7 @@ struct McpDocumentService::Impl {
                 finish(failure(request, QStringLiteral("output_failed")));
             return;
         }
-        if (request.method == QStringLiteral("snow_shot_document_save")) {
+        if (request.method == QStringLiteral("kxcapture_document_save")) {
             const QString format =
                 request.params.value(QStringLiteral("format")).toString(QStringLiteral("png"));
             const QStringList formats{QStringLiteral("png"),  QStringLiteral("jpeg"),
@@ -2281,7 +2281,7 @@ struct McpDocumentService::Impl {
             finish(failure(request, QStringLiteral("output_failed")));
     }
     void execute(const ScreenshotMcpRequest& request, ScreenshotMcpServer::Completion done) {
-        if (request.method == QStringLiteral("snow_shot_document_open") &&
+        if (request.method == QStringLiteral("kxcapture_document_open") &&
             request.params.value(QStringLiteral("as_job"))
                 .toBool(request.params.value(QStringLiteral("source")) ==
                             QStringLiteral("capture") &&
@@ -2317,12 +2317,12 @@ struct McpDocumentService::Impl {
             done(std::move(reply));
             return;
         }
-        if (request.method.startsWith(QStringLiteral("snow_shot_artifact_"))) {
+        if (request.method.startsWith(QStringLiteral("kxcapture_artifact_"))) {
             readBlob(request, std::move(done));
             return;
         }
-        if (request.method.startsWith(QStringLiteral("snow_shot_job_"))) {
-            if (request.method == QStringLiteral("snow_shot_job_list")) {
+        if (request.method.startsWith(QStringLiteral("kxcapture_job_"))) {
+            if (request.method == QStringLiteral("kxcapture_job_list")) {
                 done(success(request,
                              {{QStringLiteral("jobs"), ports.jobs->list(request.connectionId)}}));
                 return;
@@ -2333,7 +2333,7 @@ struct McpDocumentService::Impl {
                 done(failure(request, QStringLiteral("job_not_found")));
                 return;
             }
-            if (request.method == QStringLiteral("snow_shot_job_cancel")) {
+            if (request.method == QStringLiteral("kxcapture_job_cancel")) {
                 const QPointer<McpDocumentService> guard(&q);
                 const bool canceled = ports.jobs->cancel(request.connectionId, id);
                 if (!guard)
@@ -2351,8 +2351,8 @@ struct McpDocumentService::Impl {
             done(success(request, *value));
             return;
         }
-        if (request.method == QStringLiteral("snow_shot_document_recapture") ||
-            (request.method == QStringLiteral("snow_shot_document_open") &&
+        if (request.method == QStringLiteral("kxcapture_document_recapture") ||
+            (request.method == QStringLiteral("kxcapture_document_open") &&
              request.params.value(QStringLiteral("source")).toString(QStringLiteral("file")) !=
                  QStringLiteral("file"))) {
             if (!ports.resolveSource) {
@@ -2362,7 +2362,7 @@ struct McpDocumentService::Impl {
             QPointer<McpDocumentService> guard(&q);
             const auto canceled = token(request.connectionId);
             const auto requestCanceled = requestToken(request);
-            const bool opening = request.method == QStringLiteral("snow_shot_document_open");
+            const bool opening = request.method == QStringLiteral("kxcapture_document_open");
             if (opening && !admission->create(request.connectionId, 0, 0)) {
                 done(failure(request, QStringLiteral("resource_limit")));
                 return;
@@ -2432,7 +2432,7 @@ QJsonObject McpDocumentService::storeArtifact(quint64 owner, QByteArray bytes,
     const auto id = identifier();
     const auto now = QDateTime::fromMSecsSinceEpoch(s.now()).toUTC();
     QJsonObject descriptor{{QStringLiteral("artifact_id"), id},
-                           {QStringLiteral("uri"), QStringLiteral("snow-shot://artifacts/") + id},
+                           {QStringLiteral("uri"), QStringLiteral("kxcapture://artifacts/") + id},
                            {QStringLiteral("mime_type"), mimeType},
                            {QStringLiteral("byte_count"), bytes.size()},
                            {QStringLiteral("created_at"), now.toString(Qt::ISODateWithMs)},
@@ -2498,7 +2498,7 @@ void McpDocumentService::storeFileArtifact(quint64 owner, const QString& sourceP
         const auto now = QDateTime::fromMSecsSinceEpoch(state.now()).toUTC();
         QJsonObject descriptor{
             {QStringLiteral("artifact_id"), id},
-            {QStringLiteral("uri"), QStringLiteral("snow-shot://artifacts/") + id},
+            {QStringLiteral("uri"), QStringLiteral("kxcapture://artifacts/") + id},
             {QStringLiteral("mime_type"), mimeType},
             {QStringLiteral("byte_count"), size},
             {QStringLiteral("created_at"), now.toString(Qt::ISODateWithMs)},

@@ -8,16 +8,19 @@ param(
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
-$repository = 'mg-chao/snow-shot'
+# Historical issue-closing tool. It must not run: it used to comment on and close
+# issues in the upstream project, and it is not retargeted at oxho/kxcapture.
+throw 'close-legacy-issues.ps1 is historical and must not be executed. It does not close issues on the upstream project or on oxho/kxcapture.'
+
 $lastIssue = 1021
 $reply = @(
     '**简体中文**',
     '',
-    '抱歉，这个项目已经有很长一段时间没有维护了。Snow Shot 现已使用 Qt 重写，性能更好，功能也更加丰富。目前我没有精力逐一查看并解决这些旧问题。如果您在新版本中遇到类似问题，请提交一个新 issue。',
+    '抱歉，这个项目已经有很长一段时间没有维护了。KXCapture 现已使用 Qt 重写，性能更好，功能也更加丰富。目前我没有精力逐一查看并解决这些旧问题。如果您在新版本中遇到类似问题，请提交一个新 issue。',
     '',
     '**English**',
     '',
-    "Sorry, this project has not been maintained for quite some time. Snow Shot has now been rewritten using Qt, with better performance and more features. I currently don’t have the capacity to review and address the old issues one by one. If you encounter a similar problem in the new version, please open a new issue."
+    "Sorry, this project has not been maintained for quite some time. KXCapture has now been rewritten using Qt, with better performance and more features. I currently don’t have the capacity to review and address the old issues one by one. If you encounter a similar problem in the new version, please open a new issue."
 ) -join "`n"
 
 function Invoke-Gh([string[]]$GhArguments) {

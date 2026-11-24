@@ -10,7 +10,7 @@ use std::time::Duration;
 
 use snow_selected_text::*;
 
-// Standalone Snow Shot builds keep both Full-only C boundaries in one archive.
+// Standalone KXCapture builds keep both Full-only C boundaries in one archive.
 #[cfg(feature = "language-detection")]
 pub mod language_detection {
     pub use snow_language_detection_c::*;

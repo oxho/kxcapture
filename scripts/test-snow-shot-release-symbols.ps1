@@ -11,12 +11,12 @@ $bin = Join-Path $stage 'bin'
 $null = New-Item -ItemType Directory -Path $bin
 . (Join-Path $PSScriptRoot 'snow-build-environment.ps1')
 $null = Set-SnowBuildEnvironment -Preset (Get-SnowWindowsTarget -Architecture $Architecture).ReleasePreset
-& cl /nologo /std:c++20 /O2 /MT /Zi "/Fd:$root/compile.pdb" "/Fo:$root/fixture.obj" "/Fe:$bin/snow_shot.exe" `
+& cl /nologo /std:c++20 /O2 /MT /Zi "/Fd:$root/compile.pdb" "/Fo:$root/fixture.obj" "/Fe:$bin/$($product.Executable).exe" `
     (Join-Path $repo 'snow_shot/tests/update_helper_fixture.cpp') /link /DEBUG "/PDB:$root/fixture.pdb" advapi32.lib
 if ($LASTEXITCODE -ne 0) { throw 'Symbol fixture compilation failed.' }
 # dumpbin reports the RSDS age in decimal. Raise the freshly linked pair's age
 # to a multi-digit value so a hex misreading of the dumpbin field fails here.
-$fixtureExe = [IO.File]::ReadAllBytes((Join-Path $bin 'snow_shot.exe'))
+$fixtureExe = [IO.File]::ReadAllBytes((Join-Path $bin "$($product.Executable).exe"))
 $rsdsOffset = -1
 for ($i = 0; $i -lt $fixtureExe.Length - 16; $i++) {
     if ($fixtureExe[$i] -eq 0x52 -and $fixtureExe[$i + 1] -eq 0x53 -and
@@ -24,7 +24,7 @@ for ($i = 0; $i -lt $fixtureExe.Length - 16; $i++) {
 }
 if ($rsdsOffset -lt 0) { throw 'Fixture executable has no RSDS record.' }
 [BitConverter]::GetBytes([uint32]10).CopyTo($fixtureExe, $rsdsOffset + 20)
-[IO.File]::WriteAllBytes((Join-Path $bin 'snow_shot.exe'), $fixtureExe)
+[IO.File]::WriteAllBytes((Join-Path $bin "$($product.Executable).exe"), $fixtureExe)
 $fixturePdbPath = Join-Path $root 'fixture.pdb'
 $fixturePdb = [IO.File]::ReadAllBytes($fixturePdbPath)
 $guidBytes = [byte[]]::new(16)
@@ -42,12 +42,10 @@ foreach ($pdbAgeOffset in $pdbAgeOffsets) {
     [BitConverter]::GetBytes([uint32]10).CopyTo($fixturePdb, $pdbAgeOffset)
 }
 [IO.File]::WriteAllBytes($fixturePdbPath, $fixturePdb)
-Copy-Item -LiteralPath (Join-Path $bin 'snow_shot.exe') -Destination (Join-Path $bin 'snow-shot-updater.exe')
-Copy-Item -LiteralPath (Join-Path $bin 'snow_shot.exe') -Destination (Join-Path $bin 'snow-ocr-process.exe')
-if ($Edition -eq 'Mini') {
-    Move-Item -LiteralPath (Join-Path $bin 'snow_shot.exe') -Destination (Join-Path $bin 'snow_shot_mini.exe')
-    Move-Item -LiteralPath (Join-Path $bin 'snow-shot-updater.exe') -Destination (Join-Path $bin 'snow-shot-mini-updater.exe')
-    Remove-Item -LiteralPath (Join-Path $bin 'snow-ocr-process.exe')
+$updaterName = if ($Edition -eq 'Mini') { 'kxcapture-mini-updater.exe' } else { 'kxcapture-updater.exe' }
+Copy-Item -LiteralPath (Join-Path $bin "$($product.Executable).exe") -Destination (Join-Path $bin $updaterName)
+if ($Edition -ne 'Mini') {
+    Copy-Item -LiteralPath (Join-Path $bin "$($product.Executable).exe") -Destination (Join-Path $bin 'kxcapture-ocr.exe')
 }
 foreach ($external in @($false, $true)) {
     $options = @{}
@@ -61,7 +59,7 @@ foreach ($external in @($false, $true)) {
         if ($manifest.binaries.Count -ne $expected -or @($manifest.binaries | Where-Object { -not $_.pdb }).Count) {
             throw 'Symbol inventory is incomplete.'
         }
-        if ($external -and ($null -ne $archive.GetEntry('snow-ocr-process/snow-ocr-process.exe') -or
+        if ($external -and ($null -ne $archive.GetEntry('kxcapture-ocr/kxcapture-ocr.exe') -or
             $manifest.externalOcrRuntime.version -cne (Get-Content -LiteralPath $options.OcrAssetManifest -Raw | ConvertFrom-Json).runtime.version)) { throw 'External OCR runtime was misrepresented as a local build.' }
         if ($manifest.product -cne $product.Product -or
             $null -eq $archive.GetEntry("$($product.Executable)/$($product.Executable).exe")) {
@@ -86,7 +84,7 @@ if ($ReleaseHelperPath) {
     $cargoDirectory = if ($Edition -eq 'Mini') { 'cargo-mini' } else { 'cargo' }
     $helperPdbs = @(Get-ChildItem -LiteralPath (Join-Path $helperBuildRoot $cargoDirectory) `
         -Filter 'snow_shot_updater.pdb' -File -Recurse | Where-Object {
-            Test-Path -LiteralPath (Join-Path $_.DirectoryName 'snow-shot-updater.exe') -PathType Leaf
+            Test-Path -LiteralPath (Join-Path $_.DirectoryName 'kxcapture-updater.exe') -PathType Leaf
         })
     if ($helperPdbs.Count -ne 1) {
         throw "Expected exactly one configured updater PDB under $helperBuildRoot; found $($helperPdbs.Count)."

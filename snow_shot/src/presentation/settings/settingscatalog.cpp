@@ -4,6 +4,7 @@
 #include "snow_shot/translation/translationlanguagecatalog.h"
 
 #include "snow_shot/app/editionfeatures.h"
+#include "snow_shot/app/featureflags.h"
 
 #include "antd_icons.h"
 #include "snow_shot/presentation/components/icons/snowshoticons.h"
@@ -489,7 +490,7 @@ QVector<SettingsItemDefinition> skinItems() {
                  SettingsFilePathBinding::TrayMenuSkinPath,
                  settingsText(QT_TRANSLATE_NOOP("SettingsCatalog", "Tray menu skin path")),
                  settingsText(QT_TRANSLATE_NOOP(
-                     "SettingsCatalog", "Choose an image for Snow Shot's custom tray menu. Native "
+                     "SettingsCatalog", "Choose an image for KXCapture's custom tray menu. Native "
                                         "system menus keep their system appearance. Clear the path "
                                         "to remove this skin"))),
         positionItem(QStringLiteral("interface.skin.tray-menu-position"),
@@ -1090,7 +1091,7 @@ SettingsItemDefinition applicationQoSItem() {
         settingsText(QT_TRANSLATE_NOOP("SettingsCatalog", "Quality of service (QoS)")),
         settingsText(QT_TRANSLATE_NOOP(
             "SettingsCatalog", "Choose the scheduling level for the interface and application "
-                               "workers. Changes take effect after restarting Snow Shot")),
+                               "workers. Changes take effect after restarting KXCapture")),
         {settingsText(QT_TRANSLATE_NOOP("SettingsCatalog", "Scheduling")),
          settingsText(QT_TRANSLATE_NOOP("SettingsCatalog", "Responsiveness"))},
         QStringLiteral("system/application_qos"),
@@ -1530,7 +1531,7 @@ SettingsItemDefinition screenshotImageQualityItem() {
         QStringLiteral("screenshot-output.image-quality"),
         settingsText(QT_TRANSLATE_NOOP("SettingsCatalog", "Image quality")),
         settingsText(QT_TRANSLATE_NOOP(
-            "SettingsCatalog", "Set quality for image files saved outside the Snow Shot dialog")),
+            "SettingsCatalog", "Set quality for image files saved outside the KXCapture dialog")),
         {},
         QStringLiteral("screenshot/image_quality"),
         SettingsSliderDefinition{SettingsSliderBinding::ScreenshotImageQuality,
@@ -1568,7 +1569,7 @@ SettingsItemDefinition screenshotSaveAsFileDialogItem() {
         SettingsSelectBinding::ScreenshotSaveAsFileDialog,
         {{QStringLiteral("system"), settingsText(QT_TRANSLATE_NOOP("SettingsCatalog", "System"))},
          {QStringLiteral("snow_shot"),
-          settingsText(QT_TRANSLATE_NOOP("SettingsCatalog", "Snow Shot"))}});
+          settingsText(QT_TRANSLATE_NOOP("SettingsCatalog", "KXCapture"))}});
 }
 
 QVector<SettingsItemDefinition> exportTaskItems() {
@@ -1684,7 +1685,7 @@ QVector<SettingsItemDefinition> screenshotOutputItems() {
                    QT_TRANSLATE_NOOP("SettingsCatalog", "Show save result"),
                    QT_TRANSLATE_NOOP(
                        "SettingsCatalog",
-                       "Keep the Snow Shot save dialog open after saving to show the result"),
+                       "Keep the KXCapture save dialog open after saving to show the result"),
                    QStringLiteral("screenshot/show_save_result"),
                    SettingsSwitchBinding::ScreenshotShowSaveResult),
         directoryPathItem(
@@ -2678,7 +2679,7 @@ SettingsItemDefinition launchAsAdministratorItem() {
         QStringLiteral("system.launch-as-administrator"),
         QT_TRANSLATE_NOOP("SettingsCatalog", "Launch as administrator"),
         QT_TRANSLATE_NOOP("SettingsCatalog",
-                          "Start Snow Shot with administrator privileges when you sign in"),
+                          "Start KXCapture with administrator privileges when you sign in"),
         QStringLiteral("system/launch_as_administrator"),
         SettingsSwitchBinding::LaunchAsAdministrator);
 }
@@ -2690,7 +2691,7 @@ SettingsItemDefinition restartAsAdministratorItem() {
     return {QStringLiteral("system.restart-as-administrator"),
             settingsText(QT_TRANSLATE_NOOP("SettingsCatalog", "Restart as administrator")),
             settingsText(QT_TRANSLATE_NOOP("SettingsCatalog",
-                                           "Restart Snow Shot with administrator privileges")),
+                                           "Restart KXCapture with administrator privileges")),
             {},
             {},
             payload};
@@ -2701,7 +2702,7 @@ SettingsItemDefinition autoStartItem() {
         return switchItem(QStringLiteral("system.auto-start-at-boot"),
                           QT_TRANSLATE_NOOP("SettingsCatalog", "Launch at login"),
                           QT_TRANSLATE_NOOP("SettingsCatalog",
-                                            "Start Snow Shot in the background when you log in"),
+                                            "Start KXCapture in the background when you log in"),
                           QStringLiteral("system/auto_start_at_boot"),
                           SettingsSwitchBinding::AutoStartAtBoot);
     return switchItem(
@@ -2710,11 +2711,11 @@ SettingsItemDefinition autoStartItem() {
         QT_TRANSLATE_NOOP("SettingsCatalog", "Open at login"),
         QT_TRANSLATE_NOOP(
             "SettingsCatalog",
-            "Automatically start Snow Shot in the background when you log in to your Mac"),
+            "Automatically start KXCapture in the background when you log in to your Mac"),
 #else
         QT_TRANSLATE_NOOP("SettingsCatalog", "Auto start at boot"),
         QT_TRANSLATE_NOOP("SettingsCatalog",
-                          "Start Snow Shot in the background when Windows starts"),
+                          "Start KXCapture in the background when Windows starts"),
 #endif
         QStringLiteral("system/auto_start_at_boot"), SettingsSwitchBinding::AutoStartAtBoot);
 }
@@ -2725,7 +2726,7 @@ SettingsItemDefinition contextMenuModeItem() {
         QStringLiteral("system.context-menu-mode"),
         QT_TRANSLATE_NOOP("SettingsCatalog", "Windows context menu"),
         QT_TRANSLATE_NOOP("SettingsCatalog",
-                          "Add edit with Snow Shot to the Windows context menu to pin a "
+                          "Add edit with KXCapture to the Windows context menu to pin a "
                           "supported image or document file to the screen"),
         QStringLiteral("system/context_menu_mode"), SettingsSelectBinding::ContextMenuMode,
         {{QStringLiteral("images_only"),
@@ -2742,7 +2743,7 @@ SettingsItemDefinition mcpEnabledItem() {
                       QT_TRANSLATE_NOOP("SettingsCatalog", "Enable MCP integration"),
                       QT_TRANSLATE_NOOP("SettingsCatalog",
                                         "Allow MCP clients running as your OS user to control "
-                                        "Snow Shot. Snow Shot must be running"),
+                                        "KXCapture. KXCapture must be running"),
                       QStringLiteral("mcp/enabled"), SettingsSwitchBinding::McpEnabled);
 }
 
@@ -3626,7 +3627,7 @@ constexpr CatalogInlineItem catalogItemSystemAnnotationModeWhenOpeningForEditing
         QT_TRANSLATE_NOOP("SettingsCatalog", "Enable annotation mode when opening for editing")),
     .description = settingsText(QT_TRANSLATE_NOOP(
         "SettingsCatalog", "Automatically enable annotation mode in new pin to screen "
-                           "windows opened with edit with Snow Shot")),
+                           "windows opened with edit with KXCapture")),
     .key = u"system/annotation_mode_when_opening_for_editing",
     .binding = int(SettingsSwitchBinding ::AnnotationModeWhenOpeningForEditing),
 };
@@ -3804,8 +3805,8 @@ constexpr CatalogInlineItem catalogItemWindowsContextMenuShortcutEditWithSnowSho
     .kind = CatalogItemKind::LocalShortcut,
     .id = u"windows-context-menu-shortcut.edit_with_snow_shot",
     .title = settingsText(app ::edition ::isMini
-                              ? QT_TRANSLATE_NOOP("SettingsCatalog", "Edit with Snow Shot Mini")
-                              : QT_TRANSLATE_NOOP("SettingsCatalog", "Edit with Snow Shot")),
+                              ? QT_TRANSLATE_NOOP("SettingsCatalog", "Edit with KXCapture Mini")
+                              : QT_TRANSLATE_NOOP("SettingsCatalog", "Edit with KXCapture")),
     .description = settingsText(QT_TRANSLATE_NOOP("SettingsCatalog",
                                                   "Use one letter (A–Z) or digit (0–9) when the "
                                                   "classic Windows context menu is open")),
@@ -5159,7 +5160,7 @@ constexpr CatalogSectionRecord catalogPageConnectionsServicesSections[] = {
 #if SNOW_SHOT_ENABLE_API_CONFIGURATION
     {
         .id = u"snow-shot-server",
-        .title = settingsText(QT_TRANSLATE_NOOP("SettingsCatalog", "Snow Shot server")),
+        .title = settingsText(QT_TRANSLATE_NOOP("SettingsCatalog", "KXCapture server")),
         .description = settingsText(
             QT_TRANSLATE_NOOP("SettingsCatalog", "Choose the server for built-in online services. "
                                                  "Application updates are not affected")),
@@ -5185,7 +5186,7 @@ constexpr CatalogSectionRecord catalogPageConnectionsServicesSections[] = {
         .id = u"mcp",
         .title = settingsText(QT_TRANSLATE_NOOP("SettingsCatalog", "MCP")),
         .description =
-            settingsText(QT_TRANSLATE_NOOP("SettingsCatalog", "Connect AI clients to Snow Shot")),
+            settingsText(QT_TRANSLATE_NOOP("SettingsCatalog", "Connect AI clients to KXCapture")),
         .reset = SettingsSectionReset ::None,
         .items = catalogPageConnectionsServicesSectionMcpItems,
         .factory = nullptr,
@@ -5372,7 +5373,7 @@ constexpr CatalogPageRecord catalogPages[] = {
         .route = u"/settings/shortcuts-mouse",
         .title = settingsText(QT_TRANSLATE_NOOP("SettingsCatalog", "Application shortcuts")),
         .description = settingsText(
-            QT_TRANSLATE_NOOP("SettingsCatalog", "Keyboard shortcuts used within Snow Shot tools")),
+            QT_TRANSLATE_NOOP("SettingsCatalog", "Keyboard shortcuts used within KXCapture tools")),
         .sections = catalogPageShortcutsMouseSections,
         .kind = SettingsPageKind ::GeneratedSettings,
         .links = catalogPageShortcutsMouseLinks,
@@ -5421,7 +5422,7 @@ constexpr CatalogPageRecord catalogPages[] = {
         .route = u"/settings/appPermissions",
         .title = settingsText(QT_TRANSLATE_NOOP("SettingsCatalog", "App permissions")),
         .description = settingsText(
-            QT_TRANSLATE_NOOP("SettingsCatalog", "Manage macOS permissions for Snow Shot")),
+            QT_TRANSLATE_NOOP("SettingsCatalog", "Manage macOS permissions for KXCapture")),
         .sections = catalogPageAppPermissionsSections,
         .kind = SettingsPageKind::GeneratedSettings,
         .links = {},
@@ -5795,6 +5796,60 @@ SettingsCatalog::SettingsCatalog(QVector<SettingsPageDefinition> pages,
         m_navigation.removeIf([&pageAvailable](const SettingsNavigationNode& node) {
             const auto* page = std::get_if<SettingsNavigationPageDefinition>(&node);
             return page != nullptr && !pageAvailable(page->pageId);
+        });
+    }
+    if (!features::translationEnabled() || !features::ocrEnabled()) {
+        const auto itemEnabled = [](const SettingsItemDefinition& item) {
+            if (!features::configurationKeyEnabled(item.configurationKey) ||
+                !features::settingsItemIdEnabled(item.id))
+                return false;
+            if (const auto* shortcut = std::get_if<SettingsShortcutActionDefinition>(&item.payload))
+                return features::shortcutActionEnabled(shortcut->shortcutAction);
+            if (const auto* mouse =
+                    std::get_if<SettingsGlobalMouseActionDefinition>(&item.payload)) {
+                if (mouse->action == SettingsGlobalMouseAction::ScreenshotTranslation)
+                    return features::translationEnabled();
+                if (mouse->action == SettingsGlobalMouseAction::ScreenshotOcr ||
+                    mouse->action == SettingsGlobalMouseAction::ScreenshotOcrCopy)
+                    return features::ocrEnabled();
+            }
+            return true;
+        };
+        if (!features::translationEnabled()) {
+            m_pages.removeIf([](const SettingsPageDefinition& page) {
+                return page.id == QStringLiteral("translation");
+            });
+        }
+        for (auto& page : m_pages) {
+            if (!features::translationEnabled() &&
+                page.id == QStringLiteral("text-recognition-translation")) {
+                page.title = {"SettingsCatalog",
+                              QT_TRANSLATE_NOOP("SettingsCatalog", "Text recognition")};
+            }
+            for (auto& section : page.sections)
+                section.items.removeIf([&itemEnabled](const SettingsItemDefinition& item) {
+                    return !itemEnabled(item);
+                });
+            page.sections.removeIf(
+                [](const SettingsSectionDefinition& section) { return section.items.isEmpty(); });
+        }
+        m_pages.removeIf([](const SettingsPageDefinition& page) {
+            return page.sections.isEmpty() && page.kind == SettingsPageKind::GeneratedSettings;
+        });
+        const auto pagePresent = [this](const QString& id) {
+            return std::any_of(m_pages.cbegin(), m_pages.cend(),
+                               [&id](const SettingsPageDefinition& page) { return page.id == id; });
+        };
+        for (auto& node : m_navigation) {
+            if (auto* group = std::get_if<SettingsNavigationGroupDefinition>(&node)) {
+                group->pages.removeIf([&pagePresent](const SettingsNavigationPageDefinition& page) {
+                    return !pagePresent(page.pageId);
+                });
+            }
+        }
+        m_navigation.removeIf([&pagePresent](const SettingsNavigationNode& node) {
+            const auto* page = std::get_if<SettingsNavigationPageDefinition>(&node);
+            return page != nullptr && !pagePresent(page->pageId);
         });
     }
 
@@ -6177,6 +6232,25 @@ TrayCommandManifest buildBuiltInTrayCommandManifest() {
             static_cast<int>(GlobalShortcutAction::ScreenshotTranslation));
         manifest.shortcutAdjustments.remove(
             static_cast<int>(GlobalShortcutAction::TranslateSelectedText));
+    }
+    if (!features::translationEnabled() || !features::ocrEnabled()) {
+        for (auto& group : manifest.groups) {
+            group.options.removeIf([](const SettingsTrayMenuOptionDefinition& option) {
+                return !features::shortcutActionEnabled(option.shortcutAction);
+            });
+        }
+        if (!features::translationEnabled()) {
+            manifest.shortcutAdjustments.remove(
+                static_cast<int>(GlobalShortcutAction::ScreenshotTranslation));
+            manifest.shortcutAdjustments.remove(
+                static_cast<int>(GlobalShortcutAction::TranslateSelectedText));
+        }
+        if (!features::ocrEnabled()) {
+            manifest.shortcutAdjustments.remove(
+                static_cast<int>(GlobalShortcutAction::ScreenshotOcr));
+            manifest.shortcutAdjustments.remove(
+                static_cast<int>(GlobalShortcutAction::ScreenshotOcrCopy));
+        }
     }
     return manifest;
 }

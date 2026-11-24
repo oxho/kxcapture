@@ -30,8 +30,8 @@
     <context>
         <name>ScreenshotController</name>
         <message>
-            <source>Allow Snow Shot to access Finder in System Settings &gt; Privacy &amp; Security &gt; Automation, then try again</source>
-            <translation>Allow Snow Shot to access Finder in System Settings &gt; Privacy &amp; Security &gt; Automation, then try again</translation>
+            <source>Allow KXCapture to access Finder in System Settings &gt; Privacy &amp; Security &gt; Automation, then try again</source>
+            <translation>Allow KXCapture to access Finder in System Settings &gt; Privacy &amp; Security &gt; Automation, then try again</translation>
         </message>
         <message>
             <source>Cancel</source>
@@ -576,8 +576,8 @@
     <context>
         <name>snow_shot::app::mcp::ScreenshotMcpServer</name>
         <message>
-            <source>Another Snow Shot instance owns the MCP endpoint</source>
-            <translation>Another Snow Shot instance owns the MCP endpoint</translation>
+            <source>Another KXCapture instance owns the MCP endpoint</source>
+            <translation>Another KXCapture instance owns the MCP endpoint</translation>
         </message>
         <message>
             <source>Could not open the local MCP endpoint</source>

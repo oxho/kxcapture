@@ -230,7 +230,7 @@ class Fixture final {
         : overlay(events, new SnowCanvasWidget(canvasRuntime)),
           coordinator(events, canvasRuntime, shortcuts), toolbar(coordinator, geometry, displays) {
         static_cast<void>(QCoreApplication::installTranslator(&hintTranslations));
-        overlay.setWindowTitle(QStringLiteral("Snow Shot selection presentation benchmark"));
+        overlay.setWindowTitle(QStringLiteral("KXCapture selection presentation benchmark"));
         overlay.setCaptureGeometry(QRect(QPoint(), logicalSize));
         const qreal dpr = overlay.devicePixelRatioF();
         const QSize physicalSize(static_cast<int>(std::ceil(logicalSize.width() * dpr)),

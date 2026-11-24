@@ -161,15 +161,15 @@ void pathAndCommandLinePolicy() {
     embeddedNul.append(L".png");
     require(!isSupportedPath(embeddedNul), "embedded NUL paths cannot truncate a shell operand");
 
-    const std::wstring executable = L"C:\\Program Files\\Snow Shot\\snow_shot.exe";
+    const std::wstring executable = L"C:\\Program Files\\KXCapture\\snow_shot.exe";
     const std::vector<std::wstring> paths{L"C:\\images\\图片 & (100%) one.png",
                                           L"\\\\server\\share\\note's two.MD"};
     std::wstring commandLine;
     require(buildCommandLine(executable, paths, &commandLine) == S_OK,
             "supported paths produce a launch command");
     require(parseCommandLine(commandLine) ==
-                std::vector<std::wstring>{executable, L"--edit-with-snow-shot", paths[0],
-                                          L"--edit-with-snow-shot", paths[1]},
+                std::vector<std::wstring>{executable, L"--edit-with-kxcapture", paths[0],
+                                          L"--edit-with-kxcapture", paths[1]},
             "Windows reparses every typed Unicode operand in order without shell expansion");
     require(buildCommandLine(executable, {}, &commandLine) == E_INVALIDARG && commandLine.empty(),
             "empty selections cannot activate the application");
@@ -198,7 +198,7 @@ void commandBehavior() {
     require(command->GetState(valid.Get(), FALSE, &state) == S_OK && state == ECS_ENABLED,
             "modern menu enables supported mixed image and document selections");
     require(command->Invoke(valid.Get(), nullptr) == S_OK && launchCount == 1,
-            "a complete multiple selection launches Snow Shot once");
+            "a complete multiple selection launches KXCapture once");
     std::wstring expectedExecutable(32768, L'\0');
     expectedExecutable.resize(GetModuleFileNameW(nullptr, expectedExecutable.data(),
                                                  static_cast<DWORD>(expectedExecutable.size())));
@@ -207,9 +207,9 @@ void commandBehavior() {
     require(launchedExecutable == expectedExecutable,
             "launch targets snow_shot.exe beside the extension instead of the COM surrogate");
     const auto arguments = parseCommandLine(launchedCommandLine);
-    require(arguments == std::vector<std::wstring>{expectedExecutable, L"--edit-with-snow-shot",
-                                                   selection[0].path, L"--edit-with-snow-shot",
-                                                   selection[1].path, L"--edit-with-snow-shot",
+    require(arguments == std::vector<std::wstring>{expectedExecutable, L"--edit-with-kxcapture",
+                                                   selection[0].path, L"--edit-with-kxcapture",
+                                                   selection[1].path, L"--edit-with-kxcapture",
                                                    selection[2].path},
             "Invoke forwards every supported selected path with its own typed operand");
 

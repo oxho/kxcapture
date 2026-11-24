@@ -223,7 +223,7 @@ int main(int argc, char** argv) {
                 "escaping and UTF-8 bytes consume capacity rather than UTF-16 characters");
         require(!relaunchIntentFits({QStringLiteral("--autostart")}, QString(32751, u'x')),
                 "native command line admission includes executable quoting and terminating NUL");
-        QStringList supplementary{QStringLiteral("--edit-with-snow-shot"),
+        QStringList supplementary{QStringLiteral("--edit-with-kxcapture"),
                                   QDir::temp().filePath(QStringLiteral("image "))};
         const auto remaining = maximum - QJsonDocument(QJsonArray::fromStringList(supplementary))
                                              .toJson(QJsonDocument::Compact)
@@ -246,7 +246,7 @@ int main(int argc, char** argv) {
                     snow_shot::app::shellImageLaunchArguments(
                         {QDir::temp().filePath(QStringLiteral("edit.png"))})) &&
                 !snow_shot::update::startupUpdateMayDelayLaunch(
-                    {QStringLiteral("--edit-with-snow-shot")}),
+                    {QStringLiteral("--edit-with-kxcapture")}),
             "ordinary startup can update, while file opens and invalid operands resolve promptly");
     require(snow_shot::update::normalStartupArguments(original) ==
                 QStringList{QStringLiteral("snow-shot"), QStringLiteral("--autostart")},
@@ -269,7 +269,7 @@ int main(int argc, char** argv) {
                         ';' + qgetenv("PATH"));
     QTemporaryDir directory;
     require(directory.isValid(), "create startup test directory");
-    const QString root = directory.filePath(QStringLiteral("Snow Shot"));
+    const QString root = directory.filePath(QStringLiteral("KXCapture"));
     const QString binary = QDir(root).filePath(QStringLiteral("bin"));
     require(QDir().mkpath(binary), "create startup installation");
     require(QFile::copy(QCoreApplication::applicationFilePath(),

@@ -135,7 +135,7 @@ function New-SnowOcrAssetManifest {
         version = $version; platform = $platform
         archive = [ordered]@{ name = $archiveName; size = (Get-Item -LiteralPath $archivePathResolved).Length
             sha256 = (Get-FileHash -LiteralPath $archivePathResolved -Algorithm SHA256).Hash.ToLowerInvariant()
-            url = "https://www.modelscope.cn/models/mgchao/SnowShotOCR/resolve/master/runtime/$version/$platform/$archiveName" }
+            url = "" }
         files = $files
     }
     # Reuse the strict importer before trusting any archive paths or attributes.

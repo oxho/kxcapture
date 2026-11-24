@@ -33,7 +33,7 @@ string(REPLACE "${_snow_nsis_init}" [=[Function .onInit
     Call SnowShotEnsureInstallationClosed
   Pop $0
 ]=] _snow_nsis_template "${_snow_nsis_template}")
-# Restrict the wizard to languages with complete Snow Shot catalogs.
+# Restrict the wizard to languages with complete KXCapture catalogs.
 string(REGEX MATCHALL "!insertmacro MUI_LANGUAGE \"[A-Za-z]+\"[^\n]*" _snow_nsis_languages
     "${_snow_nsis_template}")
 if(NOT _snow_nsis_languages)
@@ -203,7 +203,7 @@ string(APPEND CPACK_NSIS_EXTRA_INSTALL_COMMANDS [=[
   StrCmp $SnowShotPreviousRoot "" snowStartupMigrated
   StrCmp $SnowShotPreviousRoot $INSTDIR snowStartupMigrated
   ClearErrors
-  ExecWait '"$INSTDIR\bin\snow-shot-updater.exe" --migrate-startup --previous "$SnowShotPreviousRoot" --target "$INSTDIR"' $0
+  ExecWait '"$INSTDIR\bin\kxcapture-updater.exe" --migrate-startup --previous "$SnowShotPreviousRoot" --target "$INSTDIR"' $0
   IfErrors snowStartupMigrationFailed
   StrCmp $0 0 snowStartupMigrated
 snowStartupMigrationFailed:

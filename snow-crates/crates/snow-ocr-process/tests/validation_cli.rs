@@ -1,7 +1,7 @@
 use std::process::{Command, Output};
 
 fn run(arguments: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_snow-ocr-process"))
+    Command::new(env!("CARGO_BIN_EXE_kxcapture-ocr"))
         .args(arguments)
         .output()
         .expect("snow-ocr-process should launch")

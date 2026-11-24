@@ -11,7 +11,7 @@ endif()
 
 include("${SNOW_MEMORY_BENCHMARK_SOURCE_ROOT}/cmake/ProjectWarnings.cmake")
 if(PROJECT_NAME STREQUAL "snow_shot")
-    # The project include runs before Snow Shot declares its codec target and
+    # The project include runs before KXCapture declares its codec target and
     # source groups. Defer creation until those production declarations exist.
     function(snow_add_baseline_screenshot_memory_benchmark)
         add_executable(snow-shot-memory-performance-benchmark-baseline

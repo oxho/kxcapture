@@ -6,7 +6,7 @@ require "shellwords"
 require "tmpdir"
 
 wrapper = Pathname(ARGV.fetch(0)).realpath
-fixtures = ARGV[1] ? Pathname(ARGV[1]) : Tap.fetch("mg-chao/preflight").path/"Casks"
+fixtures = ARGV[1] ? Pathname(ARGV[1]) : Tap.fetch("oxho/preflight").path/"Casks"
 
 Dir.mktmpdir("snow-homebrew-installer-") do |directory|
   temporary = Pathname(directory)
@@ -16,8 +16,8 @@ Dir.mktmpdir("snow-homebrew-installer-") do |directory|
 
   %w[snow-shot snow-shot@beta snow-shot-mini snow-shot-mini@beta].each do |token|
     edition = token.start_with?("snow-shot-mini") ? "mini" : "full"
-    bundle_id = edition == "mini" ? "com.snowshot.snow_shot_mini" : "com.snowshot.snow_shot"
-    # Keep fixture metadata and quit events away from real Snow Shot installations.
+    bundle_id = edition == "mini" ? "io.github.oxho.kxcapture.mini" : "io.github.oxho.kxcapture"
+    # Keep fixture metadata and quit events away from real KXCapture installations.
     fixture_token = "#{token.tr('@', '-')}-installer-fixture-#{Process.pid}"
     fixture_bundle_id = "com.snowshot.#{fixture_token}"
     source = (fixtures/"#{token}.rb").read.sub("cask \"#{token}\"", "cask \"#{fixture_token}\"")
@@ -33,7 +33,7 @@ Dir.mktmpdir("snow-homebrew-installer-") do |directory|
 
     begin
       slug = edition == "mini" ? "snow-shot-mini" : "snow-shot"
-      name = edition == "mini" ? "Snow Shot Mini" : "Snow Shot"
+      name = edition == "mini" ? "KXCapture Mini" : "KXCapture"
 
       prepare = lambda do |item, fail: false|
         stage = item.staged_path

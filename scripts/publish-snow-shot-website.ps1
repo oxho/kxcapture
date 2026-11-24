@@ -8,7 +8,7 @@ param(
     [string]$IdentityFile,
     [string]$KnownHostsFile,
     [string]$RemoteWebRoot = '/var/www/html',
-    [string]$PublicBaseUrl = 'https://snowshot.top'
+    [string]$PublicBaseUrl = ''
 )
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest

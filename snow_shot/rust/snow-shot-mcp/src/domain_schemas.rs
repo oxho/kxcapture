@@ -555,282 +555,282 @@ input!(GroupUpdate { action: GroupAction, name: Option<String>, group_id: Option
 
 pub const TOOLS: &[(&str, &str, bool)] = &[
     (
-        "snow_shot_artifact_list",
+        "kxcapture_artifact_list",
         "List owned retained artifacts with MIME, size, digest and expiry metadata.",
         true,
     ),
     (
-        "snow_shot_artifact_read",
+        "kxcapture_artifact_read",
         "Read an owned artifact in bounded base64 chunks; continue with next_offset until eof.",
         true,
     ),
     (
-        "snow_shot_artifact_release",
+        "kxcapture_artifact_release",
         "Release an owned retained artifact.",
         false,
     ),
     (
-        "snow_shot_app_status",
+        "kxcapture_app_status",
         "Read application status and available feature domains.",
         true,
     ),
     (
-        "snow_shot_app_displays",
+        "kxcapture_app_displays",
         "List capture displays and their coordinate mappings.",
         true,
     ),
     (
-        "snow_shot_app_action",
-        "Open an application page, restart, or quit Snow Shot.",
+        "kxcapture_app_action",
+        "Open an application page, restart, or quit KXCapture.",
         false,
     ),
     (
-        "snow_shot_settings_get",
+        "kxcapture_settings_get",
         "Read settings with typed field metadata; credentials are never returned.",
         true,
     ),
     (
-        "snow_shot_settings_update",
+        "kxcapture_settings_update",
         "Update settings by field ID with an expected settings revision.",
         false,
     ),
     (
-        "snow_shot_settings_reset",
+        "kxcapture_settings_reset",
         "Reset the specified settings section.",
         false,
     ),
     (
-        "snow_shot_settings_action",
+        "kxcapture_settings_action",
         "Run a settings action with explicit arguments.",
         false,
     ),
     #[cfg(not(feature = "mini"))]
     (
-        "snow_shot_models_list",
+        "kxcapture_models_list",
         "Read configured model metadata without credentials.",
         true,
     ),
     #[cfg(not(feature = "mini"))]
     (
-        "snow_shot_models_update",
+        "kxcapture_models_update",
         "Update model definitions, retaining omitted credentials.",
         false,
     ),
     #[cfg(not(feature = "mini"))]
     (
-        "snow_shot_credentials_set",
+        "kxcapture_credentials_set",
         "Replace a model credential without returning its value.",
         false,
     ),
     (
-        "snow_shot_history_list",
+        "kxcapture_history_list",
         "Search screenshot history using a bounded page and opaque cursor.",
         true,
     ),
     (
-        "snow_shot_history_get",
+        "kxcapture_history_get",
         "Read a history entry, optionally including its image.",
         true,
     ),
     (
-        "snow_shot_history_delete",
+        "kxcapture_history_delete",
         "Delete a history entry at the expected history revision.",
         false,
     ),
     (
-        "snow_shot_history_clear",
+        "kxcapture_history_clear",
         "Clear screenshot history at the expected history revision.",
         false,
     ),
     (
-        "snow_shot_history_action",
+        "kxcapture_history_action",
         "Open a history image in the editor or pin it.",
         false,
     ),
     (
-        "snow_shot_configuration_export",
+        "kxcapture_configuration_export",
         "Export configuration to an explicit absolute path.",
         false,
     ),
     (
-        "snow_shot_configuration_import",
+        "kxcapture_configuration_import",
         "Import configuration from an explicit absolute path.",
         false,
     ),
     (
-        "snow_shot_storage_status",
+        "kxcapture_storage_status",
         "Read cache and storage usage.",
         true,
     ),
     (
-        "snow_shot_storage_cleanup",
+        "kxcapture_storage_cleanup",
         "Clean an explicitly selected storage category.",
         false,
     ),
     (
-        "snow_shot_permissions_get",
+        "kxcapture_permissions_get",
         "Read native capture and accessibility permission state.",
         true,
     ),
     (
-        "snow_shot_permissions_request",
+        "kxcapture_permissions_request",
         "Request an OS permission or open its settings page.",
         false,
     ),
     (
-        "snow_shot_updates_status",
+        "kxcapture_updates_status",
         "Read application update state.",
         true,
     ),
     (
-        "snow_shot_updates_action",
+        "kxcapture_updates_action",
         "Check, download, cancel, or apply an application update.",
         false,
     ),
     (
-        "snow_shot_templates_list",
+        "kxcapture_templates_list",
         "List drawing or watermark templates.",
         true,
     ),
     (
-        "snow_shot_templates_update",
+        "kxcapture_templates_update",
         "Replace a validated drawing or watermark template collection.",
         false,
     ),
     #[cfg(not(feature = "mini"))]
     (
-        "snow_shot_translation_catalog",
+        "kxcapture_translation_catalog",
         "Read translation models, languages, and preferences without credentials.",
         true,
     ),
     #[cfg(not(feature = "mini"))]
     (
-        "snow_shot_translation_start",
+        "kxcapture_translation_start",
         "Translate explicit text using configured providers and return an owned job handle.",
         false,
     ),
     (
-        "snow_shot_document_open",
+        "kxcapture_document_open",
         "Open an isolated background image document; file is the default source.",
         false,
     ),
     (
-        "snow_shot_document_list",
+        "kxcapture_document_list",
         "List background documents owned by this client.",
         true,
     ),
     (
-        "snow_shot_document_state",
+        "kxcapture_document_state",
         "Read an owned background document and its revision.",
         true,
     ),
     (
-        "snow_shot_document_clone",
+        "kxcapture_document_clone",
         "Clone an owned background document.",
         false,
     ),
     (
-        "snow_shot_document_apply_annotations",
+        "kxcapture_document_apply_annotations",
         "Apply one typed annotation transaction to a background document.",
         false,
     ),
     (
-        "snow_shot_document_set_tool",
+        "kxcapture_document_set_tool",
         "Select the active background document canvas tool.",
         false,
     ),
     (
-        "snow_shot_document_set_tool_style",
+        "kxcapture_document_set_tool_style",
         "Set background document drawing defaults or selected styles.",
         false,
     ),
     (
-        "snow_shot_document_edit_elements",
+        "kxcapture_document_edit_elements",
         "Select, duplicate, order, align or edit background document elements.",
         false,
     ),
     (
-        "snow_shot_document_draw_template",
+        "kxcapture_document_draw_template",
         "Insert or export a background document drawing template.",
         false,
     ),
     (
-        "snow_shot_document_sample_color",
+        "kxcapture_document_sample_color",
         "Read the rendered color at a canvas point.",
         true,
     ),
     (
-        "snow_shot_document_recapture",
+        "kxcapture_document_recapture",
         "Replace the source of an owned document, preserving valid annotations and selection.",
         false,
     ),
     (
-        "snow_shot_document_present",
+        "kxcapture_document_present",
         "Explicitly present an owned document in the visible editor.",
         false,
     ),
     (
-        "snow_shot_document_set_selection",
+        "kxcapture_document_set_selection",
         "Change a background document selection in canvas coordinates.",
         false,
     ),
     (
-        "snow_shot_document_undo",
+        "kxcapture_document_undo",
         "Undo the last background document edit.",
         false,
     ),
     (
-        "snow_shot_document_redo",
+        "kxcapture_document_redo",
         "Redo a background document edit.",
         false,
     ),
     (
-        "snow_shot_document_render",
+        "kxcapture_document_render",
         "Render an immutable snapshot of a background document.",
         true,
     ),
     (
-        "snow_shot_document_copy",
+        "kxcapture_document_copy",
         "Copy a background document snapshot to the clipboard.",
         false,
     ),
     (
-        "snow_shot_document_pin",
+        "kxcapture_document_pin",
         "Pin a background document snapshot.",
         false,
     ),
     (
-        "snow_shot_document_set_selection_style",
+        "kxcapture_document_set_selection_style",
         "Set background document selection decoration and aspect ratio.",
         false,
     ),
     (
-        "snow_shot_document_save",
+        "kxcapture_document_save",
         "Save a background document to an explicit absolute path.",
         false,
     ),
     (
-        "snow_shot_document_close",
+        "kxcapture_document_close",
         "Close an owned background document.",
         false,
     ),
     (
-        "snow_shot_document_recognize",
+        "kxcapture_document_recognize",
         "Start background recognition and return an owned job handle.",
         false,
     ),
     (
-        "snow_shot_document_recognition_state",
+        "kxcapture_document_recognition_state",
         "Read retained recognition state at the expected document revision.",
         true,
     ),
     (
-        "snow_shot_document_auto_filter",
+        "kxcapture_document_auto_filter",
         "Detect and filter selected categories in an owned background document through a cancelable job.",
         false,
     ),
     (
-        "snow_shot_document_edit_recognition",
+        "kxcapture_document_edit_recognition",
         if crate::edition::MINI {
             "Edit retained text recognition using its own revision."
         } else {
@@ -839,88 +839,88 @@ pub const TOOLS: &[(&str, &str, bool)] = &[
         false,
     ),
     (
-        "snow_shot_document_export_recognition",
+        "kxcapture_document_export_recognition",
         "Return, copy or save retained document recognition.",
         false,
     ),
     (
-        "snow_shot_document_original_content",
+        "kxcapture_document_original_content",
         "Return, copy or save original source text or HTML.",
         false,
     ),
     (
-        "snow_shot_job_list",
+        "kxcapture_job_list",
         "List background jobs owned by this client.",
         true,
     ),
     (
-        "snow_shot_job_get",
+        "kxcapture_job_get",
         "Read an owned background job status and result.",
         true,
     ),
     (
-        "snow_shot_job_cancel",
+        "kxcapture_job_cancel",
         "Request cancellation of an owned background job.",
         false,
     ),
     (
-        "snow_shot_recording_state",
+        "kxcapture_recording_state",
         "Read recording lifecycle state and revision.",
         true,
     ),
     (
-        "snow_shot_recording_start",
+        "kxcapture_recording_start",
         "Start a region recording with explicit recording options. post_processing enables rendering after Stop; post_processing_effect selects progress_bar or playback_time. progress_bar_color uses #RRGGBBAA (alpha last); #RRGGBB and color names are also accepted.",
         false,
     ),
     (
-        "snow_shot_recording_control",
+        "kxcapture_recording_control",
         "Pause, resume, finish, copy, or close an owned recording; cancel_render stops rendering, retry repeats it, keep_source preserves files, and discard explicitly removes them.",
         false,
     ),
     (
-        "snow_shot_pinned_list",
+        "kxcapture_pinned_list",
         "List pinned images and their revisions.",
         true,
     ),
     (
-        "snow_shot_pinned_get",
+        "kxcapture_pinned_get",
         "Read a pinned image state by stable ID.",
         true,
     ),
     (
-        "snow_shot_pinned_create",
+        "kxcapture_pinned_create",
         "Pin a file, clipboard image, text, or HTML.",
         false,
     ),
     (
-        "snow_shot_pinned_replace",
+        "kxcapture_pinned_replace",
         "Replace a pinned image from a typed source.",
         false,
     ),
     (
-        "snow_shot_pinned_update",
+        "kxcapture_pinned_update",
         "Update pinned image geometry and presentation properties.",
         false,
     ),
     (
-        "snow_shot_pinned_action",
+        "kxcapture_pinned_action",
         "Show, hide, close, restore, or destroy pinned windows.",
         false,
     ),
     (
-        "snow_shot_pinned_export",
+        "kxcapture_pinned_export",
         "Save or copy a pinned image.",
         false,
     ),
     (
-        "snow_shot_pinned_edit",
+        "kxcapture_pinned_edit",
         "Edit pinned annotations and recognized content.",
         false,
     ),
-    ("snow_shot_group_list", "List pinned window groups.", true),
+    ("kxcapture_group_list", "List pinned window groups.", true),
     (
-        "snow_shot_group_update",
+        "kxcapture_group_update",
         "Create, activate, move to, or delete a pinned window group.",
         false,
     ),
@@ -937,43 +937,43 @@ pub fn schema(name: &str, input: Option<Value>) -> Result<Map<String, Value>, se
         ));
     }
     match name {
-        "snow_shot_artifact_list" => model::<Empty>(input),
-        "snow_shot_artifact_read" => model::<ArtifactRead>(input),
-        "snow_shot_artifact_release" => model::<ArtifactRelease>(input),
-        "snow_shot_app_status"
-        | "snow_shot_app_displays"
-        | "snow_shot_storage_status"
-        | "snow_shot_permissions_get"
-        | "snow_shot_updates_status"
-        | "snow_shot_document_list"
-        | "snow_shot_job_list"
-        | "snow_shot_recording_state"
-        | "snow_shot_group_list" => model::<Empty>(input),
+        "kxcapture_artifact_list" => model::<Empty>(input),
+        "kxcapture_artifact_read" => model::<ArtifactRead>(input),
+        "kxcapture_artifact_release" => model::<ArtifactRelease>(input),
+        "kxcapture_app_status"
+        | "kxcapture_app_displays"
+        | "kxcapture_storage_status"
+        | "kxcapture_permissions_get"
+        | "kxcapture_updates_status"
+        | "kxcapture_document_list"
+        | "kxcapture_job_list"
+        | "kxcapture_recording_state"
+        | "kxcapture_group_list" => model::<Empty>(input),
         #[cfg(not(feature = "mini"))]
-        "snow_shot_models_list" | "snow_shot_translation_catalog" => model::<Empty>(input),
-        "snow_shot_app_action" => model::<AppActionInput>(input),
-        "snow_shot_settings_get" => model::<Section>(input),
-        "snow_shot_settings_update" => model::<Revision<SettingsUpdate>>(input),
-        "snow_shot_settings_reset" => model::<Revision<SettingsReset>>(input),
-        "snow_shot_settings_action" => model::<Revision<SettingsAction>>(input),
+        "kxcapture_models_list" | "kxcapture_translation_catalog" => model::<Empty>(input),
+        "kxcapture_app_action" => model::<AppActionInput>(input),
+        "kxcapture_settings_get" => model::<Section>(input),
+        "kxcapture_settings_update" => model::<Revision<SettingsUpdate>>(input),
+        "kxcapture_settings_reset" => model::<Revision<SettingsReset>>(input),
+        "kxcapture_settings_action" => model::<Revision<SettingsAction>>(input),
         #[cfg(not(feature = "mini"))]
-        "snow_shot_models_update" => model::<Revision<ModelsUpdate>>(input),
+        "kxcapture_models_update" => model::<Revision<ModelsUpdate>>(input),
         #[cfg(not(feature = "mini"))]
-        "snow_shot_credentials_set" => model::<Revision<Credential>>(input),
-        "snow_shot_history_list" => model::<HistoryList>(input),
-        "snow_shot_history_get" => model::<HistoryGet>(input),
-        "snow_shot_history_delete" => model::<Revision<HistoryId>>(input),
-        "snow_shot_history_clear" => model::<Revision<Empty>>(input),
-        "snow_shot_history_action" => model::<HistoryActionInput>(input),
-        "snow_shot_configuration_export" => model::<FilePath>(input),
-        "snow_shot_configuration_import" => model::<Revision<FilePath>>(input),
-        "snow_shot_storage_cleanup" => model::<Revision<Cleanup>>(input),
-        "snow_shot_permissions_request" => model::<Permission>(input),
-        "snow_shot_updates_action" => model::<UpdateInput>(input),
-        "snow_shot_templates_list" => model::<TemplateList>(input),
-        "snow_shot_templates_update" => model::<Revision<TemplateUpdate>>(input),
+        "kxcapture_credentials_set" => model::<Revision<Credential>>(input),
+        "kxcapture_history_list" => model::<HistoryList>(input),
+        "kxcapture_history_get" => model::<HistoryGet>(input),
+        "kxcapture_history_delete" => model::<Revision<HistoryId>>(input),
+        "kxcapture_history_clear" => model::<Revision<Empty>>(input),
+        "kxcapture_history_action" => model::<HistoryActionInput>(input),
+        "kxcapture_configuration_export" => model::<FilePath>(input),
+        "kxcapture_configuration_import" => model::<Revision<FilePath>>(input),
+        "kxcapture_storage_cleanup" => model::<Revision<Cleanup>>(input),
+        "kxcapture_permissions_request" => model::<Permission>(input),
+        "kxcapture_updates_action" => model::<UpdateInput>(input),
+        "kxcapture_templates_list" => model::<TemplateList>(input),
+        "kxcapture_templates_update" => model::<Revision<TemplateUpdate>>(input),
         #[cfg(not(feature = "mini"))]
-        "snow_shot_translation_start" => {
+        "kxcapture_translation_start" => {
             let exclusive = [
                 "texts",
                 "source",
@@ -995,16 +995,16 @@ pub fn schema(name: &str, input: Option<Value>) -> Result<Map<String, Value>, se
             }
             Ok(schema)
         }
-        "snow_shot_document_open" => model::<DocumentOpen>(input),
-        "snow_shot_document_state" => model::<DocumentId>(input),
-        "snow_shot_document_clone"
-        | "snow_shot_document_close"
-        | "snow_shot_document_undo"
-        | "snow_shot_document_redo" => model::<DocumentMutation<Empty>>(input),
-        "snow_shot_document_apply_annotations" => model::<DocumentMutation<Annotations>>(input),
-        "snow_shot_document_set_tool" => model::<DocumentMutation<DocumentTool>>(input),
-        "snow_shot_document_set_tool_style" => model::<DocumentToolStyleMutation>(input),
-        "snow_shot_document_edit_elements" => {
+        "kxcapture_document_open" => model::<DocumentOpen>(input),
+        "kxcapture_document_state" => model::<DocumentId>(input),
+        "kxcapture_document_clone"
+        | "kxcapture_document_close"
+        | "kxcapture_document_undo"
+        | "kxcapture_document_redo" => model::<DocumentMutation<Empty>>(input),
+        "kxcapture_document_apply_annotations" => model::<DocumentMutation<Annotations>>(input),
+        "kxcapture_document_set_tool" => model::<DocumentMutation<DocumentTool>>(input),
+        "kxcapture_document_set_tool_style" => model::<DocumentToolStyleMutation>(input),
+        "kxcapture_document_edit_elements" => {
             if input.as_ref().is_some_and(|v| {
                 v.get("action").and_then(Value::as_str) == Some("erase_path")
                     && !v
@@ -1018,39 +1018,39 @@ pub fn schema(name: &str, input: Option<Value>) -> Result<Map<String, Value>, se
             }
             model::<DocumentMutation<DocumentElementEdit>>(input)
         }
-        "snow_shot_document_draw_template" => model::<DocumentMutation<DrawTemplate>>(input),
-        "snow_shot_document_sample_color" => model::<DocumentMutation<DocumentPoint>>(input),
-        "snow_shot_document_recapture" => model::<DocumentMutation<DocumentRecapture>>(input),
-        "snow_shot_document_present" => model::<DocumentMutation<Empty>>(input),
-        "snow_shot_document_set_selection" => model::<DocumentMutation<DocumentSelection>>(input),
-        "snow_shot_document_render" | "snow_shot_document_copy" | "snow_shot_document_pin" => {
+        "kxcapture_document_draw_template" => model::<DocumentMutation<DrawTemplate>>(input),
+        "kxcapture_document_sample_color" => model::<DocumentMutation<DocumentPoint>>(input),
+        "kxcapture_document_recapture" => model::<DocumentMutation<DocumentRecapture>>(input),
+        "kxcapture_document_present" => model::<DocumentMutation<Empty>>(input),
+        "kxcapture_document_set_selection" => model::<DocumentMutation<DocumentSelection>>(input),
+        "kxcapture_document_render" | "kxcapture_document_copy" | "kxcapture_document_pin" => {
             model::<DocumentMutation<Render>>(input)
         }
-        "snow_shot_document_set_selection_style" => {
+        "kxcapture_document_set_selection_style" => {
             model::<DocumentMutation<SelectionStyle>>(input)
         }
-        "snow_shot_document_save" => model::<DocumentMutation<DocumentSave>>(input),
-        "snow_shot_document_recognize" => model::<DocumentMutation<DocumentRecognize>>(input),
-        "snow_shot_document_auto_filter" => model::<DocumentMutation<PinnedAutoFilter>>(input),
-        "snow_shot_document_recognition_state" => model::<DocumentMutation<Empty>>(input),
-        "snow_shot_document_edit_recognition" => {
+        "kxcapture_document_save" => model::<DocumentMutation<DocumentSave>>(input),
+        "kxcapture_document_recognize" => model::<DocumentMutation<DocumentRecognize>>(input),
+        "kxcapture_document_auto_filter" => model::<DocumentMutation<PinnedAutoFilter>>(input),
+        "kxcapture_document_recognition_state" => model::<DocumentMutation<Empty>>(input),
+        "kxcapture_document_edit_recognition" => {
             model::<DocumentMutation<DocumentRecognitionEdit>>(input)
         }
-        "snow_shot_document_export_recognition" => {
+        "kxcapture_document_export_recognition" => {
             model::<DocumentMutation<ExportRecognition>>(input)
         }
-        "snow_shot_document_original_content" => {
+        "kxcapture_document_original_content" => {
             model::<DocumentMutation<OriginalContentOutput>>(input)
         }
-        "snow_shot_job_get" | "snow_shot_job_cancel" => model::<JobId>(input),
-        "snow_shot_recording_start" => model::<RecordingStart>(input),
-        "snow_shot_recording_control" => model::<Revision<RecordingControl>>(input),
-        "snow_shot_pinned_get" => model::<PinnedId>(input),
-        "snow_shot_pinned_list" => model::<PinnedList>(input),
-        "snow_shot_pinned_create" => model::<PinnedCreate>(input),
-        "snow_shot_pinned_replace" => model::<Revision<PinnedReplace>>(input),
-        "snow_shot_pinned_update" => model::<Revision<PinnedUpdate>>(input),
-        "snow_shot_pinned_action" => {
+        "kxcapture_job_get" | "kxcapture_job_cancel" => model::<JobId>(input),
+        "kxcapture_recording_start" => model::<RecordingStart>(input),
+        "kxcapture_recording_control" => model::<Revision<RecordingControl>>(input),
+        "kxcapture_pinned_get" => model::<PinnedId>(input),
+        "kxcapture_pinned_list" => model::<PinnedList>(input),
+        "kxcapture_pinned_create" => model::<PinnedCreate>(input),
+        "kxcapture_pinned_replace" => model::<Revision<PinnedReplace>>(input),
+        "kxcapture_pinned_update" => model::<Revision<PinnedUpdate>>(input),
+        "kxcapture_pinned_action" => {
             if input.as_ref().is_some_and(|v| {
                 v.get("action").and_then(Value::as_str) != Some("restore_last")
                     && !v
@@ -1067,9 +1067,9 @@ pub fn schema(name: &str, input: Option<Value>) -> Result<Map<String, Value>, se
             }
             Ok(schema)
         }
-        "snow_shot_pinned_export" => model::<Revision<PinnedExport>>(input),
-        "snow_shot_pinned_edit" => model::<Revision<PinnedEdit>>(input),
-        "snow_shot_group_update" => model::<Revision<GroupUpdate>>(input),
+        "kxcapture_pinned_export" => model::<Revision<PinnedExport>>(input),
+        "kxcapture_pinned_edit" => model::<Revision<PinnedEdit>>(input),
+        "kxcapture_group_update" => model::<Revision<GroupUpdate>>(input),
         _ => Err(<serde_json::Error as serde::de::Error>::custom(
             "unknown tool",
         )),
@@ -1180,7 +1180,7 @@ mod tests {
         for radius in [8, 24, 128] {
             assert!(
                 schema(
-                    "snow_shot_recording_start",
+                    "kxcapture_recording_start",
                     Some(json!({
                         "region": [0, 0, 320, 240],
                         "options": {"mouse_highlight": true, "mouse_highlight_radius": radius}
@@ -1200,7 +1200,7 @@ mod tests {
         ] {
             assert!(
                 schema(
-                    "snow_shot_recording_start",
+                    "kxcapture_recording_start",
                     Some(json!({
                         "region": [0, 0, 320, 240],
                         "options": {"mouse_highlight_radius": radius}
@@ -1210,7 +1210,7 @@ mod tests {
                 "invalid radius {radius}"
             );
         }
-        let published = schema("snow_shot_recording_start", None).unwrap();
+        let published = schema("kxcapture_recording_start", None).unwrap();
         let radius = &published["$defs"]["MouseHighlightRadius"];
         assert_eq!(radius["type"], "integer");
         assert_eq!(radius["minimum"], 8);
@@ -1246,7 +1246,7 @@ mod tests {
         for effect in ["progress_bar", "playback_time"] {
             assert!(
                 schema(
-                    "snow_shot_recording_start",
+                    "kxcapture_recording_start",
                     Some(json!({
                         "region": [0, 0, 320, 240],
                         "options": {"post_processing": true, "post_processing_effect": effect,
@@ -1267,14 +1267,14 @@ mod tests {
             let mut input = json!({"region": [0,0,320,240], "options": {}});
             input["options"][key] = value;
             assert!(
-                schema("snow_shot_recording_start", Some(input)).is_err(),
+                schema("kxcapture_recording_start", Some(input)).is_err(),
                 "{key}"
             );
         }
         for action in ["cancel", "cancel_render", "retry", "keep_source", "discard"] {
             assert!(
                 schema(
-                    "snow_shot_recording_control",
+                    "kxcapture_recording_control",
                     Some(json!({
                         "recording_id": "recording", "expected_revision": 1, "action": action
                     }))
@@ -1289,7 +1289,7 @@ mod tests {
         for value in [serde_json::json!(true), serde_json::json!(false)] {
             assert!(
                 schema(
-                    "snow_shot_recording_start",
+                    "kxcapture_recording_start",
                     Some(serde_json::json!({
                         "region": [0, 0, 320, 240], "options": {"separate_audio_tracks": value}
                     }))
@@ -1299,7 +1299,7 @@ mod tests {
         }
         assert!(
             schema(
-                "snow_shot_recording_start",
+                "kxcapture_recording_start",
                 Some(serde_json::json!({
                     "region": [0, 0, 320, 240], "options": {"separate_audio_tracks": 1}
                 }))
@@ -1313,7 +1313,7 @@ mod tests {
         for value in [serde_json::json!(true), serde_json::json!(false)] {
             assert!(
                 schema(
-                    "snow_shot_recording_start",
+                    "kxcapture_recording_start",
                     Some(serde_json::json!({
                         "region": [0, 0, 320, 240], "options": {"record_mouse_scrolling": value}
                     }))
@@ -1323,7 +1323,7 @@ mod tests {
         }
         assert!(
             schema(
-                "snow_shot_recording_start",
+                "kxcapture_recording_start",
                 Some(serde_json::json!({
                     "region": [0, 0, 320, 240], "options": {"record_mouse_scrolling": 1}
                 }))
@@ -1345,26 +1345,26 @@ mod tests {
                 "{name}"
             );
         }
-        assert!(schema("snow_shot_settings_update", Some(json!({"values":{}}))).is_err());
-        assert!(schema("snow_shot_document_apply_annotations",Some(json!({"document_id":"d","expected_revision":1,"operations":[{"type":"execute"}]}))).is_err());
-        assert!(schema("snow_shot_document_apply_annotations",Some(json!({"document_id":"d","expected_revision":1,"operations":[{"type":"rectangle","bounds":[0,0,20,20],"style":{}}]}))).is_ok());
+        assert!(schema("kxcapture_settings_update", Some(json!({"values":{}}))).is_err());
+        assert!(schema("kxcapture_document_apply_annotations",Some(json!({"document_id":"d","expected_revision":1,"operations":[{"type":"execute"}]}))).is_err());
+        assert!(schema("kxcapture_document_apply_annotations",Some(json!({"document_id":"d","expected_revision":1,"operations":[{"type":"rectangle","bounds":[0,0,20,20],"style":{}}]}))).is_ok());
         assert!(
             schema(
-                "snow_shot_settings_update",
+                "kxcapture_settings_update",
                 Some(json!({"expected_revision":2,"values":{"general.language":"en_US"}}))
             )
             .is_ok()
         );
         assert!(
             schema(
-                "snow_shot_document_open",
+                "kxcapture_document_open",
                 Some(json!({"source":"capture","target":"focused_window","delay_seconds":10}))
             )
             .is_ok()
         );
         assert!(
             schema(
-                "snow_shot_document_open",
+                "kxcapture_document_open",
                 Some(json!({"source":"capture","delay_seconds":11}))
             )
             .is_err()
@@ -1384,7 +1384,7 @@ mod tests {
         ] {
             assert!(
                 schema(
-                    "snow_shot_pinned_action",
+                    "kxcapture_pinned_action",
                     Some(json!({"id":"pin","expected_revision":1,"action":action}))
                 )
                 .is_ok(),
@@ -1392,7 +1392,7 @@ mod tests {
             );
             assert!(
                 schema(
-                    "snow_shot_pinned_action",
+                    "kxcapture_pinned_action",
                     Some(json!({"expected_revision":1,"action":action}))
                 )
                 .is_err(),
@@ -1401,13 +1401,13 @@ mod tests {
         }
         assert!(
             schema(
-                "snow_shot_pinned_action",
+                "kxcapture_pinned_action",
                 Some(json!({"expected_revision":1,"action":"restore_last"}))
             )
             .is_ok()
         );
         let input = json!({"region":[0,0,1920,1080],"options":{"frame_rate":60,"clarity":"1080p","keyboard_size":32,"quality":100,"path":"C:/capture.mp4"}});
-        assert!(schema("snow_shot_recording_start", Some(input.clone())).is_ok());
+        assert!(schema("kxcapture_recording_start", Some(input.clone())).is_ok());
         for (key, value) in [
             ("frame_rate", json!(240)),
             ("quality", json!(101)),
@@ -1420,18 +1420,18 @@ mod tests {
             let mut invalid = input.clone();
             invalid["options"][key] = value;
             assert!(
-                schema("snow_shot_recording_start", Some(invalid)).is_err(),
+                schema("kxcapture_recording_start", Some(invalid)).is_err(),
                 "{key}"
             );
         }
         assert!(
             schema(
-                "snow_shot_pinned_create",
+                "kxcapture_pinned_create",
                 Some(json!({"source":{"kind":"file","path":"C:/image.png","command":"bad"}}))
             )
             .is_err()
         );
-        assert!(schema("snow_shot_pinned_edit",Some(json!({"id":"p","expected_revision":1,"action":"recognize","payload":{"kind":"text"}}))).is_ok());
+        assert!(schema("kxcapture_pinned_edit",Some(json!({"id":"p","expected_revision":1,"action":"recognize","payload":{"kind":"text"}}))).is_ok());
     }
 
     #[test]
@@ -1440,7 +1440,7 @@ mod tests {
             for shadow in [false, true] {
                 assert!(
                     schema(
-                        "snow_shot_pinned_update",
+                        "kxcapture_pinned_update",
                         Some(json!({"id":"pin", "expected_revision":1,
                             "properties":{"show_border":border,"show_shadow":shadow}}))
                     )
@@ -1451,7 +1451,7 @@ mod tests {
         for invalid in [json!(1), json!("true")] {
             assert!(
                 schema(
-                    "snow_shot_pinned_update",
+                    "kxcapture_pinned_update",
                     Some(json!({"id":"pin", "expected_revision":1,
                         "properties":{"show_shadow":invalid}}))
                 )
@@ -1463,19 +1463,19 @@ mod tests {
     fn document_capture_recognition_and_artifact_contracts_have_distinct_bounds() {
         assert!(
             schema(
-                "snow_shot_document_save",
+                "kxcapture_document_save",
                 Some(json!({"document_id":"d","expected_revision":1,"automatic_path":true}))
             )
             .is_err()
         );
-        assert!(schema("snow_shot_document_save", Some(json!({"document_id":"d","expected_revision":1,"path":"C:/output.pdf","format":"pdf","quality":90,"compression_level":"medium","pdf_page_size":"a4_landscape","pdf_title":"Fixture"}))).is_ok());
-        assert!(schema("snow_shot_document_edit_elements", Some(json!({"document_id":"d","expected_revision":1,"action":"erase_path","points":[[1,2],[3,4]]}))).is_ok());
-        assert!(schema("snow_shot_document_edit_elements", Some(json!({"document_id":"d","expected_revision":1,"action":"erase_path","points":[]}))).is_err());
-        assert!(super::super::schema("snow_shot_screenshot_edit_elements", Some(json!({"session_id":"s","expected_revision":1,"action":"erase_path","points":[[1,2]]}))).is_err());
-        assert!(schema("snow_shot_pinned_edit", Some(json!({"id":"p","expected_revision":1,"action":"tool_style","payload":{"target":"arrow","style":{"arrow_ratio":2}}}))).is_ok());
+        assert!(schema("kxcapture_document_save", Some(json!({"document_id":"d","expected_revision":1,"path":"C:/output.pdf","format":"pdf","quality":90,"compression_level":"medium","pdf_page_size":"a4_landscape","pdf_title":"Fixture"}))).is_ok());
+        assert!(schema("kxcapture_document_edit_elements", Some(json!({"document_id":"d","expected_revision":1,"action":"erase_path","points":[[1,2],[3,4]]}))).is_ok());
+        assert!(schema("kxcapture_document_edit_elements", Some(json!({"document_id":"d","expected_revision":1,"action":"erase_path","points":[]}))).is_err());
+        assert!(super::super::schema("kxcapture_screenshot_edit_elements", Some(json!({"session_id":"s","expected_revision":1,"action":"erase_path","points":[[1,2]]}))).is_err());
+        assert!(schema("kxcapture_pinned_edit", Some(json!({"id":"p","expected_revision":1,"action":"tool_style","payload":{"target":"arrow","style":{"arrow_ratio":2}}}))).is_ok());
         assert!(
             schema(
-                "snow_shot_document_open",
+                "kxcapture_document_open",
                 Some(
                     json!({"source":"capture","target":"monitor","monitor_id":"primary","scale":4})
                 )
@@ -1484,25 +1484,25 @@ mod tests {
         );
         assert!(
             schema(
-                "snow_shot_document_open",
+                "kxcapture_document_open",
                 Some(json!({"source":"capture","scale":4.01}))
             )
             .is_err()
         );
-        assert!(schema("snow_shot_document_recapture", Some(json!({"document_id":"one","expected_revision":1,"idempotency_key":"repeat","source":"file","path":"C:/source.png"}))).is_ok());
+        assert!(schema("kxcapture_document_recapture", Some(json!({"document_id":"one","expected_revision":1,"idempotency_key":"repeat","source":"file","path":"C:/source.png"}))).is_ok());
         assert!(
             schema(
-                "snow_shot_document_set_tool",
+                "kxcapture_document_set_tool",
                 Some(json!({"document_id":"one","expected_revision":1,"tool":"ocr"}))
             )
             .is_err()
         );
-        assert!(schema("snow_shot_document_edit_recognition", Some(json!({"document_id":"one","expected_revision":1,"expected_recognition_revision":2,"action":"set_text","text":"edited"}))).is_ok());
-        assert!(schema("snow_shot_document_edit_recognition", Some(json!({"document_id":"one","expected_revision":1,"action":"set_text","text":"edited"}))).is_err());
+        assert!(schema("kxcapture_document_edit_recognition", Some(json!({"document_id":"one","expected_revision":1,"expected_recognition_revision":2,"action":"set_text","text":"edited"}))).is_ok());
+        assert!(schema("kxcapture_document_edit_recognition", Some(json!({"document_id":"one","expected_revision":1,"action":"set_text","text":"edited"}))).is_err());
         for bytes in [0, 262145] {
             assert!(
                 schema(
-                    "snow_shot_artifact_read",
+                    "kxcapture_artifact_read",
                     Some(json!({"artifact_id":"a","max_bytes":bytes}))
                 )
                 .is_err()
@@ -1510,30 +1510,30 @@ mod tests {
         }
         assert!(
             schema(
-                "snow_shot_artifact_read",
+                "kxcapture_artifact_read",
                 Some(json!({"artifact_id":"a","offset":262144,"max_bytes":262144}))
             )
             .is_ok()
         );
         assert_eq!(
             schema(
-                "snow_shot_translation_start",
+                "kxcapture_translation_start",
                 Some(json!({"source":"selection"}))
             )
             .is_ok(),
-            !crate::edition::MINI
+            !crate::edition::MINI && cfg!(feature = "translation")
         );
         assert_eq!(
             schema(
-                "snow_shot_translation_start",
+                "kxcapture_translation_start",
                 Some(json!({"retry_job_id":"prior"}))
             )
             .is_ok(),
-            !crate::edition::MINI
+            !crate::edition::MINI && cfg!(feature = "translation")
         );
         assert!(
             schema(
-                "snow_shot_translation_start",
+                "kxcapture_translation_start",
                 Some(json!({"retry_job_id":"prior","texts":["new"]}))
             )
             .is_err()
@@ -1596,7 +1596,7 @@ mod keyboard_filter_tests {
                 assert!(serde_json::from_value::<RecordingOptions>(options.clone()).is_ok());
                 assert!(
                     schema(
-                        "snow_shot_recording_start",
+                        "kxcapture_recording_start",
                         Some(json!({"region": [0, 0, 320, 240], "options": options}))
                     )
                     .is_ok(),
@@ -1608,7 +1608,7 @@ mod keyboard_filter_tests {
                 assert!(serde_json::from_value::<RecordingOptions>(options.clone()).is_err());
                 assert!(
                     schema(
-                        "snow_shot_recording_start",
+                        "kxcapture_recording_start",
                         Some(json!({"region": [0, 0, 320, 240], "options": options}))
                     )
                     .is_err(),
@@ -1629,7 +1629,7 @@ mod webcam_tests {
             for shape in ["square", "circle"] {
                 assert!(
                     schema(
-                        "snow_shot_recording_start",
+                        "kxcapture_recording_start",
                         Some(json!({
                             "region": [0, 0, 320, 240],
                             "options": {"webcam": true, "webcam_size": size, "webcam_shape": shape}
@@ -1649,7 +1649,7 @@ mod webcam_tests {
             let mut input = json!({"region": [0, 0, 320, 240], "options": {}});
             input["options"][key] = value;
             assert!(
-                schema("snow_shot_recording_start", Some(input)).is_err(),
+                schema("kxcapture_recording_start", Some(input)).is_err(),
                 "{key}"
             );
         }

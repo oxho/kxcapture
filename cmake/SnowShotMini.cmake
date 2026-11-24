@@ -104,7 +104,7 @@ foreach(_original IN LISTS _snow_mini_libraries)
     target_link_libraries(${_original}_mini PUBLIC snow_shot_edition_mini)
 endforeach()
 target_compile_definitions(snow_shot_crash_bridge_mini PRIVATE
-    SNOW_DIAGNOSTICS_PRODUCT="Snow Shot Mini")
+    SNOW_DIAGNOSTICS_PRODUCT="KXCapture Mini")
 
 _snow_mini_share_resources(snow_shot)
 get_target_property(_sources snow_shot SOURCES)
@@ -113,7 +113,7 @@ list(FILTER _sources EXCLUDE REGEX "windows-app-resource\\.rc$|_plugin_import\\.
 snow_shot_mini_filter_sources(_sources ${_sources})
 qt_add_executable(snow_shot_mini MANUAL_FINALIZATION ${_sources})
 _snow_mini_copy_build_properties(snow_shot snow_shot_mini)
-target_link_libraries(snow_shot_mini PRIVATE snow_shot_edition_mini)
+target_link_libraries(snow_shot_mini PRIVATE snow_shot_edition_mini snow_shot_ads)
 if(SNOW_SHOT_BUILD_TESTS)
     # Full's generated plugin-import source is deliberately excluded above.
     snow_shot_import_offscreen_platform(snow_shot_mini)
@@ -122,22 +122,23 @@ snow_shot_add_translations(snow_shot_mini MINI)
 set_target_properties(snow_shot_mini PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/snow_shot_mini"
     MACOSX_BUNDLE TRUE WIN32_EXECUTABLE TRUE
-    MACOSX_BUNDLE_GUI_IDENTIFIER com.snowshot.snow_shot_mini
-    MACOSX_BUNDLE_BUNDLE_NAME "Snow Shot Mini"
+    OUTPUT_NAME "kxcapture_mini"
+    MACOSX_BUNDLE_GUI_IDENTIFIER "io.github.oxho.kxcapture.mini"
+    MACOSX_BUNDLE_BUNDLE_NAME "KXCapture Mini"
     MACOSX_BUNDLE_BUNDLE_VERSION "${SNOW_SHOT_VERSION_NUMERIC}"
     MACOSX_BUNDLE_SHORT_VERSION_STRING "${SNOW_SHOT_VERSION_NUMERIC}")
 if(MSVC AND SNOW_SHOT_RELEASE_STATIC AND NOT SNOW_SHOT_QT_STATIC)
     set_property(TARGET snow_shot_mini PROPERTY qt_no_entrypoint TRUE)
 endif()
 if(WIN32)
-    set(SNOW_SHOT_PRODUCT_NAME "Snow Shot Mini")
-    set(SNOW_SHOT_EXECUTABLE_NAME snow_shot_mini)
+    set(SNOW_SHOT_PRODUCT_NAME "KXCapture Mini")
+    set(SNOW_SHOT_EXECUTABLE_NAME kxcapture_mini)
     configure_file(resources/windows-app-resource.rc.in
         "${CMAKE_CURRENT_BINARY_DIR}/generated/windows-mini-app-resource.rc" @ONLY)
     target_sources(snow_shot_mini PRIVATE
         "${CMAKE_CURRENT_BINARY_DIR}/generated/windows-mini-app-resource.rc")
-    set(SNOW_SHOT_PRODUCT_NAME "Snow Shot")
-    set(SNOW_SHOT_EXECUTABLE_NAME snow_shot)
+    set(SNOW_SHOT_PRODUCT_NAME "KXCapture")
+    set(SNOW_SHOT_EXECUTABLE_NAME kxcapture)
 endif()
 
 function(_snow_add_mini_helpers)
@@ -147,7 +148,7 @@ function(_snow_add_mini_helpers)
     if(NOT APPLE)
         snow_add_rust_executable(snow-shot-mini-updater-binary
             PACKAGE snow-shot-updater MANIFEST_DIR "${CMAKE_CURRENT_SOURCE_DIR}/rust/snow-shot-updater"
-            OUTPUT_NAME snow-shot-updater PRODUCTION_PROFILE release-size
+            OUTPUT_NAME kxcapture-updater PRODUCTION_PROFILE release-size
             FEATURES mini REPRODUCIBLE SIZE_OPTIMIZED
             ENVIRONMENT
                 "SNOW_SHOT_UPDATE_KEYS_PATH=${CMAKE_CURRENT_SOURCE_DIR}/resources/update-trusted-keys.json"
@@ -155,10 +156,18 @@ function(_snow_add_mini_helpers)
                 "SNOW_SHOT_ICON_PATH=${CMAKE_CURRENT_SOURCE_DIR}/resources/app-icon.ico")
     endif()
     if(SNOW_SHOT_ENABLE_MCP)
+        set(_snow_mini_mcp_features mini)
+        if(KXCAPTURE_ENABLE_TRANSLATION)
+            list(APPEND _snow_mini_mcp_features translation)
+        endif()
+        if(KXCAPTURE_ENABLE_OCR)
+            list(APPEND _snow_mini_mcp_features ocr)
+        endif()
         snow_add_rust_executable(snow_shot_mini_mcp
             PACKAGE snow-shot-mcp MANIFEST_DIR "${CMAKE_CURRENT_SOURCE_DIR}/rust/snow-shot-mcp"
-            OUTPUT_NAME snow-shot-mcp PRODUCTION_PROFILE release-size
-            FEATURES mini REPRODUCIBLE SIZE_OPTIMIZED)
+            OUTPUT_NAME kxcapture-mcp PRODUCTION_PROFILE release-size
+            NO_DEFAULT_FEATURES
+            FEATURES ${_snow_mini_mcp_features} REPRODUCIBLE SIZE_OPTIMIZED)
     endif()
 endfunction()
 _snow_add_mini_helpers()
@@ -167,18 +176,18 @@ if(WIN32)
     set(_mini_libdir lib)
     set(_mini_datadir share)
 else()
-    set(_mini_bindir "snow_shot_mini.app/Contents/MacOS")
-    set(_mini_libdir "snow_shot_mini.app/Contents/Frameworks")
-    set(_mini_datadir "snow_shot_mini.app/Contents/Resources")
+    set(_mini_bindir "kxcapture_mini.app/Contents/MacOS")
+    set(_mini_libdir "kxcapture_mini.app/Contents/Frameworks")
+    set(_mini_datadir "kxcapture_mini.app/Contents/Resources")
 endif()
 install(TARGETS snow_shot_mini BUNDLE DESTINATION . COMPONENT SnowShotMini
     RUNTIME DESTINATION "${_mini_bindir}" COMPONENT SnowShotMini)
 foreach(_helper IN ITEMS snow-shot-mini-updater-binary snow_shot_mini_mcp)
     if(TARGET ${_helper})
         if(_helper STREQUAL snow_shot_mini_mcp)
-            set(_name snow-shot-mini-mcp)
+            set(_name kxcapture-mini-mcp)
         else()
-            set(_name snow-shot-mini-updater)
+            set(_name kxcapture-mini-updater)
         endif()
         if(WIN32)
             string(APPEND _name .exe)
@@ -208,7 +217,7 @@ if(NOT SNOW_SHOT_IMAGE_CODEC_BACKEND_STATIC)
     if(APPLE)
         # Remove the library left in MacOS by earlier Mini install rules.
         install(CODE [[
-            file(REMOVE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/snow_shot_mini.app/Contents/MacOS/$<TARGET_FILE_NAME:snow_shot_image_codec_backend>")
+            file(REMOVE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/kxcapture_mini.app/Contents/MacOS/$<TARGET_FILE_NAME:snow_shot_image_codec_backend>")
         ]] COMPONENT SnowShotMini)
     endif()
     install(TARGETS snow_shot_image_codec_backend
@@ -229,7 +238,7 @@ if(WIN32)
     if(NOT SNOW_SHOT_IMAGE_CODEC_BACKEND_STATIC)
         _snow_shot_stage_image_runtime(snow_shot_mini)
     endif()
-    if(EXISTS "${SNOW_SHOT_OCR_ASSET_MANIFEST}")
+    if(KXCAPTURE_ENABLE_OCR AND EXISTS "${SNOW_SHOT_OCR_ASSET_MANIFEST}")
         add_custom_command(TARGET snow_shot_mini POST_BUILD
             COMMAND "${CMAKE_COMMAND}" -E make_directory "$<TARGET_FILE_DIR:snow_shot_mini>/assets/ocr"
             COMMAND "${CMAKE_COMMAND}" -E copy_if_different
@@ -262,21 +271,21 @@ if(WIN32)
     snow_install_license_bundle(
         SOURCE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
         THIRD_PARTY_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/third-party-licenses/third-party"
-        DESTINATION "${_mini_datadir}/snow-shot-mini/licenses"
-        COMPONENT SnowShotMini PRODUCT "Snow Shot Mini")
+        DESTINATION "${_mini_datadir}/kxcapture-mini/licenses"
+        COMPONENT SnowShotMini PRODUCT "KXCapture Mini")
 else()
     install(FILES LICENSE COPYRIGHT THIRD_PARTY_NOTICES.md
-        DESTINATION "${_mini_datadir}/snow-shot-mini/licenses"
+        DESTINATION "${_mini_datadir}/kxcapture-mini/licenses"
         COMPONENT SnowShotMini)
     install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../ant_design_qt/THIRD_PARTY_NOTICES.md"
-        DESTINATION "${_mini_datadir}/snow-shot-mini/licenses/third-party/project-notices/ant-design-icons"
+        DESTINATION "${_mini_datadir}/kxcapture-mini/licenses/third-party/project-notices/ant-design-icons"
         COMPONENT SnowShotMini)
     install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/third-party-licenses/third-party/"
-        DESTINATION "${_mini_datadir}/snow-shot-mini/licenses/third-party" OPTIONAL COMPONENT SnowShotMini)
+        DESTINATION "${_mini_datadir}/kxcapture-mini/licenses/third-party" OPTIONAL COMPONENT SnowShotMini)
     foreach(_project IN ITEMS snow_image ant_design_qt snow-crates snow_draw_engine_qt snow_rust_ffi)
         install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../${_project}/LICENSE"
             "${CMAKE_CURRENT_SOURCE_DIR}/../${_project}/COPYRIGHT"
-            DESTINATION "${_mini_datadir}/snow-shot-mini/licenses/components/${_project}"
+            DESTINATION "${_mini_datadir}/kxcapture-mini/licenses/components/${_project}"
             COMPONENT SnowShotMini)
     endforeach()
 endif()

@@ -3,7 +3,7 @@ use crate::{CursorCompositionMode, CursorShape, platform};
 const BASE_SIZE: u32 = 32;
 const BASE_HOTSPOT: u32 = 16;
 
-/// Snow Shot's crosshair, scaled from its 32-pixel logical image by nearest neighbor.
+/// KXCapture's crosshair, scaled from its 32-pixel logical image by nearest neighbor.
 ///
 /// The white, one-pixel-wide plus extends from 6 through 26 on both axes. Its
 /// one-pixel black outline and transparent surroundings never invert screen pixels.
@@ -41,7 +41,7 @@ fn is_white_pixel(x: u32, y: u32) -> bool {
     (x == BASE_HOTSPOT && (6..=26).contains(&y)) || (y == BASE_HOTSPOT && (6..=26).contains(&x))
 }
 
-/// Replaces only Windows' stock crosshair shape with Snow Shot's alpha crosshair.
+/// Replaces only Windows' stock crosshair shape with KXCapture's alpha crosshair.
 ///
 /// Backends without native cursor handles, such as Desktop Duplication, can match
 /// their decoded shape against the system resource at the same physical size.

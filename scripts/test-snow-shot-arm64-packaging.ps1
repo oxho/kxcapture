@@ -151,7 +151,7 @@ try {
         (Join-Path $repo 'snow_shot/tests/native_package_probe_fixture.cpp')
     if ($LASTEXITCODE -ne 0) { throw 'Native probe fixture compilation failed.' }
     Copy-Item -LiteralPath $fixture -Destination (Join-Path $bin 'snow-shot-updater.exe')
-    Copy-Item -LiteralPath $fixture -Destination (Join-Path $bin 'snow-ocr-process.exe')
+    Copy-Item -LiteralPath $fixture -Destination (Join-Path $bin 'kxcapture-ocr.exe')
     $assets = Join-Path $bin 'assets/ocr'
     $runtime = Join-Path $assets "runtimes/1.2.0/windows-$hostArchitecture"
     $model = Join-Path $assets 'models/fixture-small'

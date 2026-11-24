@@ -1,3 +1,4 @@
+#include "snow_shot/app/featureflags.h"
 #include "snow_shot/app/mcp/mcpedition.h"
 #include "snow_shot/app/mcp/screenshotmcpsession.h"
 #include "snow_shot/app/mcp/mcpimageexportoptions.h"
@@ -32,42 +33,52 @@ QByteArray fingerprint(const ScreenshotMcpRequest& r) {
         QCryptographicHash::Sha256);
 }
 bool readOnly(const QString& method) {
-    return method == QStringLiteral("snow_shot_mcp_status") ||
-           method == QStringLiteral("snow_shot_screenshot_state") ||
-           method == QStringLiteral("snow_shot_screenshot_operation") ||
-           method == QStringLiteral("snow_shot_screenshot_render") ||
-           method == QStringLiteral("snow_shot_screenshot_cancel");
+    return method == QStringLiteral("kxcapture_mcp_status") ||
+           method == QStringLiteral("kxcapture_screenshot_state") ||
+           method == QStringLiteral("kxcapture_screenshot_operation") ||
+           method == QStringLiteral("kxcapture_screenshot_render") ||
+           method == QStringLiteral("kxcapture_screenshot_cancel");
 }
-const QStringList tools = {QStringLiteral("snow_shot_mcp_status"),
-                           QStringLiteral("snow_shot_screenshot_begin"),
-                           QStringLiteral("snow_shot_screenshot_state"),
-                           QStringLiteral("snow_shot_screenshot_set_selection"),
-                           QStringLiteral("snow_shot_screenshot_set_tool"),
-                           QStringLiteral("snow_shot_screenshot_apply_annotations"),
-                           QStringLiteral("snow_shot_screenshot_undo"),
-                           QStringLiteral("snow_shot_screenshot_redo"),
-                           QStringLiteral("snow_shot_screenshot_render"),
-                           QStringLiteral("snow_shot_screenshot_save"),
-                           QStringLiteral("snow_shot_screenshot_copy"),
-                           QStringLiteral("snow_shot_screenshot_pin"),
-                           QStringLiteral("snow_shot_screenshot_finish"),
-                           QStringLiteral("snow_shot_screenshot_cancel"),
-                           QStringLiteral("snow_shot_screenshot_direct_capture"),
-                           QStringLiteral("snow_shot_screenshot_set_selection_style"),
-                           QStringLiteral("snow_shot_screenshot_set_tool_style"),
-                           QStringLiteral("snow_shot_screenshot_edit_elements"),
-                           QStringLiteral("snow_shot_screenshot_recapture"),
-                           QStringLiteral("snow_shot_screenshot_scrolling"),
-                           QStringLiteral("snow_shot_screenshot_scroll_once"),
-                           QStringLiteral("snow_shot_screenshot_recognize"),
+QStringList availableTools() {
+    QStringList tools{QStringLiteral("kxcapture_mcp_status"),
+                           QStringLiteral("kxcapture_screenshot_begin"),
+                           QStringLiteral("kxcapture_screenshot_state"),
+                           QStringLiteral("kxcapture_screenshot_set_selection"),
+                           QStringLiteral("kxcapture_screenshot_set_tool"),
+                           QStringLiteral("kxcapture_screenshot_apply_annotations"),
+                           QStringLiteral("kxcapture_screenshot_undo"),
+                           QStringLiteral("kxcapture_screenshot_redo"),
+                           QStringLiteral("kxcapture_screenshot_render"),
+                           QStringLiteral("kxcapture_screenshot_save"),
+                           QStringLiteral("kxcapture_screenshot_copy"),
+                           QStringLiteral("kxcapture_screenshot_pin"),
+                           QStringLiteral("kxcapture_screenshot_finish"),
+                           QStringLiteral("kxcapture_screenshot_cancel"),
+                           QStringLiteral("kxcapture_screenshot_direct_capture"),
+                           QStringLiteral("kxcapture_screenshot_set_selection_style"),
+                           QStringLiteral("kxcapture_screenshot_set_tool_style"),
+                           QStringLiteral("kxcapture_screenshot_edit_elements"),
+                           QStringLiteral("kxcapture_screenshot_recapture"),
+                           QStringLiteral("kxcapture_screenshot_scrolling"),
+                           QStringLiteral("kxcapture_screenshot_scroll_once"),
+                           QStringLiteral("kxcapture_screenshot_recognize"),
 #if SNOW_SHOT_ENABLE_TEXT_TRANSLATION
-                           QStringLiteral("snow_shot_screenshot_translate"),
+                           QStringLiteral("kxcapture_screenshot_translate"),
 #endif
-                           QStringLiteral("snow_shot_screenshot_auto_filter"),
-                           QStringLiteral("snow_shot_screenshot_operation"),
-                           QStringLiteral("snow_shot_screenshot_edit_recognition"),
-                           QStringLiteral("snow_shot_screenshot_export_recognition"),
-                           QStringLiteral("snow_shot_screenshot_draw_template")};
+                           QStringLiteral("kxcapture_screenshot_auto_filter"),
+                           QStringLiteral("kxcapture_screenshot_operation"),
+                           QStringLiteral("kxcapture_screenshot_edit_recognition"),
+                           QStringLiteral("kxcapture_screenshot_export_recognition"),
+                           QStringLiteral("kxcapture_screenshot_draw_template")};
+    tools.removeIf([](const QString& name) {
+        const bool translation = name.contains(QStringLiteral("translate"));
+        const bool ocr = name.contains(QStringLiteral("recognize")) ||
+                         name.contains(QStringLiteral("recognition"));
+        return (translation && !features::translationEnabled()) ||
+               (ocr && !features::ocrEnabled());
+    });
+    return tools;
+}
 } // namespace
 ScreenshotMcpSession::ScreenshotMcpSession(Ports ports, QObject* parent)
     : QObject(parent), m_ports(std::move(ports)) {}
@@ -135,7 +146,7 @@ void ScreenshotMcpSession::startPending(const ScreenshotMcpRequest& r,
         if (!current(generation))
             return;
         const bool capture =
-            m_pending->request.method == QStringLiteral("snow_shot_screenshot_begin");
+            m_pending->request.method == QStringLiteral("kxcapture_screenshot_begin");
         cancelPending(QStringLiteral("timeout"), capture);
     });
 }
@@ -163,7 +174,7 @@ void ScreenshotMcpSession::complete(ScreenshotMcpResponse response,
     response.result.insert(QStringLiteral("source_revision"),
                            static_cast<qint64>(pending.sourceRevision));
     pending.timings.insert(QStringLiteral("total"), pending.timer.elapsed());
-    if (pending.request.method == QStringLiteral("snow_shot_screenshot_begin"))
+    if (pending.request.method == QStringLiteral("kxcapture_screenshot_begin"))
         pending.timings.insert(QStringLiteral("capture_and_reconciliation"),
                                pending.timer.elapsed());
     response.result.insert(QStringLiteral("timings_ms"), pending.timings);
@@ -182,7 +193,7 @@ void ScreenshotMcpSession::failPending(const QString& code, const QString& field
                                        std::optional<bool> releaseSession) {
     if (m_pending) {
         const bool direct =
-            m_pending->request.method == QStringLiteral("snow_shot_screenshot_direct_capture");
+            m_pending->request.method == QStringLiteral("kxcapture_screenshot_direct_capture");
         if (direct && !releaseSession)
             releaseSession = false;
         complete(failure(m_pending->request, code, field), releaseSession);
@@ -239,7 +250,7 @@ void ScreenshotMcpSession::capturePresented() {
         return;
     m_ready = true;
     observe();
-    if (m_pending && m_pending->request.method == QStringLiteral("snow_shot_screenshot_begin")) {
+    if (m_pending && m_pending->request.method == QStringLiteral("kxcapture_screenshot_begin")) {
         ScreenshotMcpResponse response;
         response.ok = true;
         response.result = state();
@@ -328,7 +339,7 @@ bool ScreenshotMcpSession::cancelRequest(quint64 connectionId, const QString& re
     if (m_owner != connectionId || !m_pending || m_pending->request.requestId != requestId)
         return false;
     const bool beginning =
-        m_pending->request.method == QStringLiteral("snow_shot_screenshot_begin");
+        m_pending->request.method == QStringLiteral("kxcapture_screenshot_begin");
     cancelPending(QStringLiteral("canceled"), beginning);
     return true;
 }
@@ -344,7 +355,7 @@ void ScreenshotMcpSession::request(const ScreenshotMcpRequest& r,
     const auto reject = [&](const QString& code, const QString& field = QString()) {
         done(failure(r, code, field));
     };
-    if (!tools.contains(r.method)) {
+    if (!availableTools().contains(r.method)) {
         reject(QStringLiteral("method_not_found"));
         return;
     }
@@ -369,7 +380,7 @@ void ScreenshotMcpSession::request(const ScreenshotMcpRequest& r,
             return;
         }
     }
-    if (r.method == QStringLiteral("snow_shot_mcp_status")) {
+    if (r.method == QStringLiteral("kxcapture_mcp_status")) {
         ScreenshotMcpResponse response;
         response.ok = true;
         response.result = {
@@ -382,11 +393,11 @@ void ScreenshotMcpSession::request(const ScreenshotMcpRequest& r,
              m_session.isEmpty()
                  ? QStringLiteral("none")
                  : (r.connectionId == m_owner ? QStringLiteral("self") : QStringLiteral("other"))},
-            {QStringLiteral("capabilities"), QJsonArray::fromStringList(tools)}};
+            {QStringLiteral("capabilities"), QJsonArray::fromStringList(availableTools())}};
         done(response);
         return;
     }
-    if (r.method == QStringLiteral("snow_shot_screenshot_cancel")) {
+    if (r.method == QStringLiteral("kxcapture_screenshot_cancel")) {
         if (m_session.isEmpty()) {
             ScreenshotMcpResponse response;
             response.ok = true;
@@ -422,7 +433,7 @@ void ScreenshotMcpSession::request(const ScreenshotMcpRequest& r,
             return;
         }
         const bool capture =
-            m_pending && m_pending->request.method == QStringLiteral("snow_shot_screenshot_begin");
+            m_pending && m_pending->request.method == QStringLiteral("kxcapture_screenshot_begin");
         const QPointer<ScreenshotMcpSession> guard(this);
         cancelPending(QStringLiteral("canceled"), requestId.isEmpty() || capture);
         if (!guard)
@@ -434,8 +445,8 @@ void ScreenshotMcpSession::request(const ScreenshotMcpRequest& r,
         done(response);
         return;
     }
-    if (r.method == QStringLiteral("snow_shot_screenshot_begin") ||
-        r.method == QStringLiteral("snow_shot_screenshot_direct_capture")) {
+    if (r.method == QStringLiteral("kxcapture_screenshot_begin") ||
+        r.method == QStringLiteral("kxcapture_screenshot_direct_capture")) {
         if (!m_session.isEmpty() ||
             m_ports.state().value(QStringLiteral("capture_phase")).toString() !=
                 QStringLiteral("idle")) {
@@ -446,12 +457,12 @@ void ScreenshotMcpSession::request(const ScreenshotMcpRequest& r,
         m_session = QUuid::createUuid().toString(QUuid::WithoutBraces);
         m_silent =
             r.params.value(QStringLiteral("presentation")).toString() == QStringLiteral("silent") ||
-            r.method == QStringLiteral("snow_shot_screenshot_direct_capture");
+            r.method == QStringLiteral("kxcapture_screenshot_direct_capture");
         m_revision = 1;
         m_ready = false;
         m_observed = m_ports.state();
         startPending(r, std::move(done));
-        if (r.method == QStringLiteral("snow_shot_screenshot_begin")) {
+        if (r.method == QStringLiteral("kxcapture_screenshot_begin")) {
             QString error;
             const auto begin = m_ports.begin;
             const bool accepted = begin(r.params, &error);
@@ -495,7 +506,7 @@ void ScreenshotMcpSession::request(const ScreenshotMcpRequest& r,
         reject(QStringLiteral("session_not_found"));
         return;
     }
-    if (r.method == QStringLiteral("snow_shot_screenshot_state")) {
+    if (r.method == QStringLiteral("kxcapture_screenshot_state")) {
         ScreenshotMcpResponse response;
         response.ok = true;
         response.sessionId = m_session;
@@ -504,7 +515,7 @@ void ScreenshotMcpSession::request(const ScreenshotMcpRequest& r,
         done(response);
         return;
     }
-    if (r.method == QStringLiteral("snow_shot_screenshot_operation")) {
+    if (r.method == QStringLiteral("kxcapture_screenshot_operation")) {
         const auto id = r.params.value(QStringLiteral("operation_id")).toString();
         if (!m_operations.contains(id)) {
             reject(QStringLiteral("operation_not_found"));
@@ -526,10 +537,10 @@ void ScreenshotMcpSession::request(const ScreenshotMcpRequest& r,
         reject(QStringLiteral("stale_revision"));
         return;
     }
-    const bool replacesSelection = r.method == QStringLiteral("snow_shot_screenshot_set_selection");
+    const bool replacesSelection = r.method == QStringLiteral("kxcapture_screenshot_set_selection");
     const bool invalidates = replacesSelection ||
-                             r.method == QStringLiteral("snow_shot_screenshot_recapture") ||
-                             r.method == QStringLiteral("snow_shot_screenshot_finish");
+                             r.method == QStringLiteral("kxcapture_screenshot_recapture") ||
+                             r.method == QStringLiteral("kxcapture_screenshot_finish");
     if (!m_activeOperation.isEmpty() && !invalidates) {
         reject(QStringLiteral("busy"));
         return;
@@ -543,21 +554,21 @@ void ScreenshotMcpSession::request(const ScreenshotMcpRequest& r,
         if (!lifetime)
             return;
     }
-    const bool background = r.method == QStringLiteral("snow_shot_screenshot_recognize") ||
-                            r.method == QStringLiteral("snow_shot_screenshot_translate") ||
-                            r.method == QStringLiteral("snow_shot_screenshot_auto_filter");
+    const bool background = r.method == QStringLiteral("kxcapture_screenshot_recognize") ||
+                            r.method == QStringLiteral("kxcapture_screenshot_translate") ||
+                            r.method == QStringLiteral("kxcapture_screenshot_auto_filter");
     const bool extended =
-        r.method == QStringLiteral("snow_shot_screenshot_set_selection_style") ||
-        r.method == QStringLiteral("snow_shot_screenshot_set_tool_style") ||
-        r.method == QStringLiteral("snow_shot_screenshot_edit_elements") ||
-        r.method == QStringLiteral("snow_shot_screenshot_recapture") ||
-        r.method == QStringLiteral("snow_shot_screenshot_scrolling") ||
-        r.method == QStringLiteral("snow_shot_screenshot_scroll_once") ||
-        r.method == QStringLiteral("snow_shot_screenshot_edit_recognition") ||
-        r.method == QStringLiteral("snow_shot_screenshot_export_recognition") ||
-        r.method == QStringLiteral("snow_shot_screenshot_draw_template") ||
-        ((r.method == QStringLiteral("snow_shot_screenshot_undo") ||
-          r.method == QStringLiteral("snow_shot_screenshot_redo")) &&
+        r.method == QStringLiteral("kxcapture_screenshot_set_selection_style") ||
+        r.method == QStringLiteral("kxcapture_screenshot_set_tool_style") ||
+        r.method == QStringLiteral("kxcapture_screenshot_edit_elements") ||
+        r.method == QStringLiteral("kxcapture_screenshot_recapture") ||
+        r.method == QStringLiteral("kxcapture_screenshot_scrolling") ||
+        r.method == QStringLiteral("kxcapture_screenshot_scroll_once") ||
+        r.method == QStringLiteral("kxcapture_screenshot_edit_recognition") ||
+        r.method == QStringLiteral("kxcapture_screenshot_export_recognition") ||
+        r.method == QStringLiteral("kxcapture_screenshot_draw_template") ||
+        ((r.method == QStringLiteral("kxcapture_screenshot_undo") ||
+          r.method == QStringLiteral("kxcapture_screenshot_redo")) &&
          r.params.value(QStringLiteral("target")).toString(QStringLiteral("canvas")) !=
              QStringLiteral("canvas"));
     if (background || extended) {
@@ -632,15 +643,15 @@ void ScreenshotMcpSession::request(const ScreenshotMcpRequest& r,
         }
         return;
     }
-    if (r.method == QStringLiteral("snow_shot_screenshot_render") ||
-        r.method == QStringLiteral("snow_shot_screenshot_save") ||
-        r.method == QStringLiteral("snow_shot_screenshot_copy") ||
-        r.method == QStringLiteral("snow_shot_screenshot_pin") ||
-        (r.method == QStringLiteral("snow_shot_screenshot_finish") &&
+    if (r.method == QStringLiteral("kxcapture_screenshot_render") ||
+        r.method == QStringLiteral("kxcapture_screenshot_save") ||
+        r.method == QStringLiteral("kxcapture_screenshot_copy") ||
+        r.method == QStringLiteral("kxcapture_screenshot_pin") ||
+        (r.method == QStringLiteral("kxcapture_screenshot_finish") &&
          r.params.value(QStringLiteral("output")).toString() != QStringLiteral("none") &&
          r.params.contains(QStringLiteral("output")))) {
         startPending(r, std::move(done));
-        output(r, r.method == QStringLiteral("snow_shot_screenshot_finish"));
+        output(r, r.method == QStringLiteral("kxcapture_screenshot_finish"));
         return;
     }
     QString error;
@@ -649,9 +660,9 @@ void ScreenshotMcpSession::request(const ScreenshotMcpRequest& r,
     if (replacesSelection) {
         const auto selection = m_ports.selection;
         ok = selection(r.params, &error);
-    } else if (r.method == QStringLiteral("snow_shot_screenshot_set_tool"))
+    } else if (r.method == QStringLiteral("kxcapture_screenshot_set_tool"))
         ok = m_ports.tool(r.params.value(QStringLiteral("tool")).toString(), &error);
-    else if (r.method == QStringLiteral("snow_shot_screenshot_apply_annotations")) {
+    else if (r.method == QStringLiteral("kxcapture_screenshot_apply_annotations")) {
         const QJsonObject batch{
             {QStringLiteral("version"), r.params.value(QStringLiteral("version")).toInt(1)},
             {QStringLiteral("label"),
@@ -659,11 +670,11 @@ void ScreenshotMcpSession::request(const ScreenshotMcpRequest& r,
             {QStringLiteral("operations"), r.params.value(QStringLiteral("operations"))}};
         ok = m_ports.annotations(QJsonDocument(batch).toJson(QJsonDocument::Compact), &annotation,
                                  &error);
-    } else if (r.method == QStringLiteral("snow_shot_screenshot_undo") ||
-               r.method == QStringLiteral("snow_shot_screenshot_redo")) {
-        m_ports.history(r.method == QStringLiteral("snow_shot_screenshot_redo"));
+    } else if (r.method == QStringLiteral("kxcapture_screenshot_undo") ||
+               r.method == QStringLiteral("kxcapture_screenshot_redo")) {
+        m_ports.history(r.method == QStringLiteral("kxcapture_screenshot_redo"));
         ok = true;
-    } else if (r.method == QStringLiteral("snow_shot_screenshot_finish")) {
+    } else if (r.method == QStringLiteral("kxcapture_screenshot_finish")) {
         release(true);
         ok = true;
     }
@@ -777,9 +788,9 @@ void ScreenshotMcpSession::output(const ScreenshotMcpRequest& r, bool finish) {
         return;
     }
     const QString outputAction =
-        finish || r.method == QStringLiteral("snow_shot_screenshot_direct_capture")
+        finish || r.method == QStringLiteral("kxcapture_screenshot_direct_capture")
             ? r.params.value(QStringLiteral("output")).toString(QStringLiteral("render"))
-            : r.method.mid(QStringLiteral("snow_shot_screenshot_").size());
+            : r.method.mid(QStringLiteral("kxcapture_screenshot_").size());
     if (outputAction == QStringLiteral("save")) {
         QElapsedTimer renderTimer;
         renderTimer.start();
@@ -881,9 +892,9 @@ void ScreenshotMcpSession::publishOutput(const ScreenshotMcpRequest& r, bool fin
                                          quint64 generation, const QJsonObject& metadata) {
     auto artifact = m_artifact;
     QString action = r.method;
-    if (action == QStringLiteral("snow_shot_screenshot_finish") ||
-        action == QStringLiteral("snow_shot_screenshot_direct_capture"))
-        action = QStringLiteral("snow_shot_screenshot_") +
+    if (action == QStringLiteral("kxcapture_screenshot_finish") ||
+        action == QStringLiteral("kxcapture_screenshot_direct_capture"))
+        action = QStringLiteral("kxcapture_screenshot_") +
                  r.params.value(QStringLiteral("output")).toString(QStringLiteral("render"));
     const auto finishResponse = [this, generation, finish](ScreenshotMcpResponse response) {
         if (!current(generation))
@@ -899,7 +910,7 @@ void ScreenshotMcpSession::publishOutput(const ScreenshotMcpRequest& r, bool fin
         complete(std::move(response),
                  finish && successful ? std::optional<bool>(true) : std::nullopt);
     };
-    if (action == QStringLiteral("snow_shot_screenshot_render")) {
+    if (action == QStringLiteral("kxcapture_screenshot_render")) {
         if (!artifact->requestCanonicalPng(this, [this, generation, metadata, finishResponse](
                                                      ScreenshotExportEncodingResult png) {
                 if (!current(generation))
@@ -916,7 +927,7 @@ void ScreenshotMcpSession::publishOutput(const ScreenshotMcpRequest& r, bool fin
                 finishResponse(response);
             }))
             failPending(QStringLiteral("output_failed"));
-    } else if (action == QStringLiteral("snow_shot_screenshot_copy")) {
+    } else if (action == QStringLiteral("kxcapture_screenshot_copy")) {
         if (m_ports.copy) {
             if (!m_ports.copy(artifact, [this, generation, metadata, finishResponse](bool success) {
                     if (!current(generation))
@@ -962,7 +973,7 @@ void ScreenshotMcpSession::publishOutput(const ScreenshotMcpRequest& r, bool fin
                     failPending(QStringLiteral("clipboard_failed"));
             }))
             failPending(QStringLiteral("output_failed"));
-    } else if (action == QStringLiteral("snow_shot_screenshot_pin")) {
+    } else if (action == QStringLiteral("kxcapture_screenshot_pin")) {
         if (!m_ports.pin(artifact, [this, generation, metadata, finishResponse](bool ok) {
                 if (!current(generation))
                     return;
@@ -977,7 +988,7 @@ void ScreenshotMcpSession::publishOutput(const ScreenshotMcpRequest& r, bool fin
                 finishResponse(response);
             }))
             failPending(QStringLiteral("pin_failed"));
-    } else if (action == QStringLiteral("snow_shot_screenshot_save")) {
+    } else if (action == QStringLiteral("kxcapture_screenshot_save")) {
         const QString format =
             r.params.value(QStringLiteral("format")).toString(QStringLiteral("png"));
         if (!QStringList{QStringLiteral("png"), QStringLiteral("jpeg"), QStringLiteral("webp"),

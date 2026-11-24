@@ -1004,7 +1004,7 @@ void renderPreview(const QString& path, bool dark, qreal dpr, bool smart) {
     font.setPixelSize(48);
     painter.setFont(font);
     painter.drawText(QRect(50, 50, 1100, 800), Qt::AlignCenter,
-                     QStringLiteral("Snow Shot\nImage splitting"));
+                     QStringLiteral("KXCapture\nImage splitting"));
     painter.end();
     ImageSplitWindow window;
     window.presentImage(source, QStringLiteral("design.png"));

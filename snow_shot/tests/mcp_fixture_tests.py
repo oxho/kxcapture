@@ -251,45 +251,45 @@ def summarize(client, before, after):
 
 
 def document_workflow(client, directory, samples):
-    opened = client.tool("snow_shot_document_open", {"path": str(directory / "source.png"),
+    opened = client.tool("kxcapture_document_open", {"path": str(directory / "source.png"),
                          "idempotency_key": "fixture-open"}, label="document_open")
     identifier, revision = opened["result"]["document_id"], opened["revision"]
-    duplicate = client.tool("snow_shot_document_open", {"path": str(directory / "source.png"),
+    duplicate = client.tool("kxcapture_document_open", {"path": str(directory / "source.png"),
                             "idempotency_key": "fixture-open"})
     assert duplicate["result"]["document_id"] == identifier
     arguments = {"document_id": identifier, "expected_revision": revision}
-    uri = "snow-shot://documents/" + identifier
+    uri = "kxcapture://documents/" + identifier
     subscription = client.listen(uri)
-    changed = client.tool("snow_shot_document_apply_annotations", dict(arguments,
+    changed = client.tool("kxcapture_document_apply_annotations", dict(arguments,
                           operations=[{"type": "rectangle", "bounds": [10, 10, 20, 20]}]))
     revision = changed["revision"]
     assert revision > arguments["expected_revision"]
-    client.tool("snow_shot_document_undo", arguments, error="stale_revision")
+    client.tool("kxcapture_document_undo", arguments, error="stale_revision")
     arguments["expected_revision"] = revision
-    rendered = client.tool("snow_shot_document_render", arguments, label="document_render_cold")
+    rendered = client.tool("kxcapture_document_render", arguments, label="document_render_cold")
     assert rendered["result"]["width"] == 80 and rendered["result"]["height"] == 60, rendered
     for _ in range(samples):
-        rendered = client.tool("snow_shot_document_render", arguments, label="document_render_cached")
+        rendered = client.tool("kxcapture_document_render", arguments, label="document_render_cached")
         assert rendered["result"]["cache_hit"], rendered
-    saved = client.tool("snow_shot_document_save", dict(arguments, path=str(directory / "output.png")))
+    saved = client.tool("kxcapture_document_save", dict(arguments, path=str(directory / "output.png")))
     assert (directory / "output.png").is_file(), saved
-    job = client.tool("snow_shot_document_recognize", dict(arguments, kind="text"))["result"]
-    job_uri = "snow-shot://jobs/" + job["job_id"]
+    job = client.tool("kxcapture_document_recognize", dict(arguments, kind="text"))["result"]
+    job_uri = "kxcapture://jobs/" + job["job_id"]
     job_subscription = client.listen(job_uri)
     deadline = time.monotonic() + 10
     while job["status"] == "running" and time.monotonic() < deadline:
         time.sleep(.25)
-        job = client.tool("snow_shot_job_get", {"job_id": job["job_id"]})["result"]
+        job = client.tool("kxcapture_job_get", {"job_id": job["job_id"]})["result"]
     assert job["status"] == "completed", job
     assert "Fixture recognized text" in json.dumps(job), job
-    cancel_job = client.tool("snow_shot_document_recognize", dict(arguments, kind="qr"))["result"]
-    canceled = client.tool("snow_shot_job_cancel", {"job_id": cancel_job["job_id"]})["result"]
+    cancel_job = client.tool("kxcapture_document_recognize", dict(arguments, kind="qr"))["result"]
+    canceled = client.tool("kxcapture_job_cancel", {"job_id": cancel_job["job_id"]})["result"]
     assert canceled["status"] == "canceled", canceled
     resource = client.request("resources/read", {"uri": uri})
     assert json.loads(resource["contents"][0]["text"])["result"]["document_id"] == identifier
     # A synchronous read after a short coalescing interval drains preceding notifications.
     time.sleep(.2)
-    client.tool("snow_shot_document_state", {"document_id": identifier})
+    client.tool("kxcapture_document_state", {"document_id": identifier})
     updated = {(notice.get("params", {}).get("uri"),
                 notice.get("params", {}).get("_meta", {}).get("io.modelcontextprotocol/subscriptionId"))
                for notice in client.notifications
@@ -298,14 +298,14 @@ def document_workflow(client, directory, samples):
     for subscription_id in (subscription, job_subscription):
         client.send({"jsonrpc": "2.0", "method": "notifications/cancelled",
                      "params": {"requestId": subscription_id}})
-    client.tool("snow_shot_document_close", arguments)
+    client.tool("kxcapture_document_close", arguments)
     return identifier
 
 
 def modern_task_workflow(executable, descriptor, directory):
     client = Client(executable, descriptor, tasks=True)
     try:
-        opened = client.tool("snow_shot_document_open", {"path": str(directory / "source.png")})
+        opened = client.tool("kxcapture_document_open", {"path": str(directory / "source.png")})
         if opened.get("resultType") == "task":
             deadline = time.monotonic() + 10
             while True:
@@ -319,12 +319,12 @@ def modern_task_workflow(executable, descriptor, directory):
             assert opened["result"]["status"] == "completed", opened
             document = opened["result"]["result"]
         arguments = {"document_id": document["document_id"], "expected_revision": document["revision"]}
-        uri = "snow-shot://documents/" + arguments["document_id"]
+        uri = "kxcapture://documents/" + arguments["document_id"]
         subscription = client.listen(uri)
-        changed = client.tool("snow_shot_document_apply_annotations", dict(arguments,
+        changed = client.tool("kxcapture_document_apply_annotations", dict(arguments,
                               operations=[{"type": "rectangle", "bounds": [1, 1, 12, 12]}]))
         arguments["expected_revision"] = changed["revision"]
-        created = client.tool("snow_shot_document_recognize", dict(arguments, kind="text"))
+        created = client.tool("kxcapture_document_recognize", dict(arguments, kind="text"))
         task_id = created["taskId"]
         deadline = time.monotonic() + 10
         while True:
@@ -334,12 +334,12 @@ def modern_task_workflow(executable, descriptor, directory):
             time.sleep(.25)
         assert task["status"] == "completed", task
         assert "Fixture recognized text" in json.dumps(task), task
-        created = client.tool("snow_shot_document_recognize", dict(arguments, kind="qr"))
+        created = client.tool("kxcapture_document_recognize", dict(arguments, kind="qr"))
         client.request("tasks/cancel", {"taskId": created["taskId"]})
         canceled = client.request("tasks/get", {"taskId": created["taskId"]})
         assert canceled["status"] == "cancelled", canceled
         time.sleep(.2)
-        client.tool("snow_shot_document_state", {"document_id": arguments["document_id"]})
+        client.tool("kxcapture_document_state", {"document_id": arguments["document_id"]})
         updates = [notice for notice in client.notifications
                    if notice.get("method") == "notifications/resources/updated"]
         assert any(notice["params"].get("uri") == uri and
@@ -347,7 +347,7 @@ def modern_task_workflow(executable, descriptor, directory):
                    for notice in updates), updates
         client.send({"jsonrpc": "2.0", "method": "notifications/cancelled",
                      "params": {"requestId": subscription}})
-        client.tool("snow_shot_document_close", arguments)
+        client.tool("kxcapture_document_close", arguments)
     finally:
         client.close()
 
@@ -356,31 +356,31 @@ def artifact_workflow(executable, descriptor, directory):
     client = Client(executable, descriptor)
     other = Client(executable, descriptor)
     try:
-        opened = client.tool("snow_shot_document_open", {"path": str(directory / "source.png")})
+        opened = client.tool("kxcapture_document_open", {"path": str(directory / "source.png")})
         arguments = {"document_id": opened["result"]["document_id"], "expected_revision": opened["revision"]}
-        job = client.tool("snow_shot_document_recognize", dict(arguments, kind="text"))["result"]
+        job = client.tool("kxcapture_document_recognize", dict(arguments, kind="text"))["result"]
         deadline = time.monotonic() + 10
         while job["status"] == "running" and time.monotonic() < deadline:
             time.sleep(.25)
-            job = client.tool("snow_shot_job_get", {"job_id": job["job_id"]})["result"]
+            job = client.tool("kxcapture_job_get", {"job_id": job["job_id"]})["result"]
         assert job["status"] == "completed", job
-        state = client.tool("snow_shot_document_recognition_state", arguments)["result"]
-        edited = client.tool("snow_shot_document_edit_recognition", dict(arguments,
+        state = client.tool("kxcapture_document_recognition_state", arguments)["result"]
+        edited = client.tool("kxcapture_document_edit_recognition", dict(arguments,
             expected_recognition_revision=state["recognition_revision"], action="set_text", text="x" * 600000))
         assert edited["ok"], edited
-        exported = client.tool("snow_shot_document_export_recognition", dict(arguments, output="return", format="json"))
+        exported = client.tool("kxcapture_document_export_recognition", dict(arguments, output="return", format="json"))
         artifact = exported["result"]["artifact"]
         artifact_id = artifact["artifact_id"]
         assert artifact["byte_count"] > 1024 * 1024, artifact
         assert any(item["artifact_id"] == artifact_id for item in
-                   client.tool("snow_shot_artifact_list")["result"]["artifacts"])
-        other.tool("snow_shot_artifact_read", {"artifact_id": artifact_id}, error="artifact_not_found")
+                   client.tool("kxcapture_artifact_list")["result"]["artifacts"])
+        other.tool("kxcapture_artifact_read", {"artifact_id": artifact_id}, error="artifact_not_found")
         resource = client.request("resources/read", {"uri": artifact["uri"]})
         first = json.loads(resource["contents"][0]["text"])["result"]
         assert len(base64.b64decode(first["data_base64"])) <= 65536
         payload = bytearray()
         while True:
-            response = client.request("tools/call", {"name": "snow_shot_artifact_read", "arguments": {
+            response = client.request("tools/call", {"name": "kxcapture_artifact_read", "arguments": {
                 "artifact_id": artifact_id, "offset": len(payload), "max_bytes": 262144}})
             assert not response.get("isError"), response
             assert all(block["type"] != "image" for block in response["content"])
@@ -393,11 +393,11 @@ def artifact_workflow(executable, descriptor, directory):
                 break
         assert len(payload) == artifact["byte_count"] and hashlib.sha256(payload).hexdigest() == chunk["sha256"]
         assert json.loads(payload)["text"] == "x" * 600000
-        eof = client.tool("snow_shot_artifact_read", {"artifact_id": artifact_id, "offset": len(payload)})["result"]
+        eof = client.tool("kxcapture_artifact_read", {"artifact_id": artifact_id, "offset": len(payload)})["result"]
         assert eof["eof"] and eof["data_base64"] == ""
-        client.tool("snow_shot_artifact_release", {"artifact_id": artifact_id})
-        client.tool("snow_shot_artifact_read", {"artifact_id": artifact_id}, error="artifact_not_found")
-        client.tool("snow_shot_document_close", arguments)
+        client.tool("kxcapture_artifact_release", {"artifact_id": artifact_id})
+        client.tool("kxcapture_artifact_read", {"artifact_id": artifact_id}, error="artifact_not_found")
+        client.tool("kxcapture_document_close", arguments)
         return {"bytes": len(payload), "digest_verified": True, "ownership_and_release_verified": True}
     finally:
         other.close()
@@ -405,10 +405,10 @@ def artifact_workflow(executable, descriptor, directory):
 
 
 def complete_document_surface(client, directory):
-    opened = client.tool("snow_shot_document_open", {"path": str(directory / "source.png")})
+    opened = client.tool("kxcapture_document_open", {"path": str(directory / "source.png")})
     arguments = {"document_id": opened["result"]["document_id"], "expected_revision": opened["revision"]}
     def mutate(suffix, **fields):
-        result = client.tool("snow_shot_document_" + suffix, dict(arguments, **fields))
+        result = client.tool("kxcapture_document_" + suffix, dict(arguments, **fields))
         if result.get("revision") is not None:
             arguments["expected_revision"] = result["revision"]
         return result
@@ -427,19 +427,19 @@ def complete_document_surface(client, directory):
     assert mutate("sample_color", point=[0, 0])["result"]["rgba"] == [255, 255, 255, 255]
     cloned = mutate("clone")
     # Cloning returns the clone revision; refresh the unchanged original separately.
-    original = client.tool("snow_shot_document_state", {"document_id": arguments["document_id"]})
+    original = client.tool("kxcapture_document_state", {"document_id": arguments["document_id"]})
     arguments["expected_revision"] = original["revision"]
     clone_args = {"document_id": cloned["result"]["document_id"], "expected_revision": cloned["revision"]}
-    before = client.tool("snow_shot_document_render", clone_args)["result"]["sha256"]
-    erased = client.tool("snow_shot_document_edit_elements", dict(clone_args, action="erase_path", points=[[8, 8], [8, 20]]))
+    before = client.tool("kxcapture_document_render", clone_args)["result"]["sha256"]
+    erased = client.tool("kxcapture_document_edit_elements", dict(clone_args, action="erase_path", points=[[8, 8], [8, 20]]))
     clone_args["expected_revision"] = erased["revision"]
-    assert client.tool("snow_shot_document_render", clone_args)["result"]["sha256"] != before
-    undone = client.tool("snow_shot_document_undo", clone_args)
+    assert client.tool("kxcapture_document_render", clone_args)["result"]["sha256"] != before
+    undone = client.tool("kxcapture_document_undo", clone_args)
     clone_args["expected_revision"] = undone["revision"]
-    assert client.tool("snow_shot_document_render", clone_args)["result"]["sha256"] == before
-    redone = client.tool("snow_shot_document_redo", clone_args)
+    assert client.tool("kxcapture_document_render", clone_args)["result"]["sha256"] == before
+    redone = client.tool("kxcapture_document_redo", clone_args)
     clone_args["expected_revision"] = redone["revision"]
-    client.tool("snow_shot_document_close", clone_args)
+    client.tool("kxcapture_document_close", clone_args)
     mutate("copy")
     assert mutate("pin")["result"]["pinned"]
     assert mutate("present")["result"]["presented"]
@@ -447,33 +447,33 @@ def complete_document_surface(client, directory):
     mutate("recapture", source="file", path=str(directory / "source.png"))
     assert arguments["expected_revision"] > previous
     job = mutate("auto_filter", categories=["text"])["result"]
-    assert any(item["job_id"] == job["job_id"] for item in client.tool("snow_shot_job_list")["result"]["jobs"])
+    assert any(item["job_id"] == job["job_id"] for item in client.tool("kxcapture_job_list")["result"]["jobs"])
     deadline = time.monotonic() + 10
     while job["status"] == "running" and time.monotonic() < deadline:
         time.sleep(.025)
-        job = client.tool("snow_shot_job_get", {"job_id": job["job_id"]})["result"]
+        job = client.tool("kxcapture_job_get", {"job_id": job["job_id"]})["result"]
     assert job["status"] == "completed", job
-    resource = client.request("resources/read", {"uri": "snow-shot://jobs/" + job["job_id"]})
+    resource = client.request("resources/read", {"uri": "kxcapture://jobs/" + job["job_id"]})
     assert json.loads(resource["contents"][0]["text"])["result"]["status"] == "completed"
-    arguments["expected_revision"] = client.tool("snow_shot_document_state", {"document_id": arguments["document_id"]})["revision"]
+    arguments["expected_revision"] = client.tool("kxcapture_document_state", {"document_id": arguments["document_id"]})["revision"]
     mutate("close")
-    original = client.tool("snow_shot_document_open", {"source": "text", "text": "Original fixture content"})
+    original = client.tool("kxcapture_document_open", {"source": "text", "text": "Original fixture content"})
     original_args = {"document_id": original["result"]["document_id"], "expected_revision": original["revision"]}
-    exported = client.tool("snow_shot_document_original_content", dict(original_args, output="return", format="text"))
+    exported = client.tool("kxcapture_document_original_content", dict(original_args, output="return", format="text"))
     assert exported["result"]["text"] == "Original fixture content"
-    client.tool("snow_shot_document_close", original_args)
+    client.tool("kxcapture_document_close", original_args)
 
 
 def cleanup_cycles(client, fixture, directory):
     result = []
     for cycle in range(4):
         before = process_metrics(fixture)
-        opened = client.tool("snow_shot_document_open", {"path": str(directory / "4k.png")})
+        opened = client.tool("kxcapture_document_open", {"path": str(directory / "4k.png")})
         arguments = {"document_id": opened["result"]["document_id"], "expected_revision": opened["revision"]}
-        client.tool("snow_shot_document_render", arguments)
+        client.tool("kxcapture_document_render", arguments)
         loaded = process_metrics(fixture)
-        client.tool("snow_shot_document_close", arguments)
-        assert not client.tool("snow_shot_document_list")["result"]["documents"]
+        client.tool("kxcapture_document_close", arguments)
+        assert not client.tool("kxcapture_document_list")["result"]["documents"]
         time.sleep(.2)
         result.append({"cycle": cycle, "fixture_before": before, "fixture_loaded": loaded,
                        "fixture_after_close": process_metrics(fixture), "bridge": process_metrics(client.process)})
@@ -496,25 +496,25 @@ def cache_work_counters(client, directory):
                 return {key: value[key] for key in ("document_renders", "png_encodes")}
             time.sleep(.025)
         raise AssertionError("Fixture counters did not flush")
-    opened = client.tool("snow_shot_document_open", {"path": str(directory / "source.png")})
+    opened = client.tool("kxcapture_document_open", {"path": str(directory / "source.png")})
     arguments = {"document_id": opened["result"]["document_id"], "expected_revision": opened["revision"]}
     try:
         before = snapshot()
-        cold = client.tool("snow_shot_document_render", arguments)
+        cold = client.tool("kxcapture_document_render", arguments)
         after_cold = snapshot()
         assert all(after_cold[key] == before[key] + 1 for key in before), (before, after_cold)
         for index in range(3):
-            warm = client.tool("snow_shot_document_render", arguments)
+            warm = client.tool("kxcapture_document_render", arguments)
             assert warm["result"]["cache_hit"] and warm["result"]["sha256"] == cold["result"]["sha256"]
-            saved = client.tool("snow_shot_document_save", dict(arguments,
+            saved = client.tool("kxcapture_document_save", dict(arguments,
                 path=str(directory / f"counter-cache-{index}.png"), format="png"))
             assert saved["result"]["sha256"] == cold["result"]["sha256"]
         after_warm = snapshot()
         assert after_warm == after_cold, (after_cold, after_warm)
-        changed = client.tool("snow_shot_document_apply_annotations", dict(arguments,
+        changed = client.tool("kxcapture_document_apply_annotations", dict(arguments,
             operations=[{"type": "rectangle", "bounds": [4, 4, 20, 20]}]))
         arguments["expected_revision"] = changed["revision"]
-        revised = client.tool("snow_shot_document_render", arguments)
+        revised = client.tool("kxcapture_document_render", arguments)
         assert revised["result"]["sha256"] != cold["result"]["sha256"]
         after_revision = snapshot()
         assert all(after_revision[key] == after_warm[key] + 1 for key in after_warm), (after_warm, after_revision)
@@ -523,18 +523,18 @@ def cache_work_counters(client, directory):
                 "warm_render_calls": 3, "warm_save_calls": 3,
                 "scope": "Actual worker raster and PNG encoder invocation counters; heartbeat flush waits excluded from latency samples"}
     finally:
-        client.tool("snow_shot_document_close", arguments)
+        client.tool("kxcapture_document_close", arguments)
 
 
 def recognition_workflows(client, directory):
-    opened = client.tool("snow_shot_document_open", {"path": str(directory / "source.png")})
+    opened = client.tool("kxcapture_document_open", {"path": str(directory / "source.png")})
     arguments = {"document_id": opened["result"]["document_id"], "expected_revision": opened["revision"]}
     recognition_revision = 0
     def await_job(response):
         identifier = response["result"]["job_id"]
         deadline = time.monotonic() + 15
         while True:
-            job = client.tool("snow_shot_job_get", {"job_id": identifier})["result"]
+            job = client.tool("kxcapture_job_get", {"job_id": identifier})["result"]
             if job["status"] != "running":
                 assert job["status"] == "completed", job
                 return job["result"]
@@ -542,19 +542,19 @@ def recognition_workflows(client, directory):
             time.sleep(.025)
     def recognize(kind):
         nonlocal recognition_revision
-        value = await_job(client.tool("snow_shot_document_recognize", dict(arguments, kind=kind)))
+        value = await_job(client.tool("kxcapture_document_recognize", dict(arguments, kind=kind)))
         assert value["kind"] == kind, value
         recognition_revision = value["recognition_revision"]
         return value
     def edit(action, **fields):
         nonlocal recognition_revision
-        value = client.tool("snow_shot_document_edit_recognition", dict(arguments,
+        value = client.tool("kxcapture_document_edit_recognition", dict(arguments,
             expected_recognition_revision=recognition_revision, action=action, **fields))["result"]
         assert value["recognition_revision"] > recognition_revision
         recognition_revision = value["recognition_revision"]
         return value
     def export(format, output="return", path=None):
-        return client.tool("snow_shot_document_export_recognition", dict(arguments,
+        return client.tool("kxcapture_document_export_recognition", dict(arguments,
             format=format, output=output, **({"path": str(path)} if path else {})))["result"]
     try:
         text = recognize("text")
@@ -603,10 +603,10 @@ def recognition_workflows(client, directory):
             export(kind, "save", path)
             assert path.read_text(encoding="utf-8") == expected
 
-        catalog = client.tool("snow_shot_translation_catalog")["result"]
+        catalog = client.tool("kxcapture_translation_catalog")["result"]
         assert any(model["id"] == "fixture-translation" for model in catalog["models"]), catalog
         for source in ({"texts": [text["text"]]}, {"source": "selection"}):
-            translated = await_job(client.tool("snow_shot_translation_start", dict(source,
+            translated = await_job(client.tool("kxcapture_translation_start", dict(source,
                 model_id="fixture-translation", source_language="en", target_language="ja")))
             assert translated["units"][0]["text"] == "Fixture translated text", translated
         return {"modes": ["text", "table", "qr", "markdown", "html"],
@@ -614,7 +614,7 @@ def recognition_workflows(client, directory):
                 "translations": ["recognized_document_text", "selected_text_port"],
                 "provider_scope": "Actual HTTP/streaming and recognition controllers; deterministic loopback content and selected-text port"}
     finally:
-        client.tool("snow_shot_document_close", arguments)
+        client.tool("kxcapture_document_close", arguments)
 
 
 def slow_reader_controls(executable, descriptor, directory):
@@ -640,19 +640,19 @@ def slow_reader_controls(executable, descriptor, directory):
     try:
         send(1, "server/discover", {})
         response(1)
-        send(2, "tools/call", {"name": "snow_shot_document_open", "arguments": {"path": str(directory / "4k.png")}})
+        send(2, "tools/call", {"name": "kxcapture_document_open", "arguments": {"path": str(directory / "4k.png")}})
         opened = response(2)["structuredContent"]
         args = {"document_id": opened["result"]["document_id"], "expected_revision": opened["revision"]}
         started = time.monotonic()
         for identifier in range(3, 23):
-            send(identifier, "tools/call", {"name": "snow_shot_document_render", "arguments": args})
+            send(identifier, "tools/call", {"name": "kxcapture_document_render", "arguments": args})
         peaks, control_ms = [], []
         while process.poll() is None and time.monotonic() - started < 18:
             metrics = process_metrics(process)
             if metrics:
                 peaks.append(metrics)
             instant = time.perf_counter()
-            observer.tool("snow_shot_mcp_status")
+            observer.tool("kxcapture_mcp_status")
             control_ms.append((time.perf_counter() - instant) * 1000)
             time.sleep(.1)
         assert process.poll() is not None, "Non-reading peer did not retire within 18 seconds"
@@ -691,31 +691,31 @@ def large_exports(client, directory, samples):
     for name, width, height in [("1080p", 1920, 1080), ("4k", 3840, 2160)]:
         source = directory / (name + ".png")
         write_noise_png(source, width, height)
-        opened = client.tool("snow_shot_document_open", {"path": str(source)}, label=name + "_open")
+        opened = client.tool("kxcapture_document_open", {"path": str(source)}, label=name + "_open")
         arguments = {"document_id": opened["result"]["document_id"], "expected_revision": opened["revision"]}
-        first = client.tool("snow_shot_document_render", arguments, label=name + "_render_cold")
+        first = client.tool("kxcapture_document_render", arguments, label=name + "_render_cold")
         assert (first["result"]["width"], first["result"]["height"]) == (width, height)
         for index in range(min(samples, 5)):
-            cached = client.tool("snow_shot_document_render", arguments, label=name + "_render_cached")
+            cached = client.tool("kxcapture_document_render", arguments, label=name + "_render_cached")
             assert cached["result"]["cache_hit"] and cached["result"]["sha256"] == first["result"]["sha256"]
-            client.tool("snow_shot_document_save", dict(arguments,
+            client.tool("kxcapture_document_save", dict(arguments,
                         path=str(directory / f"{name}-export-{index}.png")), label=name + "_save")
-        client.tool("snow_shot_document_close", arguments)
+        client.tool("kxcapture_document_close", arguments)
 
 
 def concurrent_clients(executable, descriptor, directory):
     def exercise(index):
         client = Client(executable, descriptor)
         try:
-            opened = client.tool("snow_shot_document_open", {"path": str(directory / "source.png")})
+            opened = client.tool("kxcapture_document_open", {"path": str(directory / "source.png")})
             arguments = {"document_id": opened["result"]["document_id"], "expected_revision": opened["revision"]}
             before = process_metrics(client.process)
             for _ in range(10):
-                client.tool("snow_shot_document_render", arguments, label="concurrent_render")
-            listed = client.tool("snow_shot_document_list")["result"]["documents"]
+                client.tool("kxcapture_document_render", arguments, label="concurrent_render")
+            listed = client.tool("kxcapture_document_list")["result"]["documents"]
             assert len(listed) == 1 and listed[0]["document_id"] == arguments["document_id"], listed
-            client.tool("snow_shot_document_close", arguments)
-            assert not client.tool("snow_shot_document_list")["result"]["documents"]
+            client.tool("kxcapture_document_close", arguments)
+            assert not client.tool("kxcapture_document_list")["result"]["documents"]
             return {"client": index, **summarize(client, before, process_metrics(client.process))}
         finally:
             client.close()
@@ -726,36 +726,36 @@ def concurrent_clients(executable, descriptor, directory):
 def screenshot_workflow(client, directory, samples, size=(800, 600)):
     for index in range(samples):
         started = time.perf_counter()
-        state = client.tool("snow_shot_screenshot_begin", {"presentation": "silent", "target": "all_displays"}, label="screenshot_begin")
+        state = client.tool("kxcapture_screenshot_begin", {"presentation": "silent", "target": "all_displays"}, label="screenshot_begin")
         arguments = {"session_id": state["session_id"], "expected_revision": state["revision"]}
         def mutate(name, extra=None, label=None):
             result = client.tool(name, dict(arguments, **(extra or {})), label=label)
             if "revision" in result:
                 arguments["expected_revision"] = result["revision"]
             return result
-        mutate("snow_shot_screenshot_set_selection", {"type": "rectangle", "bounds": [0, 0, *size]})
-        mutate("snow_shot_screenshot_set_tool", {"tool": "rectangle"})
-        mutate("snow_shot_screenshot_apply_annotations", {"version": 1, "operations": [
+        mutate("kxcapture_screenshot_set_selection", {"type": "rectangle", "bounds": [0, 0, *size]})
+        mutate("kxcapture_screenshot_set_tool", {"tool": "rectangle"})
+        mutate("kxcapture_screenshot_apply_annotations", {"version": 1, "operations": [
             {"type": "rectangle", "bounds": [10, 10, 50, 40],
              "style": {"stroke": [255, 0, 0, 255], "stroke_width": 2}}]}, label="screenshot_annotations")
-        mutate("snow_shot_screenshot_undo")
-        mutate("snow_shot_screenshot_redo")
-        first = mutate("snow_shot_screenshot_render", label="screenshot_render_cold")
-        cached = mutate("snow_shot_screenshot_render", label="screenshot_render_cached")
+        mutate("kxcapture_screenshot_undo")
+        mutate("kxcapture_screenshot_redo")
+        first = mutate("kxcapture_screenshot_render", label="screenshot_render_cold")
+        cached = mutate("kxcapture_screenshot_render", label="screenshot_render_cached")
         assert first["result"]["sha256"] == cached["result"]["sha256"], cached
         assert cached["result"]["timings_ms"].get("cache_hit"), cached
         assert "encode" not in cached["result"]["timings_ms"], cached
-        mutate("snow_shot_screenshot_save", {"path": str(directory / f"screenshot-{index}.png"), "format": "png"}, label="screenshot_save")
-        mutate("snow_shot_screenshot_copy")  # Fixture acknowledgments; not native clipboard coverage.
-        mutate("snow_shot_screenshot_pin")   # Fixture acknowledgments; not native pinned-window coverage.
-        mutate("snow_shot_screenshot_finish", {"output": "none"})
+        mutate("kxcapture_screenshot_save", {"path": str(directory / f"screenshot-{index}.png"), "format": "png"}, label="screenshot_save")
+        mutate("kxcapture_screenshot_copy")  # Fixture acknowledgments; not native clipboard coverage.
+        mutate("kxcapture_screenshot_pin")   # Fixture acknowledgments; not native pinned-window coverage.
+        mutate("kxcapture_screenshot_finish", {"output": "none"})
         client.samples.setdefault("screenshot_complete_workflow", []).append((time.perf_counter() - started) * 1000)
 
 
 def screenshot_wait_operation(client, session, operation):
     deadline = time.monotonic() + 10
     while True:
-        result = client.tool("snow_shot_screenshot_operation", {"session_id": session, "operation_id": operation})
+        result = client.tool("kxcapture_screenshot_operation", {"session_id": session, "operation_id": operation})
         if result["result"]["status"] != "running" or time.monotonic() >= deadline:
             break
         time.sleep(.025)
@@ -767,34 +767,34 @@ def screenshot_contract_outcomes(client, directory, resources=False):
     fixtures = json.loads(Path(__file__).with_name("mcp_contract_fixtures.json").read_text(encoding="utf-8"))["fixtures"]
     outcomes = {}
     for case in fixtures:
-        client.tool("snow_shot_screenshot_cancel")
+        client.tool("kxcapture_screenshot_cancel")
         name = case["name"]
         arguments = dict(case["arguments"])
-        if name not in ("snow_shot_mcp_status", "snow_shot_screenshot_begin", "snow_shot_screenshot_direct_capture"):
-            opened = client.tool("snow_shot_screenshot_begin", {"presentation": "silent", "target": "all_displays"})
+        if name not in ("kxcapture_mcp_status", "kxcapture_screenshot_begin", "kxcapture_screenshot_direct_capture"):
+            opened = client.tool("kxcapture_screenshot_begin", {"presentation": "silent", "target": "all_displays"})
             if "session_id" in arguments:
                 arguments["session_id"] = opened["session_id"]
             if "expected_revision" in arguments:
                 arguments["expected_revision"] = opened["revision"]
             setup = {"session_id": opened["session_id"], "expected_revision": opened["revision"]}
-            if name == "snow_shot_screenshot_cancel":
+            if name == "kxcapture_screenshot_cancel":
                 client.tool(name, dict(arguments), error="request_not_found")
                 arguments.pop("request_id")
-            if name in ("snow_shot_screenshot_edit_recognition", "snow_shot_screenshot_export_recognition", "snow_shot_screenshot_operation"):
-                operation = client.tool("snow_shot_screenshot_recognize", dict(setup, kind="text"))
+            if name in ("kxcapture_screenshot_edit_recognition", "kxcapture_screenshot_export_recognition", "kxcapture_screenshot_operation"):
+                operation = client.tool("kxcapture_screenshot_recognize", dict(setup, kind="text"))
                 completed = screenshot_wait_operation(client, opened["session_id"], operation["result"]["operation_id"])
-                if name == "snow_shot_screenshot_operation":
+                if name == "kxcapture_screenshot_operation":
                     arguments["operation_id"] = operation["result"]["operation_id"]
                 else:
                     arguments["expected_revision"] = completed["revision"]
-            if name == "snow_shot_screenshot_scroll_once":
-                scrolling = client.tool("snow_shot_screenshot_scrolling", dict(setup, action="start", axis="vertical"))
+            if name == "kxcapture_screenshot_scroll_once":
+                scrolling = client.tool("kxcapture_screenshot_scrolling", dict(setup, action="start", axis="vertical"))
                 arguments["expected_revision"] = scrolling["revision"]
-            if name in ("snow_shot_screenshot_edit_elements", "snow_shot_screenshot_draw_template"):
-                drawn = client.tool("snow_shot_screenshot_apply_annotations", dict(setup, version=1, operations=[
+            if name in ("kxcapture_screenshot_edit_elements", "kxcapture_screenshot_draw_template"):
+                drawn = client.tool("kxcapture_screenshot_apply_annotations", dict(setup, version=1, operations=[
                     {"type": "rectangle", "bounds": [10, 10, 20, 20]}]))
                 setup["expected_revision"] = drawn["revision"]
-                selected = client.tool("snow_shot_screenshot_edit_elements", dict(setup, action="select",
+                selected = client.tool("kxcapture_screenshot_edit_elements", dict(setup, action="select",
                     id=drawn["result"]["transaction"]["created_element_ids"][0]))
                 arguments["expected_revision"] = selected["revision"]
         if "path" in arguments:
@@ -804,13 +804,13 @@ def screenshot_contract_outcomes(client, directory, resources=False):
         assert {"protocol", "request_id", "ok", "result", "attachment_length"} <= envelope.keys(), envelope
         assert result.get("isError", False) == (not envelope["ok"]), result
         assert envelope["ok"], (name, envelope)
-        if resources and name == "snow_shot_screenshot_state":
-            resource = client.request("resources/read", {"uri": "snow-shot://screenshots/" + arguments["session_id"]})
+        if resources and name == "kxcapture_screenshot_state":
+            resource = client.request("resources/read", {"uri": "kxcapture://screenshots/" + arguments["session_id"]})
             assert json.loads(resource["contents"][0]["text"])["session_id"] == arguments["session_id"]
-        if name in ("snow_shot_screenshot_recognize", "snow_shot_screenshot_translate", "snow_shot_screenshot_auto_filter"):
+        if name in ("kxcapture_screenshot_recognize", "kxcapture_screenshot_translate", "kxcapture_screenshot_auto_filter"):
             completed = screenshot_wait_operation(client, envelope["session_id"], envelope["result"]["operation_id"])
             assert completed["result"]["result"]["fixture_provider"] is True
-        if name == "snow_shot_screenshot_draw_template":
+        if name == "kxcapture_screenshot_draw_template":
             template = json.loads(envelope["result"]["payload"])
             assert len(template["elements"]) == 1, template
             # The drawing engine owns template versions. Verify that its exported
@@ -826,11 +826,11 @@ def screenshot_contract_outcomes(client, directory, resources=False):
                 "action": "export",
             })
             assert len(json.loads(reexported["result"]["payload"])["elements"]) == 1, reexported
-        if name == "snow_shot_screenshot_scroll_once":
+        if name == "kxcapture_screenshot_scroll_once":
             assert envelope["result"]["scroll_steps"] == 1
-        if name == "snow_shot_screenshot_edit_recognition":
+        if name == "kxcapture_screenshot_edit_recognition":
             assert envelope["result"]["text"] == "Fixture text"
-        if name == "snow_shot_screenshot_export_recognition":
+        if name == "kxcapture_screenshot_export_recognition":
             assert envelope["result"]["text"] == "Fixture recognized text"
         outcomes[name] = {"ok": envelope["ok"], "error": envelope.get("error", {}).get("code"),
                           "envelope_keys": sorted(envelope.keys()),
@@ -840,7 +840,7 @@ def screenshot_contract_outcomes(client, directory, resources=False):
                                              for key in ("width", "height", "format", "byte_count", "sha256")
                                              if key in envelope["result"]},
                           "content_types": [block["type"] for block in result["content"]]}
-    client.tool("snow_shot_screenshot_cancel")
+    client.tool("kxcapture_screenshot_cancel")
     assert len(outcomes) == 28
     return outcomes
 
@@ -914,13 +914,13 @@ def run(args, provider):
                 try:
                     before = process_metrics(client.process)
                     client.request("tools/list")
-                    client.tool("snow_shot_mcp_status")
-                    for uri in ("snow-shot://capabilities", "snow-shot://application/status", "snow-shot://settings"):
+                    client.tool("kxcapture_mcp_status")
+                    for uri in ("kxcapture://capabilities", "kxcapture://application/status", "kxcapture://settings"):
                         resource = client.request("resources/read", {"uri": uri})
                         assert isinstance(json.loads(resource["contents"][0]["text"]), dict)
                     for _ in range(args.samples):
                         client.request("tools/list", label="tools_list_warm")
-                        client.tool("snow_shot_mcp_status", label="mcp_status_warm")
+                        client.tool("kxcapture_mcp_status", label="mcp_status_warm")
                     document_workflow(client, directory, args.samples)
                     complete_document_surface(client, directory)
                     report["recognition"] = recognition_workflows(client, directory)

@@ -17,7 +17,7 @@ the operation. Exclusion restoration retains the operation that installed the ex
 | `scrolling.window_exclusion` | Capture exclusion requested/restored; `status` is the requested exclusion state, `outcome` is success/failure, and `code` is the Windows error (zero on macOS). macOS uses explicit ScreenCaptureKit window filters alongside saved NSWindow sharing policy. Failure with code zero can mean an unsupported/precondition failure rather than a Windows API error. |
 | `scrolling.started` / `scrolling.preparing` | Controller entered scrolling mode. Includes canvas/physical selection, recognition mode, and color restoration. Does not establish source readiness. |
 | `scrolling.input_state` | Per-display overlay rectangle, DPR, and thumbnail visibility. On Windows also includes capture ownership, inactive-window wheel routing, and display affinity in `code`. |
-| `scrolling.input_target` | Whether the physical selection center hits a window belonging to Snow Shot, and whether Snow Shot owns the foreground window. A single-point sample is evidence, not proof that the entire selection is blocked. |
+| `scrolling.input_target` | Whether the physical selection center hits a window belonging to KXCapture, and whether KXCapture owns the foreground window. A single-point sample is evidence, not proof that the entire selection is blocked. |
 | `scrolling.prepared` | Synchronous overlay preparation returned; native capture is still asynchronous. |
 
 Scrolling uses a transparent rendered selection and whole-window mouse pass-through; no native

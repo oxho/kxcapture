@@ -69,7 +69,7 @@
         </message>
         <message>
             <source>Create your account</source>
-            <translation>注册 Snow Shot 账号</translation>
+            <translation>注册 KX截屏 账号</translation>
         </message>
         <message>
             <source>Credits</source>
@@ -212,8 +212,8 @@
             <translation>登录</translation>
         </message>
         <message>
-            <source>Sign in to Snow Shot</source>
-            <translation>登录 Snow Shot</translation>
+            <source>Sign in to KXCapture</source>
+            <translation>登录 KX截屏</translation>
         </message>
         <message>
             <source>Sign in to an existing account</source>
@@ -319,8 +319,8 @@
             <translation>此充值二维码已过期，请生成新二维码后继续</translation>
         </message>
         <message>
-            <source>This purchase must use the WeChat account linked to your Snow Shot account</source>
-            <translation>请使用与此 Snow Shot 账号绑定的微信账号支付</translation>
+            <source>This purchase must use the WeChat account linked to your KXCapture account</source>
+            <translation>请使用与此 KX截屏 账号绑定的微信账号支付</translation>
         </message>
         <message>
             <source>This username is already taken or temporarily reserved</source>
@@ -346,8 +346,8 @@
             <translation> 恢复失败：%1</translation>
         </message>
         <message>
-            <source> Settings recovery failed. Retry before closing Snow Shot</source>
-            <translation> 设置恢复失败。请在关闭 Snow Shot 前重试</translation>
+            <source> Settings recovery failed. Retry before closing KXCapture</source>
+            <translation> 设置恢复失败。请在关闭 KX截屏 前重试</translation>
         </message>
         <message>
             <source>Administrator authorization was declined</source>
@@ -476,8 +476,8 @@
     <context>
         <name>AutoStartRegistration</name>
         <message>
-            <source>Enable Snow Shot in Windows Settings &gt; Apps &gt; Startup</source>
-            <translation>请在 Windows 设置 &gt; 应用 &gt; 启动中启用 Snow Shot</translation>
+            <source>Enable KXCapture in Windows Settings &gt; Apps &gt; Startup</source>
+            <translation>请在 Windows 设置 &gt; 应用 &gt; 启动中启用 KX截屏</translation>
         </message>
         <message>
             <source>Startup is managed by your organization</source>
@@ -802,8 +802,8 @@
             <translation>API 密钥不能包含换行符</translation>
         </message>
         <message>
-            <source>The model name displayed in Snow Shot</source>
-            <translation>在 Snow Shot 中显示的模型名称</translation>
+            <source>The model name displayed in KXCapture</source>
+            <translation>在 KX截屏 中显示的模型名称</translation>
         </message>
         <message>
             <source>This model was deleted. Close this form and create a new model</source>
@@ -1066,8 +1066,8 @@
             <translation>正在更改登录时启动设置</translation>
         </message>
         <message>
-            <source>Approval required. Allow Snow Shot in System Settings &gt; General &gt; Login Items</source>
-            <translation>需要批准。请在“系统设置 &gt; 通用 &gt; 登录项”中允许 Snow Shot</translation>
+            <source>Approval required. Allow KXCapture in System Settings &gt; General &gt; Login Items</source>
+            <translation>需要批准。请在“系统设置 &gt; 通用 &gt; 登录项”中允许 KX截屏</translation>
         </message>
         <message>
             <source>Could not change launch at login: %1</source>
@@ -1273,8 +1273,8 @@
             <translation>将此配置添加到您的 MCP 客户端，然后重启客户端以连接。使用 MCP 时请保持 %1 运行</translation>
         </message>
         <message>
-            <source>Add this configuration to your MCP client, then restart the client to connect. Keep Snow Shot running while using MCP</source>
-            <translation>将此配置添加到 MCP 客户端，然后重启客户端以连接。使用 MCP 时请保持 Snow Shot 运行</translation>
+            <source>Add this configuration to your MCP client, then restart the client to connect. Keep KXCapture running while using MCP</source>
+            <translation>将此配置添加到 MCP 客户端，然后重启客户端以连接。使用 MCP 时请保持 KX截屏 运行</translation>
         </message>
         <message>
             <source>Connected clients: %1</source>
@@ -1566,8 +1566,8 @@
             <translation>添加遮罩以高亮显示文本识别结果</translation>
         </message>
         <message>
-            <source>Add edit with Snow Shot to the Windows context menu to pin a supported image or document file to the screen</source>
-            <translation>将“使用 Snow Shot 编辑”添加到 Windows 右键菜单，以将支持的图像或文档文件固定到屏幕</translation>
+            <source>Add edit with KXCapture to the Windows context menu to pin a supported image or document file to the screen</source>
+            <translation>将“使用 KX截屏 编辑”添加到 Windows 右键菜单，以将支持的图像或文档文件固定到屏幕</translation>
         </message>
         <message>
             <source>Adjust MP4 quality and file size</source>
@@ -1610,8 +1610,8 @@
             <translation>所有窗口</translation>
         </message>
         <message>
-            <source>Allow MCP clients running as your OS user to control Snow Shot. Snow Shot must be running</source>
-            <translation>允许以当前系统用户身份运行的 MCP 客户端控制 Snow Shot。Snow Shot 必须保持运行</translation>
+            <source>Allow MCP clients running as your OS user to control KXCapture. KXCapture must be running</source>
+            <translation>允许以当前系统用户身份运行的 MCP 客户端控制 KX截屏。KX截屏 必须保持运行</translation>
         </message>
         <message>
             <source>Allow resizing the selection from its borders while non-move tools are active</source>
@@ -1814,8 +1814,8 @@
             <translation>存在焦点全屏窗口时自动禁用</translation>
         </message>
         <message>
-            <source>Automatically enable annotation mode in new pin to screen windows opened with edit with Snow Shot</source>
-            <translation>通过“使用 Snow Shot 编辑”打开新的固定到屏幕窗口时，自动启用标注模式</translation>
+            <source>Automatically enable annotation mode in new pin to screen windows opened with edit with KXCapture</source>
+            <translation>通过“使用 KX截屏 编辑”打开新的固定到屏幕窗口时，自动启用标注模式</translation>
         </message>
         <message>
             <source>Automatically exit screen recording after the recording is saved</source>
@@ -1826,8 +1826,8 @@
             <translation>自动选中新创建的元素</translation>
         </message>
         <message>
-            <source>Automatically start Snow Shot in the background when you log in to your Mac</source>
-            <translation>登录 Mac 时自动在后台启动 Snow Shot</translation>
+            <source>Automatically start KXCapture in the background when you log in to your Mac</source>
+            <translation>登录 Mac 时自动在后台启动 KX截屏</translation>
         </message>
         <message>
             <source>Autostart</source>
@@ -2018,8 +2018,8 @@
             <translation>子元素</translation>
         </message>
         <message>
-            <source>Choose an image for Snow Shot's custom tray menu. Native system menus keep their system appearance. Clear the path to remove this skin</source>
-            <translation>为 Snow Shot 自定义托盘菜单选择图像。系统原生菜单保留系统外观。清空路径可移除此皮肤</translation>
+            <source>Choose an image for KXCapture's custom tray menu. Native system menus keep their system appearance. Clear the path to remove this skin</source>
+            <translation>为 KX截屏 自定义托盘菜单选择图像。系统原生菜单保留系统外观。清空路径可移除此皮肤</translation>
         </message>
         <message>
             <source>Choose an image for the screenshot, pin-to-screen, full-screen canvas and screen recording toolbar rows. Clear the path to remove this skin</source>
@@ -2154,8 +2154,8 @@
             <translation>选择翻译的主要目标语言</translation>
         </message>
         <message>
-            <source>Choose the scheduling level for the interface and application workers. Changes take effect after restarting Snow Shot</source>
-            <translation>选择界面和应用工作线程的调度级别。更改将在重启 Snow Shot 后生效</translation>
+            <source>Choose the scheduling level for the interface and application workers. Changes take effect after restarting KXCapture</source>
+            <translation>选择界面和应用工作线程的调度级别。更改将在重启 KX截屏 后生效</translation>
         </message>
         <message>
             <source>Choose the server for built-in online services. Application updates are not affected</source>
@@ -2338,8 +2338,8 @@
             <translation>使用快捷键退出截图前确认</translation>
         </message>
         <message>
-            <source>Connect AI clients to Snow Shot</source>
-            <translation>将 AI 客户端连接到 Snow Shot</translation>
+            <source>Connect AI clients to KXCapture</source>
+            <translation>将 AI 客户端连接到 KX截屏</translation>
         </message>
         <message>
             <source>Contain</source>
@@ -2742,12 +2742,12 @@
             <translation>编辑选区</translation>
         </message>
         <message>
-            <source>Edit with Snow Shot</source>
-            <translation>使用 Snow Shot 编辑</translation>
+            <source>Edit with KXCapture</source>
+            <translation>使用 KX截屏 编辑</translation>
         </message>
         <message>
-            <source>Edit with Snow Shot Mini</source>
-            <translation>使用 Snow Shot Mini 编辑</translation>
+            <source>Edit with KXCapture Mini</source>
+            <translation>使用 KX截屏 Mini 编辑</translation>
         </message>
         <message>
             <source>Enable MCP integration</source>
@@ -3246,8 +3246,8 @@
             <translation>保持选区宽高一致</translation>
         </message>
         <message>
-            <source>Keep the Snow Shot save dialog open after saving to show the result</source>
-            <translation>保存后保持 Snow Shot 保存对话框打开，以显示保存结果</translation>
+            <source>Keep the KXCapture save dialog open after saving to show the result</source>
+            <translation>保存后保持 KX截屏 保存对话框打开，以显示保存结果</translation>
         </message>
         <message>
             <source>Keep the first button of each toolbar group visible instead of the last used button</source>
@@ -3262,8 +3262,8 @@
             <translation>键盘快捷键</translation>
         </message>
         <message>
-            <source>Keyboard shortcuts used within Snow Shot tools</source>
-            <translation>Snow Shot 工具内使用的键盘快捷键</translation>
+            <source>Keyboard shortcuts used within KXCapture tools</source>
+            <translation>KX截屏 工具内使用的键盘快捷键</translation>
         </message>
         <message>
             <source>Landscape A4</source>
@@ -3390,8 +3390,8 @@
             <translation>主界面皮肤位置</translation>
         </message>
         <message>
-            <source>Manage macOS permissions for Snow Shot</source>
-            <translation>管理 Snow Shot 的 macOS 权限</translation>
+            <source>Manage macOS permissions for KXCapture</source>
+            <translation>管理 KX截屏 的 macOS 权限</translation>
         </message>
         <message>
             <source>Manual</source>
@@ -4090,8 +4090,8 @@
             <translation>重启</translation>
         </message>
         <message>
-            <source>Restart Snow Shot with administrator privileges</source>
-            <translation>以管理员权限重启 Snow Shot</translation>
+            <source>Restart KXCapture with administrator privileges</source>
+            <translation>以管理员权限重启 KX截屏</translation>
         </message>
         <message>
             <source>Restart app</source>
@@ -4510,8 +4510,8 @@
             <translation>设置 Ctrl+鼠标滚轮调整固定到屏幕窗口不透明度的步长</translation>
         </message>
         <message>
-            <source>Set quality for image files saved outside the Snow Shot dialog</source>
-            <translation>设置在 Snow Shot 对话框以外保存的图像文件质量</translation>
+            <source>Set quality for image files saved outside the KXCapture dialog</source>
+            <translation>设置在 KX截屏 对话框以外保存的图像文件质量</translation>
         </message>
         <message>
             <source>Set the border color of locked pinned screenshots</source>
@@ -4810,12 +4810,12 @@
             <translation>智能选择</translation>
         </message>
         <message>
-            <source>Snow Shot</source>
-            <translation>Snow Shot</translation>
+            <source>KXCapture</source>
+            <translation>KX截屏</translation>
         </message>
         <message>
-            <source>Snow Shot server</source>
-            <translation>Snow Shot 服务器</translation>
+            <source>KXCapture server</source>
+            <translation>KX截屏 服务器</translation>
         </message>
         <message>
             <source>Snowflake</source>
@@ -4882,16 +4882,16 @@
             <translation>独立翻译窗口</translation>
         </message>
         <message>
-            <source>Start Snow Shot in the background when Windows starts</source>
-            <translation>Windows 启动时在后台启动 Snow Shot</translation>
+            <source>Start KXCapture in the background when Windows starts</source>
+            <translation>Windows 启动时在后台启动 KX截屏</translation>
         </message>
         <message>
-            <source>Start Snow Shot in the background when you log in</source>
-            <translation>登录时在后台启动 Snow Shot</translation>
+            <source>Start KXCapture in the background when you log in</source>
+            <translation>登录时在后台启动 KX截屏</translation>
         </message>
         <message>
-            <source>Start Snow Shot with administrator privileges when you sign in</source>
-            <translation>登录时以管理员权限启动 Snow Shot</translation>
+            <source>Start KXCapture with administrator privileges when you sign in</source>
+            <translation>登录时以管理员权限启动 KX截屏</translation>
         </message>
         <message>
             <source>Start a screen recording from a confirmed selection</source>
@@ -5535,12 +5535,12 @@
             <translation>无法保存 Windows 右键菜单偏好设置</translation>
         </message>
         <message>
-            <source>Edit with Snow Shot</source>
-            <translation>使用 Snow Shot 编辑</translation>
+            <source>Edit with KXCapture</source>
+            <translation>使用 KX截屏 编辑</translation>
         </message>
         <message>
-            <source>Edit with Snow Shot Mini</source>
-            <translation>使用 Snow Shot Mini 编辑</translation>
+            <source>Edit with KXCapture Mini</source>
+            <translation>使用 KX截屏 Mini 编辑</translation>
         </message>
         <message>
             <source>The Windows context menu entry is owned by another application</source>
@@ -6153,12 +6153,12 @@ Unavailable: %2</source>
     <context>
         <name>snow_shot::presentation::GlobalMouseManager</name>
         <message>
-            <source>Allow Snow Shot in System Settings &gt; Privacy &amp; Security &gt; Accessibility to use global mouse gestures</source>
-            <translation>请在“系统设置 &gt; 隐私与安全性 &gt; 辅助功能”中允许 Snow Shot，以使用全局鼠标手势</translation>
+            <source>Allow KXCapture in System Settings &gt; Privacy &amp; Security &gt; Accessibility to use global mouse gestures</source>
+            <translation>请在“系统设置 &gt; 隐私与安全性 &gt; 辅助功能”中允许 KX截屏，以使用全局鼠标手势</translation>
         </message>
         <message>
-            <source>Allow Snow Shot in System Settings &gt; Privacy &amp; Security &gt; Input Monitoring to use global mouse gestures</source>
-            <translation>请在“系统设置 &gt; 隐私与安全性 &gt; 输入监控”中允许 Snow Shot，以使用全局鼠标手势</translation>
+            <source>Allow KXCapture in System Settings &gt; Privacy &amp; Security &gt; Input Monitoring to use global mouse gestures</source>
+            <translation>请在“系统设置 &gt; 隐私与安全性 &gt; 输入监控”中允许 KX截屏，以使用全局鼠标手势</translation>
         </message>
         <message>
             <source>Checking global mouse permissions...</source>
@@ -6211,12 +6211,12 @@ Unavailable: %2</source>
             <translation>无法创建配置压缩包</translation>
         </message>
         <message>
-            <source>The configuration archive was created by a newer version of Snow Shot</source>
-            <translation>该配置压缩包由更新版本的 Snow Shot 创建</translation>
+            <source>The configuration archive was created by a newer version of KXCapture</source>
+            <translation>该配置压缩包由更新版本的 KX截屏 创建</translation>
         </message>
         <message>
-            <source>The file is not a Snow Shot configuration archive</source>
-            <translation>该文件不是 Snow Shot 配置压缩包</translation>
+            <source>The file is not a KXCapture configuration archive</source>
+            <translation>该文件不是 KX截屏 配置压缩包</translation>
         </message>
         <message>
             <source>The file is not a valid configuration archive</source>

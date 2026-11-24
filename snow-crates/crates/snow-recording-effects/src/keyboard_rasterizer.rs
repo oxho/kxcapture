@@ -80,7 +80,7 @@ mod platform {
                 let fallback = write.CreateFontFallbackBuilder()?;
                 let (family, weight) = if let Some(font) = &config.font {
                     // Qt resolves the CJK fallback from the same application font
-                    // as the rest of Snow Shot. Apply it before measuring labels.
+                    // as the rest of KXCapture. Apply it before measuring labels.
                     let cjk: Vec<u16> = font.cjk_family.encode_utf16().chain(Some(0)).collect();
                     fallback.AddMapping(
                         &[

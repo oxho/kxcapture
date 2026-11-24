@@ -1,6 +1,6 @@
 # OCR runtime and V6 models
 
-Snow Shot uses CPU inference and optional GPU acceleration through the `simd-paddle-ocr-rs` Git submodule.
+KXCapture uses CPU inference and optional GPU acceleration through the `simd-paddle-ocr-rs` Git submodule.
 Runtime **1.3.0** uses protocol **8**. Initialize submodules before building;
 the worker alone uses the library's pinned `nightly-2026-09-08` compiler.
 Other Rust packages keep their existing toolchain. The runtime takes verified
@@ -141,7 +141,7 @@ payloads include the weights. The macOS runtime-only package excludes them.
 Smart merge and Smart typesetting explicitly request grouping using the source
 image and original quadrilaterals. Recognition, prefetch and warm-up never run it
 or add groups to OCR output. Successful memberships are cached separately for the
-current source. Model membership is authoritative; Snow Shot's spatial ordering
+current source. Model membership is authoritative; KXCapture's spatial ordering
 is independent of the model's output ordering. Downloads and inference have no
 automatic grouping retries. Failure uses the original unmerged lines and one
 Message, without action buttons. Translation-only source indices survive saving;

@@ -943,10 +943,10 @@ constexpr SchemaEntryDescriptor kEntryDescriptors[] = {
     {u"system/launch_as_administrator", booleanDefault(false), ConfigurationValueKind::Boolean},
     {u"mcp/enabled", booleanDefault(false), ConfigurationValueKind::Boolean},
 #ifdef Q_OS_MACOS
-    {u"updates/mode", stringDefault(u"next_launch"), ConfigurationValueKind::String, nullptr,
+    {u"updates/mode", stringDefault(u"manual"), ConfigurationValueKind::String, nullptr,
      &kSchemaAllowed8},
 #else
-    {u"updates/mode", stringDefault(u"next_launch"), ConfigurationValueKind::String, nullptr,
+    {u"updates/mode", stringDefault(u"manual"), ConfigurationValueKind::String, nullptr,
      &kSchemaAllowed9},
 #endif
     {u"network/proxy", stringDefault(u"none"), ConfigurationValueKind::String, nullptr,
@@ -1248,7 +1248,7 @@ constexpr SchemaEntryDescriptor kEntryDescriptors[] = {
     {u"screen_recording/video_save_directory",
      factoryDefault(SchemaDefaultFactory::MoviesDirectory), ConfigurationValueKind::String},
     {u"screen_recording/video_filename_format",
-     stringDefault(u"SnowShot_Video_{YYYY-MM-DD_HH-mm-ss}"), ConfigurationValueKind::String},
+     stringDefault(u"KXCapture_Video_{YYYY-MM-DD_HH-mm-ss}"), ConfigurationValueKind::String},
     {u"drawing/automatically_select_newly_created_elements", booleanDefault(false),
      ConfigurationValueKind::Boolean},
     {u"drawing/automatic_selection_excluded_tools", stringsDefault(kSchemaStrings33),
@@ -1745,9 +1745,9 @@ constexpr SchemaEntryDescriptor kEntryDescriptors[] = {
      &kSchemaAllowed71},
     {u"screenshot/window_element_api", stringDefault(u"uia"), ConfigurationValueKind::String,
      nullptr, &kSchemaAllowed72},
-    {u"screenshot/manual_save_filename_format", stringDefault(u"SnowShot_{YYYY-MM-DD_HH-mm-ss}"),
+    {u"screenshot/manual_save_filename_format", stringDefault(u"KXCapture_{YYYY-MM-DD_HH-mm-ss}"),
      ConfigurationValueKind::String},
-    {u"screenshot/auto_save_filename_format", stringDefault(u"SnowShot_{YYYY-MM-DD_HH-mm-ss}"),
+    {u"screenshot/auto_save_filename_format", stringDefault(u"KXCapture_{YYYY-MM-DD_HH-mm-ss}"),
      ConfigurationValueKind::String},
     {u"screenshot_selection/selection_rect_presets", emptyArrayDefault(),
      ConfigurationValueKind::Structured},

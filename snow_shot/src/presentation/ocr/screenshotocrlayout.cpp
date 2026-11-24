@@ -620,7 +620,7 @@ QVector<ScreenshotOcrLine> mergeOcrLayoutImpl(const QVector<ScreenshotOcrLine>& 
             continue;
         }
         Segment item{line, line.quad.boundingRect(), 1, {index}};
-        // Upstream uses image coordinates; Snow Shot canvas coordinates can be negative.
+        // Upstream uses image coordinates; KXCapture canvas coordinates can be negative.
         item.line.quad.translate(-imageOrigin);
         item.bounds.translate(-imageOrigin);
         item.line.text = item.line.text.trimmed();

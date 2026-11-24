@@ -29,12 +29,12 @@ use tokio_util::sync::CancellationToken;
 #[derive(Debug, thiserror::Error, Clone)]
 pub enum AppClientError {
     #[error(
-        "Snow Shot is not running or MCP is disabled. Start Snow Shot and enable MCP in Settings."
+        "KXCapture is not running or MCP is disabled. Start KXCapture and enable MCP in Settings."
     )]
     Unavailable,
-    #[error("Invalid or insecure Snow Shot MCP descriptor")]
+    #[error("Invalid or insecure KXCapture MCP descriptor")]
     InvalidDescriptor,
-    #[error("Snow Shot local protocol error")]
+    #[error("KXCapture local protocol error")]
     Protocol,
     #[error(
         "Screenshot request timed out; its outcome may be unknown. Refresh the session state before editing."
@@ -46,9 +46,9 @@ pub enum AppClientError {
         "The local connection closed; the mutation was not replayed. Refresh the session state before editing."
     )]
     Disconnected,
-    #[error("Snow Shot request capacity is full; retry after a pending request finishes")]
+    #[error("KXCapture request capacity is full; retry after a pending request finishes")]
     QueueFull,
-    #[error("Snow Shot request exceeds the maximum JSON size")]
+    #[error("KXCapture request exceeds the maximum JSON size")]
     RequestTooLarge,
 }
 impl AppClientError {
@@ -160,7 +160,7 @@ impl Drop for PendingGuard {
         let cancel = AppRequest {
             protocol: PROTOCOL.into(),
             request_id: id,
-            method: "snow_shot_request_cancel".into(),
+            method: "kxcapture_request_cancel".into(),
             session_id: self.session.clone(),
             expected_revision: None,
             idempotency_key: String::new(),
@@ -220,7 +220,7 @@ impl AppClient {
             .ok_or(AppClientError::Unavailable)?
             .join(if cfg!(windows) {
                 if crate::edition::MINI {
-                    "snow_shot_mini.exe"
+                    "kxcapture_mini.exe"
                 } else {
                     "snow_shot.exe"
                 }
@@ -372,7 +372,7 @@ impl AppClient {
                         .value
                         .get("uri")
                         .and_then(Value::as_str)
-                        .filter(|u| u.starts_with("snow-shot://") && u.len() <= 1024)
+                        .filter(|u| u.starts_with("kxcapture://") && u.len() <= 1024)
                     else {
                         break;
                     };
@@ -491,8 +491,8 @@ impl AppClient {
         };
         guard.armed = false;
         let reply = reply?;
-        if (method == "snow_shot_artifact_read" && reply.attachment.len() > 262144)
-            || (method != "snow_shot_artifact_read"
+        if (method == "kxcapture_artifact_read" && reply.attachment.len() > 262144)
+            || (method != "kxcapture_artifact_read"
                 && !reply.attachment.is_empty()
                 && reply.response.attachment_mime.as_deref() != Some("image/png"))
         {
@@ -504,16 +504,16 @@ impl AppClient {
 fn is_control(method: &str) -> bool {
     matches!(
         method,
-        "snow_shot_mcp_status"
-            | "snow_shot_screenshot_state"
-            | "snow_shot_screenshot_cancel"
-            | "snow_shot_screenshot_operation"
-            | "snow_shot_app_status"
-            | "snow_shot_document_state"
-            | "snow_shot_job_get"
-            | "snow_shot_job_cancel"
-            | "snow_shot_recording_state"
-            | "snow_shot_recording_control"
+        "kxcapture_mcp_status"
+            | "kxcapture_screenshot_state"
+            | "kxcapture_screenshot_cancel"
+            | "kxcapture_screenshot_operation"
+            | "kxcapture_app_status"
+            | "kxcapture_document_state"
+            | "kxcapture_job_get"
+            | "kxcapture_job_cancel"
+            | "kxcapture_recording_state"
+            | "kxcapture_recording_control"
     )
 }
 // The server creates this short directory atomically with mode 0700 and owns it
@@ -686,7 +686,8 @@ fn package_family_name() -> Option<String> {
             }
         }
     }
-    cfg!(feature = "store").then(|| "SnowApps.SnowShot_3pp9w6ncw7bs0".to_owned())
+    // Store identity is not configured. Do not fall back to the upstream package family.
+    None
 }
 
 #[cfg(test)]
@@ -699,7 +700,7 @@ mod tests {
     fn store_descriptor_is_stable_and_separate_from_desktop() {
         let local = std::env::temp_dir().join("snow-shot-store-descriptor-test");
         assert!(local.is_absolute());
-        let family = "SnowApps.SnowShot_3pp9w6ncw7bs0";
+        let family = "Configured.Package_3pp9w6ncw7bs0";
         let path = packaged_descriptor_path(local.clone(), family);
         assert_eq!(
             path,
@@ -719,7 +720,7 @@ mod tests {
     fn store_descriptor_rejects_missing_or_relative_local_data() {
         for local in [PathBuf::new(), PathBuf::from("local-data")] {
             assert!(
-                packaged_descriptor_path(local, "SnowApps.SnowShot_family")
+                packaged_descriptor_path(local, "Configured.Package_family")
                     .as_os_str()
                     .is_empty()
             );
@@ -730,7 +731,7 @@ mod tests {
             PathBuf::from(r"C:local-data"),
         ] {
             assert!(
-                packaged_descriptor_path(local, "SnowApps.SnowShot_family")
+                packaged_descriptor_path(local, "Configured.Package_family")
                     .as_os_str()
                     .is_empty()
             );
@@ -832,10 +833,10 @@ mod tests {
     async fn persistent_connection_preserves_ids_and_does_not_replay_mutations() {
         let (client, thread, dir) = fixture(|mut stream| {
             let one = request(&mut stream);
-            assert_eq!(one.method, "snow_shot_screenshot_begin");
+            assert_eq!(one.method, "kxcapture_screenshot_begin");
             write_frame(&mut stream, &response(&one), &[]).unwrap();
             let two = request(&mut stream);
-            assert_eq!(two.method, "snow_shot_screenshot_set_selection");
+            assert_eq!(two.method, "kxcapture_screenshot_set_selection");
             assert_ne!(one.request_id, two.request_id);
             assert!(!two.idempotency_key.is_empty());
             // Close after accepting a mutation. The client must surface the ambiguous outcome.
@@ -843,7 +844,7 @@ mod tests {
         assert!(
             client
                 .request(
-                    "snow_shot_screenshot_begin",
+                    "kxcapture_screenshot_begin",
                     None,
                     None,
                     json!({}),
@@ -855,7 +856,7 @@ mod tests {
         assert!(matches!(
             client
                 .request(
-                    "snow_shot_screenshot_set_selection",
+                    "kxcapture_screenshot_set_selection",
                     Some("session".into()),
                     Some(1),
                     json!({}),
@@ -877,10 +878,10 @@ mod tests {
             let work: Vec<_> = (0..8).map(|_| request(&mut stream)).collect();
             filled_tx.send(()).unwrap();
             let status = request(&mut stream);
-            assert_eq!(status.method, "snow_shot_mcp_status");
+            assert_eq!(status.method, "kxcapture_mcp_status");
             write_frame(&mut stream, &response(&status), &[]).unwrap();
             let cancel = request(&mut stream);
-            assert_eq!(cancel.method, "snow_shot_screenshot_cancel");
+            assert_eq!(cancel.method, "kxcapture_screenshot_cancel");
             write_frame(&mut stream, &response(&cancel), &[]).unwrap();
             for item in work {
                 write_frame(&mut stream, &response(&item), &[]).unwrap();
@@ -893,7 +894,7 @@ mod tests {
             workers.push(tokio::spawn(async move {
                 client
                     .request(
-                        "snow_shot_screenshot_render",
+                        "kxcapture_screenshot_render",
                         Some("s".into()),
                         Some(1),
                         json!({}),
@@ -906,7 +907,7 @@ mod tests {
         assert!(matches!(
             client
                 .request(
-                    "snow_shot_screenshot_render",
+                    "kxcapture_screenshot_render",
                     Some("s".into()),
                     Some(1),
                     json!({}),
@@ -915,7 +916,7 @@ mod tests {
                 .await,
             Err(AppClientError::QueueFull)
         ));
-        for method in ["snow_shot_mcp_status", "snow_shot_screenshot_cancel"] {
+        for method in ["kxcapture_mcp_status", "kxcapture_screenshot_cancel"] {
             assert!(
                 client
                     .request(method, None, None, json!({}), CancellationToken::new())
@@ -940,7 +941,7 @@ mod tests {
         assert!(matches!(
             client
                 .request(
-                    "snow_shot_settings_update",
+                    "kxcapture_settings_update",
                     None,
                     Some(1),
                     json!({"values":{"text":"x".repeat(crate::wire::MAX_REQUEST_JSON_BYTES)}}),
@@ -954,17 +955,17 @@ mod tests {
     async fn events_interleave_with_responses_and_cancel_requests() {
         let (client, thread, dir) = fixture(|mut stream| {
             let pending = request(&mut stream);
-            assert_eq!(pending.method, "snow_shot_document_render");
-            write_frame(&mut stream,&json!({"protocol":PROTOCOL,"kind":"event","event":"resource_changed","uri":"snow-shot://documents/one","attachment_length":0}),&[]).unwrap();
+            assert_eq!(pending.method, "kxcapture_document_render");
+            write_frame(&mut stream,&json!({"protocol":PROTOCOL,"kind":"event","event":"resource_changed","uri":"kxcapture://documents/one","attachment_length":0}),&[]).unwrap();
             let mut canceled = false;
             for _ in 0..2 {
                 let control = request(&mut stream);
-                if control.method == "snow_shot_request_cancel" {
+                if control.method == "kxcapture_request_cancel" {
                     assert_eq!(control.params["request_id"], pending.request_id);
                     canceled = true;
                     write_frame(&mut stream, &response(&pending), &[]).unwrap();
                 } else {
-                    assert_eq!(control.method, "snow_shot_mcp_status");
+                    assert_eq!(control.method, "kxcapture_mcp_status");
                 }
                 write_frame(&mut stream, &response(&control), &[]).unwrap();
             }
@@ -974,7 +975,7 @@ mod tests {
         assert!(matches!(
             client
                 .request(
-                    "snow_shot_document_render",
+                    "kxcapture_document_render",
                     None,
                     Some(1),
                     json!({"document_id":"one"}),
@@ -985,12 +986,12 @@ mod tests {
         ));
         assert_eq!(
             events.recv().await.unwrap().uri,
-            "snow-shot://documents/one"
+            "kxcapture://documents/one"
         );
         assert!(
             client
                 .request(
-                    "snow_shot_mcp_status",
+                    "kxcapture_mcp_status",
                     None,
                     None,
                     json!({}),
@@ -1010,13 +1011,13 @@ mod tests {
         let (client, thread, dir) = fixture(|mut stream| {
             let pending = request(&mut stream);
             let cancel = request(&mut stream);
-            assert_eq!(cancel.method, "snow_shot_request_cancel");
+            assert_eq!(cancel.method, "kxcapture_request_cancel");
             assert_eq!(cancel.params["request_id"], pending.request_id);
         });
         assert!(matches!(
             client
                 .request(
-                    "snow_shot_screenshot_render",
+                    "kxcapture_screenshot_render",
                     Some("session".into()),
                     Some(1),
                     json!({}),

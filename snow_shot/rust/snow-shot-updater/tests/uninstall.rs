@@ -7,7 +7,7 @@ fn install(root: &Path, data: &Path) {
     fs::create_dir_all(root.join("bin")).unwrap();
     fs::write(root.join(edition::APP_PATH), b"application payload").unwrap();
     fs::copy(
-        env!("CARGO_BIN_EXE_snow-shot-updater"),
+        env!("CARGO_BIN_EXE_kxcapture-updater"),
         root.join(edition::UPDATER_PATH),
     )
     .unwrap();
@@ -54,7 +54,7 @@ fn uninstall(helper: &Path, root: &Path) {
 #[test]
 fn installed_helper_defers_its_own_removal_until_it_exits() {
     let directory = tempfile::tempdir().unwrap();
-    let root = directory.path().join("Snow Shot 安");
+    let root = directory.path().join("KXCapture 安");
     let data = directory.path().join("custom configuration 配置");
     fs::create_dir(&data).unwrap();
     fs::write(data.join("config.json"), b"preserve custom configuration").unwrap();
@@ -78,7 +78,7 @@ fn installed_helper_defers_its_own_removal_until_it_exits() {
 fn copied_helper_removes_the_installed_helper_and_preserves_custom_data() {
     let directory = tempfile::tempdir().unwrap();
     for name in ["external configuration 配置", "missing configuration 配置"] {
-        let root = directory.path().join(format!("Snow Shot {name}"));
+        let root = directory.path().join(format!("KXCapture {name}"));
         let data = directory.path().join(name);
         if name.starts_with("external") {
             fs::create_dir(&data).unwrap();
@@ -86,7 +86,7 @@ fn copied_helper_removes_the_installed_helper_and_preserves_custom_data() {
         }
         install(&root, &data);
 
-        uninstall(Path::new(env!("CARGO_BIN_EXE_snow-shot-updater")), &root);
+        uninstall(Path::new(env!("CARGO_BIN_EXE_kxcapture-updater")), &root);
 
         assert!(!root.join(edition::APP_PATH).exists());
         assert!(!root.join(edition::UPDATER_PATH).exists());
@@ -100,7 +100,7 @@ fn copied_helper_removes_the_installed_helper_and_preserves_custom_data() {
 }
 
 fn installer_command(operation: &str, root: &Path, backup: &Path) -> std::process::Output {
-    Command::new(env!("CARGO_BIN_EXE_snow-shot-updater"))
+    Command::new(env!("CARGO_BIN_EXE_kxcapture-updater"))
         .args([operation, "--target"])
         .arg(root)
         .arg("--backup")
@@ -112,7 +112,7 @@ fn installer_command(operation: &str, root: &Path, backup: &Path) -> std::proces
 #[test]
 fn installer_bootstrap_replaces_and_restores_the_legacy_helper() {
     let directory = tempfile::tempdir().unwrap();
-    let root = directory.path().join("Snow Shot 安");
+    let root = directory.path().join("KXCapture 安");
     install(&root, &directory.path().join("custom data 配置"));
     let target = root.join(edition::UPDATER_PATH);
     let bundled = fs::read(&target).unwrap();
@@ -146,7 +146,7 @@ fn installer_bootstrap_preserves_the_helper_when_preparation_fails() {
     use windows::Win32::Storage::FileSystem::FILE_SHARE_READ;
 
     let directory = tempfile::tempdir().unwrap();
-    let root = directory.path().join("Snow Shot 安");
+    let root = directory.path().join("KXCapture 安");
     install(&root, &directory.path().join("custom data 配置"));
     let target = root.join(edition::UPDATER_PATH);
     fs::write(&target, b"legacy helper").unwrap();
@@ -190,7 +190,7 @@ fn installer_bootstrap_preserves_the_helper_when_preparation_fails() {
 #[test]
 fn installer_rollback_preserves_a_helper_changed_by_another_operation() {
     let directory = tempfile::tempdir().unwrap();
-    let root = directory.path().join("Snow Shot 安");
+    let root = directory.path().join("KXCapture 安");
     install(&root, &directory.path().join("custom data 配置"));
     let backup = directory.path().join("previous-updater.exe");
     assert!(

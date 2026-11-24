@@ -813,10 +813,10 @@ void fullscreenClassificationIgnoresSnowShotWindows() {
                                                  {ownProcess, 0, 1.0, displays.last()},
                                                  {externalProcess, 0, 1.0, displays.last()}};
     require(!focusedWindowCoversDisplay(ownProcess, windows, displays),
-            "Snow Shot fullscreen windows must not trigger fullscreen suppression");
+            "KXCapture fullscreen windows must not trigger fullscreen suppression");
     for (const auto& display : displays) {
         require(!focusedWindowCoversDisplay(ownProcess, windows, {display}),
-                "Snow Shot fullscreen windows must be ignored on every monitor");
+                "KXCapture fullscreen windows must be ignored on every monitor");
     }
     require(focusedWindowCoversDisplay(externalProcess, windows, displays) &&
                 focusedWindowCoversDisplay(externalProcess, windows, {displays.last()}) &&
@@ -991,7 +991,7 @@ void deterministicOwnershipPartialFailureAndSuspension() {
         "earlier action must deterministically own a duplicate runtime identity");
     require(manager.validateShortcut(GlobalShortcutAction::Screenshot, shared).supported &&
                 !manager.validateShortcut(GlobalShortcutAction::ScreenshotCopy, shared).supported,
-            "validation must allow the owning action and reject other Snow Shot owners");
+            "validation must allow the owning action and reject other KXCapture owners");
 
     input->failures.insert(QStringLiteral("Ctrl+F11"),
                            {false, GlobalShortcutFailureReason::SystemError, -9876});

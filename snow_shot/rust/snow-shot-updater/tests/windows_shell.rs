@@ -124,12 +124,12 @@ fn register(classes: HKEY, extension: &str, executable: &Path, verb: &str, produ
     set(key.0, "ProductId", product);
     set(key.0, "InstallationExecutable", &executable);
     set(key.0, "Icon", &format!("\"{executable}\",0"));
-    set(key.0, "", "Edit with Snow Shot");
+    set(key.0, "", "Edit with KXCapture");
     let command = create(key.0, "command");
     set(
         command.0,
         "",
-        &format!("\"{executable}\" --edit-with-snow-shot \"%1\""),
+        &format!("\"{executable}\" --edit-with-kxcapture \"%1\""),
     );
 }
 
@@ -260,8 +260,8 @@ impl Drop for Sandbox {
 fn shell_cleanup_and_migration_are_scoped_to_owned_loaded_and_offline_profiles() {
     let _sandbox = Sandbox::new();
     let temporary = tempfile::tempdir().unwrap();
-    let previous = temporary.path().join("previous Snow Shot 安");
-    let destination = temporary.path().join("destination Snow Shot 安");
+    let previous = temporary.path().join("previous KXCapture 安");
+    let destination = temporary.path().join("destination KXCapture 安");
     let previous_executable = previous.join(edition::APP_PATH);
     let destination_executable = destination.join(edition::APP_PATH);
     let other_executable = temporary
@@ -308,7 +308,7 @@ fn shell_cleanup_and_migration_are_scoped_to_owned_loaded_and_offline_profiles()
         set(
             command.0,
             "",
-            "\"C:\\Other\\app.exe\" --edit-with-snow-shot \"%1\"",
+            "\"C:\\Other\\app.exe\" --edit-with-kxcapture \"%1\"",
         );
         register(
             classes,
@@ -390,7 +390,7 @@ fn shell_cleanup_and_migration_are_scoped_to_owned_loaded_and_offline_profiles()
         assert_eq!(
             read(command.0, ""),
             format!(
-                "\"{}\" --edit-with-snow-shot \"%1\"",
+                "\"{}\" --edit-with-kxcapture \"%1\"",
                 destination_executable
                     .display()
                     .to_string()
@@ -480,7 +480,7 @@ fn shell_cleanup_and_migration_are_scoped_to_owned_loaded_and_offline_profiles()
         extra.0,
         "",
         &format!(
-            "\"{}\" --edit-with-snow-shot \"%1\" --other",
+            "\"{}\" --edit-with-kxcapture \"%1\" --other",
             destination_executable
                 .display()
                 .to_string()

@@ -1,6 +1,6 @@
 # macOS repeated file-dialog cancellation
 
-The September 22, 2026 crash report for Snow Shot 1.0.9 stops at:
+The September 22, 2026 crash report for KXCapture 1.0.9 stops at:
 
 ```text
 QWidget::accessibleName()                  [null QWidget, address 0x8]
@@ -23,8 +23,8 @@ to a particular application callback or to the fault-injection method below.
 
 Applications call `adqt::widgets::initializePlatformCompatibility(app)` immediately
 after constructing QApplication, before creating widgets. This idempotent,
-application-owned integration is independent of theme selection; Snow Shot,
-Snow Image Viewer, and the AdQt demo initialize it explicitly.
+application-owned integration is independent of theme selection; KXCapture,
+KXCapture Image Viewer, and the AdQt demo initialize it explicitly.
 
 The macOS AdQt integration repairs an invalid cache association at
 `QPlatformSurfaceEvent::SurfaceCreated`, before Qt reads the widget's accessible

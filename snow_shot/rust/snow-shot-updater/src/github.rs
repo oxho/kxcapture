@@ -4,8 +4,14 @@ use reqwest::Url;
 use serde_json::Value;
 
 #[cfg(test)]
-pub const API: &str = "https://api.github.com/repos/mg-chao/snow-shot/releases";
-pub const REPOSITORY: &str = "https://github.com/mg-chao/snow-shot";
+pub const API: &str = "http://127.0.0.1:9/releases";
+/// Empty until KXCAPTURE_UPDATE_REPOSITORY is set. An empty value rejects every remote asset.
+pub fn release_repository() -> String {
+    std::env::var("KXCAPTURE_UPDATE_REPOSITORY").unwrap_or_default()
+}
+
+#[cfg(test)]
+pub const REPOSITORY: &str = "http://127.0.0.1:9/kxcapture";
 
 pub fn error() -> UpdateError {
     UpdateError::new(
@@ -22,12 +28,16 @@ pub fn version(release: &Value) -> Option<semver::Version> {
         .get("tag_name")?
         .as_str()?
         .strip_prefix('v')?
-        .strip_suffix("_snow-shot")?;
+        .strip_suffix("_kxcapture")?;
     let version = semver::Version::parse(text).ok()?;
     Some(version)
 }
 
 pub fn asset(release: &Value, name: &str) -> Result<Url> {
+    let repository = release_repository();
+    if repository.is_empty() {
+        return Err(error());
+    }
     let tag = release["tag_name"].as_str().ok_or_else(error)?;
     let assets = release["assets"].as_array().ok_or_else(error)?;
     let matches: Vec<_> = assets
@@ -46,7 +56,7 @@ pub fn asset(release: &Value, name: &str) -> Result<Url> {
     )
     .map_err(|_| error())?;
     let expected =
-        Url::parse(&format!("{REPOSITORY}/releases/download/{tag}/{name}")).map_err(|_| error())?;
+        Url::parse(&format!("{repository}/releases/download/{tag}/{name}")).map_err(|_| error())?;
     require(
         url == expected,
         "metadata_download_failed",
@@ -81,14 +91,21 @@ pub fn package_name(version: &str, path: &str) -> Result<String> {
 }
 
 pub fn asset_origin(url: &Url) -> bool {
-    url.scheme() == "https"
-        && url.host_str() == Some("github.com")
-        && url.port_or_known_default() == Some(443)
+    let repository = release_repository();
+    if repository.is_empty() {
+        return false;
+    }
+    let Ok(expected) = Url::parse(&repository) else {
+        return false;
+    };
+    url.scheme() == expected.scheme()
+        && url.host_str() == expected.host_str()
+        && url.port_or_known_default() == expected.port_or_known_default()
         && url.username().is_empty()
         && url.password().is_none()
         && url
             .path()
-            .starts_with("/mg-chao/snow-shot/releases/download/")
+            .starts_with(&format!("{}/releases/download/", expected.path().trim_end_matches('/')))
 }
 
 pub fn redirect_allowed(origin: &Url, target: &Url) -> bool {
@@ -116,20 +133,20 @@ mod tests {
     use serde_json::json;
     #[test]
     fn stable_tags_and_exact_assets_only() {
-        for tag in ["v2.0.0_other", "v02.0.0_snow-shot"] {
+        for tag in ["v2.0.0_other", "v02.0.0_kxcapture"] {
             assert!(version(&json!({"tag_name":tag,"draft":false,"prerelease":false})).is_none());
         }
         assert!(
-            version(&json!({"tag_name":"v2.0.0_snow-shot","draft":false,"prerelease":false}))
+            version(&json!({"tag_name":"v2.0.0_kxcapture","draft":false,"prerelease":false}))
                 .is_some()
         );
         assert!(
-            version(&json!({"tag_name":"v2.0.0-beta_snow-shot","draft":false,"prerelease":true}))
+            version(&json!({"tag_name":"v2.0.0-beta_kxcapture","draft":false,"prerelease":true}))
                 .is_some()
         );
-        let mut release = json!({"tag_name":"v2.0.0_snow-shot","assets":[{"name":"latest-version.json",
-            "browser_download_url":format!("{REPOSITORY}/releases/download/v2.0.0_snow-shot/latest-version.json")}]});
-        assert!(asset(&release, "latest-version.json").is_ok());
+        let mut release = json!({"tag_name":"v2.0.0_kxcapture","assets":[{"name":"latest-version.json",
+            "browser_download_url":format!("{REPOSITORY}/releases/download/v2.0.0_kxcapture/latest-version.json")}]});
+        assert!(asset(&release, "latest-version.json").is_err());
         release["assets"][0]["browser_download_url"] =
             json!("https://evil.test/latest-version.json");
         assert!(asset(&release, "latest-version.json").is_err());
@@ -150,12 +167,12 @@ mod tests {
     #[test]
     fn redirects_are_scoped_to_github_assets() {
         let origin = Url::parse(&format!(
-            "{REPOSITORY}/releases/download/v2.0.0_snow-shot/a.zip"
+            "{REPOSITORY}/releases/download/v2.0.0_kxcapture/a.zip"
         ))
         .unwrap();
         let cdn =
             Url::parse("https://release-assets.githubusercontent.com/a?token=secret").unwrap();
-        assert!(redirect_allowed(&origin, &cdn));
+        assert!(!redirect_allowed(&origin, &cdn));
         for url in [
             "http://release-assets.githubusercontent.com/a",
             "https://evil.test/a",
@@ -164,7 +181,7 @@ mod tests {
             assert!(!redirect_allowed(&origin, &Url::parse(url).unwrap()));
         }
         assert!(!redirect_allowed(
-            &Url::parse("https://snowshot.top").unwrap(),
+            &Url::parse("https://example.invalid").unwrap(),
             &cdn
         ));
     }

@@ -704,7 +704,7 @@ if("snow-macos-media" IN_LIST FEATURES)
     )
 endif()
 
-# Snow Shot's FFI bundle disables legacy capture and writes only MP4/GIF/APNG/WebP.
+# KXCapture's FFI bundle disables legacy capture and writes only MP4/GIF/APNG/WebP.
 # Keep the existing input closure: recovered and imported recordings may still
 # contain Matroska, AVI, WAV, MPEG-4 or PCM. Standalone tools retain the broader
 # snow-macos-media profile above, including FFmpeg's own GIF encoder.
@@ -954,7 +954,7 @@ if("snow-shot-minimal" IN_LIST FEATURES)
         "${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}-rel/config_components.h")
     if(NOT EXISTS "${_snow_shot_ffmpeg_components}")
         message(FATAL_ERROR
-            "The Snow Shot FFmpeg build did not produce config_components.h")
+            "The KXCapture FFmpeg build did not produce config_components.h")
     endif()
     file(INSTALL "${_snow_shot_ffmpeg_components}"
         DESTINATION "${CURRENT_PACKAGES_DIR}/share/ffmpeg"

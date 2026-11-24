@@ -1,4 +1,4 @@
-snow_embed_sparkle(snow_shot snow_shot.app SnowShot)
+snow_embed_sparkle(snow_shot kxcapture.app SnowShot)
 # The Rust static archive does not propagate Cargo's native link metadata to CMake.
 find_package(PkgConfig REQUIRED)
 set(_snow_saved_pkg_config_path "$ENV{PKG_CONFIG_PATH}")
@@ -49,10 +49,10 @@ endif()
 
 set_target_properties(snow_shot PROPERTIES
     MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_LIST_DIR}/../snow_shot/packaging/macos/Info.plist.in"
-    MACOSX_BUNDLE_BUNDLE_NAME "Snow Shot"
+    MACOSX_BUNDLE_BUNDLE_NAME "KXCapture"
     MACOSX_BUNDLE_BUNDLE_VERSION "${SNOW_SHOT_VERSION_NUMERIC}"
     MACOSX_BUNDLE_SHORT_VERSION_STRING "${SNOW_SHOT_VERSION_NUMERIC}"
-    MACOSX_BUNDLE_ICON_FILE "snow-shot.icns"
+    MACOSX_BUNDLE_ICON_FILE "kxcapture.icns"
     INSTALL_RPATH "@executable_path/../Frameworks"
     INSTALL_RPATH_USE_LINK_PATH TRUE)
 
@@ -65,18 +65,13 @@ foreach(_snow_bundle_language IN ITEMS en zh-Hans zh-Hant)
 endforeach()
 
 set(_snow_macos_icon_artwork
-    "${CMAKE_CURRENT_LIST_DIR}/../snow_shot/resources/app-icon.svg")
-set(_snow_macos_icon "${CMAKE_CURRENT_BINARY_DIR}/macos/snow-shot.icns")
+    "${CMAKE_CURRENT_LIST_DIR}/../snow_shot/resources/kxcapture.icns")
+set(_snow_macos_icon "${CMAKE_CURRENT_BINARY_DIR}/macos/kxcapture.icns")
 add_custom_command(
     OUTPUT "${_snow_macos_icon}"
-    COMMAND "${CMAKE_COMMAND}"
-        -DSNOW_MACOS_ICON_ARTWORK=${_snow_macos_icon_artwork}
-        -DSNOW_MACOS_ICON_OUTPUT=${_snow_macos_icon}
-        -P "${CMAKE_CURRENT_LIST_DIR}/GenerateMacOSIcon.cmake"
-    DEPENDS
-        "${_snow_macos_icon_artwork}"
-        "${CMAKE_CURRENT_LIST_DIR}/GenerateMacOSIcon.cmake"
-    COMMENT "Generating the Snow Shot macOS application icon"
+    COMMAND "${CMAKE_COMMAND}" -E copy "${_snow_macos_icon_artwork}" "${_snow_macos_icon}"
+    DEPENDS "${_snow_macos_icon_artwork}"
+    COMMENT "Packaging the KXCapture macOS application icon"
     VERBATIM)
 set_source_files_properties("${_snow_macos_icon}" PROPERTIES
     GENERATED TRUE
@@ -96,10 +91,10 @@ if(SNOW_SHOT_RELEASE_STATIC)
             "The audited static Qt license bundle is missing: ${_snow_static_qt_licenses}")
     endif()
     install(DIRECTORY "${_snow_static_qt_licenses}/"
-        DESTINATION "snow_shot.app/Contents/Resources/snow-shot/licenses/third-party/qt"
+        DESTINATION "kxcapture.app/Contents/Resources/kxcapture/licenses/third-party/qt"
         COMPONENT SnowShot)
     install(DIRECTORY "${SNOW_FFMPEG_ROOT}/share/"
-        DESTINATION "snow_shot.app/Contents/Resources/snow-shot/licenses/third-party/vcpkg"
+        DESTINATION "kxcapture.app/Contents/Resources/kxcapture/licenses/third-party/vcpkg"
         COMPONENT SnowShot FILES_MATCHING PATTERN "copyright")
 endif()
 
@@ -116,7 +111,7 @@ add_custom_command(TARGET snow_shot POST_BUILD
         -P "${CMAKE_CURRENT_LIST_DIR}/StageSnowShotCrashHandler.cmake"
     VERBATIM)
 install(PROGRAMS "${SNOW_CRASHPAD_HANDLER}"
-    DESTINATION "snow_shot.app/Contents/MacOS" COMPONENT SnowShot)
+    DESTINATION "kxcapture.app/Contents/MacOS" COMPONENT SnowShot)
 
 # Archive UUID-matched symbols outside the app bundle for offline symbolication.
 find_program(SNOW_DSYMUTIL dsymutil REQUIRED)
@@ -171,7 +166,7 @@ if(CMAKE_OSX_ARCHITECTURES MATCHES "^(arm64|x86_64)$" AND TARGET snow_ocr_proces
         endif()
     endforeach()
     install(DIRECTORY "$<TARGET_FILE_DIR:snow_shot>/assets/ocr"
-        DESTINATION "snow_shot.app/Contents/MacOS/assets" COMPONENT SnowShot)
+        DESTINATION "kxcapture.app/Contents/MacOS/assets" COMPONENT SnowShot)
 endif()
 
 if(NOT SNOW_SHOT_QT_STATIC)
@@ -181,7 +176,7 @@ if(NOT SNOW_SHOT_QT_STATIC)
         message(FATAL_ERROR "The selected Qt kit does not provide the offscreen platform plugin")
     endif()
     install(FILES "$<TARGET_FILE:Qt6::QOffscreenIntegrationPlugin>"
-        DESTINATION "snow_shot.app/Contents/PlugIns/platforms" COMPONENT SnowShot)
+        DESTINATION "kxcapture.app/Contents/PlugIns/platforms" COMPONENT SnowShot)
     find_program(SNOW_MACDEPLOYQT NAMES macdeployqt HINTS "${_snow_qt_bin}"
         NO_DEFAULT_PATH REQUIRED)
 else()
@@ -233,7 +228,7 @@ if(NOT SNOW_MACOS_CODESIGN_IDENTITY STREQUAL "-")
         COMMAND "${CMAKE_COMMAND}" -E copy "$<TARGET_FILE:snow_shot>"
             "$<TARGET_FILE:snow_shot>.snow-signing"
         COMMAND /usr/bin/codesign --force --sign "${SNOW_MACOS_CODESIGN_IDENTITY}"
-            --identifier com.snowshot.snow_shot "$<TARGET_FILE:snow_shot>.snow-signing"
+            --identifier io.github.oxho.kxcapture "$<TARGET_FILE:snow_shot>.snow-signing"
         COMMAND /usr/bin/codesign --verify --strict "$<TARGET_FILE:snow_shot>.snow-signing"
         COMMAND "${CMAKE_COMMAND}" -E copy "$<TARGET_FILE:snow_shot>.snow-signing"
             "$<TARGET_FILE:snow_shot>"
@@ -243,7 +238,7 @@ endif()
 include("${CMAKE_CURRENT_LIST_DIR}/SnowRustLicenses.cmake")
 snow_install_rust_licenses(
     COMPONENT SnowShot
-    DESTINATION "snow_shot.app/Contents/Resources/snow-shot/licenses/third-party/cargo"
+    DESTINATION "kxcapture.app/Contents/Resources/kxcapture/licenses/third-party/cargo"
     TARGETS snow_shot_full_rust_ffi_bundle snow_selected_text_c snow_ocr_process snow_shot_mcp)
 # Full includes its default model; Mini supplies its own runtime-only policy.
 set(SNOW_MACOS_OCR_RUNTIME_ONLY OFF)

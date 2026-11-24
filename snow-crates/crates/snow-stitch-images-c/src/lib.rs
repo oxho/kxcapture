@@ -16,7 +16,7 @@ use snow_stitch_images::{
 #[cfg(target_os = "macos")]
 mod execution;
 
-// Snow Shot streams snapshots through Snow Image. Standalone clients retain
+// KXCapture streams snapshots through Snow Image. Standalone clients retain
 // the native PNG exporter by default.
 #[cfg(feature = "png-export")]
 mod png_export;

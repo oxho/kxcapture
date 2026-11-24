@@ -12,16 +12,16 @@ pub(super) fn reject_cursor(request: Option<PaginatedRequestParams>) -> Result<(
 }
 pub(super) fn resources() -> ListResourcesResult {
     ListResourcesResult::with_all_items(vec![
-        Resource::new("snow-shot://capabilities", "Snow Shot capability catalog")
+        Resource::new("kxcapture://capabilities", "KXCapture capability catalog")
             .with_mime_type("application/json"),
         Resource::new(
-            "snow-shot://application/status",
-            "Snow Shot application state",
+            "kxcapture://application/status",
+            "KXCapture application state",
         )
         .with_mime_type("application/json"),
         Resource::new(
-            "snow-shot://settings",
-            "Snow Shot settings and field metadata",
+            "kxcapture://settings",
+            "KXCapture settings and field metadata",
         )
         .with_mime_type("application/json"),
     ])
@@ -32,24 +32,24 @@ pub(super) fn templates() -> ListResourceTemplatesResult {
     ListResourceTemplatesResult::with_all_items(
         [
             (
-                "snow-shot://documents/{document_id}",
+                "kxcapture://documents/{document_id}",
                 "Owned background document state",
             ),
             (
-                "snow-shot://jobs/{job_id}",
+                "kxcapture://jobs/{job_id}",
                 "Owned background job state and result",
             ),
             (
-                "snow-shot://screenshots/{session_id}",
+                "kxcapture://screenshots/{session_id}",
                 "Owned screenshot session state",
             ),
-            ("snow-shot://pinned/{id}", "Pinned image state"),
+            ("kxcapture://pinned/{id}", "Pinned image state"),
             (
-                "snow-shot://artifacts/{artifact_id}",
+                "kxcapture://artifacts/{artifact_id}",
                 "Owned artifact metadata and first bounded data chunk",
             ),
             (
-                "snow-shot://history/{history_id}",
+                "kxcapture://history/{history_id}",
                 "Screenshot history metadata",
             ),
         ]
@@ -62,31 +62,31 @@ pub(super) fn templates() -> ListResourceTemplatesResult {
 }
 pub(super) fn resource_request(uri: &str) -> Result<(&'static str, Value), McpError> {
     match uri {
-        "snow-shot://application/status" => return Ok(("snow_shot_app_status", json!({}))),
-        "snow-shot://settings" => return Ok(("snow_shot_settings_get", json!({}))),
+        "kxcapture://application/status" => return Ok(("kxcapture_app_status", json!({}))),
+        "kxcapture://settings" => return Ok(("kxcapture_settings_get", json!({}))),
         _ => {}
     }
     for (prefix, method, key) in [
         (
-            "snow-shot://documents/",
-            "snow_shot_document_state",
+            "kxcapture://documents/",
+            "kxcapture_document_state",
             "document_id",
         ),
-        ("snow-shot://jobs/", "snow_shot_job_get", "job_id"),
+        ("kxcapture://jobs/", "kxcapture_job_get", "job_id"),
         (
-            "snow-shot://screenshots/",
-            "snow_shot_screenshot_state",
+            "kxcapture://screenshots/",
+            "kxcapture_screenshot_state",
             "session_id",
         ),
-        ("snow-shot://pinned/", "snow_shot_pinned_get", "id"),
+        ("kxcapture://pinned/", "kxcapture_pinned_get", "id"),
         (
-            "snow-shot://artifacts/",
-            "snow_shot_artifact_read",
+            "kxcapture://artifacts/",
+            "kxcapture_artifact_read",
             "artifact_id",
         ),
         (
-            "snow-shot://history/",
-            "snow_shot_history_get",
+            "kxcapture://history/",
+            "kxcapture_history_get",
             "history_id",
         ),
     ] {
@@ -98,7 +98,7 @@ pub(super) fn resource_request(uri: &str) -> Result<(&'static str, Value), McpEr
                     .all(|b| b.is_ascii_alphanumeric() || matches!(b, b'-' | b'_' | b'.'))
             {
                 return Err(McpError::invalid_params(
-                    "Invalid Snow Shot resource identifier",
+                    "Invalid KXCapture resource identifier",
                     None,
                 ));
             }
@@ -106,7 +106,7 @@ pub(super) fn resource_request(uri: &str) -> Result<(&'static str, Value), McpEr
         }
     }
     Err(McpError::invalid_params(
-        "Unknown Snow Shot resource URI",
+        "Unknown KXCapture resource URI",
         None,
     ))
 }
@@ -152,7 +152,7 @@ pub(super) fn prompt(request: GetPromptRequestParams) -> Result<GetPromptResult,
         .into_iter()
         .find(|p| p.name == request.name)
     else {
-        return Err(McpError::invalid_params("Unknown Snow Shot prompt", None));
+        return Err(McpError::invalid_params("Unknown KXCapture prompt", None));
     };
     let arguments = request.arguments.unwrap_or_default();
     let fields = definition.arguments.unwrap_or_default();
@@ -175,7 +175,7 @@ pub(super) fn prompt(request: GetPromptRequestParams) -> Result<GetPromptResult,
             "Read application status, begin a screenshot, retain the returned session_id and revision, edit in canvas coordinates, then render/save/copy/pin as requested and finish the session. Refresh state after stale_revision; do not blindly replay mutations."
         }
         "background_image_workflow" => {
-            "Open the explicit source path with snow_shot_document_open. Retain document_id and revision; use background document selection and annotation tools. Render to inspect, save only to the requested absolute destination, and close the document when done. Poll job handles for recognition. Do not open the visible editor unless requested."
+            "Open the explicit source path with kxcapture_document_open. Retain document_id and revision; use background document selection and annotation tools. Render to inspect, save only to the requested absolute destination, and close the document when done. Poll job handles for recognition. Do not open the visible editor unless requested."
         }
         _ => {
             "Read recording state and displays. Start the requested region with explicit options. Retain recording_id and expected_revision for controls, report actual state, then stop to finalize the output. Never claim a file is saved before finalization succeeds."
@@ -233,19 +233,19 @@ mod tests {
     fn resources_reject_paths_and_untrusted_uri_components() {
         for uri in [
             "file:///secret",
-            "snow-shot://documents/../secret",
-            "snow-shot://jobs/",
-            "snow-shot://jobs/a?b",
-            "snow-shot://jobs/%2f",
+            "kxcapture://documents/../secret",
+            "kxcapture://jobs/",
+            "kxcapture://jobs/a?b",
+            "kxcapture://jobs/%2f",
         ] {
             assert!(resource_request(uri).is_err(), "{uri}");
         }
         assert_eq!(
-            resource_request("snow-shot://jobs/abc-123").unwrap(),
-            ("snow_shot_job_get", json!({"job_id":"abc-123"}))
+            resource_request("kxcapture://jobs/abc-123").unwrap(),
+            ("kxcapture_job_get", json!({"job_id":"abc-123"}))
         );
         assert_eq!(
-            resource_result("snow-shot://settings", json!({}), false).cache_scope,
+            resource_result("kxcapture://settings", json!({}), false).cache_scope,
             Some(CacheScope::Private)
         );
     }

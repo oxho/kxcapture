@@ -109,12 +109,12 @@
             <translation>文本识别失败</translation>
         </message>
         <message>
-            <source>The bundled text recognition runtime is damaged or incompatible. Reinstall Snow Shot for this Mac</source>
-            <translation>内置文本识别运行时已损坏或不兼容。请重新安装适用于此 Mac 的 Snow Shot</translation>
+            <source>The bundled text recognition runtime is damaged or incompatible. Reinstall KXCapture for this Mac</source>
+            <translation>内置文本识别运行时已损坏或不兼容。请重新安装适用于此 Mac 的 KX截屏</translation>
         </message>
         <message>
-            <source>The packaged text recognition runtime is missing or damaged. Repair or reinstall Snow Shot from Microsoft Store</source>
-            <translation>软件包中的文本识别运行时缺失或已损坏。请通过 Microsoft Store 修复或重新安装 Snow Shot</translation>
+            <source>The packaged text recognition runtime is missing or damaged. Repair or reinstall KXCapture from Microsoft Store</source>
+            <translation>软件包中的文本识别运行时缺失或已损坏。请通过 Microsoft Store 修复或重新安装 KX截屏</translation>
         </message>
         <message>
             <source>The text recognition component could not be started: %1</source>
@@ -220,8 +220,8 @@
             <translation>正在识别文本</translation>
         </message>
         <message>
-            <source>Snow Shot's visual understanding model is unavailable. Choose another model or retry</source>
-            <translation>Snow Shot 的视觉理解模型不可用。请选择其他模型或重试</translation>
+            <source>KXCapture's visual understanding model is unavailable. Choose another model or retry</source>
+            <translation>KX截屏 的视觉理解模型不可用。请选择其他模型或重试</translation>
         </message>
         <message>
             <source>Some text could not be translated</source>
@@ -280,8 +280,8 @@
             <translation>无法复制翻译结果</translation>
         </message>
         <message>
-            <source>Unable to load Snow Shot vision models</source>
-            <translation>无法加载 Snow Shot 视觉模型</translation>
+            <source>Unable to load KXCapture vision models</source>
+            <translation>无法加载 KX截屏 视觉模型</translation>
         </message>
         <message>
             <source>Unable to read the selected screenshot</source>

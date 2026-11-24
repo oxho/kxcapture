@@ -346,7 +346,7 @@ int serve(QApplication& application, const QString& directory) {
     });
     heartbeat.start(10);
     server.setRequestHandler([&](const ScreenshotMcpRequest& request, auto completion) {
-        if (request.method == QStringLiteral("snow_shot_mcp_status")) {
+        if (request.method == QStringLiteral("kxcapture_mcp_status")) {
             ScreenshotMcpResponse response;
             response.ok = true;
             response.result = {{QStringLiteral("reachable"), true},
@@ -373,19 +373,19 @@ int serve(QApplication& application, const QString& directory) {
         [&](quint64 owner, const QString& id) {
             server.publishEvent(
                 owner, {{QStringLiteral("event"), QStringLiteral("resource_changed")},
-                        {QStringLiteral("uri"), QStringLiteral("snow-shot://artifacts/") + id}});
+                        {QStringLiteral("uri"), QStringLiteral("kxcapture://artifacts/") + id}});
         });
     QObject::connect(
         &registry, &McpJobRegistry::changed, &server, [&](quint64 owner, const QString& id) {
             server.publishEvent(
                 owner, {{QStringLiteral("event"), QStringLiteral("resource_changed")},
-                        {QStringLiteral("uri"), QStringLiteral("snow-shot://jobs/") + id}});
+                        {QStringLiteral("uri"), QStringLiteral("kxcapture://jobs/") + id}});
         });
     QObject::connect(
         &documents, &McpDocumentService::changed, &server, [&](quint64 owner, const QString& id) {
             server.publishEvent(
                 owner, {{QStringLiteral("event"), QStringLiteral("resource_changed")},
-                        {QStringLiteral("uri"), QStringLiteral("snow-shot://documents/") + id}});
+                        {QStringLiteral("uri"), QStringLiteral("kxcapture://documents/") + id}});
         });
     QString error;
     require(server.start(&error), qPrintable(error));
@@ -433,14 +433,14 @@ void orientedFileDocuments(const QString& directory) {
                 "oriented document fixture is writable");
         file.close();
         const auto opened = call(
-            QStringLiteral("snow_shot_document_open"),
+            QStringLiteral("kxcapture_document_open"),
             {{QStringLiteral("source"), QStringLiteral("file")}, {QStringLiteral("path"), path}});
         require(opened.ok && opened.result.value(QStringLiteral("canvas_bounds")) ==
                                  QJsonArray{0, 0, 32, 64},
                 "admitted document canvas must use EXIF transformed dimensions");
         const QJsonObject document{{QStringLiteral("document_id"),
                                     opened.result.value(QStringLiteral("document_id")).toString()}};
-        const auto rendered = call(QStringLiteral("snow_shot_document_render"), document);
+        const auto rendered = call(QStringLiteral("kxcapture_document_render"), document);
         const QImage raster = QImage::fromData(rendered.attachment);
         require(rendered.ok && raster.size() == QSize(32, 64),
                 "oriented document output must match its admitted canvas dimensions");
@@ -449,7 +449,7 @@ void orientedFileDocuments(const QString& directory) {
         require(orientation == 6 ? top.red() > 240 && bottom.blue() > 240
                                  : top.blue() > 240 && bottom.red() > 240,
                 "document imports must preserve both EXIF quarter-turn directions");
-        require(call(QStringLiteral("snow_shot_document_close"), document).ok,
+        require(call(QStringLiteral("kxcapture_document_close"), document).ok,
                 "oriented source releases its document slot");
     }
     service.shutdown();
@@ -528,18 +528,18 @@ void documentReservations(const QString& directory) {
         };
         QStringList ids;
         for (int index = 0; index < 3; ++index) {
-            const auto result = call(QStringLiteral("snow_shot_document_open"),
+            const auto result = call(QStringLiteral("kxcapture_document_open"),
                                      {{QStringLiteral("source"), QStringLiteral("clipboard")}});
             require(result.ok, "source reservation baseline documents");
             ids.append(result.result.value(QStringLiteral("document_id")).toString());
         }
         std::optional<ScreenshotMcpResponse> blocked;
-        const auto requestId = dispatch(QStringLiteral("snow_shot_document_open"),
+        const auto requestId = dispatch(QStringLiteral("kxcapture_document_open"),
                                         {{QStringLiteral("source"), QStringLiteral("file")},
                                          {QStringLiteral("path"), largePath}},
                                         1, [&](auto response) { blocked = std::move(response); });
         wait([&] { return entered.available() == 1; });
-        const auto rejected = call(QStringLiteral("snow_shot_document_open"),
+        const auto rejected = call(QStringLiteral("kxcapture_document_open"),
                                    {{QStringLiteral("source"), QStringLiteral("file")},
                                     {QStringLiteral("path"), largePath}},
                                    sameOwner ? 1 : 2);
@@ -550,11 +550,11 @@ void documentReservations(const QString& directory) {
                     blocked->errorCode == QStringLiteral("canceled"),
                 "pending decode reservation is cancelable");
         release.release();
-        require(call(QStringLiteral("snow_shot_document_state"),
+        require(call(QStringLiteral("kxcapture_document_state"),
                      {{QStringLiteral("document_id"), ids.at(1)}})
                     .ok,
                 "canceled decode lane drains before reservation reuse");
-        require(call(QStringLiteral("snow_shot_document_open"),
+        require(call(QStringLiteral("kxcapture_document_open"),
                      {{QStringLiteral("source"), QStringLiteral("file")},
                       {QStringLiteral("path"), smallPath}})
                     .ok,
@@ -584,7 +584,7 @@ void documentSelectionStylesPreserveCanvasUnits() {
         request.requestId = QString::number(++sequence);
         request.idempotencyKey = request.requestId;
         request.expectedRevision = revision;
-        request.method = QStringLiteral("snow_shot_document_") + method;
+        request.method = QStringLiteral("kxcapture_document_") + method;
         request.params = std::move(params);
         std::optional<ScreenshotMcpResponse> response;
         service.request(request, [&](auto value) { response = std::move(value); });
@@ -692,7 +692,7 @@ void compactedDocumentsKeepEditingCoordinates(const QString& directory, int opac
         request.connectionId = 1;
         request.requestId = QString::number(++sequence);
         request.idempotencyKey = request.requestId;
-        request.method = QStringLiteral("snow_shot_document_") + method;
+        request.method = QStringLiteral("kxcapture_document_") + method;
         request.params = std::move(params);
         request.expectedRevision = 1;
         std::optional<ScreenshotMcpResponse> response;
@@ -763,7 +763,7 @@ void documentOutputReleasesThreadCaches(const QString& directory) {
         }
     };
     ports.beforeWorkerRequest = [&](const ScreenshotMcpRequest& request) {
-        if (request.method != QStringLiteral("snow_shot_document_state"))
+        if (request.method != QStringLiteral("kxcapture_document_state"))
             return;
         const auto diagnostics = ScreenshotSelectionShadowRenderer::diagnosticsForCurrentThread();
         retainedBytes = diagnostics.retainedBytes + diagnostics.regionCacheRetainedBytes;
@@ -795,7 +795,7 @@ void documentOutputReleasesThreadCaches(const QString& directory) {
         request.connectionId = 1;
         request.requestId = QString::number(++sequence);
         request.idempotencyKey = request.requestId;
-        request.method = QStringLiteral("snow_shot_document_") + method;
+        request.method = QStringLiteral("kxcapture_document_") + method;
         request.params = std::move(params);
         request.expectedRevision = 1;
         std::optional<ScreenshotMcpResponse> response;
@@ -845,7 +845,7 @@ void documentOutputReleasesThreadCaches(const QString& directory) {
     canceledRequest.connectionId = 1;
     canceledRequest.requestId = QString::number(++sequence);
     canceledRequest.idempotencyKey = canceledRequest.requestId;
-    canceledRequest.method = QStringLiteral("snow_shot_document_render");
+    canceledRequest.method = QStringLiteral("kxcapture_document_render");
     canceledRequest.params = {{QStringLiteral("document_id"), id}, {QStringLiteral("scale"), 3}};
     canceledRequest.expectedRevision = 1;
     std::optional<ScreenshotMcpResponse> canceledResponse;
@@ -910,23 +910,23 @@ void documentCacheWork(const QString& directory) {
             require(response.has_value(), "cache instrumentation request completed");
             return *response;
         };
-        const auto opened = call(QStringLiteral("snow_shot_document_open"),
+        const auto opened = call(QStringLiteral("kxcapture_document_open"),
                                  {{QStringLiteral("source"), QStringLiteral("clipboard")}});
         require(opened.ok, "cache instrumentation document opened");
         const auto id = opened.result.value(QStringLiteral("document_id")).toString();
         const QJsonObject document{{QStringLiteral("document_id"), id}};
         if (!evict) {
-            const auto copied = call(QStringLiteral("snow_shot_document_copy"), document);
+            const auto copied = call(QStringLiteral("kxcapture_document_copy"), document);
             require(copied.ok && renders == 1 && encodes == 1 && !clipboard->png.isEmpty(),
                     "cold copy creates one reusable raster and PNG");
         }
-        const auto cold = call(QStringLiteral("snow_shot_document_render"), document);
+        const auto cold = call(QStringLiteral("kxcapture_document_render"), document);
         require(cold.ok && renders == 1 && encodes == 1,
                 "first render reaches or reuses exactly one real raster and encoder boundary");
         if (!evict)
             require(clipboard->png == cold.attachment,
                     "render after cold copy retains the identical PNG bytes");
-        const auto warm = call(QStringLiteral("snow_shot_document_render"), document);
+        const auto warm = call(QStringLiteral("kxcapture_document_render"), document);
         if (evict) {
             require(
                 warm.ok && !warm.result.value(QStringLiteral("cache_hit")).toBool() &&
@@ -937,7 +937,7 @@ void documentCacheWork(const QString& directory) {
                         renders == 1 && encodes == 1 && warm.attachment == cold.attachment,
                     "valid render cache hit performs zero additional raster or encoder work");
             for (int index = 0; index < 2; ++index) {
-                const auto copied = call(QStringLiteral("snow_shot_document_copy"), document);
+                const auto copied = call(QStringLiteral("kxcapture_document_copy"), document);
                 require(copied.ok && renders == 1 && encodes == 1 &&
                             clipboard->png == cold.attachment,
                         "copy reuses the same immutable PNG as render without another encode");
@@ -949,21 +949,21 @@ void documentCacheWork(const QString& directory) {
             save.insert(QStringLiteral("compression_level"),
                         snow_shot::storage::ScreenshotSettings().compressionLevel());
             for (int index = 0; index < 2; ++index) {
-                const auto saved = call(QStringLiteral("snow_shot_document_save"), save);
+                const auto saved = call(QStringLiteral("kxcapture_document_save"), save);
                 require(saved.ok && saved.result.value(QStringLiteral("cache_hit")).toBool() &&
                             renders == 1 && encodes == 1,
                         "valid repeated PNG save cache hit performs zero additional raster or "
                         "encoder work");
             }
             const auto edit = call(
-                QStringLiteral("snow_shot_document_apply_annotations"),
+                QStringLiteral("kxcapture_document_apply_annotations"),
                 {{QStringLiteral("document_id"), id},
                  {QStringLiteral("operations"),
                   QJsonArray{QJsonObject{{QStringLiteral("type"), QStringLiteral("rectangle")},
                                          {QStringLiteral("bounds"), QJsonArray{5, 5, 20, 15}}}}}});
             require(edit.ok && edit.revision == 2, "cache revision invalidation edit accepted");
             revision = 2;
-            const auto changed = call(QStringLiteral("snow_shot_document_render"), document);
+            const auto changed = call(QStringLiteral("kxcapture_document_render"), document);
             require(changed.ok && !changed.result.value(QStringLiteral("cache_hit")).toBool() &&
                         renders == 2 && encodes == 2,
                     "new document revision performs fresh raster and encoder work");
@@ -978,7 +978,7 @@ void documentConcurrency() {
     int sourceResolutions = 0;
     McpDocumentService::Ports ports;
     ports.beforeWorkerRequest = [&](const ScreenshotMcpRequest& request) {
-        if (request.method == QStringLiteral("snow_shot_document_render") &&
+        if (request.method == QStringLiteral("kxcapture_document_render") &&
             request.params.value(QStringLiteral("document_id")).toString() == blockedId) {
             entered.release();
             release.acquire();
@@ -1023,12 +1023,12 @@ void documentConcurrency() {
     };
     QStringList ids;
     for (int index = 0; index < 4; ++index) {
-        const auto opened = call(QStringLiteral("snow_shot_document_open"),
+        const auto opened = call(QStringLiteral("kxcapture_document_open"),
                                  {{QStringLiteral("source"), QStringLiteral("clipboard")}});
         require(opened.ok, "documents admitted across independent worker lanes");
         ids.append(opened.result.value(QStringLiteral("document_id")).toString());
     }
-    require(call(QStringLiteral("snow_shot_document_open"),
+    require(call(QStringLiteral("kxcapture_document_open"),
                  {{QStringLiteral("source"), QStringLiteral("clipboard")}})
                     .errorCode == QStringLiteral("resource_limit"),
             "owner document limit is shared across all worker lanes");
@@ -1036,15 +1036,15 @@ void documentConcurrency() {
             "non-file sources reserve document slots before resolving pixels");
     blockedId = ids.first();
     std::optional<ScreenshotMcpResponse> rendered;
-    dispatch(QStringLiteral("snow_shot_document_render"),
+    dispatch(QStringLiteral("kxcapture_document_render"),
              {{QStringLiteral("document_id"), blockedId}},
              [&](auto response) { rendered = std::move(response); });
     wait([&] { return entered.available() == 1; });
     std::optional<ScreenshotMcpResponse> sameDocument;
-    dispatch(QStringLiteral("snow_shot_document_state"),
+    dispatch(QStringLiteral("kxcapture_document_state"),
              {{QStringLiteral("document_id"), blockedId}},
              [&](auto response) { sameDocument = std::move(response); });
-    const auto independent = call(QStringLiteral("snow_shot_document_state"),
+    const auto independent = call(QStringLiteral("kxcapture_document_state"),
                                   {{QStringLiteral("document_id"), ids.at(1)}});
     require(independent.ok && !rendered && !sameDocument,
             "unrelated lane progresses while blocked document retains its ordered queue");
@@ -1052,25 +1052,25 @@ void documentConcurrency() {
     wait([&] { return rendered.has_value() && sameDocument.has_value(); });
     require(rendered->ok && sameDocument->ok,
             "blocked lane resumes and completes all queued document work");
-    require(call(QStringLiteral("snow_shot_document_list"))
+    require(call(QStringLiteral("kxcapture_document_list"))
                     .result.value(QStringLiteral("documents"))
                     .toArray()
                     .size() == 4,
             "document listing aggregates every lane exactly once");
-    require(call(QStringLiteral("snow_shot_document_close"),
+    require(call(QStringLiteral("kxcapture_document_close"),
                  {{QStringLiteral("document_id"), ids.at(2)}})
                     .ok &&
-                call(QStringLiteral("snow_shot_document_open"),
+                call(QStringLiteral("kxcapture_document_open"),
                      {{QStringLiteral("source"), QStringLiteral("clipboard")}})
                     .ok,
             "closing a document releases shared admission capacity");
     for (quint64 owner = 2; owner <= 4; ++owner)
         for (int index = 0; index < 4; ++index)
-            require(call(QStringLiteral("snow_shot_document_open"),
+            require(call(QStringLiteral("kxcapture_document_open"),
                          {{QStringLiteral("source"), QStringLiteral("clipboard")}}, owner)
                         .ok,
                     "global document admission reaches the shared sixteen-document limit");
-    require(call(QStringLiteral("snow_shot_document_open"),
+    require(call(QStringLiteral("kxcapture_document_open"),
                  {{QStringLiteral("source"), QStringLiteral("clipboard")}}, 5)
                     .errorCode == QStringLiteral("resource_limit"),
             "adding worker lanes does not multiply the global document quota");
@@ -1094,7 +1094,7 @@ void canceledDocumentReplaysStayBounded() {
         request.connectionId = 1;
         request.requestId = QStringLiteral("canceled-replay-%1").arg(index);
         request.idempotencyKey = request.requestId;
-        request.method = QStringLiteral("snow_shot_document_open");
+        request.method = QStringLiteral("kxcapture_document_open");
         request.params = {{QStringLiteral("source"), QStringLiteral("clipboard")}};
         return request;
     };
@@ -1178,13 +1178,13 @@ void staleClipboardCallbacksPreserveReplacement() {
     ScreenshotMcpRequest request;
     request.connectionId = 1;
     request.requestId = request.idempotencyKey = QStringLiteral("clipboard-open");
-    request.method = QStringLiteral("snow_shot_document_open");
+    request.method = QStringLiteral("kxcapture_document_open");
     request.params = {{QStringLiteral("source"), QStringLiteral("clipboard")}};
     std::optional<ScreenshotMcpResponse> opened;
     service.request(request, [&](auto response) { opened = std::move(response); });
     wait([&] { return opened.has_value(); });
     require(opened->ok, "open clipboard replacement document");
-    request.method = QStringLiteral("snow_shot_document_copy");
+    request.method = QStringLiteral("kxcapture_document_copy");
     request.requestId = request.idempotencyKey = QStringLiteral("reused-copy");
     request.expectedRevision = 1;
     request.params = {
@@ -1225,7 +1225,7 @@ void documentChangeObserversMayDestroyService() {
     ScreenshotMcpRequest request;
     request.connectionId = 1;
     request.requestId = request.idempotencyKey = QStringLiteral("change-observer");
-    request.method = QStringLiteral("snow_shot_document_open");
+    request.method = QStringLiteral("kxcapture_document_open");
     request.params = {{QStringLiteral("source"), QStringLiteral("clipboard")}};
     int callbacks = 0;
     service->request(request, [&](auto) { ++callbacks; });
@@ -1266,7 +1266,7 @@ void cancelingDocumentReplayWaitersPreservesOriginal() {
     original.connectionId = 1;
     original.requestId = QStringLiteral("shared-original");
     original.idempotencyKey = QStringLiteral("shared-open");
-    original.method = QStringLiteral("snow_shot_document_open");
+    original.method = QStringLiteral("kxcapture_document_open");
     original.params = {{QStringLiteral("source"), QStringLiteral("clipboard")}};
     int originalCompletions = 0;
     std::optional<ScreenshotMcpResponse> opened;
@@ -1278,7 +1278,7 @@ void cancelingDocumentReplayWaitersPreservesOriginal() {
             "the original idempotent request waits for one source");
     auto independent = original;
     independent.requestId = QStringLiteral("independent-read-only");
-    independent.method = QStringLiteral("snow_shot_document_state");
+    independent.method = QStringLiteral("kxcapture_document_state");
     independent.params = {{QStringLiteral("document_id"), QStringLiteral("missing-document")}};
     int independentCompletions = 0;
     service.request(independent, [&](auto response) {
@@ -1330,7 +1330,7 @@ void documentReplayCallbacksAllowServiceDestruction(bool cancel) {
     original.connectionId = 1;
     original.requestId = QStringLiteral("replay-lifetime-original");
     original.idempotencyKey = QStringLiteral("replay-lifetime");
-    original.method = QStringLiteral("snow_shot_document_open");
+    original.method = QStringLiteral("kxcapture_document_open");
     original.params = {{QStringLiteral("source"), QStringLiteral("clipboard")}};
     int originalCompletions = 0;
     int waiterCompletions = 0;
@@ -1375,7 +1375,7 @@ void documentReplayCallbacksPreserveReusedRequestIds(bool cancel) {
     original.connectionId = 1;
     original.requestId = QStringLiteral("generation-original");
     original.idempotencyKey = QStringLiteral("generation-shared");
-    original.method = QStringLiteral("snow_shot_document_open");
+    original.method = QStringLiteral("kxcapture_document_open");
     original.params = {{QStringLiteral("source"), QStringLiteral("clipboard")}};
     auto waiter = original;
     waiter.requestId = QStringLiteral("generation-reused-alias");
@@ -1476,7 +1476,7 @@ void documentMemoryActivity() {
         request.connectionId = 1;
         request.requestId = QStringLiteral("delayed-source");
         request.idempotencyKey = request.requestId;
-        request.method = QStringLiteral("snow_shot_document_open");
+        request.method = QStringLiteral("kxcapture_document_open");
         request.params = {{QStringLiteral("source"), QStringLiteral("clipboard")}};
         int completions = 0;
         std::optional<ScreenshotMcpResponse> opened;
@@ -1518,7 +1518,7 @@ void documentMemoryActivity() {
         McpDocumentService::Ports ports;
         ports.jobs = &jobs;
         ports.beforeWorkerRequest = [&](const ScreenshotMcpRequest& request) {
-            if (request.method == QStringLiteral("snow_shot_document_render")) {
+            if (request.method == QStringLiteral("kxcapture_document_render")) {
                 entered.release();
                 release.acquire();
             }
@@ -1547,7 +1547,7 @@ void documentMemoryActivity() {
             return id;
         };
         std::optional<ScreenshotMcpResponse> opened;
-        dispatch(QStringLiteral("snow_shot_document_open"),
+        dispatch(QStringLiteral("kxcapture_document_open"),
                  {{QStringLiteral("source"), QStringLiteral("clipboard")}},
                  [&](auto response) { opened = std::move(response); });
         wait([&] { return opened.has_value(); });
@@ -1558,7 +1558,7 @@ void documentMemoryActivity() {
         int completions = 0;
         std::optional<ScreenshotMcpResponse> rendered;
         const auto renderRequest =
-            dispatch(QStringLiteral("snow_shot_document_render"),
+            dispatch(QStringLiteral("kxcapture_document_render"),
                      {{QStringLiteral("document_id"), documentId}}, [&](auto response) {
                          requireTrimBlocked();
                          ++completions;
@@ -1590,7 +1590,7 @@ void documentMemoryActivity() {
                 "late worker completion does not reply twice or pin retained source callbacks");
         if (outcome == Outcome::Disconnected) {
             std::optional<ScreenshotMcpResponse> listed;
-            dispatch(QStringLiteral("snow_shot_document_list"), {},
+            dispatch(QStringLiteral("kxcapture_document_list"), {},
                      [&](auto response) { listed = std::move(response); });
             wait([&] { return listed.has_value(); });
             require(listed->ok &&
@@ -1625,7 +1625,7 @@ void documentMemoryActivity() {
             request.connectionId = 2;
             request.requestId = QStringLiteral("during-shutdown");
             request.idempotencyKey = request.requestId;
-            request.method = QStringLiteral("snow_shot_document_open");
+            request.method = QStringLiteral("kxcapture_document_open");
             request.params = {{QStringLiteral("source"), QStringLiteral("clipboard")}};
             service.request(request, [&](auto result) {
                 requireTrimBlocked();
@@ -1727,7 +1727,7 @@ void recognitionModelDocuments(const QString& directory) {
         request.requestId = QString::number(++sequence);
         request.idempotencyKey = request.requestId;
         request.expectedRevision = revision;
-        request.method = QStringLiteral("snow_shot_") + method;
+        request.method = QStringLiteral("kxcapture_") + method;
         if (!id.isEmpty())
             params.insert(QStringLiteral("document_id"), id);
         request.params = std::move(params);
@@ -1842,7 +1842,7 @@ void recognitionModelDocuments(const QString& directory) {
     require(
         edit(QStringLiteral("set_model"), {{QStringLiteral("model"), QStringLiteral("vision-a")}})
                     .errorCode == QStringLiteral("action_unavailable") &&
-            !service.handles(QStringLiteral("snow_shot_document_set_recognition_model")),
+            !service.handles(QStringLiteral("kxcapture_document_set_recognition_model")),
         "MCP keeps its existing recognition interface without adding model selection actions");
     const auto tableAgain = recognize(QStringLiteral("table"));
     require(tableAgain.ok && tableAgain.result.value(QStringLiteral("html"))
@@ -1920,7 +1920,7 @@ void recognitionServiceTeardown() {
         ScreenshotMcpRequest request;
         request.connectionId = 29;
         request.requestId = QStringLiteral("open");
-        request.method = QStringLiteral("snow_shot_document_open");
+        request.method = QStringLiteral("kxcapture_document_open");
         request.idempotencyKey = QStringLiteral("teardown-open");
         request.params = {{QStringLiteral("source"), QStringLiteral("clipboard")}};
         std::optional<ScreenshotMcpResponse> opened;
@@ -1928,7 +1928,7 @@ void recognitionServiceTeardown() {
         await([&] { return opened.has_value(); });
         require(opened->ok, "create recognition teardown document");
         request.requestId = QStringLiteral("recognize");
-        request.method = QStringLiteral("snow_shot_document_recognize");
+        request.method = QStringLiteral("kxcapture_document_recognize");
         request.idempotencyKey = QStringLiteral("teardown-recognize");
         request.expectedRevision = opened->revision;
         request.params = {
@@ -1998,7 +1998,7 @@ void recognitionModelSourceBudget() {
             request.requestId = QString::number(++sequence);
             request.idempotencyKey = request.requestId;
             request.expectedRevision = 1;
-            request.method = QStringLiteral("snow_shot_") + method;
+            request.method = QStringLiteral("kxcapture_") + method;
             request.params = std::move(params);
             std::optional<ScreenshotMcpResponse> response;
             service.request(request, [&](auto result) { response = std::move(result); });
@@ -2097,7 +2097,7 @@ void documentWorkflows() {
         request.requestId = QString::number(++sequence);
         request.idempotencyKey = request.requestId;
         request.expectedRevision = revision;
-        request.method = QStringLiteral("snow_shot_") + method;
+        request.method = QStringLiteral("kxcapture_") + method;
         if (!id.isEmpty())
             params.insert(QStringLiteral("document_id"), id);
         request.params = std::move(params);
@@ -2312,8 +2312,8 @@ void documentWorkflows() {
         request.requestId = QString::number(++sequence);
         request.idempotencyKey = request.requestId;
         request.expectedRevision = revision;
-        request.method = text ? QStringLiteral("snow_shot_document_export_recognition")
-                              : QStringLiteral("snow_shot_document_copy");
+        request.method = text ? QStringLiteral("kxcapture_document_export_recognition")
+                              : QStringLiteral("kxcapture_document_copy");
         request.params = text ? copyText : QJsonObject{};
         request.params.insert(QStringLiteral("document_id"), id);
         int completions = 0;
@@ -2395,7 +2395,7 @@ void documentWorkflows() {
     pendingCopy.requestId = QString::number(++sequence);
     pendingCopy.idempotencyKey = pendingCopy.requestId;
     pendingCopy.expectedRevision = revision;
-    pendingCopy.method = QStringLiteral("snow_shot_document_copy");
+    pendingCopy.method = QStringLiteral("kxcapture_document_copy");
     pendingCopy.params = {{QStringLiteral("document_id"), id}};
     int copyCompletions = 0;
     service.request(pendingCopy, [&](auto) { ++copyCompletions; });
@@ -2442,7 +2442,7 @@ void documentClipboardTeardown() {
         request.connectionId = 11;
         request.requestId = QStringLiteral("open");
         request.idempotencyKey = request.requestId;
-        request.method = QStringLiteral("snow_shot_document_open");
+        request.method = QStringLiteral("kxcapture_document_open");
         request.params = {{QStringLiteral("source"), QStringLiteral("clipboard")}};
         std::optional<ScreenshotMcpResponse> opened;
         service->request(request, [&](auto response) { opened = std::move(response); });
@@ -2451,7 +2451,7 @@ void documentClipboardTeardown() {
         request.requestId = QStringLiteral("copy");
         request.idempotencyKey = request.requestId;
         request.expectedRevision = opened->revision;
-        request.method = QStringLiteral("snow_shot_document_copy");
+        request.method = QStringLiteral("kxcapture_document_copy");
         request.params = {
             {QStringLiteral("document_id"), opened->result.value(QStringLiteral("document_id"))}};
         int completions = 0;
@@ -2617,7 +2617,7 @@ void jobCallbacksAllowServiceDestruction() {
             ScreenshotMcpRequest request;
             request.connectionId = 1;
             request.requestId = QStringLiteral("cancel-lifetime");
-            request.method = QStringLiteral("snow_shot_job_cancel");
+            request.method = QStringLiteral("kxcapture_job_cancel");
             request.params = {{QStringLiteral("job_id"), id}};
             service->request(request, [&](auto) { ++responses; });
         } else if (variant == 1)
@@ -2652,7 +2652,7 @@ void jobCallbacksAllowServiceDestruction() {
         request.connectionId = 1;
         request.requestId = QStringLiteral("source-lifetime");
         request.idempotencyKey = request.requestId;
-        request.method = QStringLiteral("snow_shot_document_open");
+        request.method = QStringLiteral("kxcapture_document_open");
         request.params = {{QStringLiteral("source"), QStringLiteral("clipboard")}};
         int responses = 0;
         service->request(request, [&](auto) { ++responses; });
@@ -2767,14 +2767,14 @@ void disconnectedRetiresWorkBeforeNestedShutdown() {
             request.connectionId = owner;
             request.requestId = QStringLiteral("open");
             request.idempotencyKey = request.requestId;
-            request.method = QStringLiteral("snow_shot_document_open");
+            request.method = QStringLiteral("kxcapture_document_open");
             request.params = {{QStringLiteral("source"), QStringLiteral("clipboard")}};
             std::optional<ScreenshotMcpResponse> opened;
             service->request(request, [&](auto response) { opened = std::move(response); });
             waitUntil([&] { return opened.has_value(); });
             require(opened->ok, "open each owner's nested shutdown document");
             request.expectedRevision = opened->revision;
-            request.method = QStringLiteral("snow_shot_document_copy");
+            request.method = QStringLiteral("kxcapture_document_copy");
             request.params = {{QStringLiteral("document_id"),
                                opened->result.value(QStringLiteral("document_id"))}};
             for (int copy = 0; copy < 2; ++copy) {
@@ -2876,11 +2876,11 @@ void eraserDocuments(const QString& directory) {
         return *response;
     };
     const auto opened =
-        call(QStringLiteral("snow_shot_document_open"), {{QStringLiteral("path"), path}});
+        call(QStringLiteral("kxcapture_document_open"), {{QStringLiteral("path"), path}});
     require(opened.ok, "open eraser document");
     id = opened.result.value(QStringLiteral("document_id")).toString();
     const auto render = [&] {
-        const auto response = call(QStringLiteral("snow_shot_document_render"));
+        const auto response = call(QStringLiteral("kxcapture_document_render"));
         require(response.ok && response.attachmentMime == QStringLiteral("image/png"),
                 "eraser document renders a PNG attachment at the current revision");
         const auto rendered = QImage::fromData(response.attachment);
@@ -2889,7 +2889,7 @@ void eraserDocuments(const QString& directory) {
         return rendered;
     };
     require(
-        call(QStringLiteral("snow_shot_document_apply_annotations"),
+        call(QStringLiteral("kxcapture_document_apply_annotations"),
              {{QStringLiteral("operations"),
                QJsonArray{QJsonObject{{QStringLiteral("type"), QStringLiteral("rectangle")},
                                       {QStringLiteral("bounds"), QJsonArray{10, 10, 60, 50}}}}}},
@@ -2902,20 +2902,20 @@ void eraserDocuments(const QString& directory) {
             "annotation changes local and distant source pixels");
     for (const QString& tool :
          {QStringLiteral("rectangle_eraser"), QStringLiteral("brush_eraser")}) {
-        require(call(QStringLiteral("snow_shot_document_set_tool"),
+        require(call(QStringLiteral("kxcapture_document_set_tool"),
                      {{QStringLiteral("tool"), tool}}, true)
                     .ok,
                 "MCP accepts each new eraser tool");
         if (tool == QStringLiteral("brush_eraser")) {
             require(
-                call(QStringLiteral("snow_shot_document_set_tool_style"),
+                call(QStringLiteral("kxcapture_document_set_tool_style"),
                      {{QStringLiteral("target"), tool},
                       {QStringLiteral("style"), QJsonObject{{QStringLiteral("stroke_width"), 12}}}},
                      true)
                     .ok,
                 "brush MCP style accepts creation width");
             const auto invalid =
-                call(QStringLiteral("snow_shot_document_set_tool_style"),
+                call(QStringLiteral("kxcapture_document_set_tool_style"),
                      {{QStringLiteral("target"), tool},
                       {QStringLiteral("style"), QJsonObject{{QStringLiteral("opacity"), 0.5}}}},
                      true);
@@ -2925,14 +2925,14 @@ void eraserDocuments(const QString& directory) {
                                       ? QJsonArray{QJsonArray{5, 20}, QJsonArray{20, 35}}
                                       : QJsonArray{QJsonArray{10, 20}, QJsonArray{10, 35}};
         if (tool == QStringLiteral("rectangle_eraser")) {
-            require(!call(QStringLiteral("snow_shot_document_edit_elements"),
+            require(!call(QStringLiteral("kxcapture_document_edit_elements"),
                           {{QStringLiteral("action"), QStringLiteral("erase_path")},
                            {QStringLiteral("points"), QJsonArray{QJsonArray{10, 25}}}},
                           true)
                          .ok,
                     "rectangle MCP eraser requires two corners");
         }
-        require(call(QStringLiteral("snow_shot_document_edit_elements"),
+        require(call(QStringLiteral("kxcapture_document_edit_elements"),
                      {{QStringLiteral("action"), QStringLiteral("erase_path")},
                       {QStringLiteral("points"), points}},
                      true)
@@ -2942,7 +2942,7 @@ void eraserDocuments(const QString& directory) {
         require(erased.pixelColor(10, 25) == image.pixelColor(10, 25) &&
                     erased.pixelColor(70, 25) == before.pixelColor(70, 25),
                 "MCP eraser restores local background and preserves distant annotation");
-        require(call(QStringLiteral("snow_shot_document_undo"), {}, true).ok,
+        require(call(QStringLiteral("kxcapture_document_undo"), {}, true).ok,
                 "MCP eraser gesture is one undo transaction");
         require(render() == before, "undo restores complete annotation with original geometry");
     }
@@ -2982,45 +2982,45 @@ void documents(const QString& directory) {
         return *result;
     };
     const auto opened =
-        call(QStringLiteral("snow_shot_document_open"), {{QStringLiteral("path"), sourcePath}}, 1,
+        call(QStringLiteral("kxcapture_document_open"), {{QStringLiteral("path"), sourcePath}}, 1,
              {}, QStringLiteral("open-once"));
     require(opened.ok && opened.revision == 1, "open isolated background document");
     const QString id = opened.result.value(QStringLiteral("document_id")).toString();
     const auto duplicate =
-        call(QStringLiteral("snow_shot_document_open"), {{QStringLiteral("path"), sourcePath}}, 1,
+        call(QStringLiteral("kxcapture_document_open"), {{QStringLiteral("path"), sourcePath}}, 1,
              {}, QStringLiteral("open-once"));
     require(duplicate.ok && duplicate.result.value(QStringLiteral("document_id")) == id,
             "idempotent open never allocates a second document");
     const auto intruder =
-        call(QStringLiteral("snow_shot_document_state"), {{QStringLiteral("document_id"), id}}, 2);
+        call(QStringLiteral("kxcapture_document_state"), {{QStringLiteral("document_id"), id}}, 2);
     require(intruder.errorCode == QStringLiteral("document_not_found") &&
                 intruder.errorDetails.isEmpty(),
             "private background state is never exposed to another client");
     const auto annotation =
-        call(QStringLiteral("snow_shot_document_apply_annotations"),
+        call(QStringLiteral("kxcapture_document_apply_annotations"),
              {{QStringLiteral("document_id"), id},
               {QStringLiteral("operations"),
                QJsonArray{QJsonObject{{QStringLiteral("type"), QStringLiteral("rectangle")},
                                       {QStringLiteral("bounds"), QJsonArray{10, 10, 20, 20}}}}}},
              1, 1);
     require(annotation.ok && annotation.revision == 2, "independent runtime applies annotations");
-    const auto stale = call(QStringLiteral("snow_shot_document_undo"),
+    const auto stale = call(QStringLiteral("kxcapture_document_undo"),
                             {{QStringLiteral("document_id"), id}}, 1, 1);
     require(stale.errorCode == QStringLiteral("stale_revision"), "stale document edits rejected");
-    const auto cloned = call(QStringLiteral("snow_shot_document_clone"),
+    const auto cloned = call(QStringLiteral("kxcapture_document_clone"),
                              {{QStringLiteral("document_id"), id}}, 1, 2);
     require(cloned.ok && cloned.result.value(QStringLiteral("can_undo")).toBool(),
             "clone preserves independent history");
     const QString clone = cloned.result.value(QStringLiteral("document_id")).toString();
-    require(call(QStringLiteral("snow_shot_document_undo"),
+    require(call(QStringLiteral("kxcapture_document_undo"),
                  {{QStringLiteral("document_id"), clone}}, 1, 1)
                 .ok,
             "clone can undo its own annotation history");
-    require(call(QStringLiteral("snow_shot_document_state"), {{QStringLiteral("document_id"), id}})
+    require(call(QStringLiteral("kxcapture_document_state"), {{QStringLiteral("document_id"), id}})
                     .revision == 2,
             "clone edits do not affect original revision");
     require(
-        call(QStringLiteral("snow_shot_document_apply_annotations"),
+        call(QStringLiteral("kxcapture_document_apply_annotations"),
              {{QStringLiteral("document_id"), clone},
               {QStringLiteral("operations"),
                QJsonArray{QJsonObject{{QStringLiteral("type"), QStringLiteral("rectangle")},
@@ -3030,31 +3030,31 @@ void documents(const QString& directory) {
              1, 2)
             .ok,
         "eraser fixture creates separated elements");
-    const auto beforeErase = call(QStringLiteral("snow_shot_document_render"),
+    const auto beforeErase = call(QStringLiteral("kxcapture_document_render"),
                                   {{QStringLiteral("document_id"), clone}}, 1, 3);
-    require(call(QStringLiteral("snow_shot_document_edit_elements"),
+    require(call(QStringLiteral("kxcapture_document_edit_elements"),
                  {{QStringLiteral("document_id"), clone},
                   {QStringLiteral("action"), QStringLiteral("erase_path")},
                   {QStringLiteral("points"), QJsonArray{QJsonArray{9, 15}, QJsonArray{21, 15}}}},
                  1, 3)
                 .ok,
             "eraser uses pointer gesture geometry");
-    const auto erased = call(QStringLiteral("snow_shot_document_render"),
+    const auto erased = call(QStringLiteral("kxcapture_document_render"),
                              {{QStringLiteral("document_id"), clone}}, 1, 4);
     const auto beforePixels = QImage::fromData(beforeErase.attachment);
     const auto erasedPixels = QImage::fromData(erased.attachment);
     require(beforeErase.ok && erased.ok && beforePixels != erasedPixels &&
                 erasedPixels.copy(45, 5, 20, 20) == beforePixels.copy(45, 5, 20, 20),
             "eraser removes intersected geometry while preserving distant elements");
-    require(call(QStringLiteral("snow_shot_document_undo"),
+    require(call(QStringLiteral("kxcapture_document_undo"),
                  {{QStringLiteral("document_id"), clone}}, 1, 4)
                 .ok,
             "eraser is one undoable gesture");
-    require(QImage::fromData(call(QStringLiteral("snow_shot_document_render"),
+    require(QImage::fromData(call(QStringLiteral("kxcapture_document_render"),
                                   {{QStringLiteral("document_id"), clone}}, 1, 5)
                                  .attachment) == beforePixels,
             "one undo restores the complete erased path transaction");
-    require(call(QStringLiteral("snow_shot_document_edit_elements"),
+    require(call(QStringLiteral("kxcapture_document_edit_elements"),
                  {{QStringLiteral("document_id"), clone},
                   {QStringLiteral("action"), QStringLiteral("erase_path")},
                   {QStringLiteral("points"), QJsonArray{QJsonArray{-1, 15}}}},
@@ -3062,11 +3062,11 @@ void documents(const QString& directory) {
                     .errorCode == QStringLiteral("invalid_parameters"),
             "eraser rejects points outside source canvas");
     const auto selected = call(
-        QStringLiteral("snow_shot_document_set_selection"),
+        QStringLiteral("kxcapture_document_set_selection"),
         {{QStringLiteral("document_id"), id}, {QStringLiteral("bounds"), QJsonArray{0, 0, 40, 30}}},
         1, 2);
     require(selected.ok && selected.revision == 3, "background selection is independent");
-    const auto rendered = call(QStringLiteral("snow_shot_document_render"),
+    const auto rendered = call(QStringLiteral("kxcapture_document_render"),
                                {{QStringLiteral("document_id"), id}}, 1, 3);
     require(rendered.ok && QImage::fromData(rendered.attachment).size() == QSize(40, 30),
             "background render uses selected region without overlay widgets");
@@ -3075,14 +3075,14 @@ void documents(const QString& directory) {
             QString::fromLatin1(
                 QCryptographicHash::hash(rendered.attachment, QCryptographicHash::Sha256).toHex()),
         "render digest describes actual bytes");
-    const auto cached = call(QStringLiteral("snow_shot_document_render"),
+    const auto cached = call(QStringLiteral("kxcapture_document_render"),
                              {{QStringLiteral("document_id"), id}}, 1, 3);
     require(cached.ok && cached.result.value(QStringLiteral("cache_hit")).toBool() &&
                 cached.attachment == rendered.attachment,
             "unchanged background render reuses immutable cached image");
     const QString output = QDir(directory).filePath(QStringLiteral("saved.png"));
     const auto saved =
-        call(QStringLiteral("snow_shot_document_save"),
+        call(QStringLiteral("kxcapture_document_save"),
              {{QStringLiteral("document_id"), id}, {QStringLiteral("path"), output}}, 1, 3);
     require(saved.ok && QFileInfo::exists(output),
             "background save writes through canonical file service");
@@ -3092,7 +3092,7 @@ void documents(const QString& directory) {
           QStringLiteral("tiff"), QStringLiteral("pdf")}) {
         const auto path = QDir(directory).filePath(QStringLiteral("all-formats.") + format);
         const auto exported =
-            call(QStringLiteral("snow_shot_document_save"),
+            call(QStringLiteral("kxcapture_document_save"),
                  {{QStringLiteral("document_id"), id},
                   {QStringLiteral("path"), path},
                   {QStringLiteral("format"), format},
@@ -3123,7 +3123,7 @@ void documents(const QString& directory) {
             const auto decoded = snow_shot::image_codec::decodeFile(
                 file.fileName(), ScreenshotImageFileService::snowImageFormat(fileFormat));
             require(decoded.size() == QSize(40, 30), "saved image decodes with native codec");
-            const auto reopened = call(QStringLiteral("snow_shot_document_open"),
+            const auto reopened = call(QStringLiteral("kxcapture_document_open"),
                                        {{QStringLiteral("path"), file.fileName()}});
             if (!reopened.ok ||
                 reopened.result.value(QStringLiteral("canvas_bounds")) != QJsonArray{0, 0, 40, 30})
@@ -3135,7 +3135,7 @@ void documents(const QString& directory) {
             require(reopened.ok && reopened.result.value(QStringLiteral("canvas_bounds")) ==
                                        QJsonArray{0, 0, 40, 30},
                     "every saved raster format reopens through actual document source path");
-            require(call(QStringLiteral("snow_shot_document_close"),
+            require(call(QStringLiteral("kxcapture_document_close"),
                          {{QStringLiteral("document_id"),
                            reopened.result.value(QStringLiteral("document_id"))}},
                          1, 1)
@@ -3164,7 +3164,7 @@ void documents(const QString& directory) {
     }
     for (const auto& page : {QStringLiteral("image_size"), QStringLiteral("a4_portrait")}) {
         const auto path = QDir(directory).filePath(page + QStringLiteral(".pdf"));
-        require(call(QStringLiteral("snow_shot_document_save"),
+        require(call(QStringLiteral("kxcapture_document_save"),
                      {{QStringLiteral("document_id"), id},
                       {QStringLiteral("path"), path},
                       {QStringLiteral("format"), QStringLiteral("pdf")},
@@ -3180,7 +3180,7 @@ void documents(const QString& directory) {
                                    : "/MediaBox [0 0 595.27559055 841.88976378]"),
                 "PDF requested page geometry survives service routing");
     }
-    require(call(QStringLiteral("snow_shot_document_save"),
+    require(call(QStringLiteral("kxcapture_document_save"),
                  {{QStringLiteral("document_id"), id},
                   {QStringLiteral("path"), output},
                   {QStringLiteral("pdf_page_size"), QStringLiteral("invalid")}},
@@ -3188,7 +3188,7 @@ void documents(const QString& directory) {
                     .errorCode == QStringLiteral("invalid_parameters"),
             "invalid export options are rejected");
     const auto unavailable = call(
-        QStringLiteral("snow_shot_document_recognize"),
+        QStringLiteral("kxcapture_document_recognize"),
         {{QStringLiteral("document_id"), id}, {QStringLiteral("kind"), QStringLiteral("text")}}, 1,
         3);
     require(unavailable.errorCode == QStringLiteral("provider_unavailable"),
@@ -3197,12 +3197,12 @@ void documents(const QString& directory) {
     const auto artifact = service.storeArtifact(1, payload, QStringLiteral("application/json"));
     const auto artifactId = artifact.value(QStringLiteral("artifact_id")).toString();
     require(!artifactId.isEmpty(), "large outputs create an owned bounded artifact");
-    require(call(QStringLiteral("snow_shot_artifact_read"),
+    require(call(QStringLiteral("kxcapture_artifact_read"),
                  {{QStringLiteral("artifact_id"), artifactId}}, 2)
                     .errorCode == QStringLiteral("artifact_not_found"),
             "artifact ownership is private");
     const auto part =
-        call(QStringLiteral("snow_shot_artifact_read"),
+        call(QStringLiteral("kxcapture_artifact_read"),
              {{QStringLiteral("artifact_id"), artifactId}, {QStringLiteral("max_bytes"), 262144}});
     require(part.ok && part.attachment.size() == 262144 &&
                 !part.result.value(QStringLiteral("eof")).toBool(),
@@ -3212,13 +3212,13 @@ void documents(const QString& directory) {
                     QCryptographicHash::hash(payload, QCryptographicHash::Sha256).toHex()),
             "artifact digest covers all bytes");
     require(
-        call(QStringLiteral("snow_shot_artifact_read"),
+        call(QStringLiteral("kxcapture_artifact_read"),
              {{QStringLiteral("artifact_id"), artifactId}, {QStringLiteral("max_bytes"), 262145}})
                 .errorCode == QStringLiteral("invalid_parameters"),
         "artifact read rejects oversized chunks");
     QByteArray reconstructed = part.attachment;
     while (reconstructed.size() < payload.size()) {
-        const auto next = call(QStringLiteral("snow_shot_artifact_read"),
+        const auto next = call(QStringLiteral("kxcapture_artifact_read"),
                                {{QStringLiteral("artifact_id"), artifactId},
                                 {QStringLiteral("offset"), reconstructed.size()},
                                 {QStringLiteral("max_bytes"), 262144}});
@@ -3228,7 +3228,7 @@ void documents(const QString& directory) {
     }
     require(reconstructed == payload, "artifact chunks reconstruct exact original bytes");
     const auto eof = call(
-        QStringLiteral("snow_shot_artifact_read"),
+        QStringLiteral("kxcapture_artifact_read"),
         {{QStringLiteral("artifact_id"), artifactId}, {QStringLiteral("offset"), payload.size()}});
     require(eof.ok && eof.attachment.isEmpty() && eof.result.value(QStringLiteral("eof")).toBool(),
             "artifact EOF is an explicit empty binary chunk");
@@ -3256,21 +3256,21 @@ void documents(const QString& directory) {
     media.close();
     const auto fileId = fileArtifact->value(QStringLiteral("artifact_id")).toString();
     const auto filePart =
-        call(QStringLiteral("snow_shot_artifact_read"),
+        call(QStringLiteral("kxcapture_artifact_read"),
              {{QStringLiteral("artifact_id"), fileId}, {QStringLiteral("offset"), 660000}});
     require(filePart.ok && filePart.attachment == payload.mid(660000) &&
                 filePart.result.value(QStringLiteral("sha256")) ==
                     part.result.value(QStringLiteral("sha256")) &&
                 !QJsonDocument(filePart.result).toJson().contains("snow-shot-mcp-artifact-"),
             "file artifact reads immutable bytes without exposing private filesystem path");
-    require(call(QStringLiteral("snow_shot_artifact_read"),
+    require(call(QStringLiteral("kxcapture_artifact_read"),
                  {{QStringLiteral("artifact_id"), fileId}}, 2)
                     .errorCode == QStringLiteral("artifact_not_found"),
             "file artifacts enforce owner isolation");
-    require(call(QStringLiteral("snow_shot_artifact_release"),
+    require(call(QStringLiteral("kxcapture_artifact_release"),
                  {{QStringLiteral("artifact_id"), fileId}})
                     .ok &&
-                call(QStringLiteral("snow_shot_artifact_read"),
+                call(QStringLiteral("kxcapture_artifact_read"),
                      {{QStringLiteral("artifact_id"), fileId}})
                         .errorCode == QStringLiteral("artifact_not_found"),
             "releasing file artifact retires its handle");
@@ -3294,20 +3294,20 @@ void documents(const QString& directory) {
     require(fileError == QStringLiteral("file_unavailable"),
             "missing artifact source has stable error");
     artifactClock += 900000;
-    require(call(QStringLiteral("snow_shot_artifact_read"),
+    require(call(QStringLiteral("kxcapture_artifact_read"),
                  {{QStringLiteral("artifact_id"), artifactId}})
                     .errorCode == QStringLiteral("artifact_not_found"),
             "artifact expires at its advertised lifetime without waiting for timer tick");
     service.disconnected(1);
-    require(call(QStringLiteral("snow_shot_document_list"), {}, 2)
+    require(call(QStringLiteral("kxcapture_document_list"), {}, 2)
                 .result.value(QStringLiteral("documents"))
                 .toArray()
                 .isEmpty(),
             "disconnect releases owned documents without affecting other clients");
-    require(call(QStringLiteral("snow_shot_document_state"), {{QStringLiteral("document_id"), id}})
+    require(call(QStringLiteral("kxcapture_document_state"), {{QStringLiteral("document_id"), id}})
                     .errorCode == QStringLiteral("document_not_found"),
             "disconnected document handle expires");
-    require(call(QStringLiteral("snow_shot_artifact_read"),
+    require(call(QStringLiteral("kxcapture_artifact_read"),
                  {{QStringLiteral("artifact_id"), artifactId}})
                     .errorCode == QStringLiteral("artifact_not_found"),
             "disconnect releases artifacts");

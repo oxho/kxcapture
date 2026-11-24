@@ -189,9 +189,9 @@ int main(int argc, char** argv) {
             "a native preference write failure never commits application settings");
     const auto first = snow_shot::storage::storageBootstrapPath(
         fixture.path(),
-        QStringLiteral("C:/Program Files/WindowsApps/SnowApps.SnowShot_1.0.0.0_x64/bin"));
+        QStringLiteral("C:/Program Files/WindowsApps/Example.Package_1.0.0.0_x64/bin"));
     const auto updated = snow_shot::storage::storageBootstrapPath(
-        fixture.path(), QStringLiteral("D:/WindowsApps/SnowApps.SnowShot_2.0.0.0_arm64/bin"));
+        fixture.path(), QStringLiteral("D:/WindowsApps/Example.Package_2.0.0.0_arm64/bin"));
     require(first == updated,
             "package version, volume and architecture do not change a saved storage selection");
     const auto custom = fixture.filePath(QStringLiteral("custom-data"));
@@ -202,7 +202,7 @@ int main(int argc, char** argv) {
     selection.close();
     require(snow_shot::storage::savedStorageDirectory(
                 fixture.path(),
-                QStringLiteral("D:/WindowsApps/SnowApps.SnowShot_2.0.0.0_arm64/bin")) == custom,
+                QStringLiteral("D:/WindowsApps/Example.Package_2.0.0.0_arm64/bin")) == custom,
             "an update restores the same custom data directory");
     return 0;
 }

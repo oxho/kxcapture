@@ -51,7 +51,7 @@ using adqt::widgets::AdModal;
     QT_TRANSLATE_NOOP("ImageStitchingWindow", "%1: %2"),
     QT_TRANSLATE_NOOP("ImageStitchingWindow", "Add images"),
     QT_TRANSLATE_NOOP("ImageStitchingWindow",
-                      "Allow Snow Shot to access Finder in System Settings > "
+                      "Allow KXCapture to access Finder in System Settings > "
                       "Privacy & Security > Automation, then try again"),
     QT_TRANSLATE_NOOP("ImageStitchingWindow",
                       "All images will be removed from this stitching session"),
@@ -122,7 +122,7 @@ QString imageFilter() {
 QString selectedFileErrorText(platform::SelectedFileError error) {
     switch (error) {
     case platform::SelectedFileError::PermissionDenied:
-        return imageStitchingText("Allow Snow Shot to access Finder in System Settings > Privacy & "
+        return imageStitchingText("Allow KXCapture to access Finder in System Settings > Privacy & "
                                   "Security > Automation, then try again");
     case platform::SelectedFileError::Timeout:
         return imageStitchingText(
@@ -1227,7 +1227,7 @@ struct ImageStitchingWindow::Impl {
                 QStringLiteral("%1 (*.pdf)").arg(imageStitchingText("PDF documents")));
             dialog->setDefaultSuffix(QStringLiteral("pdf"));
             dialog->setOption(QFileDialog::DontConfirmOverwrite, false);
-            dialog->selectFile(QStringLiteral("SnowShot_%1.pdf")
+            dialog->selectFile(QStringLiteral("KXCapture_%1.pdf")
                                    .arg(QDateTime::currentDateTime().toString(
                                        QStringLiteral("yyyy-MM-dd_HH-mm-ss"))));
         } else {

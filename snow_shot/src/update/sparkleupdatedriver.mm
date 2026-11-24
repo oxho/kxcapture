@@ -249,7 +249,7 @@ class SparkleUpdateDriver final : public MacOSUpdateDriver {
     void (^__strong choiceBlock)(SPUUserUpdateChoice) = nil;
     void (^__strong installBlock)(void) = nil;
     UpdateStatus status;
-    QString mode = QStringLiteral("next_launch");
+    QString mode = QStringLiteral("manual");
     QString primaryFeed;
     QString mirrorFeed;
     QString operation;

@@ -12,7 +12,10 @@
 #endif
 #endif
 #ifndef SNOW_SHOT_PRIVACY_POLICY_URL
-#define SNOW_SHOT_PRIVACY_POLICY_URL "https://snowshot.top/privacy.html"
+#define SNOW_SHOT_PRIVACY_POLICY_URL ""
+#endif
+#ifndef SNOW_SHOT_TERMS_URL
+#define SNOW_SHOT_TERMS_URL ""
 #endif
 
 namespace snow_shot::app::distribution {
@@ -24,10 +27,7 @@ struct Policy {
 
 // Package identity is authoritative even when a standalone binary was accidentally packaged.
 [[nodiscard]] inline Policy resolvePolicy(bool storeBuild, const QString& runtimeFamily) {
-    return {storeBuild || !runtimeFamily.isEmpty(),
-            runtimeFamily.isEmpty() && storeBuild
-                ? QStringLiteral("SnowApps.SnowShot_3pp9w6ncw7bs0")
-                : runtimeFamily};
+    return {storeBuild || !runtimeFamily.isEmpty(), runtimeFamily};
 }
 
 [[nodiscard]] QString runtimePackageFamilyName();
@@ -74,7 +74,7 @@ struct Policy {
     const auto local = localApplicationDataDirectory();
     return local.isEmpty() ? QString()
                            : QDir(local).filePath(
-                                 QStringLiteral("Microsoft/WindowsApps/snow-shot-store-mcp.exe"));
+                                 QStringLiteral("Microsoft/WindowsApps/kxcapture-mcp.exe"));
 }
 
 [[nodiscard]] inline QString privacyPolicyUrl() {
@@ -82,7 +82,7 @@ struct Policy {
 }
 
 [[nodiscard]] inline QString userAgreementUrl() {
-    return QStringLiteral("https://snowshot.top/terms.html");
+    return QString::fromUtf8(SNOW_SHOT_TERMS_URL);
 }
 
 } // namespace snow_shot::app::distribution

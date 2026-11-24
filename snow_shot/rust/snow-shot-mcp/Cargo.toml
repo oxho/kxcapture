@@ -6,10 +6,13 @@ license = "GPL-3.0-only"
 publish = false
 
 [[bin]]
-name = "snow-shot-mcp"
+name = "kxcapture-mcp"
 path = "src/main.rs"
 
 [features]
+default = ["ocr"]
+ocr = []
+translation = []
 mini = []
 store = []
 

@@ -52,7 +52,7 @@ class MacOSOcrAssets(unittest.TestCase):
 
 
     def test_bundle_data_is_sealed_as_resources_with_stable_lookup_paths(self):
-        app = self.root / 'Snow Shot.app'
+        app = self.root / 'KXCapture.app'
         data = app / 'Contents/MacOS/assets/ocr/model.onnx'
         data.parent.mkdir(parents=True)
         data.write_bytes(b'pinned model')
@@ -67,7 +67,7 @@ class MacOSOcrAssets(unittest.TestCase):
             ocr.prepare_bundle(app)
 
     def test_bundle_preparation_removes_reused_loose_audio_and_preserves_ocr(self):
-        app = self.root / 'Snow Shot.app'
+        app = self.root / 'KXCapture.app'
         runtime = app / 'Contents/MacOS'
         resources = app / 'Contents/Resources'
         for directory in (runtime, resources):
@@ -95,7 +95,7 @@ class MacOSOcrAssets(unittest.TestCase):
                 (runtime / 'audios').symlink_to('../Resources/audios')
 
     def test_bundle_audio_cleanup_preserves_unrelated_files_and_external_link_targets(self):
-        app = self.root / 'Snow Shot.app'
+        app = self.root / 'KXCapture.app'
         runtime = app / 'Contents/MacOS'
         resources = app / 'Contents/Resources'
         external = self.root / 'external.mp3'
@@ -115,7 +115,7 @@ class MacOSOcrAssets(unittest.TestCase):
             self.assertEqual((resources / 'audios' / (name + '.mp3')).read_bytes(), name.encode())
 
     def test_bundle_audio_cleanup_removes_destination_only_files_and_empty_directories(self):
-        app = self.root / 'Snow Shot.app'
+        app = self.root / 'KXCapture.app'
         runtime = app / 'Contents/MacOS'
         resources = app / 'Contents/Resources'
         runtime.mkdir(parents=True)
@@ -157,7 +157,7 @@ class MacOSOcrAssets(unittest.TestCase):
         self.assertEqual(result['runtime']['delivery'], 'bundled')
         self.assertEqual(result['runtime']['protocol'], 8)
         self.assertNotIn('archive', result['runtime'])
-        with (self.runtime / 'snow-ocr-process').open('ab') as binary:
+        with (self.runtime / 'kxcapture-ocr').open('ab') as binary:
             binary.write(b'new signature')
         with self.assertRaisesRegex(ValueError, 'finalized runtime bytes'):
             ocr.verify_assets(self.source, self.runtime)
@@ -166,7 +166,7 @@ class MacOSOcrAssets(unittest.TestCase):
 
     def test_packaging_rejects_same_size_runtime_and_model_corruption(self):
         ocr.finalize(self.source, self.runtime)
-        for path in (self.runtime / 'snow-ocr-process', self.model / 'det.onnx',
+        for path in (self.runtime / 'kxcapture-ocr', self.model / 'det.onnx',
                      self.model / 'rec.onnx', self.model / 'dict.txt',
                      self.runtime / 'assets/ocr/models/paragraph-id/line2para_1.onnx'):
             with self.subTest(file=path.name):
@@ -184,12 +184,12 @@ class MacOSOcrAssets(unittest.TestCase):
         self.run.return_value = 'snow-ocr-process 1.2.0 macos-x86_64 protocol 8'
         with patch.object(ocr, 'stage_models'):
             self.command('stage', '--arch', 'x64',
-                         '--worker', self.runtime / 'snow-ocr-process')
+                         '--worker', self.runtime / 'kxcapture-ocr')
         result = ocr.verify_assets(self.source, self.runtime, arch='x64')
         self.assertEqual(result['runtime']['platform'], 'macos-x64')
         self.assertEqual(result['runtime']['protocol'], 8)
         self.assertEqual(result['models'], self.source['models'])
-        self.assertEqual([item['name'] for item in result['runtime']['files']], ['snow-ocr-process'])
+        self.assertEqual([item['name'] for item in result['runtime']['files']], ['kxcapture-ocr'])
         report = self.root / 'x64-report.json'
         self.command('verify', '--arch', 'x64', '--report', report)
         self.assertEqual(json.loads(report.read_text())['platform'], 'macos-x64')
@@ -212,12 +212,12 @@ class MacOSOcrAssets(unittest.TestCase):
         ocr.atomic_json(manifest, value)
         with self.assertRaisesRegex(ValueError, 'finalized runtime bytes'):
             ocr.verify_assets(self.source, self.runtime, arch='x64')
-        (self.runtime / 'snow-ocr-process').write_bytes(ocr.ARM64_HEADER + bytes(24))
+        (self.runtime / 'kxcapture-ocr').write_bytes(ocr.ARM64_HEADER + bytes(24))
         with self.assertRaisesRegex(ValueError, 'thin x64'):
             ocr.runtime_manifest(self.source, self.runtime, arch='x64')
 
     def test_x64_bundle_audit_inspects_the_x86_64_slice(self):
-        app = self.root / 'Snow Shot.app'
+        app = self.root / 'KXCapture.app'
         binary = app / 'Contents/MacOS/snow_shot'
         binary.parent.mkdir(parents=True)
         binary.write_bytes(ocr.X64_HEADER + bytes(24))
@@ -254,14 +254,14 @@ class MacOSOcrAssets(unittest.TestCase):
     def test_runtime_only_stage_removes_stale_models_and_retains_download_metadata(self):
         cache = self.root / 'cache'
         with patch.object(ocr, 'stage_models', side_effect=AssertionError('models must not stage')):
-            self.command('stage', '--worker', self.runtime / 'snow-ocr-process',
+            self.command('stage', '--worker', self.runtime / 'kxcapture-ocr',
                          '--runtime-only', '--cache', cache)
         self.assertFalse((self.runtime / 'assets/ocr/models').exists())
         self.assertFalse(cache.exists())
         result = ocr.verify_assets(self.source, self.runtime, runtime_only=True)
         self.assertEqual(result['default_model'], 'small')
         self.assertEqual(result['models'], self.source['models'])
-        self.assertEqual([item['name'] for item in result['runtime']['files']], ['snow-ocr-process'])
+        self.assertEqual([item['name'] for item in result['runtime']['files']], ['kxcapture-ocr'])
         self.command('finalize', '--runtime-only')
         report = self.root / 'runtime-only-report.json'
         self.command('verify', '--runtime-only', '--report', report)
@@ -279,7 +279,7 @@ class MacOSOcrAssets(unittest.TestCase):
         ocr.finalize(self.source, self.runtime, runtime_only=True)
         result = ocr.verify_assets(self.source, self.runtime, runtime_only=True)
         self.assertEqual([item['name'] for item in result['runtime']['files']],
-                         ['snow-ocr-process'])
+                         ['kxcapture-ocr'])
         models = self.runtime / 'assets/ocr/models'
         models.symlink_to(self.root / 'missing-model-directory')
         with self.assertRaisesRegex(ValueError, 'must not contain bundled models'):
@@ -291,7 +291,7 @@ class MacOSOcrAssets(unittest.TestCase):
         self.model.rename(cached)
         ocr.remove_bundled_models(self.runtime)
         (self.runtime / 'assets/ocr/models').symlink_to(cached.parent)
-        self.command('stage', '--worker', self.runtime / 'snow-ocr-process',
+        self.command('stage', '--worker', self.runtime / 'kxcapture-ocr',
                      '--runtime-only')
         self.assertFalse((self.runtime / 'assets/ocr/models').is_symlink())
         self.assertTrue((cached / 'det.onnx').exists())
@@ -305,7 +305,7 @@ class MacOSOcrAssets(unittest.TestCase):
                 operation(self.runtime)
             self.assertEqual((cached / 'models/small-id/det.onnx').read_bytes(), b'det.onnx')
         with self.assertRaisesRegex(ValueError, 'Invalid bundled resource directory'):
-            self.command('stage', '--worker', self.runtime / 'snow-ocr-process',
+            self.command('stage', '--worker', self.runtime / 'kxcapture-ocr',
                          '--runtime-only')
         self.assertTrue((cached / 'models/small-id/rec.onnx').is_file())
 
@@ -322,7 +322,7 @@ class MacOSOcrAssets(unittest.TestCase):
         self.runtime.rename(cached)
         self.runtime.symlink_to(cached)
         with self.assertRaisesRegex(ValueError, 'Invalid bundled resource directory'):
-            self.command('stage', '--worker', self.runtime / 'snow-ocr-process',
+            self.command('stage', '--worker', self.runtime / 'kxcapture-ocr',
                          '--runtime-only')
         self.assertEqual((cached / 'assets/ocr/models/small-id/det.onnx').read_bytes(), b'det.onnx')
 
@@ -331,7 +331,7 @@ class MacOSOcrAssets(unittest.TestCase):
         cached.mkdir(parents=True)
         for item in self.source['models'][0]['files']:
             ocr.copy_changed(self.model / item['name'], cached / item['name'])
-        arguments = ('--worker', self.runtime / 'snow-ocr-process',
+        arguments = ('--worker', self.runtime / 'kxcapture-ocr',
                      '--cache', cached.parent)
         self.command('stage', *arguments, '--runtime-only')
         with patch.object(ocr.urllib.request, 'urlopen', side_effect=AssertionError('network')):
@@ -341,7 +341,7 @@ class MacOSOcrAssets(unittest.TestCase):
             self.assertTrue(ocr.valid(self.model / item['name'], item))
 
     def test_runtime_only_bundle_preparation_cleans_reused_resource_models(self):
-        app = self.root / 'Snow Shot Mini.app'
+        app = self.root / 'KXCapture Mini.app'
         resources = app / 'Contents/Resources/assets'
         stale = resources / 'ocr/models/old-small-id/rec.onnx'
         stale.parent.mkdir(parents=True)
@@ -365,7 +365,7 @@ class MacOSOcrAssets(unittest.TestCase):
         self.assertTrue((resources / 'ocr/asset-manifest.json').is_file())
 
     def test_runtime_only_bundle_preparation_rejects_external_resource_links(self):
-        app = self.root / 'Snow Shot Mini.app'
+        app = self.root / 'KXCapture Mini.app'
         runtime = app / 'Contents/MacOS'
         resources = app / 'Contents/Resources'
         runtime.mkdir(parents=True)
@@ -377,7 +377,7 @@ class MacOSOcrAssets(unittest.TestCase):
         self.assertTrue((self.model / 'det.onnx').exists())
 
     def test_runtime_only_resource_merge_never_overwrites_destination_model_cache(self):
-        app = self.root / 'Snow Shot Mini.app'
+        app = self.root / 'KXCapture Mini.app'
         source = app / 'Contents/MacOS/assets/ocr'
         resources = app / 'Contents/Resources/assets/ocr'
         incoming = source / 'models/small-id/rec.onnx'
@@ -399,7 +399,7 @@ class MacOSOcrAssets(unittest.TestCase):
         self.assertEqual(json.loads((resources / 'asset-manifest.json').read_text()), self.source)
 
     def test_runtime_only_bundle_without_source_rejects_external_resources(self):
-        app = self.root / 'Snow Shot Mini.app'
+        app = self.root / 'KXCapture Mini.app'
         resources = app / 'Contents/Resources'
         resources.mkdir(parents=True)
         (resources / 'assets').symlink_to(self.runtime / 'assets')
@@ -409,7 +409,7 @@ class MacOSOcrAssets(unittest.TestCase):
         self.assertEqual((self.model / 'det.onnx').read_bytes(), b'det.onnx')
 
     def test_runtime_only_bundle_rejects_external_ocr_and_resource_ancestors(self):
-        app = self.root / 'Snow Shot Mini.app'
+        app = self.root / 'KXCapture Mini.app'
         resources = app / 'Contents/Resources'
         assets = resources / 'assets'
         assets.mkdir(parents=True)
@@ -427,7 +427,7 @@ class MacOSOcrAssets(unittest.TestCase):
         self.assertEqual((self.model / 'rec.onnx').read_bytes(), b'rec.onnx')
 
     def test_runtime_only_cleanup_accepts_valid_executable_resource_link(self):
-        app = self.root / 'Snow Shot Mini.app'
+        app = self.root / 'KXCapture Mini.app'
         runtime = app / 'Contents/MacOS'
         resources = app / 'Contents/Resources'
         runtime.mkdir(parents=True)
@@ -449,7 +449,7 @@ class MacOSOcrAssets(unittest.TestCase):
         ocr.finalize(self.source, self.runtime)
         result = ocr.verify_assets(self.source, self.runtime)
         self.assertEqual([item['name'] for item in result['runtime']['files']],
-                         ['snow-ocr-process'])
+                         ['kxcapture-ocr'])
 
     def test_missing_model_or_marker_prevents_release(self):
         ocr.finalize(self.source, self.runtime)
@@ -467,7 +467,7 @@ class MacOSOcrAssets(unittest.TestCase):
             ocr.finalize(self.source, self.runtime)
 
     def test_wrong_architecture_and_permissions_are_rejected(self):
-        binary = self.runtime / 'snow-ocr-process'
+        binary = self.runtime / 'kxcapture-ocr'
         binary.chmod(0o644)
         with self.assertRaisesRegex(ValueError, 'not executable'):
             ocr.finalize(self.source, self.runtime)
@@ -532,7 +532,7 @@ class MacOSOcrAssets(unittest.TestCase):
         libraries.mkdir()
         dependency = libraries / 'libz.dylib'
         dependency.write_bytes(ocr.ARM64_HEADER + bytes(24))
-        worker = self.runtime / 'snow-ocr-process'
+        worker = self.runtime / 'kxcapture-ocr'
         def inspect(*args):
             path = Path(args[-1])
             if '-D' in args:
@@ -560,7 +560,7 @@ class MacOSOcrAssets(unittest.TestCase):
         for item in self.source['models'][0]['files']:
             ocr.copy_changed(self.model / item['name'], cache / 'ocr-models-small-id' / item['name'])
         marker = self.runtime / 'assets/ocr/development-libraries.json'
-        worker = self.runtime / 'snow-ocr-process'
+        worker = self.runtime / 'kxcapture-ocr'
         unrelated = self.runtime / 'unrelated.dylib'
         unrelated.write_bytes(b'unrelated application library')
 
@@ -603,7 +603,7 @@ class MacOSOcrAssets(unittest.TestCase):
         retired = self.runtime / 'libonnxruntime.dylib'
         retired.write_bytes(b'old inference runtime')
         for attempt in range(2):
-            self.command('stage', '--worker', self.runtime / 'snow-ocr-process', '--runtime-only')
+            self.command('stage', '--worker', self.runtime / 'kxcapture-ocr', '--runtime-only')
             self.assertFalse(retired.exists())
             self.assertFalse((self.runtime / 'assets/ocr/development-libraries.json').exists())
             ocr.verify_assets(self.source, self.runtime, runtime_only=True)
@@ -612,7 +612,7 @@ class MacOSOcrAssets(unittest.TestCase):
         app = self.root / 'Reused App.app'
         runtime = app / 'Contents/MacOS'
         runtime.mkdir(parents=True)
-        worker = runtime / 'snow-ocr-process'
+        worker = runtime / 'kxcapture-ocr'
         worker.write_bytes(ocr.ARM64_HEADER + bytes(24))
         libraries = self.root / 'upstream'
         libraries.mkdir()
@@ -631,7 +631,7 @@ class MacOSOcrAssets(unittest.TestCase):
         runtime.mkdir(parents=True)
         libraries = self.root / 'upstream'
         libraries.mkdir()
-        worker = runtime / 'snow-ocr-process'
+        worker = runtime / 'kxcapture-ocr'
         worker.write_bytes(ocr.ARM64_HEADER + bytes(24))
         for directory, names in ((runtime, ('libonnxruntime.dylib', 'libretired.dylib', 'libz.dylib')),
                                  (libraries, ('libz.dylib',))):
@@ -717,7 +717,7 @@ class MacOSOcrAssets(unittest.TestCase):
             ocr.remove_development_libraries(self.runtime)
 
     def test_bundle_rejects_wrong_arch_newer_os_and_unresolved_dependencies(self):
-        app = self.root / 'Snow Shot.app'
+        app = self.root / 'KXCapture.app'
         binary = app / 'Contents/MacOS/snow_shot'
         binary.parent.mkdir(parents=True)
         binary.write_bytes(ocr.ARM64_HEADER + bytes(24))

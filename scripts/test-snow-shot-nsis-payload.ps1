@@ -132,8 +132,8 @@ set(CPACK_PACKAGE_NAME snow-shot-payload-fixture)
 set(CPACK_PACKAGE_VENDOR "$identity")
 set(CPACK_PACKAGE_INSTALL_REGISTRY_KEY "$identity-Full")
 set(CPACK_PACKAGE_INSTALL_DIRECTORY "$identity")
-set(CPACK_NSIS_DISPLAY_NAME "Snow Shot payload fixture")
-set(CPACK_NSIS_PACKAGE_NAME "Snow Shot payload fixture")
+set(CPACK_NSIS_DISPLAY_NAME "KXCapture payload fixture")
+set(CPACK_NSIS_PACKAGE_NAME "KXCapture payload fixture")
 set(CPACK_NSIS_UNINSTALL_NAME "Uninstall Payload Fixture")
 set(CPACK_NSIS_INSTALL_ROOT "$fixtureInstallRoot")
 set(CPACK_NSIS_MODIFY_PATH OFF)
@@ -187,8 +187,8 @@ include("$repoCmake/cmake/SnowShotMiniPackage.cmake")
         $output = Join-Path $caseRoot 'output'
         New-Item -ItemType Directory -Path (Join-Path $stage 'bin'),
             (Join-Path $stage ('share/' + [char]0x6587)), $output -Force | Out-Null
-        $application = if ($edition -eq 'Mini') { 'snow_shot_mini.exe' } else { 'snow_shot.exe' }
-        $updaterName = if ($edition -eq 'Mini') { 'snow-shot-mini-updater.exe' } else { 'snow-shot-updater.exe' }
+        $application = if ($edition -eq 'Mini') { 'kxcapture_mini.exe' } else { 'kxcapture.exe' }
+        $updaterName = if ($edition -eq 'Mini') { 'kxcapture-mini-updater.exe' } else { 'kxcapture-updater.exe' }
         Copy-Item -LiteralPath $extractor -Destination (Join-Path $stage "bin/$application")
         Copy-Item -LiteralPath $updater -Destination (Join-Path $stage "bin/$updaterName")
         [IO.File]::WriteAllBytes((Join-Path $stage 'empty.txt'), [byte[]]::new(0))
@@ -268,7 +268,7 @@ include("$repoCmake/cmake/SnowShotMiniPackage.cmake")
             $argument = '/D=' + $destination + $(if ($trailingSeparator) { '\' } else { '' })
             $exit = Invoke-Fixture $installer ('/S ' + $argument)
             if ($exit -ne 0) { throw "$edition installation failed with exit $exit (trailing separator: $trailingSeparator)." }
-            $uninstallerName = if ($edition -eq 'Mini') { 'Uninstall Snow Shot Mini.exe' } else { 'Uninstall Payload Fixture.exe' }
+            $uninstallerName = if ($edition -eq 'Mini') { 'Uninstall KXCapture Mini.exe' } else { 'Uninstall Payload Fixture.exe' }
             $actual = Get-TreeManifest $destination @($uninstallerName, 'payload-install-complete.txt')
             if (($actual -join "`n") -cne ($expected -join "`n")) {
                 throw "$edition installed files differ from the exact staged inventory."

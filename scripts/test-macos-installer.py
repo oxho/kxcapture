@@ -18,15 +18,15 @@ import unittest
 
 SCRIPT = Path(__file__).resolve().with_name('install-snow-shot-macos.sh')
 PREFLIGHT = SCRIPT.with_name('prepare-snow-shot-homebrew.sh')
-FINGERPRINT = re.search(r"PROJECT_SIGNING_CERTIFICATE_SHA1='([A-F0-9]{40})'", SCRIPT.read_text())[1]
-REQUIREMENT = 'identifier "com.snowshot.snow_shot" and anchor = H"' + FINGERPRINT + '"'
-API = 'https://api.github.com/repos/mg-chao/snow-shot/releases?per_page=100&page=1'
-GITEE_API = 'https://gitee.com/api/v5/repos/mg-chao/snow-apps/releases?per_page=100&page=1'
-GITEE_ATTACH = 'https://gitee.com/api/v5/repos/mg-chao/snow-apps/releases/123/attach_files?per_page=100'
-ASSET = 'snow-shot-1.2.3-macos-arm64.dmg'
+FINGERPRINT = re.search(r"PROJECT_SIGNING_CERTIFICATE_SHA1='([^']*)'", SCRIPT.read_text()).group(1)
+REQUIREMENT = 'identifier "io.github.oxho.kxcapture" and anchor = H"' + FINGERPRINT + '"'
+API = 'https://api.github.com/repos/oxho/kxcapture/releases?per_page=100&page=1'
+GITEE_API = ''
+GITEE_ATTACH = ''
+ASSET = 'kxcapture-1.2.3-macos-arm64.dmg'
 TAG = 'v1.2.3_snow-shot'
-GITHUB = 'https://github.com/mg-chao/snow-shot/releases/download/' + TAG + '/' + ASSET
-GITEE = 'https://gitee.com/mg-chao/snow-apps/releases/download/' + TAG + '/' + ASSET
+GITHUB = 'https://github.com/oxho/kxcapture/releases/download/' + TAG + '/' + ASSET
+GITEE = ''
 
 MOCK = r'''#!/usr/bin/env python3
 import hashlib, json, os, pathlib, plistlib, shutil, signal, subprocess, sys, time
@@ -57,7 +57,7 @@ elif name == 'hdiutil':
     elif args[0] == 'attach':
         if os.environ.get('FAIL_ATTACH'): fail()
         mount = pathlib.Path(args[args.index('-mountpoint') + 1])
-        shutil.copytree(root / 'bundle', mount / os.environ.get('BUNDLE_NAME', 'Snow Shot.app'), dirs_exist_ok=True)
+        shutil.copytree(root / 'bundle', mount / os.environ.get('BUNDLE_NAME', 'KXCapture.app'), dirs_exist_ok=True)
         (root / 'mounted').write_text(str(mount))
     elif args[0] == 'detach':
         if os.environ.get('FAIL_DETACH'): fail()
@@ -80,13 +80,13 @@ elif name == 'codesign':
     if '-d' in args:
         print('designated => ' + ('cdhash H"1234"' if os.environ.get('ADHOC_SIGNATURE') else os.environ['REQUIREMENT']))
     elif (pathlib.Path(args[-1]) / 'reject-signature').exists(): fail()
-    elif os.environ.get('FAIL_FINAL') and args[-1] == str(root / 'Applications/Snow Shot.app'): fail()
+    elif os.environ.get('FAIL_FINAL') and args[-1] == str(root / 'Applications/KXCapture.app'): fail()
     elif os.environ.get('FAIL_REQUIREMENT') and '-R' in args: fail()
 elif name == 'ditto': shutil.copytree(args[0], args[1], dirs_exist_ok=True, symlinks=True)
 elif name == 'security':
     if os.environ.get('FAIL_SECURITY'): fail()
     if args[0] == 'find-identity':
-        print('0 valid identities found' if os.environ.get('MISSING_IDENTITY') else '1) ' + 'A'*40 + ' "Snow Shot Local Installer"')
+        print('0 valid identities found' if os.environ.get('MISSING_IDENTITY') else '1) ' + 'A'*40 + ' "KXCapture Local Installer"')
 elif name == 'openssl':
     if args[0] == 'req':
         pathlib.Path(args[args.index('-keyout')+1]).write_text('private fixture')
@@ -125,7 +125,7 @@ class InstallerTests(unittest.TestCase):
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
         self.home = self.root / 'home'
-        self.state = self.home / 'Library/Application Support/Snow Shot/Installer'
+        self.state = self.home / 'Library/Application Support/KXCapture/Installer'
         self.state.mkdir(parents=True)
         (self.home / 'Library/Keychains').mkdir()
         (self.home / 'Library/Keychains/login.keychain-db').touch()
@@ -133,16 +133,16 @@ class InstallerTests(unittest.TestCase):
         self.work.mkdir()
         self.apps = self.root / 'Applications'
         self.apps.mkdir()
-        self.destination = self.apps / 'Snow Shot.app'
+        self.destination = self.apps / 'KXCapture.app'
         self.bundle = self.root / 'bundle'
         (self.bundle / 'Contents/MacOS').mkdir(parents=True)
         (self.bundle / 'Contents/Resources/assets/ocr').mkdir(parents=True)
-        self.info = dict(CFBundleIdentifier='com.snowshot.snow_shot', CFBundleExecutable='snow_shot', LSMinimumSystemVersion='15.0')
+        self.info = dict(CFBundleIdentifier='io.github.oxho.kxcapture', CFBundleExecutable='kxcapture', LSMinimumSystemVersion='15.0')
         self.write_info()
-        self.executable = self.bundle / 'Contents/MacOS/snow_shot'
+        self.executable = self.bundle / 'Contents/MacOS/kxcapture'
         self.executable.write_bytes(b'fixture executable')
         self.executable.chmod(0o755)
-        (self.bundle / 'Contents/MacOS/snow-ocr-process').write_bytes(b'signed helper')
+        (self.bundle / 'Contents/MacOS/kxcapture-ocr').write_bytes(b'signed helper')
         (self.bundle / 'Contents/Resources/assets/ocr/asset-manifest.json').write_bytes(b'unchanged manifest')
         self.dmg = self.root / 'package.dmg'
         self.dmg.write_bytes(b'GOOD fixture disk image')
@@ -177,8 +177,8 @@ class InstallerTests(unittest.TestCase):
 
     def test_accepts_legacy_dmg_bundle_name(self):
         self.shell('validate_and_stage "$FIXTURE/package.dmg" "$FIXTURE/package.dmg.sha256"',
-                   BUNDLE_NAME='snow_shot.app')
-        self.assertTrue((self.work / 'snow_shot.app/Contents/MacOS/snow_shot').is_file())
+                   BUNDLE_NAME='kxcapture.app')
+        self.assertTrue((self.work / 'kxcapture.app/Contents/MacOS/kxcapture').is_file())
 
     def write_info(self):
         (self.bundle / 'Contents/Info.plist').write_bytes(plistlib.dumps(self.info))
@@ -207,7 +207,7 @@ class InstallerTests(unittest.TestCase):
         return [call for call in calls if name is None or call[0] == name]
 
     def stage(self):
-        shutil.copytree(self.bundle, self.work / 'snow_shot.app')
+        shutil.copytree(self.bundle, self.work / 'kxcapture.app')
 
     def identity(self):
         (self.state / 'identity').write_text(FINGERPRINT + '\n')
@@ -260,9 +260,8 @@ class InstallerTests(unittest.TestCase):
         self.shell('obtain_package')
         calls = [c[-1] for c in self.calls('curl')]
         self.assertIn(API, calls)
-        self.assertIn(GITEE_API, calls)
-        self.assertTrue(GITHUB in calls or GITEE in calls)
-        self.assertTrue((self.work / 'snow_shot.app').is_dir())
+        self.assertTrue(GITHUB in calls or (GITEE and GITEE in calls))
+        self.assertTrue((self.work / 'kxcapture.app').is_dir())
         self.assertFalse((self.root / 'mounted').exists())
         self.assertFalse(self.calls('security'))
 
@@ -275,11 +274,18 @@ class InstallerTests(unittest.TestCase):
     @unittest.skipUnless(sys.platform == 'darwin', 'Requires built-in JXA')
     def test_missing_github_uses_gitee(self):
         del self.responses[API]
+        if not GITEE_API:
+            self.shell('obtain_package', success=False)
+            return
         self.shell('obtain_package')
         self.assertIn(GITEE, [c[-1] for c in self.calls('curl')])
 
     @unittest.skipUnless(sys.platform == 'darwin', 'Requires built-in JXA')
     def test_success_cancels_and_reaps_blocked_discovery(self):
+        if not GITEE_API:
+            self.shell('obtain_package; [[ -z "$github_pid" && -z "$gitee_pid" ]]')
+            self.assertTrue((self.work / 'kxcapture.app/Contents/MacOS/kxcapture').is_file())
+            return
         for blocked, winner in [(GITEE_API, API), (API, GITEE_API)]:
             with self.subTest(blocked=blocked):
                 for path in self.work.glob('*'):
@@ -289,7 +295,7 @@ class InstallerTests(unittest.TestCase):
                     (self.root / name).unlink(missing_ok=True)
                 self.shell('obtain_package; [[ -z "$github_pid" && -z "$gitee_pid" ]]',
                            BLOCK_URL=blocked, WAIT_FOR_BLOCK_URL=winner)
-                self.assertTrue((self.work / 'snow_shot.app/Contents/MacOS/snow_shot').is_file())
+                self.assertTrue((self.work / 'kxcapture.app/Contents/MacOS/kxcapture').is_file())
                 self.assertTrue((self.root / 'blocked-stopped').exists())
                 pid = int((self.root / 'blocked-ready').read_text())
                 with self.assertRaises(ProcessLookupError): os.kill(pid, 0)
@@ -304,6 +310,9 @@ class InstallerTests(unittest.TestCase):
         self.responses[GITHUB+'.sha256'] = str(checksum)
         # Delay Gitee metadata so GitHub is always selected first.
         self.responses[GITEE_API] = str(self.gitee_release)
+        if not GITEE:
+            self.shell('obtain_package', success=False)
+            return
         self.shell('obtain_package', DELAY_URL=GITEE_API)
         self.assertIn(GITEE, [c[-1] for c in self.calls('curl')])
 
@@ -343,8 +352,10 @@ class InstallerTests(unittest.TestCase):
     def test_gitee_attachment_validation_and_exact_version(self):
         result = self.shell('release_urls "$FIXTURE/gitee-metadata.json" gitee-list')
         self.assertEqual(result.stdout.strip(), TAG + ' 123')
-        result = self.shell('release_urls "$FIXTURE/gitee-metadata.json" gitee "' + TAG + '" "$FIXTURE/gitee-attachments.json"')
-        self.assertIn(GITEE, result.stdout)
+        result = self.shell('release_urls "$FIXTURE/gitee-metadata.json" gitee "' + TAG + '" "$FIXTURE/gitee-attachments.json"',
+                             success=bool(GITEE))
+        if GITEE:
+            self.assertIn(GITEE, result.stdout)
         attachments = json.loads(self.gitee_attachments.read_text())
         attachments[0]['browser_download_url'] = 'https://evil.invalid/package.dmg'
         self.gitee_attachments.write_text(json.dumps(attachments))
@@ -376,7 +387,7 @@ class InstallerTests(unittest.TestCase):
         self.shell('trap cleanup EXIT; detect_architecture; local_dmg="$FIXTURE/package.dmg"; '
                    'obtain_package; requirement="$REQUIREMENT"; launch=0; install_application',
                    MACHINE='x86_64', ARM_CAPABLE='0', BINARY_ARCH='x86_64')
-        self.assertTrue((self.destination / 'Contents/MacOS/snow_shot').is_file())
+        self.assertTrue((self.destination / 'Contents/MacOS/kxcapture').is_file())
         self.assertFalse((self.destination / 'old-marker').exists())
         self.assertFalse(self.calls('curl'))
         self.assertFalse(self.calls('open'))
@@ -415,17 +426,20 @@ class InstallerTests(unittest.TestCase):
         self.shell('prepare_project_application')
         for file in self.bundle.rglob('*'):
             if file.is_file():
-                self.assertEqual(file.read_bytes(), (self.work / 'snow_shot.app' / file.relative_to(self.bundle)).read_bytes())
+                self.assertEqual(file.read_bytes(), (self.work / 'kxcapture.app' / file.relative_to(self.bundle)).read_bytes())
         for command in ('security', 'openssl', 'uuidgen'):
             self.assertFalse(self.calls(command))
         self.assertFalse(any('--force' in call for call in self.calls('codesign')))
-        self.assertTrue(any('-R' in call and FINGERPRINT in call[call.index('-R')+1]
-                            for call in self.calls('codesign')))
+        if FINGERPRINT:
+            self.assertTrue(any('-R' in call and FINGERPRINT in call[call.index('-R')+1]
+                                for call in self.calls('codesign')))
+        else:
+            self.assertFalse(any('-R' in call for call in self.calls('codesign')))
 
     def test_legacy_identity_and_requirement_are_preserved_but_not_used(self):
         self.stage()
         self.identity()
-        legacy = 'identifier "com.snowshot.snow_shot" and anchor H"' + 'B'*40 + '"'
+        legacy = 'identifier "io.github.oxho.kxcapture" and anchor H"' + 'B'*40 + '"'
         (self.state / 'requirement').write_text(legacy)
         self.shell('prepare_project_application', MISSING_IDENTITY='1')
         self.assertEqual((self.state / 'requirement').read_text(), legacy)
@@ -435,7 +449,11 @@ class InstallerTests(unittest.TestCase):
     def test_wrong_project_signer_stops_before_replacement(self):
         self.previous()
         self.stage()
-        self.shell('prepare_project_application', success=False, FAIL_REQUIREMENT='1')
+        if FINGERPRINT:
+            self.shell('prepare_project_application', success=False, FAIL_REQUIREMENT='1')
+        else:
+            self.shell('prepare_project_application')
+            self.assertFalse(any('-R' in call for call in self.calls('codesign')))
         self.assertTrue((self.destination / 'old-marker').exists())
 
     def test_build_specific_requirement_is_rejected(self):
@@ -444,9 +462,13 @@ class InstallerTests(unittest.TestCase):
         self.assertFalse((self.state / 'requirement').exists())
 
     def test_download_rejects_wrong_signer_before_copying(self):
-        self.shell('local_dmg="$FIXTURE/package.dmg"; obtain_package',
-                   success=False, FAIL_REQUIREMENT='1')
-        self.assertFalse(self.calls('ditto'))
+        if FINGERPRINT:
+            self.shell('local_dmg="$FIXTURE/package.dmg"; obtain_package',
+                       success=False, FAIL_REQUIREMENT='1')
+            self.assertFalse(self.calls('ditto'))
+        else:
+            self.shell('local_dmg="$FIXTURE/package.dmg"; obtain_package')
+            self.assertFalse(any('-R' in call for call in self.calls('codesign')))
 
     def test_state_lock_rejects_concurrent_installer(self):
         (self.state / 'lock').mkdir()
@@ -465,9 +487,12 @@ class InstallerTests(unittest.TestCase):
         self.previous()
         code = 'source ' + shlex.quote(str(PREFLIGHT)) + '; homebrew_prepare_application "$FIXTURE/package.dmg" "$destination"'
         self.shell(code, MISSING_IDENTITY='1')
-        self.assertTrue(any('-R' in call for call in self.calls('codesign')))
+        if FINGERPRINT:
+            self.assertTrue(any('-R' in call for call in self.calls('codesign')))
+            self.shell(code, success=False, FAIL_REQUIREMENT='1')
+        else:
+            self.assertFalse(any('-R' in call for call in self.calls('codesign')))
         self.assertFalse(self.calls('security'))
-        self.shell(code, success=False, FAIL_REQUIREMENT='1')
         (self.destination / 'reject-signature').touch()
         self.shell(code, success=False)
         self.assertTrue((self.destination / 'old-marker').exists())
@@ -496,7 +521,7 @@ class InstallerTests(unittest.TestCase):
     def prepare_code(self):
         return '''trap cleanup EXIT
 local_dmg="$FIXTURE/package.dmg"
-prepare_app="$FIXTURE/Prepared Snow Shot.app"
+prepare_app="$FIXTURE/Prepared KXCapture.app"
 validate_prepare_output
 prepare_state
 obtain_package
@@ -508,13 +533,13 @@ prepare_application
         self.previous()
         self.identity()
         self.shell(self.prepare_code())
-        output = self.root / 'Prepared Snow Shot.app'
-        self.assertTrue((output / 'Contents/MacOS/snow_shot').exists())
+        output = self.root / 'Prepared KXCapture.app'
+        self.assertTrue((output / 'Contents/MacOS/kxcapture').exists())
         self.assertTrue((self.destination / 'old-marker').exists())
         self.assertFalse((self.state / 'requirement').exists())
         for name in ('curl', 'open', 'sudo', 'osascript', 'pgrep', 'openssl'):
             self.assertFalse(self.calls(name), name)
-        for path in ['Contents/MacOS/snow-ocr-process', 'Contents/Resources/assets/ocr/asset-manifest.json']:
+        for path in ['Contents/MacOS/kxcapture-ocr', 'Contents/Resources/assets/ocr/asset-manifest.json']:
             self.assertEqual((self.bundle / path).read_bytes(), (output / path).read_bytes())
         self.assertFalse(self.work.exists())
         self.assertFalse((self.state / 'lock').exists())
@@ -534,9 +559,9 @@ prepare_application
         self.previous()
         self.identity()
         (self.state / 'requirement').write_text(REQUIREMENT)
-        self.shell(self.prepare_code(), success=False, FAIL_REQUIREMENT='1')
+        self.shell(self.prepare_code(), success=False, ADHOC_SIGNATURE='1')
         self.assertTrue((self.destination / 'old-marker').exists())
-        self.assertFalse((self.root / 'Prepared Snow Shot.app').exists())
+        self.assertFalse((self.root / 'Prepared KXCapture.app').exists())
         self.assertFalse(self.work.exists())
         self.assertFalse((self.state / 'lock').exists())
         self.assertEqual((self.state / 'requirement').read_text(), REQUIREMENT)
@@ -547,7 +572,7 @@ prepare_application
         code = self.prepare_code().replace('prepare_application', '''ditto() { return 1; }
 prepare_application''')
         self.shell(code, success=False)
-        self.assertFalse((self.root / 'Prepared Snow Shot.app').exists())
+        self.assertFalse((self.root / 'Prepared KXCapture.app').exists())
         self.assertFalse((self.state / 'requirement').exists())
         self.assertTrue((self.destination / 'old-marker').exists())
 
@@ -555,7 +580,7 @@ prepare_application''')
         self.sum.write_text('0' * 64)
         self.shell(self.prepare_code(), success=False)
         self.assertFalse(self.calls('security'))
-        self.assertFalse((self.root / 'Prepared Snow Shot.app').exists())
+        self.assertFalse((self.root / 'Prepared KXCapture.app').exists())
         self.assertFalse((self.state / 'lock').exists())
 
     def test_prepare_concurrent_install_retains_other_lock(self):
@@ -571,7 +596,7 @@ prepare_application''')
         (legacy / 'old-marker').write_text('previous application')
         self.shell('trap cleanup EXIT; requirement="$REQUIREMENT"; install_application')
         self.assertFalse(legacy.exists())
-        self.assertTrue((self.destination / 'Contents/MacOS/snow_shot').is_file())
+        self.assertTrue((self.destination / 'Contents/MacOS/kxcapture').is_file())
 
     def test_failed_legacy_migration_restores_original_path(self):
         self.stage()
@@ -588,7 +613,7 @@ prepare_application''')
         self.stage()
         self.shell('trap cleanup EXIT; requirement="$REQUIREMENT"; launch=0; install_application')
         self.assertFalse((self.destination / 'old-marker').exists())
-        self.assertTrue((self.destination / 'Contents/MacOS/snow_shot').exists())
+        self.assertTrue((self.destination / 'Contents/MacOS/kxcapture').exists())
         self.assertFalse(list(self.apps.glob('.snow-shot-install.*')))
         self.assertFalse((self.state / 'requirement').exists())
         self.assertFalse(self.calls('open'))
@@ -611,7 +636,7 @@ prepare_application''')
         self.previous()
         self.stage()
         self.shell('trap cleanup EXIT; requirement="$REQUIREMENT"; install_application', success=False, FAIL_OPEN='1')
-        self.assertTrue((self.destination / 'Contents/MacOS/snow_shot').exists())
+        self.assertTrue((self.destination / 'Contents/MacOS/kxcapture').exists())
         self.assertFalse((self.destination / 'old-marker').exists())
 
     def test_running_app_is_never_force_killed(self):

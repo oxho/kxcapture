@@ -283,7 +283,7 @@ buffer history, cancellation and failed-worker acknowledgments. For the
 worker's fixed common text/edge/motion fixture and identical admitted PTS,
 inline and threaded H.264 packets are identical.
 
-The performance Release C FFI bundle and relevant Snow Shot targets were
+The performance Release C FFI bundle and relevant KXCapture targets were
 rebuilt for v19 (`qt-build-v19.log`). Exactly the requested controller,
 effects-preview and recording-workflow CTests passed (`ctest-recording-v19.log`).
 Final scoped instrumented/no-timing all-targets and production-library Clippy

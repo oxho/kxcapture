@@ -1,6 +1,6 @@
 # macOS screenshot support and validation
 
-Snow Shot uses ScreenCaptureKit on macOS 15+, including when a migrated settings
+KXCapture uses ScreenCaptureKit on macOS 15+, including when a migrated settings
 file selects DXGI, WGC or GDI. Windows capture API and color-filter restoration
 controls are hidden without changing their stored values. Screenshot selections
 can be pinned through the shared export pipeline; screen recording remains
@@ -39,7 +39,7 @@ Scrolling captures pass desktop points to native acquisition and a fixed pixel
 viewport to the stitcher. Pause/resume and direction changes retain that viewport.
 Display changes invalidate the session and present a recoverable error. Explicit
 window exclusions remain active. Automatic scrolling sends events to the
-application beneath the selection, excluding Snow Shot's own windows, without
+application beneath the selection, excluding KXCapture's own windows, without
 moving the pointer. The isolated macOS input adapter resolves CoreGraphics'
 `CGEventSetWindowLocation` bridge at runtime because PID-directed wheel events
 do not populate AppKit's local position. This symbol is exported but not in the
@@ -82,7 +82,7 @@ PNG and a pasted image against the source, including repeated capture of a pin.
 ## Permission recovery
 
 Screen Recording permission is required for capture. Use the existing App
-Permissions page to open System Settings, enable the deployed Snow Shot copy,
+Permissions page to open System Settings, enable the deployed KXCapture copy,
 and relaunch when macOS requests it. Permission denial is reported without a
 capture retry loop. A locked desktop or disconnected display is unavailable,
 even when Screen Recording permission was previously granted.
@@ -131,7 +131,7 @@ prerequisites are reported explicitly, not treated as validated functionality.
 
 ## Background main-window protection
 
-Visible captures invoked over another application temporarily order Snow Shot's main
+Visible captures invoked over another application temporarily order KXCapture's main
 window out before acquisition or presentation. Fully obscured windows are included;
 hidden and minimized windows are not. Foreground self-capture remains supported.
 The lease spans scrolling, return to editing, and recapture. Completion restores the
@@ -165,7 +165,7 @@ shortcut. Test manual/automatic scrolling, pause/resume, resize, recapture, canc
 copy/save, and pinning. Settings must remain absent during capture and return behind
 the browser afterward. Repeat across displays and fullscreen Spaces, checking that
 neither the active Space nor the main window's geometry/state changes. Also capture
-Settings while Snow Shot is initially foreground, and explicitly reopen it from the
+Settings while KXCapture is initially foreground, and explicitly reopen it from the
 Dock/tray during capture.
 
 ## Hardware acceptance checklist
@@ -200,7 +200,7 @@ by the updater's symlink protection.
 ## Recapture cursor ownership
 
 Recapture excludes only its editing surfaces. Its cursor owner can be another
-Snow Shot window or a foreign floating panel. Scrolling's normal-window and
+KXCapture window or a foreign floating panel. Scrolling's normal-window and
 foreign-process filters must not be reused for this selection.
 
 The recapture transaction uses AppKit's native mouse hit test and steps below
@@ -208,7 +208,7 @@ explicitly excluded window IDs. WindowServer bounds alone are insufficient:
 click-through windows and decorative system surfaces can cover the pointer
 without receiving input. The selected native ID is used to resolve process
 metadata, and the same hit test runs again before cursor refresh. Windows owned
-by Snow Shot are activated through their retained `NSWindow`; external windows
+by KXCapture are activated through their retained `NSWindow`; external windows
 use Accessibility. A local mouse refresh is dispatched to the verified window,
 then its actual view handles a cursor update, including when the stationary
 pointer remains inside an existing tracking area. Both Qt and native input

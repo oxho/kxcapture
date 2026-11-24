@@ -1,4 +1,5 @@
 #include "snow_shot/app/edition.h"
+#include "snow_shot/app/featureflags.h"
 #include "snow_shot/app/applicationcontroller.h"
 #include "snow_shot/app/distribution.h"
 #include "snow_shot/app/storeupdatelifecycle.h"
@@ -377,25 +378,28 @@ class ApplicationController::Impl {
         // OCR process ownership is application-scoped. ScreenshotController
         // instances receive a consumer of this service instead of creating a
         // second child process for each controller.
-        ScreenshotOcrRecognitionService::Options ocrOptions;
-        ocrOptions.offlineRoot =
-            QDir(QCoreApplication::applicationDirPath()).filePath(QStringLiteral("assets/ocr"));
-        if (applicationStorage.isInitialized() &&
-            !applicationStorage.configurationDirectory().trimmed().isEmpty()) {
-            ocrOptions.cacheRoot = QDir(applicationStorage.configurationDirectory())
-                                       .filePath(QStringLiteral("assets/ocr"));
+        if (features::ocrEnabled()) {
+            ScreenshotOcrRecognitionService::Options ocrOptions;
+            ocrOptions.offlineRoot =
+                QDir(QCoreApplication::applicationDirPath()).filePath(QStringLiteral("assets/ocr"));
+            if (applicationStorage.isInitialized() &&
+                !applicationStorage.configurationDirectory().trimmed().isEmpty()) {
+                ocrOptions.cacheRoot = QDir(applicationStorage.configurationDirectory())
+                                           .filePath(QStringLiteral("assets/ocr"));
+            }
+            ocrOptions.modelType = screenshotOcrModelTypeFromValue(
+                applicationStorage.configuration()
+                    .value(QStringLiteral("text_recognition/model_type"))
+                    .toString());
+            ocrOptions.detectorResizePolicy = screenshotOcrDetectorResizePolicyFromValue(
+                applicationStorage.configuration().value(kOcrDetectorResizePolicyKey).toString());
+            ocrOptions.textDetectionProcessing = screenshotOcrTextDetectionProcessingFromValue(
+                applicationStorage.configuration().value(kOcrTextDetectionProcessingKey).toString());
+            ocrRecognition = std::make_unique<ScreenshotOcrRecognitionService>(ocrOptions, &q);
         }
-        ocrOptions.modelType = screenshotOcrModelTypeFromValue(
-            applicationStorage.configuration()
-                .value(QStringLiteral("text_recognition/model_type"))
-                .toString());
-        ocrOptions.detectorResizePolicy = screenshotOcrDetectorResizePolicyFromValue(
-            applicationStorage.configuration().value(kOcrDetectorResizePolicyKey).toString());
-        ocrOptions.textDetectionProcessing = screenshotOcrTextDetectionProcessingFromValue(
-            applicationStorage.configuration().value(kOcrTextDetectionProcessingKey).toString());
-        ocrRecognition = std::make_unique<ScreenshotOcrRecognitionService>(ocrOptions, &q);
         auto& configuration = applicationStorage.configuration();
-        presentation::bindOcrProxyConfiguration(*ocrRecognition, configuration);
+        if (ocrRecognition)
+            presentation::bindOcrProxyConfiguration(*ocrRecognition, configuration);
         updates = new update::UpdateService(update::defaultUpdateServiceOptions(), &app);
         updates->setProgressAppearance(
             presentation::styles::ThemeManager::instance().updateProgressAppearance());
@@ -424,7 +428,7 @@ class ApplicationController::Impl {
                                "%1 %2 is available. Open About for update options")
                                .arg(edition::productName(), version)
                          : ApplicationController::tr(
-                               "Snow Shot %1 is available. Open About for update options")
+                               "KXCapture %1 is available. Open About for update options")
                                .arg(version)));
             });
 #ifndef Q_OS_MACOS
@@ -435,7 +439,7 @@ class ApplicationController::Impl {
                            "An update is ready. Open About to restart and update %1")
                            .arg(edition::productName())
                      : ApplicationController::tr(
-                           "An update is ready. Open About to restart and update Snow Shot")));
+                           "An update is ready. Open About to restart and update KXCapture")));
         });
 #endif
         platform::windows::setAdministratorRestartGuard([this] { return restartAllowed(); });
@@ -1129,6 +1133,8 @@ class ApplicationController::Impl {
                 ensureMainWindow().showPinToScreenManagement();
             else if (action == u"show_translation") {
 #if SNOW_SHOT_ENABLE_TEXT_TRANSLATION
+                if (!features::translationEnabled())
+                    return false;
                 ensureMainWindow().openTranslationPage();
 #else
                 return false;
@@ -1293,7 +1299,7 @@ class ApplicationController::Impl {
         auto outcome = mcpGraph.start(std::move(graphPorts));
         if (!outcome.available) {
             app.setProperty("snowShotMcpStartError", QVariant::fromValue(mcpGraph.startupError()));
-            qWarning("Unable to start Snow Shot MCP server: %s", qPrintable(outcome.error));
+            qWarning("Unable to start KXCapture MCP server: %s", qPrintable(outcome.error));
         }
         return outcome;
     }
@@ -1727,6 +1733,8 @@ class ApplicationController::Impl {
             {QStringLiteral("edit-selected-images"), Quick::EditSelectedImages},
         };
         if (const auto action = quickActions.constFind(id); action != quickActions.cend()) {
+            if (!features::shortcutActionEnabled(*action))
+                return;
             dispatchQuickAction(*action);
             return;
         }
@@ -1787,20 +1795,24 @@ class ApplicationController::Impl {
             }
             break;
         case presentation::GlobalShortcutAction::ScreenshotOcr:
-            if (ScreenshotController* controller = ensureScreenshotController()) {
-                controller->captureAndRecognizeText();
+            if (features::ocrEnabled()) {
+                if (ScreenshotController* controller = ensureScreenshotController())
+                    controller->captureAndRecognizeText();
             }
             break;
         case presentation::GlobalShortcutAction::ScreenshotOcrCopy:
-            if (ScreenshotController* controller = ensureScreenshotController()) {
-                static_cast<void>(controller->captureForAction(
-                    ScreenshotController::CaptureAction::RecognizeTextAndCopy));
+            if (features::ocrEnabled()) {
+                if (ScreenshotController* controller = ensureScreenshotController()) {
+                    static_cast<void>(controller->captureForAction(
+                        ScreenshotController::CaptureAction::RecognizeTextAndCopy));
+                }
             }
             break;
         case presentation::GlobalShortcutAction::ScreenshotTranslation:
 #if SNOW_SHOT_ENABLE_TEXT_TRANSLATION
-            if (ScreenshotController* controller = ensureScreenshotController()) {
-                controller->captureAndTranslateText();
+            if (features::translationEnabled()) {
+                if (ScreenshotController* controller = ensureScreenshotController())
+                    controller->captureAndTranslateText();
             }
 #endif
             break;
@@ -1900,7 +1912,8 @@ class ApplicationController::Impl {
             break;
         case presentation::GlobalShortcutAction::TranslateSelectedText:
 #if SNOW_SHOT_ENABLE_TEXT_TRANSLATION
-            if (storage::ExtendedFeaturesSettings().translationPageEnabled()) {
+            if (features::translationEnabled() &&
+                storage::ExtendedFeaturesSettings().translationPageEnabled()) {
                 ensureSelectedTextTranslationCoordinator().capture();
             }
 #endif

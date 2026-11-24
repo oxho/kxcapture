@@ -1,7 +1,7 @@
 [CmdletBinding(SupportsShouldProcess)]
 param(
     [ValidateSet('Publish', 'Verify')][string]$Operation = 'Publish',
-    [ValidatePattern('^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$')][string]$GitHubRepository = 'mg-chao/snow-shot',
+    [Parameter(Mandatory)][ValidatePattern('^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$')][string]$GitHubRepository,
     [string]$Version = '',
     [string]$BuildDirectory = 'build/snow-shot-msvc-release',
     [string]$Arm64BuildDirectory = 'build/snow-shot-msvc-arm64-release',
@@ -64,7 +64,7 @@ $macPackages = @(if ($MacHost) {
     }
 })
 $destinations = if ($SkipGitee -or $Operation -eq 'Verify') { 'GitHub' } else { 'GitHub and Gitee' }
-if (-not $PSCmdlet.ShouldProcess("Snow Shot $Version on $destinations", $Operation)) {
+if (-not $PSCmdlet.ShouldProcess("KXCapture $Version on $destinations", $Operation)) {
         foreach ($architecture in @('x64', 'arm64')) {
         foreach ($edition in @('Full', 'Mini')) {
             $product = Get-SnowShotEdition $edition $architecture
@@ -106,7 +106,7 @@ if ($Operation -eq 'Verify') {
         foreach ($edition in @(Get-SnowShotReleaseEditions $release $Version)) {
             $product = Get-SnowShotEdition $edition $architecture
             $manifestPath = Get-SnowGitHubAsset $GitHubRepository $Version $product.Feed $verifyDirectory
-            $helperName = if ($edition -eq 'Mini') { 'snow-shot-mini-updater' } else { 'snow-shot-updater' }
+            $helperName = if ($edition -eq 'Mini') { 'kxcapture-mini-updater' } else { 'kxcapture-updater' }
             $auditor = Join-Path $buildDirectories[$hostArchitecture] "$($product.Executable)/Release/$helperName.exe"
             & $auditor --verify-release --platform "windows-$architecture" --manifest $manifestPath
             if ($LASTEXITCODE -ne 0) { throw 'GitHub update signature verification failed.' }
@@ -308,7 +308,7 @@ foreach ($edition in @('Full', 'Mini')) {
             # The compiled auditor below verifies this envelope before anything is uploaded.
             [IO.File]::WriteAllBytes((Join-Path $releaseDirectory $product.Feed), $published)
     }
-    $helperName = if ($edition -eq 'Mini') { 'snow-shot-mini-updater' } else { 'snow-shot-updater' }
+    $helperName = if ($edition -eq 'Mini') { 'kxcapture-mini-updater' } else { 'kxcapture-updater' }
     $auditor = Join-Path $buildDirectories[$hostArchitecture] "$($product.Executable)/Release/$helperName.exe"
     $auditErrors = Join-Path $releaseDirectory "audit-errors-$edition-$architecture.log"
     $auditArguments = @('--audit-release', '--platform', "windows-$architecture", '--static-only')
@@ -322,10 +322,10 @@ foreach ($edition in @('Full', 'Mini')) {
     $githubAssets[$product.Feed] = Join-Path $releaseDirectory $product.Feed
 }
 }
-$auditor = Join-Path $buildDirectories[$hostArchitecture] 'snow_shot/Release/snow-shot-updater.exe'
-$miniAuditor = Join-Path $buildDirectories[$hostArchitecture] 'snow_shot_mini/Release/snow-shot-mini-updater.exe'
+$auditor = Join-Path $buildDirectories[$hostArchitecture] 'snow_shot/Release/kxcapture-updater.exe'
+$miniAuditor = Join-Path $buildDirectories[$hostArchitecture] 'snow_shot_mini/Release/kxcapture-mini-updater.exe'
 if ($AuditOnly) {
-    Write-Output "Audited Snow Shot $Version without staging or publishing. Signed release: $releaseDirectory"
+    Write-Output "Audited KXCapture $Version without staging or publishing. Signed release: $releaseDirectory"
     return
 }
     if ($MacHost) {
@@ -365,7 +365,7 @@ if ($AuditOnly) {
             @{ name = $name; path = $path; size = (Get-Item -LiteralPath $path).Length;
                 sha256 = (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash.ToLowerInvariant() }
         }
-        @{ schema = 1; tag = $tag; sourceCommit = $head; title = "Snow Shot $Version"; nativeValidation = $nativeValidation;
+        @{ schema = 1; tag = $tag; sourceCommit = $head; title = "KXCapture $Version"; nativeValidation = $nativeValidation;
             body = [IO.File]::ReadAllText($ReleaseNotesPath); assets = @($descriptors); sparkleReports = @($sparkleReports) } |
             ConvertTo-Json -Depth 12 | Set-Content -LiteralPath $localManifestPath -Encoding utf8NoBOM
         $validationArguments = @(if ($SkipArm64NativeValidation) { '--skip-arm64-native-validation' })
@@ -385,7 +385,7 @@ if ($AuditOnly) {
         & python (Join-Path $PSScriptRoot 'publish-snow-shot-gitee-release.py') --manifest $localManifestPath --auditor $auditor --mini-auditor $miniAuditor @validationArguments
         if ($LASTEXITCODE -ne 0) { throw "Local Gitee publication failed. Retry with the audited manifest: $localManifestPath" }
     }
-Write-Output "Published and verified Snow Shot $Version on $destinations."
+Write-Output "Published and verified KXCapture $Version on $destinations."
 if ($DeployWebsite) {
     & (Join-Path $PSScriptRoot 'publish-snow-shot-website.ps1') -Version $Version -WebsiteDirectory $WebsiteDirectory
 }

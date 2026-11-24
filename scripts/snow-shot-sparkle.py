@@ -20,8 +20,8 @@ import xml.etree.ElementTree as ET
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / 'snow_shot/packaging/macos/sparkle.json'
 SPARKLE = 'http://www.andymatuschak.org/xml-namespaces/sparkle'
-HOSTS = {'github': 'https://github.com/mg-chao/snow-shot/releases/download',
-         'gitee': 'https://gitee.com/mg-chao/snow-apps/releases/download'}
+HOSTS = {'github': '',
+         'gitee': ''}
 ET.register_namespace('sparkle', SPARKLE)
 
 
@@ -155,7 +155,7 @@ def prepare(image, product, version, architecture, output):
                 raise ValueError('Update DMG must contain exactly one application')
             with (apps[0] / 'Contents/Info.plist').open('rb') as stream:
                 info = plistlib.load(stream)
-            expected = 'com.snowshot.snow_shot' + ('_mini' if product == 'snow-shot-mini' else '')
+            expected = 'io.github.oxho.kxcapture' + ('_mini' if product == 'snow-shot-mini' else '')
             if info.get('CFBundleIdentifier') != expected or info.get('SUPublicEDKey') != key:
                 raise ValueError('Update bundle identity or Sparkle key differs')
             if not info.get('SURequireSignedFeed') or not info.get('SUVerifyUpdateBeforeExtraction'):

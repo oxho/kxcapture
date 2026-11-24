@@ -13,7 +13,7 @@ function(snow_shot_add_installer_payload)
         return()
     endif()
     if(NOT WIN32)
-        message(FATAL_ERROR "The Snow Shot installer payload helper requires Windows.")
+        message(FATAL_ERROR "The KXCapture installer payload helper requires Windows.")
     endif()
     include(FetchContent)
     FetchContent_Declare(snow_lzma_sdk

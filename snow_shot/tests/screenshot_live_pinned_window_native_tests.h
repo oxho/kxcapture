@@ -14,7 +14,7 @@ class SourceWindow final : public QWidget {
 
     SourceWindow() {
         setWindowFlags(Qt::Window | Qt::WindowStaysOnTopHint);
-        setWindowTitle(QStringLiteral("Snow Shot live pin shell integration source"));
+        setWindowTitle(QStringLiteral("KXCapture live pin shell integration source"));
         resize(400, 260);
     }
 

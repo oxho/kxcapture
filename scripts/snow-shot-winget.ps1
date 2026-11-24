@@ -5,7 +5,7 @@ $ErrorActionPreference = 'Stop'
 
 function Get-SnowShotWingetVersion([string]$Tag) {
     if ($Tag -cnotmatch '^v(?<version>(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?)(?:_snow-shot)?\z') {
-        throw "Not a Snow Shot release tag: $Tag"
+        throw "Not a KXCapture release tag: $Tag"
     }
     return $Matches.version
 }
@@ -69,7 +69,8 @@ function New-SnowShotWingetManifest([string]$Tag, [string]$OutputDirectory,
     [ValidateSet('Full')][string]$Edition = 'Full') {
     $product = Get-SnowShotEdition $Edition
     $version = Get-SnowShotWingetVersion $Tag
-    $repository = 'mg-chao/snow-shot'
+    # Package-manager manifests are built from this repository. The in-app updater feed stays empty.
+    $repository = 'oxho/kxcapture'
     $release = Invoke-SnowShotWingetApi "repos/$repository/releases/tags/$Tag"
     if ($release.draft -or $release.tag_name -cne $Tag) { throw 'Expected the requested published release.' }
     $releaseDate = ([DateTimeOffset]$release.published_at).UtcDateTime.ToString('yyyy-MM-dd')
@@ -99,7 +100,7 @@ function New-SnowShotWingetManifest([string]$Tag, [string]$OutputDirectory,
     $installerEntries += "  - Architecture: $architecture`n    InstallerUrl: $url`n    InstallerSha256: $hash"
     }
     $installers = $installerEntries -join "`n"
-    $directory = Join-Path $OutputDirectory "manifests/m/mg-chao/$($product.Product)/$version"
+    $directory = Join-Path $OutputDirectory "manifests/o/oxho/$($product.Product)/$version"
     $null = New-Item -ItemType Directory -Force -Path $directory
     $common = "PackageIdentifier: $($product.Winget)`nPackageVersion: '$version'"
     $tags = @(
@@ -141,7 +142,7 @@ InstallationMetadata:
   DefaultInstallLocation: '%ProgramFiles%\$($product.Registry)'
 AppsAndFeaturesEntries:
   - DisplayName: $($product.Name)
-    Publisher: Snow Apps
+    Publisher: oxho
     ProductCode: $($product.Registry)
 ExpectedReturnCodes:
   - InstallerReturnCode: 10
@@ -155,11 +156,11 @@ ManifestVersion: 1.12.0
 # yaml-language-server: `$schema=https://aka.ms/winget-manifest.defaultLocale.1.12.0.schema.json
 $common
 PackageLocale: en-US
-Publisher: Snow Apps
-PublisherUrl: https://github.com/mg-chao
+Publisher: oxho
+PublisherUrl: https://github.com/oxho
 PublisherSupportUrl: https://github.com/$repository/issues
 PackageName: $($product.Name)
-PackageUrl: https://snowshot.top
+PackageUrl: https://github.com/$repository 
 License: GPL-3.0-or-later
 LicenseUrl: https://github.com/$repository/blob/$Tag/snow_shot/COPYRIGHT
 ShortDescription: A screenshot utility for capturing, annotating, pinning, and recognizing screen content.
@@ -182,7 +183,7 @@ ManifestVersion: 1.12.0
 
 function Get-SnowShotWingetSubmission([string]$Version, [ValidateSet('Full')][string]$Edition = 'Full') {
     $product = Get-SnowShotEdition $Edition
-    $path = "manifests/m/mg-chao/$($product.Product)/$Version"
+    $path = "manifests/o/oxho/$($product.Product)/$Version"
     try {
         $null = Invoke-SnowShotWingetApi "repos/microsoft/winget-pkgs/contents/$path"
         return "Already merged: https://github.com/microsoft/winget-pkgs/tree/master/$path"

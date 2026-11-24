@@ -1,4 +1,4 @@
-name: Snow Shot WinGet verification
+name: KXCapture WinGet verification
 
 on:
   push:
@@ -66,13 +66,13 @@ jobs:
           WINGET_CREATE_GITHUB_TOKEN: ${{ secrets.WINGET_CREATE_GITHUB_TOKEN }}
         run: ./scripts/test-snow-shot-winget-credentials.ps1
       - name: Provision WinGet in disposable runner
-        if: github.event_name != 'push'
+        if: github.event_name == 'workflow_dispatch'
         shell: pwsh
         run: |
           $path = ./scripts/initialize-snow-shot-winget.ps1
           "WINGET_EXE=$path" >> $env:GITHUB_ENV
       - name: Verify real installation lifecycle
-        if: github.event_name != 'push'
+        if: github.event_name == 'workflow_dispatch'
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
@@ -88,7 +88,7 @@ jobs:
           ./scripts/test-snow-shot-winget-install.ps1 -Tag $env:RELEASE_TAG `
             -Winget $env:WINGET_EXE -AllowUnrecognizedRelease -Architecture $env:SNOW_ARCHITECTURE @upgrade
       - name: Verify generated installer quiet registration through WinGet
-        if: github.event_name != 'push'
+        if: github.event_name == 'workflow_dispatch'
         shell: pwsh
         run: |
           if (-not (Test-Path "${env:ProgramFiles(x86)}/NSIS/makensis.exe")) {

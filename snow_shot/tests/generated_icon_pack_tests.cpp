@@ -96,10 +96,10 @@ void everySnowShotEntryRenders() {
     namespace icons = snow_shot::presentation::icons::custom;
     adqt::icons::IconRenderer renderer;
     const auto registered = icons::registerWith(renderer);
-    require(registered.ok(), "Snow Shot pack registration should succeed");
+    require(registered.ok(), "KXCapture pack registration should succeed");
     const adqt::icons::IconPack* staticPack = icons::pack().staticPack();
     require(staticPack != nullptr && staticPack->entryCount == 224,
-            "Snow Shot pack should contain all 224 project-owned assets");
+            "KXCapture pack should contain all 224 project-owned assets");
     require(adqt::icons::describeIcon(icons::outlined::CreditsCoin()).key.name ==
                 QStringLiteral("credits-coin"),
             "account credits should resolve to their project-owned coin icon");
@@ -151,18 +151,18 @@ void everySnowShotEntryRenders() {
     } capture;
     for (std::size_t index = 0; index < staticPack->entryCount; ++index) {
         const auto ref = icons::pack().icon(index);
-        require(ref.isValid(), "every Snow Shot pack entry should create a reference");
+        require(ref.isValid(), "every KXCapture pack entry should create a reference");
         const QPixmap pixmap = renderer.renderIconPixmap(ref, request);
         require(!pixmap.isNull() && pixmap.size() == QSize(40, 40) &&
                     qFuzzyCompare(pixmap.devicePixelRatio(), 1.25),
-                "every Snow Shot pack entry should render at fractional DPR");
+                "every KXCapture pack entry should render at fractional DPR");
         require(!alphaBounds(pixmap.toImage()).isEmpty(),
-                "every Snow Shot pack entry should have nonblank alpha bounds");
+                "every KXCapture pack entry should have nonblank alpha bounds");
     }
     for (const auto& warning : renderWarnings)
         std::cerr << warning.toStdString() << '\n';
     require(renderWarnings.isEmpty(),
-            "every Snow Shot icon must render without missing images or undefined references");
+            "every KXCapture icon must render without missing images or undefined references");
 }
 
 void followMouseIconFollowsThemeAndToolbarMetrics() {
@@ -346,10 +346,10 @@ void projectIconColorsAndModelsArePreserved() {
     require(logoMetadata.key.pack == QStringLiteral("snow-shot") &&
                 logoMetadata.key.variant == QStringLiteral("brand") &&
                 logoMetadata.colorModel == adqt::icons::IconColorModel::Monochrome,
-            "Snow Shot logo should be a project-owned hybrid monochrome reference");
+            "KXCapture logo should be a project-owned hybrid monochrome reference");
     const QImage logo = render(logoRef, QSize(190, 34)).toImage();
     require(containsOpaqueColor(logo, brandPurple) && containsOpaqueColor(logo, primary),
-            "Snow Shot logo should preserve its fixed purple mark and themed text slot");
+            "KXCapture logo should preserve its fixed purple mark and themed text slot");
 
     const auto opacityRef = icons::outlined::Opacity(adqt::icons::IconColors::primary(primary));
     const auto opacityMetadata = adqt::icons::describeIcon(opacityRef);
@@ -357,7 +357,7 @@ void projectIconColorsAndModelsArePreserved() {
     require(opacityMetadata.key.pack == QStringLiteral("snow-shot") &&
                 opacityMetadata.key.name == QStringLiteral("opacity") &&
                 containsOpaqueColor(opacity, primary),
-            "opacity should render from the Snow Shot pack with its primary slot");
+            "opacity should render from the KXCapture pack with its primary slot");
 
     const auto mouseRef = icons::outlined::Mouse(adqt::icons::IconColors::primary(primary));
     const auto mouseMetadata = adqt::icons::describeIcon(mouseRef);
@@ -403,7 +403,7 @@ void projectIconColorsAndModelsArePreserved() {
     }
     require(appMetadata.colorModel == adqt::icons::IconColorModel::FullColor &&
                 opaqueColors.size() > 4,
-            "Snow Shot application icon should preserve full-color source pixels");
+            "KXCapture application icon should preserve full-color source pixels");
 }
 
 void miniLogoPreservesTheWordmarkAndAddsRoundedVectorLettering() {
@@ -421,7 +421,7 @@ void miniLogoPreservesTheWordmarkAndAddsRoundedVectorLettering() {
             const QImage extended =
                 render(icons::brand::SnowShotMiniLogo(colors), QSize(137, 17), scale).toImage();
             require(extended.copy(original.rect()) == original,
-                    "Mini must preserve the original Snow Shot artwork and its themed text");
+                    "Mini must preserve the original KXCapture artwork and its themed text");
         }
     }
     for (const qreal scale : {1.0, 1.25, 1.5, 1.75, 2.0, 3.0}) {

@@ -1,16 +1,16 @@
-set(_app "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/snow_shot.app")
+set(_app "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/kxcapture.app")
 # Remove the obsolete helper from reused install/package staging directories.
-file(REMOVE "${_app}/Contents/MacOS/snow-shot-updater")
-if(@SNOW_SHOT_ENABLE_MCP@ AND NOT EXISTS "${_app}/Contents/MacOS/snow-shot-mcp")
-    message(FATAL_ERROR "The packaged Snow Shot MCP bridge is missing")
+file(REMOVE "${_app}/Contents/MacOS/kxcapture-updater")
+if(@SNOW_SHOT_ENABLE_MCP@ AND NOT EXISTS "${_app}/Contents/MacOS/kxcapture-mcp")
+    message(FATAL_ERROR "The packaged KXCapture MCP bridge is missing")
 endif()
 set(_snow_mcp_deploy_arguments)
 if(@SNOW_SHOT_ENABLE_MCP@)
-    list(APPEND _snow_mcp_deploy_arguments "-executable=${_app}/Contents/MacOS/snow-shot-mcp")
+    list(APPEND _snow_mcp_deploy_arguments "-executable=${_app}/Contents/MacOS/kxcapture-mcp")
 endif()
 set(_snow_codesign_identity [==[@SNOW_MACOS_CODESIGN_IDENTITY@]==])
 if(_snow_codesign_identity STREQUAL "-")
-    message(WARNING "Snow Shot is ad-hoc signed. Rebuilds can invalidate macOS privacy grants even when System Settings shows them enabled. Use SNOW_MACOS_CODESIGN_IDENTITY with a persistent certificate to retain the signing identity.")
+    message(WARNING "KXCapture is ad-hoc signed. Rebuilds can invalidate macOS privacy grants even when System Settings shows them enabled. Use SNOW_MACOS_CODESIGN_IDENTITY with a persistent certificate to retain the signing identity.")
 endif()
 string(TOLOWER "${CMAKE_INSTALL_CONFIG_NAME}" _snow_install_config)
 set(_snow_ocr_runtime_arguments)
@@ -33,9 +33,14 @@ else()
     execute_process(COMMAND "@Python3_EXECUTABLE@" "@SNOW_MACOS_OCR_TOOL@" prepare-bundle
         --app "${_app}" ${_snow_ocr_model_arguments} COMMAND_ERROR_IS_FATAL ANY)
 endif()
+if(@SNOW_MACOS_OCR_ASSETS_ENABLED@)
+    set(_snow_ocr_deploy_arguments "-executable=${_app}/Contents/MacOS/kxcapture-ocr")
+else()
+    set(_snow_ocr_deploy_arguments)
+endif()
 if(NOT @SNOW_SHOT_QT_STATIC@)
     execute_process(COMMAND "@SNOW_MACDEPLOYQT@" "${_app}"
-        "-executable=${_app}/Contents/MacOS/snow-ocr-process"
+        ${_snow_ocr_deploy_arguments}
         ${_snow_mcp_deploy_arguments}
         "-executable=${_app}/Contents/MacOS/crashpad_handler"
         "-executable=${_app}/Contents/PlugIns/platforms/libqoffscreen.dylib"
@@ -125,6 +130,6 @@ else()
     execute_process(COMMAND /usr/bin/codesign --verify --deep --strict "${_app}"
         RESULT_VARIABLE _result)
     if(NOT _result EQUAL 0)
-        message(FATAL_ERROR "Snow Shot bundle signature verification failed (${_result})")
+        message(FATAL_ERROR "KXCapture bundle signature verification failed (${_result})")
     endif()
 endif()

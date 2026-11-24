@@ -115,7 +115,7 @@ function Test-PackageStageCase {
         $null = New-Item -ItemType Directory -Path (Split-Path -Parent $path) -Force
         [IO.File]::WriteAllText($path, 'staged fixture')
     }
-    $extension = Join-Path $installDirectory 'bin\SnowShotExplorerCommand.dll'
+    $extension = Join-Path $installDirectory 'bin\KXCaptureExplorerCommand.dll'
     if ($AddExtension) { [IO.File]::WriteAllText($extension, 'extension fixture') }
     if ($MissingExtension -and (Test-Path -LiteralPath $extension -PathType Leaf)) {
         Remove-Item -LiteralPath $extension -Force
@@ -138,14 +138,14 @@ try {
     Test-PackageStageCase standalone-stage $false
     Test-PackageStageCase store-stage $true
     Test-PackageStageCase standalone-extension $false 'Release staging contains unexpected binary files*' -AddExtension
-    Test-PackageStageCase store-missing-extension $true 'Release staging is missing required runtime files*SnowShotExplorerCommand.dll*' -MissingExtension
+    Test-PackageStageCase store-missing-extension $true 'Release staging is missing required runtime files*KXCaptureExplorerCommand.dll*' -MissingExtension
     Test-PackageDependencyCase x64-color-management x64 0x8664 @('MSCMS.dll')
     Test-PackageDependencyCase arm64-color-management arm64 0xaa64 @('mscms.dll')
     Test-PackageDependencyCase x64-media-foundation x64 0x8664 @('MF.dll', 'MFPlat.dll', 'MFReadWrite.dll')
     Test-PackageDependencyCase arm64-media-foundation arm64 0xaa64 @('mf.dll', 'mfplat.dll', 'mfreadwrite.dll')
-    Test-PackageDependencyCase x64-explorer-command x64 0x8664 @('KERNEL32.dll', 'ole32.dll', 'SHELL32.dll', 'SHLWAPI.dll', 'USER32.dll') -BinaryName 'SnowShotExplorerCommand.dll'
-    Test-PackageDependencyCase arm64-explorer-command arm64 0xaa64 @('kernel32.dll', 'OLE32.dll', 'shell32.dll', 'shlwapi.dll', 'user32.dll') -BinaryName 'SnowShotExplorerCommand.dll'
-    Test-PackageDependencyCase explorer-command-dynamic-runtime x64 0x8664 @('VCRUNTIME140.dll') 'Release staging imports non-system or disallowed libraries*' -BinaryName 'SnowShotExplorerCommand.dll'
+    Test-PackageDependencyCase x64-explorer-command x64 0x8664 @('KERNEL32.dll', 'ole32.dll', 'SHELL32.dll', 'SHLWAPI.dll', 'USER32.dll') -BinaryName 'KXCaptureExplorerCommand.dll'
+    Test-PackageDependencyCase arm64-explorer-command arm64 0xaa64 @('kernel32.dll', 'OLE32.dll', 'shell32.dll', 'shlwapi.dll', 'user32.dll') -BinaryName 'KXCaptureExplorerCommand.dll'
+    Test-PackageDependencyCase explorer-command-dynamic-runtime x64 0x8664 @('VCRUNTIME140.dll') 'Release staging imports non-system or disallowed libraries*' -BinaryName 'KXCaptureExplorerCommand.dll'
     Test-PackageDependencyCase opposite-architecture arm64 0x8664 @('mscms.dll') 'Expected arm64 PE machine*'
     Test-PackageDependencyCase non-system-runtime arm64 0xaa64 @('snow-private-runtime.dll') 'Release staging imports non-system or disallowed libraries*'
     Test-PackageDependencyCase debug-runtime arm64 0xaa64 @('VCRUNTIME140D.dll') 'Release staging imports debug runtime libraries*'

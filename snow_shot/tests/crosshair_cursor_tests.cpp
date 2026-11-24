@@ -65,7 +65,7 @@ void canvasLayers() {
     snow_shot::presentation::configureCanvasCrosshairCursor(canvas);
     require(canvas.setCanvasTool(SnowCanvasTool::Shape), "activate a crosshair tool");
     const auto expected = snow_shot::presentation::crosshairCursor(canvas.devicePixelRatioF());
-    require(canvas.cursor() == expected, "Snow Shot canvas tools must use the shared crosshair");
+    require(canvas.cursor() == expected, "KXCapture canvas tools must use the shared crosshair");
     canvas.setCursorForLayer(SnowCanvasCursorLayer::Host, QCursor(Qt::WaitCursor));
     require(canvas.cursor().shape() == Qt::WaitCursor,
             "non-crosshair host cursors retain priority");

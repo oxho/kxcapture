@@ -539,18 +539,18 @@ include([==[{(ROOT / 'cmake/SnowShotMiniMacOS.cmake').as_posix()}]==])
     def test_mini_product_metadata_and_native_translations(self):
         resources = ROOT / 'snow_shot/packaging/macos'
         plist = plistlib.loads((resources / 'Info-mini.plist.in').read_bytes())
-        self.assertEqual(plist['CFBundleName'], 'Snow Shot Mini')
-        self.assertEqual(plist['CFBundleDisplayName'], 'Snow Shot Mini')
-        self.assertEqual(plist['CFBundleIdentifier'], 'com.snowshot.snow_shot_mini')
+        self.assertEqual(plist['CFBundleName'], 'KXCapture Mini')
+        self.assertEqual(plist['CFBundleDisplayName'], 'KXCapture Mini')
+        self.assertEqual(plist['CFBundleIdentifier'], 'io.github.oxho.kxcapture.mini')
         self.assertEqual(plist['CFBundleExecutable'], '${MACOSX_BUNDLE_EXECUTABLE_NAME}')
         for language in plist['CFBundleLocalizations']:
             strings = (resources / 'mini' / (language + '.lproj') / 'InfoPlist.strings').read_text(encoding='utf-8')
-            self.assertIn('Snow Shot Mini', strings)
+            self.assertIn('KXCapture Mini', strings)
             self.assertIn('"NSCameraUsageDescription" = "', strings)
         self.assertTrue(plist['NSCameraUsageDescription'])
         instructions = (resources / 'dmg-mini-background.svg').read_text(encoding='utf-8')
-        self.assertIn('Snow Shot Mini', instructions)
-        self.assertIn('Snow Shot Mini.app', (resources / 'dmg-mini-layout.applescript').read_text(encoding='utf-8'))
+        self.assertIn('KXCapture Mini', instructions)
+        self.assertIn('KXCapture Mini.app', (resources / 'dmg-mini-layout.applescript').read_text(encoding='utf-8'))
 
     def test_dmg_instructions_cover_all_bundle_languages(self):
         resources = ROOT / 'snow_shot/packaging/macos'
@@ -559,7 +559,7 @@ include([==[{(ROOT / 'cmake/SnowShotMiniMacOS.cmake').as_posix()}]==])
         background_source = (resources / 'dmg-background.svg').read_text()
         package_source = (ROOT / 'cmake/SnowShotMacOSPackage.cmake').read_text()
         self.assertIn('@SNOW_DMG_WORDMARK@', background_source)
-        self.assertNotIn('>Snow Shot</', background_source)
+        self.assertNotIn('>KXCapture</', background_source)
         self.assertIn('icons/resources/snow-shot-logo.svg', package_source)
         self.assertIn('configure_file(', package_source)
         language_key = '{http://www.w3.org/XML/1998/namespace}lang'
@@ -571,7 +571,7 @@ include([==[{(ROOT / 'cmake/SnowShotMiniMacOS.cmake').as_posix()}]==])
             with self.subTest(language=language):
                 lines = [element.text for element in group]
                 self.assertEqual(len(lines), 2, 'Both install and launch instructions are required')
-                self.assertTrue(all(line and 'Snow Shot' in line for line in lines))
+                self.assertTrue(all(line and 'KXCapture' in line for line in lines))
         self.assertIn('应用程序', ''.join(groups['zh-Hans'].itertext()))
         self.assertIn('應用程式', ''.join(groups['zh-Hant'].itertext()))
 
@@ -579,9 +579,9 @@ include([==[{(ROOT / 'cmake/SnowShotMiniMacOS.cmake').as_posix()}]==])
         resources = ROOT / 'snow_shot/packaging/macos'
         plist = plistlib.loads((resources / 'Info.plist.in').read_bytes())
         self.assertEqual(plist['CFBundleInfoDictionaryVersion'], '6.0')
-        self.assertEqual(plist['CFBundleName'], 'Snow Shot')
-        self.assertEqual(plist['CFBundleDisplayName'], 'Snow Shot')
-        self.assertEqual(plist['CFBundleIdentifier'], 'com.snowshot.snow_shot')
+        self.assertEqual(plist['CFBundleName'], 'KXCapture')
+        self.assertEqual(plist['CFBundleDisplayName'], 'KXCapture')
+        self.assertEqual(plist['CFBundleIdentifier'], 'io.github.oxho.kxcapture')
         self.assertEqual(plist['LSApplicationCategoryType'], 'public.app-category.productivity')
         self.assertIs(plist['LSUIElement'], True)
         self.assertEqual(plist['NSHumanReadableCopyright'], '${SNOW_SHOT_COPYRIGHT}')
@@ -602,7 +602,7 @@ include([==[{(ROOT / 'cmake/SnowShotMiniMacOS.cmake').as_posix()}]==])
         cmake = ROOT / '.tools/macos-dev/bin/cmake'
         cmake = str(cmake) if cmake.is_file() else shutil.which('cmake')
         self.assertIsNotNone(cmake)
-        for target, product in [('snow_shot', 'Snow Shot'), ('snow_shot_mini', 'Snow Shot Mini')]:
+        for target, product in [('snow_shot', 'KXCapture'), ('snow_shot_mini', 'KXCapture Mini')]:
             with self.subTest(product=product), tempfile.TemporaryDirectory(prefix='snow dmg staging ') as directory:
                 stage = Path(directory)
                 bundle = stage / (target + '.app')
@@ -637,12 +637,12 @@ include([==[{(ROOT / 'cmake/SnowShotMiniMacOS.cmake').as_posix()}]==])
             runtime = bundle / 'Contents/MacOS'
             assets = bundle / 'Contents/Resources/assets'
             files = [runtime / name for name in ('snow_shot_mini', 'snow-shot-mini-mcp',
-                                                'snow-ocr-process', 'crashpad_handler')]
+                                                'kxcapture-ocr', 'crashpad_handler')]
             files.extend([assets / 'ocr/asset-manifest.json',
                           bundle / 'Contents/Resources/snow-shot.icns'])
             files.extend(bundle / ('Contents/Resources/' + language + '.lproj/InfoPlist.strings')
                          for language in ('en', 'zh-Hans', 'zh-Hant'))
-            files.extend(bundle / ('Contents/Resources/snow-shot-mini/licenses/' + relative)
+            files.extend(bundle / ('Contents/Resources/kxcapture-mini/licenses/' + relative)
                          for relative in ('LICENSE', 'components/snow_rust_ffi/COPYRIGHT',
                                           'third-party/qt/LICENSES/Qt-GPL-exception-1.0.txt',
                                           'third-party/vcpkg/zlib/copyright'))
@@ -673,7 +673,7 @@ include([==[{(ROOT / 'cmake/SnowShotMiniMacOS.cmake').as_posix()}]==])
                              'Contents/Resources/unused-model.zip',
                              'Contents/Resources/snow_shot_en_US.qm',
                              'Contents/Resources/en.lproj/snow_shot_en_US.qm',
-                             'Contents/Resources/snow-shot/licenses/LICENSE',
+                             'Contents/Resources/kxcapture/licenses/LICENSE',
                              'Contents/Resources/snow-shot-mini/unused-model.zip'):
                 with self.subTest(relative=relative):
                     forbidden = bundle / relative
@@ -712,7 +712,7 @@ include([==[{(ROOT / 'cmake/SnowShotMiniMacOS.cmake').as_posix()}]==])
     def test_finder_automation_has_usage_description(self):
         plist = plistlib.loads((ROOT / 'snow_shot/packaging/macos/Info.plist.in').read_bytes())
         self.assertEqual(plist['NSAppleEventsUsageDescription'],
-                         'Snow Shot reads selected image files from Finder to pin them to the screen.')
+                         'KXCapture reads selected image files from Finder to pin them to the screen.')
 
     def test_native_languages_match_the_application_catalogs(self):
         plist = plistlib.loads((ROOT / 'snow_shot/packaging/macos/Info.plist.in').read_bytes())
@@ -1143,10 +1143,10 @@ if name == 'ps' and os.environ.get('SNOW_TEST_PS_OUTPUT'): print(os.environ['SNO
 if name == 'security' and 'import' in sys.argv:
     (pathlib.Path(os.environ['SNOW_TEST_ROOT']) / '.codesign-identity').touch()
 if name == 'security' and 'find-identity' in sys.argv:
-    identity = os.environ.get('SNOW_TEST_CODESIGN_IDENTITY', 'Snow Shot Development (Local)')
+    identity = os.environ.get('SNOW_TEST_CODESIGN_IDENTITY', 'KXCapture Development (Local)')
     if not identity and (pathlib.Path(os.environ['SNOW_TEST_ROOT']) /
                          '.codesign-identity').exists():
-        identity = 'Snow Shot Development (Local)'
+        identity = 'KXCapture Development (Local)'
     if identity:
         print(f'  1) 0123456789ABCDEF0123456789ABCDEF01234567 "{identity}" '
               '(CSSMERR_TP_NOT_TRUSTED)')
@@ -1590,7 +1590,7 @@ if name == 'openssl':
         macos = (ROOT / 'cmake/SnowShotMacOS.cmake').read_text()
         self.assertIn('SNOW_MACOS_CODESIGN_IDENTITY STREQUAL "AUTO"', macos)
         self.assertIn('ensure-macos-codesign-identity.sh', macos)
-        self.assertIn('--identifier com.snowshot.snow_shot', macos)
+        self.assertIn('--identifier io.github.oxho.kxcapture', macos)
         self.assertIn('$<TARGET_FILE:snow_shot>', macos)
         self.assertIn('$<TARGET_FILE:snow_shot>.snow-signing', macos)
 
@@ -1770,7 +1770,7 @@ if name == 'openssl':
         deployed = app.parent.parent / 'run/snow_shot.app'
         deployed.mkdir(parents=True)
 
-        identity = 'Snow Shot Development (Local)'
+        identity = 'KXCapture Development (Local)'
         calls = self.run_script('run-snow-shot.sh', '--codesign-identity', identity)
         configure = next(c for c in calls if c[0] == 'cmake' and '--preset' in c)
         self.assertIn('-DSNOW_MACOS_CODESIGN_IDENTITY=' + identity, configure)
@@ -1861,7 +1861,7 @@ class MacOSSigningDeployment(unittest.TestCase):
     """Exercise the deployment script with fake external tools, including OCR resealing."""
 
     def test_identity_survives_deployment_and_ocr_reseal(self):
-        for identity in ('-', 'Snow Shot Development (Local)'):
+        for identity in ('-', 'KXCapture Development (Local)'):
             with self.subTest(identity=identity):
                 calls, result = self.deploy(identity)
                 self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
@@ -1897,7 +1897,7 @@ class MacOSSigningDeployment(unittest.TestCase):
             self.assertEqual(call[call.index('--arch') + 1], 'x64')
         finalize = next(index for index, call in enumerate(calls) if 'finalize' in call)
         sign = next(index for index, call in enumerate(calls)
-                    if call[0] == 'codesign' and call[-1].endswith('snow_shot.app'))
+                    if call[0] == 'codesign' and call[-1].endswith('kxcapture.app'))
         self.assertLess(finalize, sign)
 
     def test_release_deployment_strips_both_editions_before_signing_and_ocr_hashing(self):
@@ -1917,7 +1917,7 @@ class MacOSSigningDeployment(unittest.TestCase):
                 for command in ('prepare-bundle', 'finalize', 'verify'):
                     call = next(call for call in calls if command in call)
                     self.assertEqual('--runtime-only' in call, mini)
-                product = 'snow_shot_mini.app' if mini else 'snow_shot.app'
+                product = 'kxcapture_mini.app' if mini else 'kxcapture.app'
                 self.assertTrue(all('/' + product + '/Contents/' in call[-1] for _, call in strips))
                 outer_sign = next(index for index, call in enumerate(calls)
                                   if call[0] == 'codesign' and call[-1].endswith(product))
@@ -1960,7 +1960,7 @@ class MacOSSigningDeployment(unittest.TestCase):
         for static in (False, True):
             for ocr in (False, True):
                 with self.subTest(static=static, ocr=ocr):
-                    calls, result = self.deploy('Snow Shot Development (Local)',
+                    calls, result = self.deploy('KXCapture Development (Local)',
                                                 static=static, ocr=ocr)
                     self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
                     verifications = [call for call in calls
@@ -1973,7 +1973,7 @@ class MacOSSigningDeployment(unittest.TestCase):
                         sign = next(call for call in reversed(calls)
                                     if call[0] == 'codesign' and '--sign' in call)
                         self.assertEqual(sign[sign.index('--sign') + 1],
-                                         'Snow Shot Development (Local)')
+                                         'KXCapture Development (Local)')
                         self.assertEqual(sign[-1], verifications[0][-1])
 
     def test_signature_verification_failure_stops_every_deployment_branch(self):
@@ -2021,20 +2021,20 @@ if name == 'ocr' and 'verify' in sys.argv and '--app' in sys.argv:
                 tool = root / name
                 tool.write_text(mock)
                 tool.chmod(0o755)
-            product = 'snow_shot_mini' if mini else 'snow_shot'
-            bridge = 'snow-shot-mini-mcp' if mini else 'snow-shot-mcp'
+            product = 'kxcapture_mini' if mini else 'kxcapture'
+            bridge = 'kxcapture-mini-mcp' if mini else 'kxcapture-mcp'
             runtime = root / (product + '.app') / 'Contents/MacOS'
             runtime.mkdir(parents=True)
-            for name in (product, bridge, 'snow-ocr-process', 'crashpad_handler'):
+            for name in (product, bridge, 'kxcapture-ocr', 'crashpad_handler'):
                 (runtime / name).write_text('executable fixture')
-            (runtime / 'helper-link').symlink_to('snow-ocr-process')
+            (runtime / 'helper-link').symlink_to('kxcapture-ocr')
             resources = runtime.parent / 'Resources'
             resources.mkdir()
             (resources / 'note.txt').write_text('resource fixture')
             script = (ROOT / 'cmake/DeploySnowShotMacOS.cmake.in').read_text()
             if mini:
-                script = script.replace('snow_shot.app', 'snow_shot_mini.app')
-                script = script.replace('snow-shot-mcp', 'snow-shot-mini-mcp')
+                script = script.replace('kxcapture.app', 'kxcapture_mini.app')
+                script = script.replace('kxcapture-mcp', 'kxcapture-mini-mcp')
             values = {'SNOW_MACOS_CODESIGN_IDENTITY': identity,
                       'SNOW_MACDEPLOYQT': str(root / 'macdeployqt'),
                       'SNOW_MACOS_OCR_ASSETS_ENABLED': 'ON' if ocr else 'OFF',
@@ -2140,10 +2140,10 @@ class MacOSPackageStripping(unittest.TestCase):
                 resources.mkdir()
                 note = resources / 'note.txt'
                 note.write_text('resource fixture')
-                (runtime / 'helper-link').symlink_to('snow-ocr-process')
+                (runtime / 'helper-link').symlink_to('kxcapture-ocr')
                 (app / 'Contents/Info.plist').write_bytes(plistlib.dumps({
                     'CFBundleExecutable': product, 'CFBundleIdentifier': 'com.snowshot.' + product,
-                    'CFBundlePackageType': 'APPL', 'CFBundleName': 'Snow Shot Fixture',
+                    'CFBundlePackageType': 'APPL', 'CFBundleName': 'KXCapture Fixture',
                     'CFBundleVersion': '1.0'}))
                 script = (ROOT / 'cmake/DeploySnowShotMacOS.cmake.in').read_text()
                 script = script.replace('snow_shot.app', product + '.app')
@@ -2161,12 +2161,12 @@ class MacOSPackageStripping(unittest.TestCase):
                 # Reinstalling replaces stripped staging copies with build bytes.
                 for attempt in range(2):
                     with self.subTest(product=product, attempt=attempt):
-                        for name in (product, 'snow-ocr-process', 'crashpad_handler'):
+                        for name in (product, 'kxcapture-ocr', 'crashpad_handler'):
                             shutil.copy2(binary, runtime / name)
                         run(cmake, '-DCMAKE_INSTALL_PREFIX=' + str(root),
                             '-DCMAKE_INSTALL_CONFIG_NAME=Release', '-P', str(deployment))
                         run('/usr/bin/codesign', '--verify', '--deep', '--strict', str(app))
-                        for name in (product, 'snow-ocr-process', 'crashpad_handler'):
+                        for name in (product, 'kxcapture-ocr', 'crashpad_handler'):
                             deployed = runtime / name
                             self.assertEqual(sections(deployed), original_sections)
                             self.assertEqual(run('/usr/bin/nm', '-gUj', str(deployed)), original_exports)
@@ -2242,7 +2242,7 @@ class MacOSBundle(unittest.TestCase):
             collector = app / "Contents/MacOS/crashpad_handler"
             self.assertTrue(collector.is_file())
             run(str(collector), "--version", cwd="/")
-            for name in ("snow_shot", "snow-ocr-process"):
+            for name in ("snow_shot", "kxcapture-ocr"):
                 binary = app / "Contents/MacOS" / name
                 run(str(binary), cwd="/")
                 rpaths = run("otool", "-l", str(binary))
@@ -2261,14 +2261,14 @@ class MacOSBundle(unittest.TestCase):
             run("hdiutil", "attach", "-readonly", "-nobrowse", "-noautoopen",
                 "-mountpoint", str(mount), str(dmg))
             try:
-                packaged = mount / "Snow Shot.app"
+                packaged = mount / "KXCapture.app"
                 self.assertTrue(packaged.is_dir())
                 self.assertFalse((mount / "snow_shot.app").exists())
                 self.assertEqual(os.readlink(mount / "Applications"), "/Applications")
                 self.assertTrue((mount / ".background/background.png").is_file())
                 self.assertTrue((mount / ".DS_Store").is_file())
                 metadata = plistlib.loads((packaged / "Contents/Info.plist").read_bytes())
-                self.assertEqual(metadata['CFBundleDisplayName'], 'Snow Shot')
+                self.assertEqual(metadata['CFBundleDisplayName'], 'KXCapture')
                 self.assertIs(metadata['LSUIElement'], True)
                 self.assertEqual(metadata['NSHumanReadableCopyright'],
                                  'Copyright (C) 2025-2026 mg-chao')

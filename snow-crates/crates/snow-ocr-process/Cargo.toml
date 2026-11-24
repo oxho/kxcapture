@@ -5,7 +5,7 @@ edition = "2024"
 license.workspace = true
 
 [[bin]]
-name = "snow-ocr-process"
+name = "kxcapture-ocr"
 path = "src/main.rs"
 
 [features]

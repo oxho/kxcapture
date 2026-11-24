@@ -24,7 +24,7 @@ void commandAndOwnership() {
     auto options = registry.options();
     const auto executable = QDir::toNativeSeparators(options.executablePath);
     windows::ShellContextMenuRegistration registration(options);
-    require(registration.expectedCommand() == QStringLiteral("\"%1\" --edit-with-snow-shot \"%2\"")
+    require(registration.expectedCommand() == QStringLiteral("\"%1\" --edit-with-kxcapture \"%2\"")
                                                   .arg(executable, QStringLiteral("%1")),
             "command quotes executable and Explorer's Unicode file argument");
     require(registration.setMode(windows::ShellContextMenuMode::ImageAndDocumentFiles),
@@ -59,8 +59,8 @@ void accessKeysAndRollback() {
     Registry registry;
     windows::ShellContextMenuRegistration registration(registry.options());
     const QString baseLabel = snow_shot::app::edition::isMini
-                                  ? QStringLiteral("Edit with Snow Shot Mini")
-                                  : QStringLiteral("Edit with Snow Shot");
+                                  ? QStringLiteral("Edit with KXCapture Mini")
+                                  : QStringLiteral("Edit with KXCapture");
     const auto label = [&] {
         return stringText(
             registry.keys.value(Registry::path(QStringLiteral("png"))).values.value({}));
@@ -181,8 +181,8 @@ void foreignOwnerAndLanguageRefresh() {
     const auto command = registry.keys[png].children.value(QStringLiteral("command"));
     require(registration.refreshLabels() &&
                 stringText(registry.keys[png].values.value({})) ==
-                    (snow_shot::app::edition::isMini ? QStringLiteral("Edit with Snow Shot Mini")
-                                                     : QStringLiteral("Edit with Snow Shot")) &&
+                    (snow_shot::app::edition::isMini ? QStringLiteral("Edit with KXCapture Mini")
+                                                     : QStringLiteral("Edit with KXCapture")) &&
                 registry.keys[png].children.value(QStringLiteral("command")) == command,
             "language refresh replaces the display label and preserves command data");
     registry.keys[png].values.insert(QStringLiteral("ProductId"),
@@ -311,7 +311,7 @@ void isolatedNativeRegistry() {
     windows::ShellContextMenuRegistration::Options options;
     options.classesRoot = root;
     options.executablePath =
-        QStringLiteral("C:/Native Snow Shot/雪/") + snow_shot::app::edition::executableName();
+        QStringLiteral("C:/Native KXCapture/雪/") + snow_shot::app::edition::executableName();
     options.fileExtensions = {QStringLiteral("png"), QStringLiteral("jpg"), QStringLiteral("bmp")};
     windows::ShellContextMenuRegistration registration(std::move(options));
     require(registration.setMode(windows::ShellContextMenuMode::ImageAndDocumentFiles,

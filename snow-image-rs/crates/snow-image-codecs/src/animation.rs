@@ -228,7 +228,7 @@ impl AnimationSession {
             match disposal {
                 Disposal::None => {}
                 // GIF follows web compositing convention: background disposal exposes
-                // transparency, matching the existing image decoder used by Snow Shot.
+                // transparency, matching the existing image decoder used by KXCapture.
                 Disposal::Background => {
                     for y in rectangle.y..rectangle.y + rectangle.height {
                         let start = y as usize * descriptor.row_stride

@@ -4,8 +4,8 @@
     <context>
         <name>ImageCompressionWindow</name>
         <message>
-            <source>Allow Snow Shot to access Finder in System Settings &gt; Privacy &amp; Security &gt; Automation, then try again</source>
-            <translation>Allow Snow Shot to access Finder in System Settings &gt; Privacy &amp; Security &gt; Automation, then try again</translation>
+            <source>Allow KXCapture to access Finder in System Settings &gt; Privacy &amp; Security &gt; Automation, then try again</source>
+            <translation>Allow KXCapture to access Finder in System Settings &gt; Privacy &amp; Security &gt; Automation, then try again</translation>
         </message>
         <message>
             <source>Cancel</source>

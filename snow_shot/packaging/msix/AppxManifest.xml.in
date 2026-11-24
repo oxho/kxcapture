@@ -26,27 +26,27 @@
     <TargetDeviceFamily Name="Windows.Desktop" MinVersion="@MinVersion@" MaxVersionTested="10.0.26100.0" />
   </Dependencies>
   <Applications>
-    <Application Id="SnowShot" Executable="bin\snow_shot.exe" EntryPoint="Windows.FullTrustApplication"
+    <Application Id="KXCapture" Executable="bin\kxcapture.exe" EntryPoint="Windows.FullTrustApplication"
       uap10:RuntimeBehavior="packagedClassicApp" uap10:TrustLevel="mediumIL">
       <uap:VisualElements DisplayName="ms-resource:DisplayName" Description="ms-resource:Description"
         BackgroundColor="transparent" Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png" />
       <Extensions>
-        <desktop:Extension Category="windows.startupTask" Executable="bin\snow_shot.exe"
+        <desktop:Extension Category="windows.startupTask" Executable="bin\kxcapture.exe"
           EntryPoint="Windows.FullTrustApplication" uap10:Parameters="--autostart">
-          <desktop:StartupTask TaskId="SnowShotStartup" Enabled="false" DisplayName="ms-resource:DisplayName" />
+          <desktop:StartupTask TaskId="KXCaptureStartup" Enabled="false" DisplayName="ms-resource:DisplayName" />
         </desktop:Extension>
-        <uap3:Extension Category="windows.appExecutionAlias" Executable="bin\snow-shot-mcp.exe"
+        <uap3:Extension Category="windows.appExecutionAlias" Executable="bin\kxcapture-mcp.exe"
           EntryPoint="Windows.FullTrustApplication" uap11:Subsystem="console" uap11:SupportsMultipleInstances="true">
           <uap3:AppExecutionAlias>
-            <desktop:ExecutionAlias Alias="snow-shot-store-mcp.exe" />
+            <desktop:ExecutionAlias Alias="kxcapture-mcp.exe" />
           </uap3:AppExecutionAlias>
         </uap3:Extension>
         <com:Extension Category="windows.comServer">
           <com:ComServer>
-            <com:SurrogateServer DisplayName="Snow Shot">
-              <com:Class Id="3F1E90A2-7D4B-4F21-9D8A-6B0C5E2F7093"
-                Path="bin\SnowShotExplorerCommand.dll" ThreadingModel="STA" />
+            <com:SurrogateServer DisplayName="KXCapture">
+              <com:Class Id="125F9C90-A277-4ED7-82AB-8B2AE9B5BE61"
+                Path="bin\KXCaptureExplorerCommand.dll" ThreadingModel="STA" />
             </com:SurrogateServer>
           </com:ComServer>
         </com:Extension>
@@ -56,7 +56,7 @@
           </desktop4:FileExplorerContextMenus>
         </desktop4:Extension>
         <uap:Extension Category="windows.fileTypeAssociation">
-          <uap3:FileTypeAssociation Name="snowshotfiles" Parameters="--edit-with-snow-shot &quot;%1&quot;" MultiSelectModel="Document">
+          <uap3:FileTypeAssociation Name="kxcapturefiles" Parameters="--edit-with-kxcapture &quot;%1&quot;" MultiSelectModel="Document">
             <uap:DisplayName>ms-resource:FileTypesDisplayName</uap:DisplayName>
             <uap:SupportedFileTypes>
 @FileTypes@

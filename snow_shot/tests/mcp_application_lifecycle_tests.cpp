@@ -235,10 +235,10 @@ int runMcpApplicationLifecycleTests(int argc, char** argv) try {
                 application.property("snowShotMcpStartError").value<McpStartupError>();
             const QString message = mcpStartupErrorText(error);
             const QString expected =
-                locale == u"zh_CN" ? QStringLiteral("另一个 Snow Shot 实例正在使用 MCP 端点")
+                locale == u"zh_CN" ? QStringLiteral("另一个 KXCapture 实例正在使用 MCP 端点")
                 : locale == u"zh_TW"
-                    ? QStringLiteral("另一個 Snow Shot 執行個體正在使用 MCP 端點")
-                    : QStringLiteral("Another Snow Shot instance owns the MCP endpoint");
+                    ? QStringLiteral("另一個 KXCapture 執行個體正在使用 MCP 端點")
+                    : QStringLiteral("Another KXCapture instance owns the MCP endpoint");
             require(error == McpStartupError::EndpointOwned && message == expected &&
                         !initiallyUnavailable->isRunning() && failedRuntimeStarts == 0,
                     "real catalogs retranslate retained startup failures without restarting MCP");
@@ -271,7 +271,7 @@ int runMcpApplicationLifecycleTests(int argc, char** argv) try {
             ScreenshotMcpRequest request;
             request.connectionId = 1;
             request.requestId = QStringLiteral("status");
-            request.method = QStringLiteral("snow_shot_mcp_status");
+            request.method = QStringLiteral("kxcapture_mcp_status");
             bool completed = false;
             session->request(request, [&](auto response) {
                 require(response.ok, "screenshot tools remain available after MCP restarts");
@@ -299,7 +299,7 @@ int runMcpApplicationLifecycleTests(int argc, char** argv) try {
         delayed.connectionId = 17;
         delayed.requestId = QStringLiteral("delayed-capture-before-disable");
         delayed.idempotencyKey = delayed.requestId;
-        delayed.method = QStringLiteral("snow_shot_document_open");
+        delayed.method = QStringLiteral("kxcapture_document_open");
         delayed.params = {{QStringLiteral("source"), QStringLiteral("capture")},
                           {QStringLiteral("delay_seconds"), 10}};
         bool admitted = false;

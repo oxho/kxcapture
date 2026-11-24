@@ -50,7 +50,7 @@ fn accepted_line(text: &str, score: f32, points: [[f32; 2]; 4]) -> Option<OcrLin
 
 fn source_quad(mut points: [[f32; 2]; 4], width: usize, height: usize) -> [[f32; 2]; 4] {
     // The detector's enclosing rotated rectangle can extend beyond a clipped
-    // contour. Preserve Snow Shot's source-image bounds at the IPC boundary.
+    // contour. Preserve KXCapture's source-image bounds at the IPC boundary.
     for point in &mut points {
         point[0] = point[0].clamp(0., width as f32);
         point[1] = point[1].clamp(0., height as f32);

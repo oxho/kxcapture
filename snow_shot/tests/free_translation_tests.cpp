@@ -46,6 +46,25 @@ void configure(Server& server, SnowShotApiClient& client) {
     SnowShotApiClientTestAccess::endpoint(client, server.url() + QStringLiteral("/v1"));
 }
 
+void emptyBaseIsUnavailable() {
+    SnowShotApiClient client{QString()};
+    require(!client.freeTranslationConfigured(), "the default free-translation URL is empty");
+    QObject owner;
+    require(client.streamTranslation(
+                request(), &owner, [](const QString&) {},
+                [](auto) { require(false, "an empty free-translation URL has no completion"); }) ==
+                    0 &&
+                SnowShotApiClientTestAccess::requests(client) == 0,
+            "an empty free-translation URL does not open a network request");
+    QTemporaryDir directory;
+    require(directory.isValid(), "empty-url translation settings");
+    ConfigurationStore settings(directory.filePath(QStringLiteral("empty.json")), true, true, 60000);
+    auto& service = TranslationService::forClient(client, settings, QLocale::English);
+    require(service.models().size() == 1 && service.models().first().id == freeTranslationId &&
+                service.models().first().unavailable,
+            "free translation stays listed and is marked unavailable");
+}
+
 void requestAndStreaming() {
     Server server;
     SnowShotApiClient client{QString()};
@@ -60,7 +79,7 @@ void requestAndStreaming() {
                     require(result.succeeded(), "free stream succeeds");
                     ++completions;
                 }) != 0,
-            "free service works without a Snow Shot server");
+            "free service works without a KXCapture server");
     waitUntil([&] { return server.streams.size() == 1; }, "public endpoint receives request");
     const auto& stream = server.streams.first();
     const auto body = stream.body;
@@ -111,7 +130,7 @@ void requestAndStreaming() {
     const auto fingerprint = client.modelFingerprint(freeTranslationId);
     require(client.setBaseUrl(QStringLiteral("http://127.0.0.1:1")) &&
                 client.modelFingerprint(freeTranslationId) == fingerprint,
-            "free service identity does not depend on the Snow Shot server");
+            "free service identity does not depend on the KXCapture server");
 }
 
 void failuresAndCancellation() {
@@ -411,6 +430,7 @@ int main(int argc, char** argv) {
     QCoreApplication application(argc, argv);
     QTemporaryDir directory;
     require(directory.isValid(), "isolated free translation fixtures");
+    emptyBaseIsUnavailable();
     requestAndStreaming();
     failuresAndCancellation();
     boundedQueueAndQueuedCancellation();

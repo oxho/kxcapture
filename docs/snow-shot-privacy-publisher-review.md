@@ -5,12 +5,12 @@ Reviewed against the application and backend source on October 19, 2026.
 These notes are for the publisher. The English and Simplified Chinese policies
 are written for users; this appendix stays in the app repository and is not part
 of the website. The operator and contact were supplied by the publisher:
-Chao Huang, chao@mgchao.top.
+Chao Huang, .
 
 The website sources are `D:/snow-apps-site/docs/en/privacy.md` and
 `D:/snow-apps-site/docs/zh/privacy.md`. They build to `/privacy.html` and
 `/zh/privacy.html`. The app's default privacy link is
-`https://snowshot.top/privacy.html`, with the website's normal language selection.
+` with the website's normal language selection.
 
 ## Source evidence reviewed
 

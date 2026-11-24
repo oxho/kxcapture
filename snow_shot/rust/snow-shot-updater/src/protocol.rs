@@ -128,7 +128,7 @@ pub fn validate_relaunch_arguments(arguments: &[String]) -> crate::Result<()> {
     let mut seen = std::collections::HashSet::new();
     let mut arguments = arguments.iter();
     while let Some(argument) = arguments.next() {
-        let valid = if argument == "--edit-with-snow-shot" {
+        let valid = if argument == "--edit-with-kxcapture" {
             arguments.next().is_some_and(|path| {
                 std::path::Path::new(path).is_absolute()
                     && !path.contains(['\0', '"'])
@@ -328,28 +328,28 @@ mod tests {
             .to_string();
         let arguments = vec![
             "--skip-startup-update".to_owned(),
-            "--edit-with-snow-shot".to_owned(),
+            "--edit-with-kxcapture".to_owned(),
             first,
-            "--edit-with-snow-shot".to_owned(),
+            "--edit-with-kxcapture".to_owned(),
             second,
         ];
         validate_relaunch_arguments(&arguments).unwrap();
         for invalid in [
-            vec!["--edit-with-snow-shot".to_owned()],
+            vec!["--edit-with-kxcapture".to_owned()],
             vec![
-                "--edit-with-snow-shot".to_owned(),
+                "--edit-with-kxcapture".to_owned(),
                 "relative.png".to_owned(),
             ],
             vec![
-                "--edit-with-snow-shot".to_owned(),
+                "--edit-with-kxcapture".to_owned(),
                 "--update-probe".to_owned(),
             ],
             vec![
-                "--edit-with-snow-shot".to_owned(),
+                "--edit-with-kxcapture".to_owned(),
                 directory.path().join("bad\0.png").display().to_string(),
             ],
             vec![
-                "--edit-with-snow-shot".to_owned(),
+                "--edit-with-kxcapture".to_owned(),
                 directory.path().join("bad\".png").display().to_string(),
             ],
         ] {
@@ -362,7 +362,7 @@ mod tests {
         let directory = tempfile::tempdir().unwrap();
         let prefix = directory.path().display().to_string();
         let mut arguments = vec![
-            "--edit-with-snow-shot".to_owned(),
+            "--edit-with-kxcapture".to_owned(),
             format!("{prefix}/雪\\image"),
         ];
         let bytes = serde_json::to_vec(&arguments).unwrap().len();
@@ -374,7 +374,7 @@ mod tests {
             MAX_RELAUNCH_ARGUMENTS_BYTES
         );
         validate_relaunch_arguments(&arguments).unwrap();
-        validate_relaunch_commandline(&arguments, "C:\\Snow Shot\\snow-shot.exe").unwrap();
+        validate_relaunch_commandline(&arguments, "C:\\KXCapture\\snow-shot.exe").unwrap();
         arguments[1].push('x');
         assert!(validate_relaunch_arguments(&arguments).is_err());
         assert!(

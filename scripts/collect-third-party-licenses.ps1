@@ -313,7 +313,7 @@ if (-not $StandaloneMedia) {
 
 $sortedRecords = @($records | Sort-Object Category, Package, Notice)
 $indexLines = [System.Collections.Generic.List[string]]::new()
-$indexLines.Add($(if ($StandaloneMedia) { "# Snow Media Third-Party License Index" } else { "# Snow Shot Third-Party License Index" }))
+$indexLines.Add($(if ($StandaloneMedia) { "# Snow Media Third-Party License Index" } else { "# KXCapture Third-Party License Index" }))
 $indexLines.Add("")
 $indexLines.Add("This bundle was generated from the release build's resolved, non-development Rust dependency graph, installed vcpkg prefix, audited static Qt kit, and repository attribution notices.")
 $indexLines.Add("")

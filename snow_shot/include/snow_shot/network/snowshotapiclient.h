@@ -72,6 +72,7 @@ struct SnowShotChatModel {
     bool supportsReasoning = false;
     QString translationMode = QStringLiteral("default");
     bool supportsVision = false;
+    bool unavailable = false;
 
     [[nodiscard]] bool operator==(const SnowShotChatModel&) const = default;
 };
@@ -175,6 +176,9 @@ class SnowShotApiClient final : public QObject {
     [[nodiscard]] static QString configuredBaseUrl(const QString& savedUrl = {});
     [[nodiscard]] QString baseUrl() const {
         return m_baseUrl;
+    }
+    [[nodiscard]] bool freeTranslationConfigured() const {
+        return !m_freeTranslationBaseUrl.isEmpty();
     }
     [[nodiscard]] bool setBaseUrl(const QString& baseUrl);
 

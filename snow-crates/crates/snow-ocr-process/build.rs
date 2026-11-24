@@ -73,13 +73,13 @@ BEGIN
     BEGIN
         BLOCK "000004b0"
         BEGIN
-            VALUE "CompanyName", "Snow Apps\0"
-            VALUE "FileDescription", "Snow Shot OCR runtime\0"
+            VALUE "CompanyName", "oxho\0"
+            VALUE "FileDescription", "KXCapture OCR runtime\0"
             VALUE "FileVersion", "{version}.0\0"
-            VALUE "InternalName", "snow-ocr-process\0"
+            VALUE "InternalName", "kxcapture-ocr\0"
             VALUE "LegalCopyright", "Copyright (C) 2025-2026 mg-chao\0"
-            VALUE "OriginalFilename", "snow-ocr-process-{version}-{platform}.exe\0"
-            VALUE "ProductName", "Snow Shot OCR Runtime\0"
+            VALUE "OriginalFilename", "kxcapture-ocr.exe\0"
+            VALUE "ProductName", "KXCapture OCR Runtime\0"
             VALUE "ProductVersion", "{version}\0"
         END
     END

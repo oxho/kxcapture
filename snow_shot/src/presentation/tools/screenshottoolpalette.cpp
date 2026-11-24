@@ -6937,7 +6937,7 @@ bool ScreenshotToolPalette::addMainSecondaryButtons(const Options& options, QBox
         }
     }
 
-    if (options.showOcrTool) {
+    if (options.showOcrTool && snow_shot::features::ocrEnabled()) {
         m_ocrButton = addToolButton("Text recognition", custom_outlined_icons::TextRecognition());
         applyScreenshotShortcutTooltip(m_ocrButton, QStringLiteral("Text recognition"),
                                        QStringLiteral("text_recognition"));
@@ -6948,7 +6948,8 @@ bool ScreenshotToolPalette::addMainSecondaryButtons(const Options& options, QBox
                 [this]() { activateActionTool(QStringLiteral("text-recognition")); });
     }
 
-    if ((options.showTextTranslationTool && snow_shot::app::edition::textTranslation)) {
+    if (options.showTextTranslationTool && snow_shot::app::edition::textTranslation &&
+        snow_shot::features::translationEnabled()) {
         m_textTranslationButton =
             addToolButton("Text translation", custom_outlined_icons::OcrTranslate());
         applyScreenshotShortcutTooltip(m_textTranslationButton, QStringLiteral("Text translation"),
@@ -9469,15 +9470,19 @@ void ScreenshotToolPalette::createTextRecognitionActionFamily() {
     m_textEditButton =
         addButton("Edit", outlined_icons::Edit(), QStringLiteral("screenshotOcrTextEditButton"));
 #if SNOW_SHOT_ENABLE_TEXT_TRANSLATION
-    m_textActionSpacers.push_back(addStyleToolbarSpacing(m_selectActionLayout, STYLE_ITEM_SPACING));
-    m_textTranslateButton = addButton("Text translation", custom_outlined_icons::OcrTranslate(),
-                                      QStringLiteral("screenshotOcrTextTranslateButton"));
-    m_jumpToTranslationPageLeadingSpacer =
-        addStyleToolbarSpacing(m_selectActionLayout, STYLE_ITEM_SPACING);
-    m_jumpToTranslationPageButton =
-        addButton("Jump to translation page", custom_outlined_icons::JumpTranslate(),
-                  QStringLiteral("screenshotOcrJumpToTranslationPageButton"));
-    m_textActionSpacers.push_back(addStyleToolbarSpacing(m_selectActionLayout, STYLE_ITEM_SPACING));
+    if (snow_shot::features::translationEnabled()) {
+        m_textActionSpacers.push_back(
+            addStyleToolbarSpacing(m_selectActionLayout, STYLE_ITEM_SPACING));
+        m_textTranslateButton = addButton("Text translation", custom_outlined_icons::OcrTranslate(),
+                                          QStringLiteral("screenshotOcrTextTranslateButton"));
+        m_jumpToTranslationPageLeadingSpacer =
+            addStyleToolbarSpacing(m_selectActionLayout, STYLE_ITEM_SPACING);
+        m_jumpToTranslationPageButton =
+            addButton("Jump to translation page", custom_outlined_icons::JumpTranslate(),
+                      QStringLiteral("screenshotOcrJumpToTranslationPageButton"));
+        m_textActionSpacers.push_back(
+            addStyleToolbarSpacing(m_selectActionLayout, STYLE_ITEM_SPACING));
+    }
 #endif
 
     ScreenshotToolPaletteSelectEditorConfig formattingConfig;
@@ -9881,7 +9886,7 @@ void ScreenshotToolPalette::refreshRecognitionModelSelect() {
     QString selectedLabel;
     if (!selection.isEmpty() && unavailable) {
         selectedLabel = selection == screenshotDefaultVisionRecognitionModelId()
-                            ? tr("Snow Shot visual understanding")
+                            ? tr("KXCapture visual understanding")
                             : tr("Selected model (%1)").arg(selection);
         options.insert(options.size() - int(hasDedicatedModel),
                        {selection, selectedLabel, true, tr("Vision model")});

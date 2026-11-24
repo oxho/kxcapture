@@ -55,6 +55,17 @@ namespace custom_outlined_icons = snow_shot::presentation::icons::custom::outlin
 namespace outlined_icons = adqt::icons::antd::outlined;
 
 const QHash<QString, QString>& bundledIconResources() {
+#ifdef Q_OS_MACOS
+    const QString trayIcon = QStringLiteral(":/snow-shot/app-icons/macos-tray-template.png");
+    static const QHash<QString, QString> resources{
+        {QStringLiteral("default"), trayIcon},
+        {QStringLiteral("light"), trayIcon},
+        {QStringLiteral("dark"), trayIcon},
+        {QStringLiteral("snow-default"), trayIcon},
+        {QStringLiteral("snow-light"), trayIcon},
+        {QStringLiteral("snow-dark"), trayIcon},
+    };
+#else
     static const QHash<QString, QString> resources{
         {QStringLiteral("default"),
          QStringLiteral(":/snow-shot/app-icons/snow-shot-tray-default.png")},
@@ -67,6 +78,7 @@ const QHash<QString, QString>& bundledIconResources() {
         {QStringLiteral("snow-dark"),
          QStringLiteral(":/snow-shot/app-icons/snow-shot-tray-snow-dark.png")},
     };
+#endif
     return resources;
 }
 
@@ -419,8 +431,7 @@ class SystemTrayController::Impl {
         }
         q.setObjectName(QStringLiteral("systemTrayController"));
         trayIcon->setObjectName(QStringLiteral("snowShotSystemTrayIcon"));
-        trayIcon->setToolTip(app::edition::isMini ? app::edition::productName()
-                                                  : QStringLiteral("SnowShot"));
+        trayIcon->setToolTip(app::edition::productName());
 #ifdef Q_OS_MACOS
         notifications = std::make_unique<platform::macos::SystemNotificationService>(&q);
         using NotificationService = platform::macos::SystemNotificationService;
@@ -862,6 +873,29 @@ class SystemTrayController::Impl {
         if (icon.isNull()) {
             resolvedSource = bundledIconResource(selection);
             icon = QIcon(resolvedSource);
+            const auto addSize = [&icon](const QString& resource, int size) {
+                icon.addFile(resource, QSize(size, size));
+            };
+#ifdef Q_OS_MACOS
+            addSize(QStringLiteral(
+                        ":/snow-shot/app-icons/brand/icons/tray-menubar/macos-template-16.png"),
+                    16);
+            addSize(QStringLiteral(
+                        ":/snow-shot/app-icons/brand/icons/tray-menubar/macos-template-24.png"),
+                    24);
+#else
+            const bool lightTaskbar = selection == QStringLiteral("light") ||
+                                       selection == QStringLiteral("snow-light");
+            const QString tone = lightTaskbar ? QStringLiteral("light") : QStringLiteral("dark");
+            addSize(QStringLiteral(":/snow-shot/app-icons/brand/icons/tray-menubar/windows-tray-%1-"
+                                   "taskbar-16.png")
+                        .arg(tone),
+                    16);
+            addSize(QStringLiteral(":/snow-shot/app-icons/brand/icons/tray-menubar/windows-tray-%1-"
+                                   "taskbar-24.png")
+                        .arg(tone),
+                    24);
+#endif
         }
         if (icon.isNull()) {
             resolvedSource = QStringLiteral("application-window-icon");

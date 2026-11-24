@@ -10,7 +10,7 @@ foreach(_package IN LISTS CPACK_PACKAGE_FILES)
         # Audit the app *inside* the finished DMG, including its actual previous
         # release DR. Signing the container alone does not preserve TCC identity.
         set(_previous_dmg "$ENV{SNOW_MACOS_PREVIOUS_FULL_DMG}")
-        if(CPACK_PACKAGE_NAME STREQUAL "snow-shot-mini")
+        if(CPACK_PACKAGE_NAME STREQUAL "kxcapture-mini")
             set(_previous_dmg "$ENV{SNOW_MACOS_PREVIOUS_MINI_DMG}")
         endif()
         set(_previous_arguments)

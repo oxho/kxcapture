@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include "snow_shot/presentation/screenshotairdropservice.h"
+#include "snow_shot/app/edition.h"
 #include "snow_shot/runtime/runtimeactivitytracker.h"
 #include "nativeairdropbackend.h"
 #include "snow_shot/presentation/screenshotexportcoordinator.h"
@@ -95,7 +96,7 @@ bool ScreenshotAirDropService::shareImage(QObject* receiver, QWidget* owner, QIm
     // the basename may enter this private directory; the format is always PNG.
     filename = QFileInfo(filename).fileName();
     if (filename.isEmpty() || filename == QStringLiteral(".") || filename == QStringLiteral(".."))
-        filename = QStringLiteral("SnowShot.png");
+        filename = snow_shot::app::edition::productName() + QStringLiteral(".png");
     if (!filename.endsWith(QStringLiteral(".png"), Qt::CaseInsensitive))
         filename += QStringLiteral(".png");
     struct Prepared {

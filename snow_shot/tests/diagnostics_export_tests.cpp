@@ -117,7 +117,7 @@ void pathSelection() {
         custom.directories ==
                 QStringList{QDir(paths.selectedDirectory).filePath("logs"),
                             QDir(paths.stableDirectory).filePath("logs"),
-                            QDir(paths.temporaryDirectory).filePath("SnowShot/snow_shot/logs")} &&
+                            QDir(paths.temporaryDirectory).filePath("KXCapture/snow_shot/logs")} &&
             custom.crashCaptureDirectory.isEmpty(),
         "custom storage takes precedence and capture follows the chosen writable log root");
     for (const auto& unavailable : {QString(), QStringLiteral("relative")}) {
@@ -207,7 +207,7 @@ void captureFollowsWritableLogDirectory() {
     verify(QDir(paths.stableDirectory).filePath(QStringLiteral("logs")));
     paths.stableDirectory = directory.filePath(QStringLiteral("blocked-appdata"));
     put(paths.stableDirectory, "blocked");
-    verify(QDir(paths.temporaryDirectory).filePath(QStringLiteral("SnowShot/snow_shot/logs")));
+    verify(QDir(paths.temporaryDirectory).filePath(QStringLiteral("KXCapture/snow_shot/logs")));
     paths.selectedDirectory = directory.filePath(QStringLiteral("standard"));
     paths.stableDirectory = paths.selectedDirectory;
     require(diagnosticsOptionsForPaths(paths).directories.size() == 2,

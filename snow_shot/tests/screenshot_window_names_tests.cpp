@@ -73,7 +73,7 @@ int main(int argc, char** argv) {
     }
 #endif
     QWidget target(nullptr, Qt::Window | Qt::WindowStaysOnTopHint);
-    target.setWindowTitle(QStringLiteral("Snow Shot naming target / 文档"));
+    target.setWindowTitle(QStringLiteral("KXCapture naming target / 文档"));
     const QPoint center = app.primaryScreen()->availableGeometry().center();
     target.setGeometry(QRect(center - QPoint(160, 100), QSize(320, 200)));
     target.show();
@@ -98,7 +98,7 @@ int main(int argc, char** argv) {
                 snow_shot::storage::ScreenshotExportContext{},
             "requests without fields must return no native metadata");
     QWidget overlay(nullptr, Qt::Tool | Qt::WindowStaysOnTopHint);
-    overlay.setWindowTitle(QStringLiteral("Snow Shot naming overlay"));
+    overlay.setWindowTitle(QStringLiteral("KXCapture naming overlay"));
     overlay.setGeometry(target.geometry());
     overlay.show();
     overlay.raise();

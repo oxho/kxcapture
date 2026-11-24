@@ -1,6 +1,6 @@
-# Snow Shot MCP
+# KXCapture MCP
 
-Snow Shot exposes application controls, screenshots, background documents,
+KXCapture exposes application controls, screenshots, background documents,
 recording, pinned images, settings, history, and provider operations through the packaged Rust
 `snow-shot-mcp` executable. It uses the official `rmcp` SDK over stdio. Start Snow
 Shot, open **Settings → System**, and enable **MCP integration**. The feature is
@@ -11,7 +11,7 @@ location, and a copyable configuration for your installed executable.
 
 Use the executable beside `snow_shot.exe` on Windows. Development builds stage it
 in `build/windows-msvc-debug/snow_shot/Debug/`. On macOS it is inside
-`Snow Shot.app/Contents/MacOS/` (the build tree bundle is named `snow_shot.app`).
+`KXCapture.app/Contents/MacOS/` (the build tree bundle is named `snow_shot.app`).
 Use your installation's absolute path.
 
 Claude-style configuration:
@@ -20,7 +20,7 @@ Claude-style configuration:
 {
   "mcpServers": {
     "snow-shot": {
-      "command": "D:\\Snow Shot\\bin\\snow-shot-mcp.exe",
+      "command": "D:\\KXCapture\\bin\\snow-shot-mcp.exe",
       "args": []
     }
   }
@@ -31,52 +31,52 @@ Codex-style stdio configuration:
 
 ```toml
 [mcp_servers.snow_shot]
-command = 'D:\Snow Shot\bin\snow-shot-mcp.exe'
+command = 'D:\KXCapture\bin\snow-shot-mcp.exe'
 args = []
 ```
 
 On macOS set `command` to, for example,
-`/Applications/Snow Shot.app/Contents/MacOS/snow-shot-mcp`.
+`/Applications/KXCapture.app/Contents/MacOS/snow-shot-mcp`.
 The bridge leaves application startup to you by default. Add `"--launch-app"` to
-`args` to allow one launch attempt of the sibling Snow Shot executable. This does
+`args` to allow one launch attempt of the sibling KXCapture executable. This does
 not enable MCP integration: enable it in the application first. The bridge waits
 up to ten seconds for the authenticated endpoint and never replays a mutation.
 If the application is stopped or integration
-is disabled, `snow_shot_mcp_status` returns `reachable: false`, `mcp_enabled: null`,
+is disabled, `kxcapture_mcp_status` returns `reachable: false`, `mcp_enabled: null`,
 and the `unavailable` error. It cannot distinguish those two conditions without a
 live authenticated endpoint. A later call discovers the endpoint again.
 
 ## Tools and workflow
 
-1. Call `snow_shot_mcp_status` for protocol, application version, session ownership,
+1. Call `kxcapture_mcp_status` for protocol, application version, session ownership,
    and supported tool names.
-2. Call `snow_shot_screenshot_begin` with optional `presentation` (`visible`, the default,
+2. Call `kxcapture_screenshot_begin` with optional `presentation` (`visible`, the default,
    or `silent`), `target` (`all_displays`, `monitor`, `current_monitor`, or
    `focused_window`), `monitor_id`, `capture_cursor`, and `smart_selection`.
 3. Retain the returned `session_id` and `revision`. Every subsequent edit or
    output call requires both `session_id` and `expected_revision`. State and
    cancellation do not require a revision.
-4. Use `snow_shot_screenshot_set_selection`, `snow_shot_screenshot_set_tool`, `snow_shot_screenshot_set_selection_style`,
-   `snow_shot_screenshot_set_tool_style`, `snow_shot_screenshot_edit_elements`, `snow_shot_screenshot_apply_annotations`,
-   `snow_shot_screenshot_undo`, and `snow_shot_screenshot_redo`.
-5. Use `snow_shot_screenshot_scrolling` to start/stop scrolling, change axis, set automatic scrolling,
-   move the selection, or trim the stitched result. Use `snow_shot_screenshot_scroll_once` with `up`,
+4. Use `kxcapture_screenshot_set_selection`, `kxcapture_screenshot_set_tool`, `kxcapture_screenshot_set_selection_style`,
+   `kxcapture_screenshot_set_tool_style`, `kxcapture_screenshot_edit_elements`, `kxcapture_screenshot_apply_annotations`,
+   `kxcapture_screenshot_undo`, and `kxcapture_screenshot_redo`.
+5. Use `kxcapture_screenshot_scrolling` to start/stop scrolling, change axis, set automatic scrolling,
+   move the selection, or trim the stitched result. Use `kxcapture_screenshot_scroll_once` with `up`,
    `down`, `left`, or `right` for one native wheel notch. The call returns `direction` and
    `dispatch_status: "posted"` as soon as native input is posted. Capture and stitching continue
    asynchronously; this response does not guarantee changed or settled content. Query
-   `snow_shot_screenshot_state` for current scrolling state and use the output tools when ready to export.
-6. Use `snow_shot_screenshot_recognize`, `snow_shot_screenshot_translate`, or `snow_shot_screenshot_auto_filter`; each returns
-   an operation ID. Poll `snow_shot_screenshot_operation` and use `snow_shot_screenshot_edit_recognition` or
-   `snow_shot_screenshot_export_recognition` for results. These operations use configured providers and
+   `kxcapture_screenshot_state` for current scrolling state and use the output tools when ready to export.
+6. Use `kxcapture_screenshot_recognize`, `kxcapture_screenshot_translate`, or `kxcapture_screenshot_auto_filter`; each returns
+   an operation ID. Poll `kxcapture_screenshot_operation` and use `kxcapture_screenshot_edit_recognition` or
+   `kxcapture_screenshot_export_recognition` for results. These operations use configured providers and
    also work in silent sessions.
-7. Use `snow_shot_screenshot_render`, `snow_shot_screenshot_save`, `snow_shot_screenshot_copy`, or
-   `snow_shot_screenshot_pin`. Continue with the new revision returned by each output.
-8. Call `snow_shot_screenshot_finish` to close the capture and release ownership. Set
+7. Use `kxcapture_screenshot_render`, `kxcapture_screenshot_save`, `kxcapture_screenshot_copy`, or
+   `kxcapture_screenshot_pin`. Continue with the new revision returned by each output.
+8. Call `kxcapture_screenshot_finish` to close the capture and release ownership. Set
    `output` to `render` or `save` for a final output; absent/`none` closes directly.
-   `snow_shot_screenshot_cancel` cancels capture or editing. With `request_id`, it cancels
+   `kxcapture_screenshot_cancel` cancels capture or editing. With `request_id`, it cancels
    that pending operation and retains the editor, except an unfinished begin.
 
-`snow_shot_screenshot_state` reports the current capture phase, region, canvas tool,
+`kxcapture_screenshot_state` reports the current capture phase, region, canvas tool,
 undo/redo state, display mapping, revision, and pending operation. Normal screenshots
 always retain cursor data separately. `capture_cursor` selects initial cursor inclusion
 in the output; `show_cursor` reports current session visibility and `cursor_available`
@@ -86,7 +86,7 @@ visible sessions increment the revision. A stale call returns `stale_revision`
 and the current state in `error.details.state`; refresh and decide what to do
 before sending another edit.
 
-`snow_shot_screenshot_direct_capture` takes `target: current_monitor` or `focused_window`
+`kxcapture_screenshot_direct_capture` takes `target: current_monitor` or `focused_window`
 and `output: render`, `save`, or `copy`. It uses the existing direct native
 capture path, without an editor. It accepts the applicable output options and
 `capture_cursor`, and releases its temporary session when output completes.
@@ -98,14 +98,14 @@ Silent sessions cancel on disconnect or when integration is disabled. Disabling
 integration closes all clients and removes the descriptor. Escape and normal UI
 cancellation invalidate the session and cancel any pending MCP output.
 
-Tools use `snow_shot_<domain>_<verb>` names. `tools/list` supplies typed input schemas,
+Tools use `kxcapture_<domain>_<verb>` names. `tools/list` supplies typed input schemas,
 response-envelope schemas and annotations. The checked
 [`mcp-capabilities.json`](mcp-capabilities.json) records exact application dispatch
 coverage. Use the advertised schemas rather than guessing optional fields.
 
 ## Background documents and jobs
 
-`snow_shot_document_open` creates an isolated, silent document from a local file,
+`kxcapture_document_open` creates an isolated, silent document from a local file,
 history item, pinned item, clipboard, text, HTML, or a direct capture. Keep its
 `document_id` and revision. Document tools cover selection, selection style,
 annotation transactions, undo/redo, cloning, rendering, saving, copying, pinning,
@@ -125,21 +125,21 @@ negotiating the modern Tasks extension receives document-open jobs as Tasks. The
 completed job result contains the document ID and revision.
 
 Recognition and standalone translation return owned job handles. Use
-`snow_shot_job_get`, `snow_shot_job_list`, and `snow_shot_job_cancel`; honor the
+`kxcapture_job_get`, `kxcapture_job_list`, and `kxcapture_job_cancel`; honor the
 returned `poll_interval_ms` and `ttl_ms`. Results remain available until expiry
 or connection teardown. Admission and result-memory limits return explicit
 errors instead of silently evicting existing results. Documents and jobs belong
 to the current connection and are retired when it disconnects.
-To retry an owned translation, call `snow_shot_translation_start` with
+To retry an owned translation, call `kxcapture_translation_start` with
 `retry_job_id` and an optional idempotency key. This creates a new job using the
 retained original input and preferences; omit new text, source, language and
 model fields in this mode. A fresh translation may instead use `texts` or
 `source: "selection"` to capture selected text through the native application.
 
-Large results use owned artifact handles. `snow_shot_artifact_read` returns a
+Large results use owned artifact handles. `kxcapture_artifact_read` returns a
 base64 chunk with `offset`, `next_offset`, and `eof`; its maximum raw chunk is
 256 KiB and default is 64 KiB. Continue using `next_offset` until `eof`, and
-release the handle with `snow_shot_artifact_release` when finished. Artifact
+release the handle with `kxcapture_artifact_release` when finished. Artifact
 metadata includes the MIME type, byte count, and lifetime. A digest is available
 when computed; do not assume its presence in the initial descriptor.
 Chunks travel over private IPC as binary attachments; base64 is added at the MCP
@@ -163,8 +163,8 @@ soon as the workflow no longer needs them.
 
 ## Application, recording, and pinned workflows
 
-Use `snow_shot_app_status` and `snow_shot_app_displays` to inspect the running
-application. `snow_shot_app_action` covers application windows and lifecycle.
+Use `kxcapture_app_status` and `kxcapture_app_displays` to inspect the running
+application. `kxcapture_app_action` covers application windows and lifecycle.
 Settings tools expose registered fields and their types, current values, and
 revision; update only intended field IDs with that revision. Provider model
 metadata is readable; credentials are write-only and omitted secrets remain
@@ -172,7 +172,7 @@ unchanged. Templates, history, configuration import/export, storage maintenance,
 permissions, and updates each have their own typed tools. Destructive mutations
 require the revision specified by their schema.
 
-For recording, read `snow_shot_recording_state`, start an explicit region and
+For recording, read `kxcapture_recording_state`, start an explicit region and
 options, then retain the `recording_id` and revision for controls. Stop finalizes
 the file; a successful start does not mean a completed file exists. Recording
 supports pause/resume, annotation editing, undo/redo, copying and closing. Client
@@ -192,7 +192,7 @@ providers; network/provider failures are returned as application errors.
 
 Resources expose capabilities, application status, settings, owned documents,
 jobs, screenshot sessions, pinned images, history metadata, and bounded artifact
-reads under `snow-shot://` URIs. Mutable/private reads have zero cache lifetime;
+reads under `kxcapture://` URIs. Mutable/private reads have zero cache lifetime;
 static catalogs advertise a five-minute lifetime. No arbitrary file URI reads
 are supported. Prompts provide screenshot, background-image, and recording
 workflows, with completion for background-image output formats.
@@ -251,7 +251,7 @@ Rectangle bounds align outward to captured pixels through the existing model.
 
 ## Typed annotations
 
-Example `snow_shot_screenshot_apply_annotations` input:
+Example `kxcapture_screenshot_apply_annotations` input:
 
 ```json
 {
@@ -330,7 +330,7 @@ pixels, tokens, clipboard payloads, or annotation text are written to logs.
 
 The Blender references (`mcp-for-blender-main/src/blender_mcp/server.py` and
 `addon.py`) establish the stdio/process boundary, bounded socket operations, and
-main-thread command dispatch. Snow Shot adapts those principles to its existing
+main-thread command dispatch. KXCapture adapts those principles to its existing
 asynchronous workflows; it does not embed Python or expose arbitrary commands.
 
 - Rust `snow-shot-mcp`: typed SDK tools, asynchronous same-user IPC, cancellation,
@@ -433,7 +433,7 @@ uses the repository Windows QPA fallback. This iteration validates Windows only;
 macOS native validation was deferred by the user. See `MCP_VALIDATION.md` for the
 specific completed and outstanding gates.
 
-On Windows, the manual live probe starts an isolated Snow Shot instance and calls
+On Windows, the manual live probe starts an isolated KXCapture instance and calls
 all 28 screenshot tools through the bridge. It captures the current desktop, retains
 and restores the clipboard, and briefly creates a pinned image. Its report separates
 successful native operations from ownership guards on provider/scrolling routes.
@@ -450,5 +450,5 @@ python snow_shot/tests/mcp_live_tests.py `
 Configurable canvas fill styles accept `fill_style: "border"`, `"solid"`, `"cross_line"`,
 or `"line"` in screenshot and background-document tool-style patches and pinned-image
 `tool_style` edits. Border preserves the stored fill color and renders no fill.
-Fresh Snow Shot drawing preferences use Border with `#FFCCC7`;
+Fresh KXCapture drawing preferences use Border with `#FFCCC7`;
 existing saved preferences are retained.

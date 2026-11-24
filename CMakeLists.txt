@@ -24,38 +24,45 @@ if(NOT SNOW_SHOT_VERSION MATCHES "^([0-9]+\\.[0-9]+\\.[0-9]+)(-[0-9A-Za-z.-]+)?$
 endif()
 set(SNOW_SHOT_VERSION_NUMERIC "${CMAKE_MATCH_1}")
 set(SNOW_SHOT_DISTRIBUTION_CHANNEL "standalone" CACHE STRING
-    "Snow Shot Windows distribution channel: standalone or store.")
+    "KXCapture Windows distribution channel: standalone or store.")
 set_property(CACHE SNOW_SHOT_DISTRIBUTION_CHANNEL PROPERTY STRINGS standalone store)
-set(SNOW_SHOT_PRIVACY_POLICY_URL "https://snowshot.top/privacy.html" CACHE STRING
-    "Public HTTPS privacy policy URL for Snow Shot.")
-if(NOT SNOW_SHOT_PRIVACY_POLICY_URL MATCHES "^https://[A-Za-z0-9][A-Za-z0-9./_-]*$")
-    message(FATAL_ERROR "SNOW_SHOT_PRIVACY_POLICY_URL must be a public HTTPS URL")
+set(SNOW_SHOT_PRIVACY_POLICY_URL "" CACHE STRING
+    "Public HTTPS privacy policy URL. Empty leaves the privacy-policy link disabled.")
+set(SNOW_SHOT_TERMS_URL "" CACHE STRING
+    "Public HTTPS terms URL. Empty leaves the user-agreement link disabled.")
+if(NOT SNOW_SHOT_PRIVACY_POLICY_URL STREQUAL "" AND
+   NOT SNOW_SHOT_PRIVACY_POLICY_URL MATCHES "^https://[A-Za-z0-9][A-Za-z0-9./_-]*$")
+    message(FATAL_ERROR "SNOW_SHOT_PRIVACY_POLICY_URL must be empty or a public HTTPS URL")
+endif()
+if(NOT SNOW_SHOT_TERMS_URL STREQUAL "" AND
+   NOT SNOW_SHOT_TERMS_URL MATCHES "^https://[A-Za-z0-9][A-Za-z0-9./_-]*$")
+    message(FATAL_ERROR "SNOW_SHOT_TERMS_URL must be empty or a public HTTPS URL")
 endif()
 if(NOT SNOW_SHOT_DISTRIBUTION_CHANNEL MATCHES "^(standalone|store)$")
     message(FATAL_ERROR "SNOW_SHOT_DISTRIBUTION_CHANNEL must be standalone or store")
 endif()
 if(SNOW_SHOT_DISTRIBUTION_CHANNEL STREQUAL "store")
     if(NOT WIN32)
-        message(FATAL_ERROR "The Snow Shot Store channel requires Windows")
+        message(FATAL_ERROR "The KXCapture Store channel requires Windows")
     endif()
     if(NOT SNOW_WINDOWS_ARCHITECTURE STREQUAL "x64")
-        message(FATAL_ERROR "The Snow Shot Store channel supports x64 only")
+        message(FATAL_ERROR "The KXCapture Store channel supports x64 only")
     endif()
     if(NOT SNOW_SHOT_VERSION STREQUAL SNOW_SHOT_VERSION_NUMERIC)
-        message(FATAL_ERROR "The Store channel requires a stable numeric Snow Shot version")
+        message(FATAL_ERROR "The Store channel requires a stable numeric KXCapture version")
     endif()
     set(_SNOW_SHOT_CONFIGURED_STORE_BUILD 1)
 else()
     set(_SNOW_SHOT_CONFIGURED_STORE_BUILD 0)
 endif()
-set(SNOW_SHOT_PRODUCT_NAME "Snow Shot")
-set(SNOW_SHOT_EXECUTABLE_NAME "snow_shot")
-set(SNOW_SHOT_VENDOR "Snow Apps")
+set(SNOW_SHOT_PRODUCT_NAME "KXCapture")
+set(SNOW_SHOT_EXECUTABLE_NAME "kxcapture")
+set(SNOW_SHOT_VENDOR "oxho")
 set(SNOW_SHOT_DESCRIPTION
-    "A screenshot utility for capturing, annotating, pinning, and recognizing screen content.")
-set(SNOW_SHOT_HOMEPAGE_URL "https://snowshot.top")
-set(SNOW_SHOT_SUPPORT_EMAIL "chao@mgchao.top")
-set(SNOW_SHOT_COPYRIGHT "Copyright (C) 2025-2026 mg-chao")
+    "KXCapture is a screenshot utility for capturing, annotating, pinning, and recognizing screen content.")
+set(SNOW_SHOT_HOMEPAGE_URL "" CACHE STRING "Public homepage URL. Empty hides homepage links.")
+set(SNOW_SHOT_SUPPORT_EMAIL "" CACHE STRING "Support email. Empty leaves the contact address unset.")
+set(SNOW_SHOT_COPYRIGHT "Copyright (C) 2025-2026 mg-chao. Modified by oxho, 2026.")
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -77,21 +84,21 @@ option(SNOW_APPS_BUILD_ANT_DESIGN_QT "Build the Ant Design Qt libraries." ON)
 option(SNOW_APPS_BUILD_SNOW_IMAGE "Build the Snow Image library." ON)
 option(SNOW_APPS_BUILD_DRAW_ENGINE "Build the Snow Draw Engine Qt library." ON)
 option(SNOW_APPS_BUILD_DRAW_ENGINE_DEMO "Build the Snow Draw Engine Qt demo." OFF)
-option(SNOW_APPS_BUILD_IMAGE_VIEWER "Build Snow Image Viewer." ON)
-option(SNOW_APPS_BUILD_SNOW_SHOT "Build Snow Shot." ON)
+option(SNOW_APPS_BUILD_IMAGE_VIEWER "Build KXCapture Image Viewer." ON)
+option(SNOW_APPS_BUILD_SNOW_SHOT "Build KXCapture." ON)
 set(_snow_mini_default ${SNOW_APPS_BUILD_SNOW_SHOT})
 if(APPLE AND NOT CMAKE_OSX_ARCHITECTURES STREQUAL "arm64")
     set(_snow_mini_default OFF)
 endif()
-option(SNOW_APPS_BUILD_SNOW_SHOT_MINI "Build Snow Shot Mini alongside Snow Shot." ${_snow_mini_default})
+option(SNOW_APPS_BUILD_SNOW_SHOT_MINI "Build KXCapture Mini alongside KXCapture." ${_snow_mini_default})
 if(SNOW_SHOT_DISTRIBUTION_CHANNEL STREQUAL "store" AND SNOW_APPS_BUILD_SNOW_SHOT_MINI)
-    message(FATAL_ERROR "The Store channel supports Snow Shot Full only; disable SNOW_APPS_BUILD_SNOW_SHOT_MINI")
+    message(FATAL_ERROR "The Store channel supports KXCapture Full only; disable SNOW_APPS_BUILD_SNOW_SHOT_MINI")
 endif()
 if(SNOW_APPS_BUILD_SNOW_SHOT_MINI AND NOT SNOW_APPS_BUILD_SNOW_SHOT)
-    message(FATAL_ERROR "Snow Shot Mini requires SNOW_APPS_BUILD_SNOW_SHOT=ON")
+    message(FATAL_ERROR "KXCapture Mini requires SNOW_APPS_BUILD_SNOW_SHOT=ON")
 endif()
 if(SNOW_APPS_BUILD_SNOW_SHOT_MINI AND APPLE AND NOT CMAKE_OSX_ARCHITECTURES STREQUAL "arm64")
-    message(FATAL_ERROR "Snow Shot Mini supports Apple Silicon (arm64) only on macOS")
+    message(FATAL_ERROR "KXCapture Mini supports Apple Silicon (arm64) only on macOS")
 endif()
 option(SNOW_APPS_BUILD_TESTS "Build tests for all enabled projects." ON)
 option(SNOW_SHOT_BUILD_RUNTIME_TESTS
@@ -102,7 +109,7 @@ option(SNOW_APPS_STRICT_COMPILE "Enable strict warnings for all projects." ON)
 option(SNOW_APPS_ENABLE_CLANG_TIDY "Run clang-tidy while compiling C++ targets." OFF)
 option(SNOW_APPS_RELEASE_STATIC "Prefer static libraries and the static MSVC runtime." OFF)
 option(SNOW_APPS_QT_STATIC "Link the release executable against a static Qt build." OFF)
-option(SNOW_APPS_PACKAGE_SNOW_SHOT "Configure the Snow Shot platform package." OFF)
+option(SNOW_APPS_PACKAGE_SNOW_SHOT "Configure the KXCapture platform package." OFF)
 option(
     SNOW_APPS_ENABLE_RELEASE_OPTIMIZATION
     "Enable IPO/LTO and size/dead-code linker optimizations for Release targets."
@@ -111,10 +118,10 @@ option(
 
 if(APPLE AND SNOW_APPS_BUILD_SNOW_SHOT)
     if(CMAKE_OSX_DEPLOYMENT_TARGET VERSION_LESS "15.0")
-        message(FATAL_ERROR "Snow Shot requires CMAKE_OSX_DEPLOYMENT_TARGET >= 15.0")
+        message(FATAL_ERROR "KXCapture requires CMAKE_OSX_DEPLOYMENT_TARGET >= 15.0")
     endif()
     if(CMAKE_OSX_ARCHITECTURES AND NOT CMAKE_OSX_ARCHITECTURES MATCHES "^(arm64|x86_64)$")
-        message(FATAL_ERROR "Build one Snow Shot architecture at a time: arm64 or x86_64")
+        message(FATAL_ERROR "Build one KXCapture architecture at a time: arm64 or x86_64")
     endif()
 endif()
 
@@ -131,7 +138,7 @@ if(SNOW_APPS_QT_STATIC AND NOT SNOW_QT_STATIC_DIR STREQUAL "")
 endif()
 
 set(SNOW_APPS_API_BASE_URL "" CACHE STRING
-    "Default Snow Shot API base URL. Set explicitly for reproducible builds.")
+    "Default KXCapture API base URL. Set explicitly for reproducible builds.")
 set(SNOW_APPS_FREE_TRANSLATION_API_BASE_URL "" CACHE STRING
     "Free translation API base URL. Set explicitly by the build preset.")
 set(SNOW_RUST_CARGO_TARGET_DIR
@@ -158,7 +165,7 @@ if(_snow_arm64_native_codegen)
 elseif(SNOW_APPS_ENABLE_RELEASE_OPTIMIZATION)
     # CMake's IPO abstraction selects /GL + /LTCG on MSVC and -flto on GCC/Clang.
     # Applying it at directory scope also covers the C++ libraries that feed the
-    # Snow Shot executable, instead of optimizing only the final executable.
+    # KXCapture executable, instead of optimizing only the final executable.
     set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE ON)
     set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_MINSIZEREL ON)
 endif()
@@ -179,7 +186,7 @@ if(SNOW_IMAGE_PROFILE STREQUAL "full")
         ${_snow_workspace_all_image_codecs}
     )
 elseif(SNOW_APPS_BUILD_SNOW_SHOT)
-    # Keep Snow Shot's raster export codecs and animated pin decoders in the
+    # Keep KXCapture's raster export codecs and animated pin decoders in the
     # minimal workspace configuration as well as the full profile.
     set(_snow_workspace_image_codecs PNG JPEG GIF HEIF JXL WEBP TIFF)
 else()
@@ -300,9 +307,9 @@ endif()
 
 if(SNOW_APPS_BUILD_IMAGE_VIEWER)
     set(SNOW_IMAGE_VIEWER_BUILD_TESTS ${SNOW_APPS_BUILD_TESTS} CACHE BOOL
-        "Build Snow Image Viewer tests." FORCE)
+        "Build KXCapture Image Viewer tests." FORCE)
     set(SNOW_IMAGE_VIEWER_STRICT_COMPILE ${SNOW_APPS_STRICT_COMPILE} CACHE BOOL
-        "Strict Snow Image Viewer compilation." FORCE)
+        "Strict KXCapture Image Viewer compilation." FORCE)
     set(SNOW_IMAGE_VIEWER_VCPKG_ROOT "${SNOW_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}"
         CACHE PATH "Root-managed vcpkg installation used for runtime staging." FORCE)
     add_subdirectory(snow_image_viewer "${CMAKE_BINARY_DIR}/snow_image_viewer")
@@ -310,17 +317,17 @@ endif()
 
 if(SNOW_APPS_BUILD_SNOW_SHOT)
     set(SNOW_SHOT_BUILD_TESTS ${SNOW_APPS_BUILD_TESTS} CACHE BOOL
-        "Build Snow Shot tests." FORCE)
+        "Build KXCapture tests." FORCE)
     set(SNOW_SHOT_BUILD_BENCHMARKS ${SNOW_APPS_BUILD_BENCHMARKS} CACHE BOOL
-        "Build Snow Shot benchmarks." FORCE)
+        "Build KXCapture benchmarks." FORCE)
     set(SNOW_SHOT_ENABLE_STRICT_COMPILE ${SNOW_APPS_STRICT_COMPILE} CACHE BOOL
-        "Strict Snow Shot compilation." FORCE)
+        "Strict KXCapture compilation." FORCE)
     set(SNOW_SHOT_RELEASE_STATIC ${SNOW_APPS_RELEASE_STATIC} CACHE BOOL
-        "Prefer static Snow Shot release linkage." FORCE)
+        "Prefer static KXCapture release linkage." FORCE)
     set(SNOW_SHOT_QT_STATIC ${SNOW_APPS_QT_STATIC} CACHE BOOL
-        "Link Snow Shot against a static Qt build." FORCE)
+        "Link KXCapture against a static Qt build." FORCE)
     set(SNOW_SHOT_API_BASE_URL "${SNOW_APPS_API_BASE_URL}" CACHE STRING
-        "Snow Shot API base URL." FORCE)
+        "KXCapture API base URL." FORCE)
     set(SNOW_SHOT_FREE_TRANSLATION_API_BASE_URL "${SNOW_APPS_FREE_TRANSLATION_API_BASE_URL}" CACHE STRING
         "Free translation API base URL." FORCE)
     set(SNOW_SHOT_LIBCLANG_DIR "${SNOW_LIBCLANG_BIN_DIR}" CACHE PATH
@@ -464,7 +471,7 @@ if(SNOW_APPS_PACKAGE_SNOW_SHOT AND NOT APPLE AND
     if(NOT TARGET snow_shot)
         message(FATAL_ERROR "SNOW_APPS_PACKAGE_SNOW_SHOT requires SNOW_APPS_BUILD_SNOW_SHOT=ON")
     endif()
-    set(CPACK_PACKAGE_NAME "snow-shot")
+    set(CPACK_PACKAGE_NAME "kxcapture")
     set(CPACK_INSTALL_CMAKE_PROJECTS "${CMAKE_BINARY_DIR};${CMAKE_PROJECT_NAME};SnowShot;/")
     set(CPACK_COMPONENTS_ALL SnowShot)
     set(CPACK_PACKAGE_VENDOR "${SNOW_SHOT_VENDOR}")
@@ -472,9 +479,9 @@ if(SNOW_APPS_PACKAGE_SNOW_SHOT AND NOT APPLE AND
     set(CPACK_PACKAGE_DESCRIPTION "${SNOW_SHOT_DESCRIPTION}")
     set(CPACK_PACKAGE_HOMEPAGE_URL "${SNOW_SHOT_HOMEPAGE_URL}")
     set(CPACK_PACKAGE_VERSION "${SNOW_SHOT_VERSION}")
-    set(CPACK_PACKAGE_INSTALL_DIRECTORY "SnowShot")
-    set(CPACK_PACKAGE_INSTALL_REGISTRY_KEY "SnowShot")
-    set(CPACK_PACKAGE_FILE_NAME "snow-shot-${SNOW_SHOT_VERSION}-${SNOW_WINDOWS_PLATFORM}")
+    set(CPACK_PACKAGE_INSTALL_DIRECTORY "KXCapture")
+    set(CPACK_PACKAGE_INSTALL_REGISTRY_KEY "KXCapture")
+    set(CPACK_PACKAGE_FILE_NAME "kxcapture-${SNOW_SHOT_VERSION}-${SNOW_WINDOWS_PLATFORM}")
     set(CPACK_PACKAGE_DIRECTORY "${CMAKE_BINARY_DIR}")
     set(CPACK_PACKAGE_CHECKSUM "SHA256")
     set(CPACK_PACKAGE_DESCRIPTION_FILE
@@ -503,7 +510,7 @@ if(SNOW_APPS_PACKAGE_SNOW_SHOT AND NOT APPLE AND
         "VIAddVersionKey /LANG=1033 \"CompanyName\" \"${SNOW_SHOT_VENDOR}\"\n"
         "VIAddVersionKey /LANG=1033 \"FileDescription\" \"${SNOW_SHOT_PRODUCT_NAME} installer\"\n"
         "VIAddVersionKey /LANG=1033 \"FileVersion\" \"${SNOW_SHOT_VERSION_NUMERIC}.0\"\n"
-        "VIAddVersionKey /LANG=1033 \"InternalName\" \"snow-shot-installer\"\n"
+        "VIAddVersionKey /LANG=1033 \"InternalName\" \"kxcapture-installer\"\n"
         "VIAddVersionKey /LANG=1033 \"LegalCopyright\" \"${SNOW_SHOT_COPYRIGHT}\"\n"
         "VIAddVersionKey /LANG=1033 \"OriginalFilename\" \"${CPACK_PACKAGE_FILE_NAME}.exe\"\n"
         "VIAddVersionKey /LANG=1033 \"ProductName\" \"${SNOW_SHOT_PRODUCT_NAME}\"\n"
@@ -511,9 +518,13 @@ if(SNOW_APPS_PACKAGE_SNOW_SHOT AND NOT APPLE AND
     )
     set(CPACK_NSIS_BRANDING_TEXT "${SNOW_SHOT_PRODUCT_NAME} ${SNOW_SHOT_VERSION}")
     set(CPACK_NSIS_BRANDING_TEXT_TRIM_POSITION "CENTER")
-    set(CPACK_NSIS_HELP_LINK "${SNOW_SHOT_HOMEPAGE_URL}")
-    set(CPACK_NSIS_URL_INFO_ABOUT "${SNOW_SHOT_HOMEPAGE_URL}")
-    set(CPACK_NSIS_CONTACT "${SNOW_SHOT_SUPPORT_EMAIL}")
+    if(NOT SNOW_SHOT_HOMEPAGE_URL STREQUAL "")
+        set(CPACK_NSIS_HELP_LINK "${SNOW_SHOT_HOMEPAGE_URL}")
+        set(CPACK_NSIS_URL_INFO_ABOUT "${SNOW_SHOT_HOMEPAGE_URL}")
+    endif()
+    if(NOT SNOW_SHOT_SUPPORT_EMAIL STREQUAL "")
+        set(CPACK_NSIS_CONTACT "${SNOW_SHOT_SUPPORT_EMAIL}")
+    endif()
     set(CPACK_VERBATIM_VARIABLES ON)
     include(cmake/SnowShotPackageCompression.cmake)
     option(SNOW_SHOT_USE_7Z_PAYLOAD "Use executable-aware 7z installer payload compression." ON)

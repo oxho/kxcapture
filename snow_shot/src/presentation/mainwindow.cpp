@@ -7,6 +7,8 @@
 #ifdef Q_OS_MACOS
 #include "snow_shot/platform/macos/applicationactivation.h"
 #endif
+#include "snow_shot/ads/adbannerwidget.h"
+#include "snow_shot/ads/adservice.h"
 #include "snow_shot/presentation/components/contentcardwidget.h"
 #include "snow_shot/presentation/components/maincontentheaderwidget.h"
 #include "snow_shot/presentation/components/sidebarwidget.h"
@@ -82,10 +84,8 @@ MainWindow::MainWindow(const snow_shot::presentation::settings::SettingsRegistry
     setAttribute(Qt::WA_LayoutOnEntireRect);
 #endif
     setObjectName(QStringLiteral("snowShotMainWindow"));
-    setAccessibleName(snow_shot::app::edition::isMini ? snow_shot::app::edition::productName()
-                                                      : QStringLiteral("SnowShot"));
-    setWindowTitle(snow_shot::app::edition::isMini ? snow_shot::app::edition::productName()
-                                                   : QStringLiteral("SnowShot"));
+    setAccessibleName(snow_shot::app::edition::productName());
+    setWindowTitle(snow_shot::app::edition::productName());
     resize(MAIN_WINDOW_WIDTH, MAIN_WINDOW_HEIGHT);
     setMinimumSize(MAIN_WINDOW_MIN_WIDTH, MAIN_WINDOW_MIN_HEIGHT);
     setMouseTracking(true);
@@ -237,6 +237,18 @@ void MainWindow::buildUi() {
     contentShellLayout->addWidget(contentHeader, 0);
     m_contentHeader = contentHeader;
 
+    kx::ads::AdService::Options adOptions;
+    adOptions.appId = QStringLiteral("kxcapture");
+#ifdef Q_OS_MACOS
+    adOptions.platform = QStringLiteral("macos");
+#elif defined(Q_OS_WIN)
+    adOptions.platform = QStringLiteral("windows");
+#endif
+    auto* ads = new kx::ads::AdService(adOptions, this);
+    auto* topAd = new kx::ads::AdBannerWidget(ads, kx::ads::kSlotTop, contentShell);
+    topAd->setObjectName(QStringLiteral("mainWindowTopAd"));
+    contentShellLayout->addWidget(topAd, 0);
+
     auto* contentArea = new QWidget(contentShell);
     m_contentArea = contentArea;
     contentArea->setAutoFillBackground(true);
@@ -249,6 +261,10 @@ void MainWindow::buildUi() {
     contentAreaLayout->addWidget(contentCard, 1);
     m_contentCard = contentCard;
     contentShellLayout->addWidget(contentArea, 1);
+    auto* bottomAd = new kx::ads::AdBannerWidget(ads, kx::ads::kSlotBottom, contentShell);
+    bottomAd->setObjectName(QStringLiteral("mainWindowBottomAd"));
+    contentShellLayout->addWidget(bottomAd, 0);
+    ads->start();
     bodyLayout->addWidget(contentShell, 1);
     rootLayout->addWidget(body, 1);
     sidebar->raise();

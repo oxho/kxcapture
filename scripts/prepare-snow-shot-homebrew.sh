@@ -7,7 +7,7 @@ homebrew_verify_prepared() (
     source "$(dirname "${BASH_SOURCE[0]}")/install-snow-shot-macos.sh"
     case "$requested_edition" in
         full) ;;
-        mini) product_bundle_id=com.snowshot.snow_shot_mini ;;
+        mini) product_bundle_id=io.github.oxho.kxcapture.mini ;;
         *) return 1 ;;
     esac
     work=$(mktemp -d "${TMPDIR:-/tmp}/snow-homebrew-verify.XXXXXX")
@@ -24,7 +24,7 @@ homebrew_prepare_application() {
     if [[ -e "$bundle" || -L "$bundle" ]]; then
         # A prepared copy or rollback keeps the publisher's bytes and identity.
         # Historical releases restore using their own archived wrapper.
-        [[ -d "$bundle" && ! -L "$bundle" ]] || { printf '%s\n' 'Invalid staged Snow Shot application.' >&2; return 1; }
+        [[ -d "$bundle" && ! -L "$bundle" ]] || { printf '%s\n' 'Invalid staged KXCapture application.' >&2; return 1; }
         homebrew_verify_prepared "$bundle" "$edition"
     else
         /bin/bash "$(dirname "${BASH_SOURCE[0]}")/install-snow-shot-macos.sh" \

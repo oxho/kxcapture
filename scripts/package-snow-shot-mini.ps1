@@ -6,8 +6,8 @@ function Assert-SnowShotMiniPayload([string]$Stage,
     $files = @(Get-ChildItem -LiteralPath $Stage -Recurse -File -Force)
     $binaries = @($files | Where-Object { $_.Extension -in @('.exe', '.dll') } |
         ForEach-Object { [IO.Path]::GetRelativePath($Stage, $_.FullName).Replace('\', '/') })
-    $expected = @('bin/snow_shot_mini.exe', 'bin/snow-shot-mini-updater.exe',
-        'bin/snow-shot-mini-mcp.exe', 'bin/crashpad_handler.exe')
+    $expected = @('bin/kxcapture_mini.exe', 'bin/kxcapture-mini-updater.exe',
+        'bin/kxcapture-mini-mcp.exe', 'bin/crashpad_handler.exe')
     if ((($binaries | Sort-Object) -join "`n") -cne (($expected | Sort-Object) -join "`n")) {
         throw 'Mini must contain exactly its application, updater, MCP bridge, and crash collector.'
     }
@@ -24,7 +24,7 @@ function Assert-SnowShotMiniPayload([string]$Stage,
             throw "Mini Windows contains an unexpected runtime or resource file: $relative"
         }
         if (-not $relative.StartsWith('bin/', [StringComparison]::OrdinalIgnoreCase) -and
-            -not $relative.StartsWith('share/snow-shot-mini/licenses/', [StringComparison]::Ordinal) -and
+            -not $relative.StartsWith('share/kxcapture-mini/licenses/', [StringComparison]::Ordinal) -and
             $relative -cne 'snow-shot-mini-installation.json') {
             throw "Mini Windows contains a file outside its runtime and license bundle: $relative"
         }
@@ -41,10 +41,10 @@ function Assert-SnowShotMiniPayload([string]$Stage,
             throw 'Mini OCR descriptor must match the selected trusted target manifest exactly.'
         }
     }
-    if (-not (Test-Path -LiteralPath (Join-Path $Stage 'share/snow-shot-mini/licenses/LICENSES.txt') -PathType Leaf)) {
+    if (-not (Test-Path -LiteralPath (Join-Path $Stage 'share/kxcapture-mini/licenses/LICENSES.txt') -PathType Leaf)) {
         throw 'Mini is missing its license bundle.'
     }
-    $licenseFiles = @(Get-ChildItem -LiteralPath (Join-Path $Stage 'share/snow-shot-mini/licenses') -Recurse -File -Force)
+    $licenseFiles = @(Get-ChildItem -LiteralPath (Join-Path $Stage 'share/kxcapture-mini/licenses') -Recurse -File -Force)
     if ($licenseFiles.Count -ne 1 -or $licenseFiles[0].Length -eq 0) {
         throw 'Mini must contain one nonempty consolidated LICENSES.txt.'
     }
@@ -54,11 +54,11 @@ function Invoke-SnowShotMiniPackaging {
     $miniInstall = Join-Path $artifactRoot 'snow-shot-mini'
     Reset-ReleaseDirectory $miniInstall
     & cmake --install $buildDirectory --config Release --component SnowShotMini --prefix $miniInstall
-    if ($LASTEXITCODE -ne 0) { throw 'Snow Shot Mini install failed.' }
+    if ($LASTEXITCODE -ne 0) { throw 'KXCapture Mini install failed.' }
     Assert-SnowShotMiniPayload -Stage $miniInstall -Architecture $Architecture -OcrAssetManifest $ocrAssetManifestPath
-    $main = Join-Path $miniInstall 'bin/snow_shot_mini.exe'
+    $main = Join-Path $miniInstall 'bin/kxcapture_mini.exe'
     $metadata = (Get-Item -LiteralPath $main).VersionInfo
-    if ($metadata.ProductName -cne 'Snow Shot Mini' -or $metadata.OriginalFilename -cne 'snow_shot_mini.exe' -or
+    if ($metadata.ProductName -cne 'KXCapture Mini' -or $metadata.OriginalFilename -cne 'kxcapture_mini.exe' -or
         $metadata.ProductVersion -cne $packageVersion) { throw 'Mini binary identity/version differs from this release.' }
     Assert-NoPeExports $main
     foreach ($binary in @(Get-ChildItem -LiteralPath (Join-Path $miniInstall 'bin') -File -Filter '*.exe' -Force)) {
@@ -134,7 +134,7 @@ string(REPLACE "snow-shot-mini-$packageVersion-$ocrPlatform.exe" "$base.exe" CPA
                 Move-Item -LiteralPath (Join-Path $nsisWorkDirectory "$base$suffix") -Destination (Join-Path $buildDirectory "$base$suffix") -Force
             }
             $info = (Get-Item $exe).VersionInfo
-            if ($info.ProductName -cne 'Snow Shot Mini' -or $info.ProductVersion -cne $packageVersion) {
+            if ($info.ProductName -cne 'KXCapture Mini' -or $info.ProductVersion -cne $packageVersion) {
                 throw 'Mini installer metadata differs from this release.'
             }
             $exeHash = (Get-FileHash $exe -Algorithm SHA256).Hash.ToLowerInvariant()
@@ -146,7 +146,7 @@ string(REPLACE "snow-shot-mini-$packageVersion-$ocrPlatform.exe" "$base.exe" CPA
             $audit | ConvertTo-Json -Depth 8 | Set-Content (Join-Path $buildDirectory "$base.manifest.json") -Encoding utf8NoBOM
         }
     }
-    Write-Output "Packaged Snow Shot Mini $packageVersion (online installer, update ZIP, portable ZIP)."
+    Write-Output "Packaged KXCapture Mini $packageVersion (online installer, update ZIP, portable ZIP)."
 }
 
 if (-not $FunctionsOnly) { Invoke-SnowShotMiniPackaging }

@@ -125,7 +125,7 @@
       ]
     },
     "dnn": {
-      "description": "Enable dnn module (Snow Apps overlay: uses OpenCV's bundled protobuf, no flatbuffers)",
+      "description": "Enable dnn module (oxho overlay: uses OpenCV's bundled protobuf, no flatbuffers)",
       "dependencies": [
         {
           "name": "opencv4",

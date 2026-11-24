@@ -41,7 +41,7 @@ and 500 ms for refinement (1.5 s total). Cancellation and provider errors retain
 a window fallback. A moved window or unsupported provider safely falls back to
 the cached window until the next refresh.
 
-For Snow Shot's own windows, workers return only the frozen window rectangle. The
+For KXCapture's own windows, workers return only the frozen window rectangle. The
 GUI client then uses local AppKit accessibility hit testing and walks the hit's
 ancestors on the main thread. Qt controls and native AppKit panels use this same
 path without an Accessibility permission check or in-process AX messaging. The

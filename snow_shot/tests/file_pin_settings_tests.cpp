@@ -87,7 +87,7 @@ void pinnedTextStyleSettings() {
     for (const int size : {7, 97})
         require(!backend.applyIntegerValue(settings::SettingsIntegerBinding::PinTextFontSize, size),
                 "out-of-range font sizes are rejected");
-    const QString missingFont = QStringLiteral("Snow Shot Missing Test Font");
+    const QString missingFont = QStringLiteral("KXCapture Missing Test Font");
     require(session.applySelectValue(settings::SettingsSelectBinding::PinTextFont, missingFont),
             "an unavailable font preference remains portable");
     session.requestFontOptions();

@@ -248,14 +248,14 @@ void mcpSelectionPreservesLiveInputTransactions() {
                 session.state().value(QStringLiteral("revision")).toInteger()));
             std::optional<ScreenshotMcpResponse> response;
             session.request(request, [&](auto value) { response = std::move(value); });
-            if (method == QStringLiteral("snow_shot_screenshot_begin") && !response)
+            if (method == QStringLiteral("kxcapture_screenshot_begin") && !response)
                 session.capturePresented();
             requireAdmission(response.has_value(), "selection admission completes synchronously");
             return *response;
         };
-        requireAdmission(call(QStringLiteral("snow_shot_screenshot_begin"), {}).ok,
+        requireAdmission(call(QStringLiteral("kxcapture_screenshot_begin"), {}).ok,
                          "selection admission owns a ready editor session");
-        requireAdmission(call(QStringLiteral("snow_shot_screenshot_recognize"),
+        requireAdmission(call(QStringLiteral("kxcapture_screenshot_recognize"),
                               {{QStringLiteral("kind"), QStringLiteral("text")}})
                              .ok,
                          "background recognition can coexist with local input");
@@ -305,12 +305,12 @@ void mcpSelectionPreservesLiveInputTransactions() {
         const auto modelRevision = selection.changeRevision();
         const QJsonObject replacement{{QStringLiteral("bounds"), QJsonArray{20, 20, 25, 20}}};
         requireAdmission(
-            call(QStringLiteral("snow_shot_screenshot_set_selection"), replacement, revision - 1)
+            call(QStringLiteral("kxcapture_screenshot_set_selection"), replacement, revision - 1)
                         .errorCode == QStringLiteral("stale_revision") &&
                 selectionCalls == 0,
             "stale revision is rejected before consulting input transaction admission");
         requireAdmission(
-            call(QStringLiteral("snow_shot_screenshot_set_selection"), replacement, revision)
+            call(QStringLiteral("kxcapture_screenshot_set_selection"), replacement, revision)
                         .errorCode == QStringLiteral("busy") &&
                 selectionCalls == 1 && controller.mcpState() == before &&
                 selection.changeRevision() == modelRevision && operationCancellations == 0 &&
@@ -358,7 +358,7 @@ void mcpSelectionPreservesLiveInputTransactions() {
         }
         session.observe();
         requireAdmission(
-            call(QStringLiteral("snow_shot_screenshot_set_selection"), replacement).ok &&
+            call(QStringLiteral("kxcapture_screenshot_set_selection"), replacement).ok &&
                 selection.pixelSelection() == QRect(20, 20, 25, 20) &&
                 operationCancellations == 1 &&
                 session.state().value(QStringLiteral("operations")).toArray().isEmpty(),

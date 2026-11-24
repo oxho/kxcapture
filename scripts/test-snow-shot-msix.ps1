@@ -22,9 +22,9 @@ function Write-Pe([string]$Path, [string]$Architecture) {
     [IO.File]::WriteAllBytes($Path, $bytes)
 }
 function New-Fixture([string]$Stage, [string]$Architecture) {
-    $files = @('bin/snow_shot.exe', 'bin/snow-shot-mcp.exe', 'bin/crashpad_handler.exe',
-        'bin/SnowShotExplorerCommand.dll',
-        'bin/audios/camera_shutter.mp3', 'share/snow-shot/licenses/LICENSES.txt',
+    $files = @('bin/kxcapture.exe', 'bin/kxcapture-mcp.exe', 'bin/crashpad_handler.exe',
+        'bin/KXCaptureExplorerCommand.dll',
+        'bin/audios/camera_shutter.mp3', 'share/kxcapture/licenses/LICENSES.txt',
         'bin/assets/qrcode/detect.prototxt', 'bin/assets/qrcode/detect.caffemodel',
         'bin/assets/qrcode/sr.prototxt', 'bin/assets/qrcode/sr.caffemodel',
         "bin/assets/ocr/runtimes/1.2.0/windows-$Architecture/snow-ocr-process-1.2.0-windows-$Architecture.exe",
@@ -225,7 +225,7 @@ endif()
         & cmake -P $guardPath
         if ($LASTEXITCODE -ne 0) { throw "Updater build/install channel regression: $channel" }
     }
-    Require ($identity.Name -ceq 'SnowApps.SnowShot' -and $identity.PackageFamilyName -ceq 'SnowApps.SnowShot_3pp9w6ncw7bs0') 'Partner Center identity must remain stable.'
+    Require ([string]::IsNullOrWhiteSpace([string]$identity.Name) -and [string]::IsNullOrWhiteSpace([string]$identity.PackageFamilyName)) 'Store identity is not configured.'
     Require ((ConvertTo-SnowMsixVersion '1.3.2') -ceq '1.3.2.0') 'Application version must map to Store revision zero.'
     foreach ($invalid in @('1.3.2-beta', '1.3.2.1', '1.3.65536', '01.2.3', '0.2.3', '1.2', '999999999999.1.1')) {
         Reject { ConvertTo-SnowMsixVersion $invalid } "Invalid Store version accepted: $invalid"
@@ -257,7 +257,7 @@ endif()
         'SNOW_APPS_BUILD_SNOW_SHOT_MINI' -in $compatibility.Differences.Name) 'Store cache reuse must reject standalone channel and Mini.'
     $stage = Join-Path $testRoot $architecture
     New-Fixture $stage $architecture
-    $noticePath = Join-Path $stage 'share/snow-shot/licenses/LICENSES.txt'
+    $noticePath = Join-Path $stage 'share/kxcapture/licenses/LICENSES.txt'
     [IO.File]::WriteAllText($noticePath, 'legitimate third-party license notice for test-helpers/benchmark')
     $audit = Join-Path $testRoot "$architecture-audit.json"
     Write-Audit $stage $audit arm64
@@ -271,13 +271,13 @@ endif()
     Write-Audit $stage $audit $architecture
     Reject { Assert-SnowMsixAuditedStage $stage $audit $architecture } 'Missing consolidated notices must fail.'
     [IO.File]::WriteAllText($noticePath, 'legitimate third-party license notice')
-    $legacyNotice = Join-Path $stage 'share/snow-shot/licenses/LICENSE'
+    $legacyNotice = Join-Path $stage 'share/kxcapture/licenses/LICENSE'
     [IO.File]::WriteAllText($legacyNotice, 'legacy loose notice')
     Write-Audit $stage $audit $architecture
     Reject { Assert-SnowMsixAuditedStage $stage $audit $architecture } 'Loose license files must fail.'
     Remove-Item -LiteralPath $legacyNotice
     Write-Audit $stage $audit $architecture
-    $shellExtension = Join-Path $stage 'bin/SnowShotExplorerCommand.dll'
+    $shellExtension = Join-Path $stage 'bin/KXCaptureExplorerCommand.dll'
     Remove-Item -LiteralPath $shellExtension
     Write-Audit $stage $audit $architecture
     Reject { Assert-SnowMsixAuditedStage $stage $audit $architecture } 'Store stage requires the packaged Explorer command DLL.'
@@ -288,20 +288,20 @@ endif()
     Write-Audit $stage $audit $architecture standalone
     Reject { Assert-SnowMsixAuditedStage $stage $audit $architecture } 'Standalone stage must not be accepted as Store.'
     Write-Audit $stage $audit $architecture
-    $main = Join-Path $stage 'bin/snow_shot.exe'
+    $main = Join-Path $stage 'bin/kxcapture.exe'
     Add-Content -LiteralPath $main -Value 'changed'
     Reject { Assert-SnowMsixAuditedStage $stage $audit $architecture } 'Changed stage bytes must fail the audit.'
     Write-Pe $main 'arm64'
     Write-Audit $stage $audit $architecture
     Reject { Assert-SnowMsixAuditedStage $stage $audit $architecture } 'Opposite-architecture binary must fail.'
     Write-Pe $main $architecture
-    $updater = Join-Path $stage 'bin/snow-shot-updater.exe'
+    $updater = Join-Path $stage 'bin/kxcapture-updater.exe'
     Write-Pe $updater $architecture
     Write-Audit $stage $audit $architecture
     Reject { Assert-SnowMsixAuditedStage $stage $audit $architecture } 'Standalone updater must never enter a Store package.'
     Remove-Item -LiteralPath $updater
     foreach ($relative in @('bin/assets/nested/unexpected.dat', 'bin/assets/nested/extra.com',
-            'bin/assets/nested/extra.scr', 'share/snow-shot/licenses/third-party/native-LICENSE.txt')) {
+            'bin/assets/nested/extra.scr', 'share/kxcapture/licenses/third-party/native-LICENSE.txt')) {
         $disguised = Join-Path $stage $relative
         $null = New-Item -ItemType Directory -Path (Split-Path -Parent $disguised) -Force
         Write-Pe $disguised $architecture
@@ -349,24 +349,24 @@ endif()
     Require (($types -join ',') -ceq ((Get-SnowMsixFileExtensions) -join ',')) 'File associations must follow supportedPinFileExtensions.'
     Require ($types -ccontains '.tif' -and $types -ccontains '.tiff') 'Both TIFF suffixes must be registered for file activation.'
     $association = $manifest.SelectSingleNode('//uap3:FileTypeAssociation', $ns)
-    Require ($association.Parameters -ceq '--edit-with-snow-shot "%1"' -and
+    Require ($association.Parameters -ceq '--edit-with-kxcapture "%1"' -and
         $association.MultiSelectModel -ceq 'Document') 'Open with and default file activation must retain typed file arguments.'
-    Require ($manifest.SelectNodes('//uap2:SupportedVerbs', $ns).Count -eq 0) 'Only the native Explorer command should contribute an edit menu entry, including when Snow Shot is the default app.'
+    Require ($manifest.SelectNodes('//uap2:SupportedVerbs', $ns).Count -eq 0) 'Only the native Explorer command should contribute an edit menu entry, including when KXCapture is the default app.'
     $commands = @($manifest.SelectNodes('//desktop4:FileExplorerContextMenus/desktop5:ItemType', $ns))
     Require (($commands.Type -join ',') -ceq ($types -join ',')) 'Explorer context menus must cover exactly the supported file types without changing default associations.'
     $comClass = $manifest.SelectSingleNode('//com:SurrogateServer/com:Class', $ns)
-    Require ($null -ne $comClass -and $comClass.Path -ceq 'bin\SnowShotExplorerCommand.dll' -and
+    Require ($null -ne $comClass -and $comClass.Path -ceq 'bin\KXCaptureExplorerCommand.dll' -and
         $comClass.ThreadingModel -ceq 'STA' -and
         (Test-Path -LiteralPath (Join-Path $stage $comClass.Path) -PathType Leaf)) 'Packaged COM must load the staged native Explorer command DLL.'
     foreach ($command in $commands) {
         $verb = $command.SelectSingleNode('desktop5:Verb', $ns)
         Require ($verb.Id -ceq 'EditWithSnowShot' -and $verb.Clsid -ceq $comClass.Id -and
-            $verb.Clsid -ceq '3F1E90A2-7D4B-4F21-9D8A-6B0C5E2F7093') 'Each Explorer verb must activate the registered command CLSID.'
+            $verb.Clsid -ceq '125F9C90-A277-4ED7-82AB-8B2AE9B5BE61') 'Each Explorer verb must activate the registered command CLSID.'
     }
     $minimum = $manifest.SelectSingleNode('//m:TargetDeviceFamily', $ns).MinVersion
     Require ($minimum -ceq '10.0.19041.0') 'The x64 Store package must retain its Windows 10 baseline.'
     $manifestText = $manifest.OuterXml
-    Require ($manifestText.Contains('--autostart') -and $manifestText.Contains('SnowShotStartup') -and
+    Require ($manifestText.Contains('--autostart') -and $manifestText.Contains('KXCaptureStartup') -and
         $manifestText.Contains('snow-shot-store-mcp.exe') -and $manifestText.Contains('mediumIL') -and
         $manifestText.Contains('runFullTrust') -and $manifestText.Contains('microphone') -and
         $manifestText.Contains('webcam')) 'Packaged launch integrations/capabilities must be declared.'
@@ -374,7 +374,7 @@ endif()
     Write-SnowMsixManifest $stage $identity '1.3.2' $architecture
     $escaped = [xml](Get-Content -LiteralPath (Join-Path $stage 'AppxManifest.xml') -Raw)
     Require ($escaped.Package.Properties.PublisherDisplayName -ceq 'Snow & Apps') 'Manifest metadata must be XML escaped.'
-    $identity.PublisherDisplayName = 'Snow Apps'
+    $identity.PublisherDisplayName = 'oxho'
     Write-SnowMsixManifest $stage $identity '1.3.2' $architecture
     if ($SdkSmoke) {
         $package = Join-Path $testRoot "$architecture.msix"
@@ -404,7 +404,7 @@ endif()
         Invoke-SnowMsixTool 'makeappx.exe' @('unpack', '/p', $package, '/d', $unpack, '/o')
         Require (Test-Path -LiteralPath (Join-Path $unpack 'resources.pri')) 'Compiled localized resources must survive real package round trip.'
     }
-    Write-Output 'Snow Shot MSIX packaging tests passed.'
+    Write-Output 'KXCapture MSIX packaging tests passed.'
 } finally {
     $safe = Assert-SnowMsixChildPath $testRoot (Join-Path $script:SnowMsixRepoRoot 'build')
     Remove-Item -LiteralPath $safe -Recurse -Force

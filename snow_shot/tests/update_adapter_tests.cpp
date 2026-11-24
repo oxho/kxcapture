@@ -370,7 +370,7 @@ int main(int argc, char** argv) {
                         ';' + qgetenv("PATH"));
     QTemporaryDir directory;
     require(directory.isValid(), "create adapter test directory");
-    const QString root = directory.filePath(QStringLiteral("Snow Shot"));
+    const QString root = directory.filePath(QStringLiteral("KXCapture"));
     require(QDir().mkpath(QDir(root).filePath(QStringLiteral("bin"))), "create fake installation");
     const QString helper = QDir(root).filePath(QStringLiteral("bin/snow-shot-updater.exe"));
     require(QFile::copy(QCoreApplication::applicationFilePath(), helper), "copy fake sidecar");
@@ -1189,7 +1189,7 @@ int main(int argc, char** argv) {
         service.setHandoffValidation(&app, [] { return true; });
         const QString image = directory.filePath(QStringLiteral("selected image.png"));
         service.setMode(QStringLiteral("manual"));
-        service.setRelaunchArguments({QStringLiteral("--edit-with-snow-shot"), image,
+        service.setRelaunchArguments({QStringLiteral("--edit-with-kxcapture"), image,
                                       QStringLiteral("--skip-startup-update")});
         QObject::connect(&service, &UpdateService::handoffPendingChanged, &app, [&](bool pending) {
             if (!pending)

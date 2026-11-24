@@ -178,8 +178,8 @@ void brandingRetranslatesWithoutChangingIdentifiers() {
         {"zh_TW", "關於 %1", "%1 標誌"},
     };
     const QString product =
-        edition::isMini ? QStringLiteral("Snow Shot Mini") : QStringLiteral("Snow Shot");
-    const QString windowName = edition::isMini ? product : QStringLiteral("SnowShot");
+        edition::isMini ? QStringLiteral("KXCapture Mini") : QStringLiteral("KXCapture");
+    const QString windowName = product;
     for (const auto& test : cases) {
         QTranslator translator;
         require(translator.load(
@@ -206,7 +206,7 @@ void brandingRetranslatesWithoutChangingIdentifiers() {
                 ? "Add this configuration to your MCP client, then restart the client to connect. "
                   "Keep %1 running while using MCP"
                 : "Add this configuration to your MCP client, then restart the client to connect. "
-                  "Keep Snow Shot running while using MCP";
+                  "Keep KXCapture running while using MCP";
         const QString translatedMcpHelp = translatedText("ScreenshotMcpSettings", mcpHelpSource);
         require(!translatedMcpHelp.isEmpty(), "all catalogs include edition-specific MCP help");
         require(mcpHelp->text() ==

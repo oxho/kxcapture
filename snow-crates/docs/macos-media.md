@@ -2,7 +2,7 @@
 
 This implementation targets macOS **15.0 or newer**, with separate arm64 and
 x86_64 builds. It is an implementation in progress, **not completed acceptance of
-the comprehensive macOS plan**. Snow Shot's Qt recording workflow now uses the
+the comprehensive macOS plan**. KXCapture's Qt recording workflow now uses the
 native session through the common recording C API; its SDR integration and
 acceptance coverage are documented in
 `../../snow_shot/tests/macos_recording_tests.md`. Remaining media requirements
@@ -151,7 +151,7 @@ Objective-C exception boundary, including in Rust `panic=abort` builds. Hosts
 can register `snow_recording_macos_set_microphone_diagnostic_callback` to retain
 native exception names/reasons, operation, device ID and input/output formats
 before optional-source handling reduces the failure to an unavailable status.
-Snow Shot records these as `microphone.native_failed` in its diagnostic logs.
+KXCapture records these as `microphone.native_failed` in its diagnostic logs.
 
 Editable recording supports embedded, hidden and separate cursors. Separate
 cursor shapes, positions, click events (including the middle button), and trail

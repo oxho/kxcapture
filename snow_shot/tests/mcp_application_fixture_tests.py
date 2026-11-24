@@ -71,41 +71,41 @@ class LocalProvider:
 
 
 def exercise_administration(client, directory):
-    permissions = client.tool("snow_shot_permissions_get")["result"]["permissions"]
+    permissions = client.tool("kxcapture_permissions_get")["result"]["permissions"]
     screen_recording = next(item for item in permissions if item["id"] == "screen-recording")
     assert all(item["status"] != "checking" for item in permissions), permissions
     # Requesting a missing permission can display a macOS prompt. This fixture
     # exercises the request route only when it is already granted.
     if screen_recording["status"] == "granted":
-        requested = client.tool("snow_shot_permissions_request", {
+        requested = client.tool("kxcapture_permissions_request", {
             "permission": "screen-recording", "open_settings": False})["result"]["permissions"]
         assert any(item["id"] == "screen-recording" for item in requested)
     # Cancel is a successful no-op when the updater has no active operation.
-    assert client.tool("snow_shot_updates_action", {"action": "cancel"})["result"]["state"]
+    assert client.tool("kxcapture_updates_action", {"action": "cancel"})["result"]["state"]
     target = directory / "settings-action-export.zip"
-    assert client.tool("snow_shot_settings_action", {
+    assert client.tool("kxcapture_settings_action", {
         "field_id": "configuration.export", "path": str(target),
-        "expected_revision": client.tool("snow_shot_settings_get")["revision"]})["result"]["credentials_redacted"]
+        "expected_revision": client.tool("kxcapture_settings_get")["revision"]})["result"]["credentials_redacted"]
     assert target.is_file()
     deadline = time.monotonic() + 10
     while True:
-        catalog = client.tool("snow_shot_translation_catalog")["result"]
+        catalog = client.tool("kxcapture_translation_catalog")["result"]
         if any(model["id"] == "fixture" for model in catalog["models"]):
             break
         assert time.monotonic() < deadline, catalog
         time.sleep(.02)
     assert catalog["languages"]
-    job = await_job(client, client.tool("snow_shot_translation_start", {
+    job = await_job(client, client.tool("kxcapture_translation_start", {
         "texts": ["hello"], "model_id": "fixture", "source_language": "en", "target_language": "ja"}))
     assert job["result"]["units"][0]["text"] == "Local translation", job
-    retry = await_job(client, client.tool("snow_shot_translation_start", {"retry_job_id": job["job_id"]}))
+    retry = await_job(client, client.tool("kxcapture_translation_start", {"retry_job_id": job["job_id"]}))
     assert retry["result"]["units"][0]["text"] == "Local translation", retry
 
 
 def exercise_modern_administration(bridge, descriptor):
     client = Client(bridge, descriptor, tasks=True)
     try:
-        created = client.tool("snow_shot_translation_start", {
+        created = client.tool("kxcapture_translation_start", {
             "texts": ["hello"], "model_id": "fixture", "source_language": "en", "target_language": "ja"})
         assert created["resultType"] == "task", created
         deadline = time.monotonic() + 10
@@ -187,7 +187,7 @@ def await_job(client, response):
     identifier = response["result"]["job_id"]
     deadline = time.monotonic() + 15
     while time.monotonic() < deadline:
-        job = client.tool("snow_shot_job_get", {"job_id": identifier})["result"]
+        job = client.tool("kxcapture_job_get", {"job_id": identifier})["result"]
         if job["status"] != "running":
             assert job["status"] == "completed", job
             return job
@@ -205,18 +205,18 @@ def resource(client, uri):
 
 
 def exercise_native_capture(client, directory):
-    begun = client.tool("snow_shot_screenshot_begin", {
+    begun = client.tool("kxcapture_screenshot_begin", {
         "presentation": "silent", "target": "current_monitor", "capture_cursor": False})
     session_id = begun["result"]["session_id"]
-    state = client.tool("snow_shot_screenshot_state", {"session_id": session_id})
+    state = client.tool("kxcapture_screenshot_state", {"session_id": session_id})
     assert state["result"]["active"] and state["result"]["presentation"] == "silent", state
     x, y, width, height = state["result"]["canvas_bounds"]
     assert width >= 100 and height >= 100, state
-    selected = client.tool("snow_shot_screenshot_set_selection", {
+    selected = client.tool("kxcapture_screenshot_set_selection", {
         "session_id": session_id, "expected_revision": begun["result"]["revision"],
         "type": "rectangle", "bounds": [x + 10, y + 10, 90, 90]})
     revision = selected["result"]["revision"]
-    rendered = client.request("tools/call", {"name": "snow_shot_screenshot_render", "arguments": {
+    rendered = client.request("tools/call", {"name": "kxcapture_screenshot_render", "arguments": {
         "session_id": session_id, "expected_revision": revision}})
     assert not rendered.get("isError"), rendered
     image = next(block for block in rendered["content"] if block["type"] == "image")
@@ -226,19 +226,19 @@ def exercise_native_capture(client, directory):
     assert hashlib.sha256(data).hexdigest() == result["sha256"], result
     revision = result.get("revision", rendered["structuredContent"].get("revision", revision))
     target = directory / "native-screenshot.png"
-    saved = client.tool("snow_shot_screenshot_save", {
+    saved = client.tool("kxcapture_screenshot_save", {
         "session_id": session_id, "expected_revision": revision,
         "path": str(target), "format": "png"})
     assert target.is_file() and hashlib.sha256(target.read_bytes()).hexdigest() == \
         saved["result"]["sha256"], saved
-    client.tool("snow_shot_screenshot_cancel", {"session_id": session_id})
-    direct = client.request("tools/call", {"name": "snow_shot_screenshot_direct_capture",
+    client.tool("kxcapture_screenshot_cancel", {"session_id": session_id})
+    direct = client.request("tools/call", {"name": "kxcapture_screenshot_direct_capture",
                                           "arguments": {"target": "current_monitor", "output": "render",
                                                         "capture_cursor": False}})
     assert not direct.get("isError") and direct["structuredContent"]["result"]["finished"], direct
     assert any(block["type"] == "image" for block in direct["content"]), direct
     direct_target = directory / "native-direct.png"
-    direct_save = client.tool("snow_shot_screenshot_direct_capture", {
+    direct_save = client.tool("kxcapture_screenshot_direct_capture", {
         "target": "current_monitor", "output": "save", "path": str(direct_target),
         "capture_cursor": False})
     assert direct_target.is_file() and direct_target.stat().st_size > 32 and \
@@ -246,10 +246,10 @@ def exercise_native_capture(client, directory):
 
 
 def exercise_recording(client, directory):
-    display = client.tool("snow_shot_app_displays")["result"]["displays"][0]
+    display = client.tool("kxcapture_app_displays")["result"]["displays"][0]
     bounds = display.get("physical_bounds", display["logical_bounds"])
     target = directory / "fixture-recording.mp4"
-    client.tool("snow_shot_recording_start", {
+    client.tool("kxcapture_recording_start", {
         "region": [bounds[0] + 10, bounds[1] + 10, 160, 120],
         "options": {"path": str(target), "format": "mp4", "frame_rate": 5,
                     "clarity": "480p", "encoder": "h264", "encoding_preset": "ultrafast",
@@ -257,7 +257,7 @@ def exercise_recording(client, directory):
                     "show_keyboard": False, "start_delay_seconds": 0}})
 
     def state():
-        value = client.tool("snow_shot_recording_state")
+        value = client.tool("kxcapture_recording_state")
         assert not value["result"].get("error"), value
         return value
 
@@ -272,15 +272,15 @@ def exercise_recording(client, directory):
 
     def control(action, **arguments):
         value = state()
-        return client.tool("snow_shot_recording_control", {
+        return client.tool("kxcapture_recording_control", {
             "recording_id": value["result"]["recording_id"],
             "expected_revision": value["revision"], "action": action, **arguments})
 
     wait_for(lambda value: value["state"] == "recording" and not value["busy"])
     # Recording, capture acquisition and background editing have distinct leases.
-    captured = await_job(client, client.tool("snow_shot_document_open", {
+    captured = await_job(client, client.tool("kxcapture_document_open", {
         "source": "capture", "target": "current_monitor", "as_job": True}))["result"]
-    client.tool("snow_shot_document_close", {"document_id": captured["document_id"],
+    client.tool("kxcapture_document_close", {"document_id": captured["document_id"],
                 "expected_revision": captured["revision"]})
     time.sleep(.35)
     control("pause")
@@ -299,7 +299,7 @@ def exercise_recording(client, directory):
     assert artifact["sha256"] == expected
     # The retained artifact must not change if the user's destination is replaced.
     target.write_bytes(b"changed after finalization")
-    read = client.request("tools/call", {"name": "snow_shot_artifact_read", "arguments": {
+    read = client.request("tools/call", {"name": "kxcapture_artifact_read", "arguments": {
         "artifact_id": artifact["artifact_id"], "offset": 0, "max_bytes": 64}})
     assert not read.get("isError"), read
     assert read["structuredContent"]["result"]["sha256"] == expected
@@ -308,177 +308,177 @@ def exercise_recording(client, directory):
 
 def exercise_application(client, directory):
     exercise_administration(client, directory)
-    assert client.tool("snow_shot_app_status")["result"]["storage"]["write_available"]
-    assert client.tool("snow_shot_app_displays")["result"]["displays"]
-    assert len(client.tool("snow_shot_permissions_get")["result"]["permissions"]) == 4
-    assert client.tool("snow_shot_updates_status")["result"]["state"]
+    assert client.tool("kxcapture_app_status")["result"]["storage"]["write_available"]
+    assert client.tool("kxcapture_app_displays")["result"]["displays"]
+    assert len(client.tool("kxcapture_permissions_get")["result"]["permissions"]) == 4
+    assert client.tool("kxcapture_updates_status")["result"]["state"]
     client.sequence += 1
     canceled_request = client.sequence
     client.send({"jsonrpc": "2.0", "id": canceled_request, "method": "tools/call", "params": {
-        "name": "snow_shot_document_open", "arguments": {
+        "name": "kxcapture_document_open", "arguments": {
             "source": "capture", "target": "current_monitor", "delay_seconds": 2,
             "as_job": False}}})
     time.sleep(.1)
     client.send({"jsonrpc": "2.0", "method": "notifications/cancelled",
                  "params": {"requestId": canceled_request}})
     time.sleep(2.2)
-    assert not client.tool("snow_shot_document_list")["result"]["documents"]
-    scheduled = client.tool("snow_shot_document_open", {
+    assert not client.tool("kxcapture_document_list")["result"]["documents"]
+    scheduled = client.tool("kxcapture_document_open", {
         "source": "capture", "target": "current_monitor", "delay_seconds": 2, "as_job": True})
     job_id = scheduled["result"]["job_id"]
-    client.tool("snow_shot_job_cancel", {"job_id": job_id})
-    assert client.tool("snow_shot_job_get", {"job_id": job_id})["result"]["status"] == "canceled"
+    client.tool("kxcapture_job_cancel", {"job_id": job_id})
+    assert client.tool("kxcapture_job_get", {"job_id": job_id})["result"]["status"] == "canceled"
     time.sleep(2.2)
-    assert not client.tool("snow_shot_document_list")["result"]["documents"]
-    settings = client.tool("snow_shot_settings_get")
+    assert not client.tool("kxcapture_document_list")["result"]["documents"]
+    settings = client.tool("kxcapture_settings_get")
     # Provider-backed imports use the same preallocation admission as files.
     # A rejected provider must release its reservation so a later import works.
-    text_documents = [client.tool("snow_shot_document_open", {
+    text_documents = [client.tool("kxcapture_document_open", {
         "source": "text", "text": f"Source budget fixture {index}"}) for index in range(4)]
-    client.tool("snow_shot_document_open", {"source": "html", "html": "<b>Limited</b>"},
+    client.tool("kxcapture_document_open", {"source": "html", "html": "<b>Limited</b>"},
                 error="resource_limit")
     first = text_documents.pop()
-    client.tool("snow_shot_document_close", {"document_id": first["result"]["document_id"],
+    client.tool("kxcapture_document_close", {"document_id": first["result"]["document_id"],
                 "expected_revision": first["revision"]})
-    text_documents.append(client.tool("snow_shot_document_open", {
+    text_documents.append(client.tool("kxcapture_document_open", {
         "source": "html", "html": "<b>Released provider budget</b>"}))
     for document in text_documents:
-        client.tool("snow_shot_document_close", {"document_id": document["result"]["document_id"],
+        client.tool("kxcapture_document_close", {"document_id": document["result"]["document_id"],
                     "expected_revision": document["revision"]})
     fields = {field["id"]: field for field in settings["result"]["fields"]}
     automatic_ocr = fields["pin-to-screen.automatic-text-recognition"]
 
     def revision():
-        return client.tool("snow_shot_settings_get")["revision"]
+        return client.tool("kxcapture_settings_get")["revision"]
 
     initial = settings["revision"]
-    client.tool("snow_shot_settings_update", {"expected_revision": initial,
+    client.tool("kxcapture_settings_update", {"expected_revision": initial,
                 "values": {automatic_ocr["id"]: True}})
-    client.tool("snow_shot_settings_update", {"expected_revision": initial,
+    client.tool("kxcapture_settings_update", {"expected_revision": initial,
                 "values": {automatic_ocr["id"]: False}}, error="stale_revision")
-    client.tool("snow_shot_settings_reset", {"expected_revision": revision(),
+    client.tool("kxcapture_settings_reset", {"expected_revision": revision(),
                 "page_id": automatic_ocr["page_id"], "section_id": automatic_ocr["section_id"]})
-    client.tool("snow_shot_settings_update", {"expected_revision": revision(),
+    client.tool("kxcapture_settings_update", {"expected_revision": revision(),
                 "values": {automatic_ocr["id"]: False}})
     delay = next(field for field in fields.values() if field["id"].endswith(".seconds"))
-    client.tool("snow_shot_settings_update", {"expected_revision": revision(),
+    client.tool("kxcapture_settings_update", {"expected_revision": revision(),
                 "values": {delay["id"]: 3}})
-    updated = client.tool("snow_shot_settings_get")["result"]["fields"]
+    updated = client.tool("kxcapture_settings_get")["result"]["fields"]
     assert next(field for field in updated if field["id"] == delay["id"])["value"] == 3
     # Whole-patch structural validation must run before any field is applied.
-    client.tool("snow_shot_settings_update", {"expected_revision": revision(),
+    client.tool("kxcapture_settings_update", {"expected_revision": revision(),
                 "values": {delay["id"]: 5, "unknown.fixture.setting": True}}, error="invalid_parameters")
-    updated = client.tool("snow_shot_settings_get")["result"]["fields"]
+    updated = client.tool("kxcapture_settings_get")["result"]["fields"]
     assert next(field for field in updated if field["id"] == delay["id"])["value"] == 3
 
     model = {"id": "95ca84ed-5dcb-42ea-bf6c-c47bf6e87d4b", "name": "Fixture model",
              "base_url": "https://example.invalid/v1", "model": "fixture",
              "supports_vision": False, "supports_reasoning": True}
-    client.tool("snow_shot_models_update", {"expected_revision": revision(), "models": [model]})
+    client.tool("kxcapture_models_update", {"expected_revision": revision(), "models": [model]})
     secret = "fixture-only-secret-do-not-expose"
-    client.tool("snow_shot_credentials_set", {"expected_revision": revision(),
+    client.tool("kxcapture_credentials_set", {"expected_revision": revision(),
                 "provider": model["id"], "secret": secret})
-    listed = client.tool("snow_shot_models_list")
+    listed = client.tool("kxcapture_models_list")
     assert listed["result"]["models"][0]["credential_set"]
     assert secret not in json.dumps(listed) and "api_key" not in json.dumps(listed)
     model["name"] = "Renamed fixture model"
-    client.tool("snow_shot_models_update", {"expected_revision": revision(), "models": [model]})
-    assert client.tool("snow_shot_models_list")["result"]["models"][0]["credential_set"]
+    client.tool("kxcapture_models_update", {"expected_revision": revision(), "models": [model]})
+    assert client.tool("kxcapture_models_list")["result"]["models"][0]["credential_set"]
     archive = directory / "configuration.zip"
-    assert client.tool("snow_shot_configuration_export", {"path": str(archive)})["result"]["credentials_redacted"]
+    assert client.tool("kxcapture_configuration_export", {"path": str(archive)})["result"]["credentials_redacted"]
     with zipfile.ZipFile(archive) as contents:
         assert all(secret.encode() not in contents.read(name) for name in contents.namelist())
-    await_job(client, client.tool("snow_shot_configuration_import", {
+    await_job(client, client.tool("kxcapture_configuration_import", {
         "expected_revision": revision(), "path": str(archive)}))
-    assert client.tool("snow_shot_models_list")["result"]["models"][0]["credential_set"]
-    assert secret not in json.dumps(client.tool("snow_shot_settings_get"))
-    client.tool("snow_shot_models_update", {"expected_revision": revision(), "models": []})
+    assert client.tool("kxcapture_models_list")["result"]["models"][0]["credential_set"]
+    assert secret not in json.dumps(client.tool("kxcapture_settings_get"))
+    client.tool("kxcapture_models_update", {"expected_revision": revision(), "models": []})
 
-    client.tool("snow_shot_templates_update", {"expected_revision": revision(),
+    client.tool("kxcapture_templates_update", {"expected_revision": revision(),
                 "kind": "watermark", "templates": [{"name": "Fixture", "text": "Owned fixture"}]})
-    assert client.tool("snow_shot_templates_list", {"kind": "watermark"})["result"]["templates"] == [
+    assert client.tool("kxcapture_templates_list", {"kind": "watermark"})["result"]["templates"] == [
         {"name": "Fixture", "text": "Owned fixture"}]
-    client.tool("snow_shot_templates_list", {"kind": "drawing"})
+    client.tool("kxcapture_templates_list", {"kind": "drawing"})
 
-    history = client.tool("snow_shot_history_list", {"limit": 1})
+    history = client.tool("kxcapture_history_list", {"limit": 1})
     assert history["result"]["records"], history
     history_id = history["result"]["records"][0]["history_id"]
-    assert resource(client, "snow-shot://history/" + history_id)["result"]["history_id"] == history_id
-    previous_pins = {pin["id"] for pin in client.tool("snow_shot_pinned_list")["result"]["windows"]}
-    client.tool("snow_shot_history_action", {"history_id": history_id, "action": "pin"})
+    assert resource(client, "kxcapture://history/" + history_id)["result"]["history_id"] == history_id
+    previous_pins = {pin["id"] for pin in client.tool("kxcapture_pinned_list")["result"]["windows"]}
+    client.tool("kxcapture_history_action", {"history_id": history_id, "action": "pin"})
     deadline = time.monotonic() + 5
     while time.monotonic() < deadline:
-        pinned = [pin for pin in client.tool("snow_shot_pinned_list")["result"]["windows"]
+        pinned = [pin for pin in client.tool("kxcapture_pinned_list")["result"]["windows"]
                   if pin["id"] not in previous_pins]
         if pinned:
             break
         time.sleep(.05)
     assert len(pinned) == 1, pinned
     pinned_id = pinned[0]["id"]
-    pinned_state = resource(client, "snow-shot://pinned/" + pinned_id)
+    pinned_state = resource(client, "kxcapture://pinned/" + pinned_id)
     assert pinned_state["result"]["id"] == pinned_id
-    client.tool("snow_shot_pinned_action", {"id": pinned_id,
+    client.tool("kxcapture_pinned_action", {"id": pinned_id,
                 "expected_revision": pinned_state["revision"], "action": "destroy"})
-    item = client.tool("snow_shot_history_get", {"history_id": history_id, "include_image": True})
+    item = client.tool("kxcapture_history_get", {"history_id": history_id, "include_image": True})
     artifact = item["result"]["artifact"]
     assert artifact["mime_type"] == "image/png"
-    chunks = client.request("tools/call", {"name": "snow_shot_artifact_read", "arguments": {
+    chunks = client.request("tools/call", {"name": "kxcapture_artifact_read", "arguments": {
         "artifact_id": artifact["artifact_id"], "offset": 0, "max_bytes": 262144}})
     assert not chunks.get("isError"), chunks
     payload = base64.b64decode(chunks["structuredContent"]["result"]["data_base64"])
     assert payload.startswith(b"\x89PNG\r\n\x1a\n")
     assert hashlib.sha256(payload).hexdigest() == chunks["structuredContent"]["result"]["sha256"]
-    assert client.tool("snow_shot_artifact_list")["result"]["artifacts"]
-    client.tool("snow_shot_artifact_release", {"artifact_id": artifact["artifact_id"]})
-    document = client.tool("snow_shot_document_open", {"source": "history", "source_id": history_id})
-    client.tool("snow_shot_document_close", {"document_id": document["result"]["document_id"],
+    assert client.tool("kxcapture_artifact_list")["result"]["artifacts"]
+    client.tool("kxcapture_artifact_release", {"artifact_id": artifact["artifact_id"]})
+    document = client.tool("kxcapture_document_open", {"source": "history", "source_id": history_id})
+    client.tool("kxcapture_document_close", {"document_id": document["result"]["document_id"],
                 "expected_revision": document["revision"]})
-    await_job(client, client.tool("snow_shot_history_delete", {
+    await_job(client, client.tool("kxcapture_history_delete", {
         "history_id": history_id, "expected_revision": history["revision"]}))
-    assert not client.tool("snow_shot_history_list")["result"]["records"]
-    current_history = client.tool("snow_shot_history_list")
-    await_job(client, client.tool("snow_shot_history_clear", {
+    assert not client.tool("kxcapture_history_list")["result"]["records"]
+    current_history = client.tool("kxcapture_history_list")
+    await_job(client, client.tool("kxcapture_history_clear", {
         "expected_revision": current_history["revision"]}))
     # Empty caches are disabled in the shared settings action model.
-    client.tool("snow_shot_storage_cleanup", {
+    client.tool("kxcapture_storage_cleanup", {
         "kind": "thumbnail_cache", "expected_revision": revision()}, error="busy")
-    await_job(client, client.tool("snow_shot_storage_cleanup", {
+    await_job(client, client.tool("kxcapture_storage_cleanup", {
         "kind": "history", "expected_revision": revision()}))
-    assert client.tool("snow_shot_storage_status")["result"]["write_available"]
-    client.tool("snow_shot_settings_action", {"field_id": "unknown.fixture.action",
+    assert client.tool("kxcapture_storage_status")["result"]["write_available"]
+    client.tool("kxcapture_settings_action", {"field_id": "unknown.fixture.action",
                 "expected_revision": revision()}, error="invalid_parameters")
 
 
 def exercise(client, directory):
     tools = {tool["name"] for tool in client.request("tools/list")["tools"]}
-    assert "snow_shot_pinned_create" in tools and "snow_shot_recording_start" in tools
+    assert "kxcapture_pinned_create" in tools and "kxcapture_recording_start" in tools
     exercise_application(client, directory)
-    state = client.tool("snow_shot_recording_state")
+    state = client.tool("kxcapture_recording_state")
     assert state["result"]["state"] == "idle" and not state["result"]["open"], state
-    client.tool("snow_shot_recording_control", {"recording_id": "missing", "expected_revision": 1,
+    client.tool("kxcapture_recording_control", {"recording_id": "missing", "expected_revision": 1,
                 "action": "stop"}, error="recording_not_found")
-    groups = client.tool("snow_shot_group_list")
+    groups = client.tool("kxcapture_group_list")
     original_group = groups["result"]["active_group_id"]
-    created = client.tool("snow_shot_group_update", {"expected_revision": groups["revision"],
+    created = client.tool("kxcapture_group_update", {"expected_revision": groups["revision"],
                           "action": "create", "name": "MCP fixture", "idempotency_key": "group-create"})
     custom = next(group["id"] for group in created["result"]["groups"] if group["name"] == "MCP fixture")
-    client.tool("snow_shot_group_update", {"expected_revision": groups["revision"],
+    client.tool("kxcapture_group_update", {"expected_revision": groups["revision"],
                 "action": "activate", "group_id": custom}, error="stale_revision")
-    created = client.tool("snow_shot_group_update", {"expected_revision": created["revision"],
+    created = client.tool("kxcapture_group_update", {"expected_revision": created["revision"],
                           "action": "activate", "group_id": custom})
 
     source = directory / "source.png"
     png(source)
     arguments = {"source": {"kind": "file", "path": str(source)}, "group_id": custom,
                  "idempotency_key": "pin-file"}
-    pin = client.tool("snow_shot_pinned_create", arguments)
+    pin = client.tool("kxcapture_pinned_create", arguments)
     identifier = pin["result"]["id"]
-    repeated = client.tool("snow_shot_pinned_create", arguments)
+    repeated = client.tool("kxcapture_pinned_create", arguments)
     assert repeated["result"]["id"] == identifier
     assert pin["result"]["group_id"] == custom and pin["result"]["ready"]
 
     def pin_state():
-        return client.tool("snow_shot_pinned_get", {"id": identifier})
+        return client.tool("kxcapture_pinned_get", {"id": identifier})
 
     def mutate(tool, **kwargs):
         # Appearance events may finish asynchronously after showing a native pin.
@@ -495,16 +495,16 @@ def exercise(client, directory):
         raise AssertionError("pin never reached a stable revision")
 
     initial = pin_state()
-    mutate("snow_shot_pinned_edit", action="tool", payload={"tool": "arrow"})
+    mutate("kxcapture_pinned_edit", action="tool", payload={"tool": "arrow"})
     assert pin_state()["result"]["editing"] and pin_state()["result"]["active_tool"] == "arrow"
-    mutate("snow_shot_pinned_edit", action="tool_style", payload={
+    mutate("kxcapture_pinned_edit", action="tool_style", payload={
         "target": "arrow", "style": {"arrow_shaft_type": "tapered", "arrow_ratio": 2.0}})
-    mutate("snow_shot_pinned_edit", action="editing", payload={"enabled": False})
+    mutate("kxcapture_pinned_edit", action="editing", payload={"enabled": False})
     assert not pin_state()["result"]["editing"]
-    changed = mutate("snow_shot_pinned_update", properties={"opacity_percent": 70,
+    changed = mutate("kxcapture_pinned_update", properties={"opacity_percent": 70,
                      "rotation": "clockwise", "show_border": False})
     assert changed["revision"] > initial["revision"] and changed["result"]["quarter_turns"] == 1
-    client.tool("snow_shot_pinned_update", {"id": identifier, "expected_revision": initial["revision"],
+    client.tool("kxcapture_pinned_update", {"id": identifier, "expected_revision": initial["revision"],
                 "properties": {"opacity_percent": 50}}, error="stale_revision")
     # Cancellation suppresses artifact completion callbacks. Admission must be
     # released by cancellation itself, otherwise eight canceled saves fill the
@@ -514,7 +514,7 @@ def exercise(client, directory):
         client.sequence += 1
         request_id = client.sequence
         client.send({"jsonrpc": "2.0", "id": request_id, "method": "tools/call", "params": {
-            "name": "snow_shot_pinned_export", "arguments": {
+            "name": "kxcapture_pinned_export", "arguments": {
                 "id": identifier, "expected_revision": current["revision"], "output": "save",
                 "path": str(directory / f"cancelled-{index}.png")}}})
         client.send({"jsonrpc": "2.0", "method": "notifications/cancelled",
@@ -522,55 +522,55 @@ def exercise(client, directory):
         pin_state()
     original_path = directory / "pin-original.png"
     rendered_path = directory / "pin-rendered.png"
-    mutate("snow_shot_pinned_export", output="save", original=True, path=str(original_path))
-    mutate("snow_shot_pinned_export", output="save", path=str(rendered_path))
+    mutate("kxcapture_pinned_export", output="save", original=True, path=str(original_path))
+    mutate("kxcapture_pinned_export", output="save", path=str(rendered_path))
     assert dimensions(original_path) == (80, 60), dimensions(original_path)
     assert dimensions(rendered_path) == (60, 80), dimensions(rendered_path)
     assert original_path.read_bytes() != rendered_path.read_bytes()
 
     # Importing a live pin and pinning an edited background document must retain
     # an actual editable canvas, including undo, rather than baking its pixels.
-    document = client.tool("snow_shot_document_open", {"source": "pinned", "source_id": identifier})
+    document = client.tool("kxcapture_document_open", {"source": "pinned", "source_id": identifier})
     assert document["result"]["document_id"]
     assert document["result"]["canvas_bounds"][2:] == [60, 80], document
     imported_path = directory / "rotated-pin-document.png"
-    client.tool("snow_shot_document_save", {"document_id": document["result"]["document_id"],
+    client.tool("kxcapture_document_save", {"document_id": document["result"]["document_id"],
                 "expected_revision": document["revision"], "path": str(imported_path)})
     assert dimensions(imported_path) == (60, 80)
-    client.tool("snow_shot_document_close", {"document_id": document["result"]["document_id"],
+    client.tool("kxcapture_document_close", {"document_id": document["result"]["document_id"],
                 "expected_revision": document["revision"]})
-    document = client.tool("snow_shot_document_open", {"path": str(source)})
+    document = client.tool("kxcapture_document_open", {"path": str(source)})
     document_id = document["result"]["document_id"]
-    document = client.tool("snow_shot_document_apply_annotations", {
+    document = client.tool("kxcapture_document_apply_annotations", {
         "document_id": document_id, "expected_revision": document["revision"],
         "operations": [{"type": "rectangle", "bounds": [10, 10, 30, 20],
                         "style": {"stroke": [255, 0, 0, 255], "stroke_width": 3}}]})
-    existing = {pin["id"] for pin in client.tool("snow_shot_pinned_list")["result"]["windows"]}
-    client.tool("snow_shot_document_pin", {"document_id": document_id,
+    existing = {pin["id"] for pin in client.tool("kxcapture_pinned_list")["result"]["windows"]}
+    client.tool("kxcapture_document_pin", {"document_id": document_id,
                 "expected_revision": document["revision"]})
-    imported_pin = next(pin["id"] for pin in client.tool("snow_shot_pinned_list")["result"]["windows"]
+    imported_pin = next(pin["id"] for pin in client.tool("kxcapture_pinned_list")["result"]["windows"]
                         if pin["id"] not in existing)
     prior_identifier = identifier
     identifier = imported_pin
     assert pin_state()["result"]["can_undo"], pin_state()
-    mutate("snow_shot_pinned_edit", action="undo")
+    mutate("kxcapture_pinned_edit", action="undo")
     assert pin_state()["result"]["can_redo"], pin_state()
-    mutate("snow_shot_pinned_edit", action="redo")
+    mutate("kxcapture_pinned_edit", action="redo")
     assert pin_state()["result"]["can_undo"], pin_state()
-    mutate("snow_shot_pinned_action", action="destroy")
+    mutate("kxcapture_pinned_action", action="destroy")
     identifier = prior_identifier
-    client.tool("snow_shot_document_close", {"document_id": document_id,
+    client.tool("kxcapture_document_close", {"document_id": document_id,
                 "expected_revision": document["revision"]})
     for kind, value in (("text", "MCP fixture text"), ("html", "<b>MCP fixture HTML</b>")):
-        imported = client.tool("snow_shot_pinned_create", {"source": {"kind": kind, kind: value}})
+        imported = client.tool("kxcapture_pinned_create", {"source": {"kind": kind, kind: value}})
         imported_id = imported["result"]["id"]
         assert imported["result"]["ready"]
-        current_import = client.tool("snow_shot_pinned_get", {"id": imported_id})
-        client.tool("snow_shot_pinned_action", {"id": imported_id,
+        current_import = client.tool("kxcapture_pinned_get", {"id": imported_id})
+        client.tool("kxcapture_pinned_action", {"id": imported_id,
                     "expected_revision": current_import["revision"], "action": "destroy"})
-    mutate("snow_shot_pinned_action", action="hide")
+    mutate("kxcapture_pinned_action", action="hide")
     assert not pin_state()["result"]["visible"]
-    mutate("snow_shot_pinned_action", action="show")
+    mutate("kxcapture_pinned_action", action="show")
     # Show acknowledges admission; an unloaded pin restores its payload on a worker and
     # presents its first frame later, just like the animated restore fixture below.
     deadline = time.monotonic() + 10
@@ -582,15 +582,15 @@ def exercise(client, directory):
         time.sleep(.025)
     replacement = directory / "replacement.png"
     png(replacement, 100, 70)
-    mutate("snow_shot_pinned_replace", source={"kind": "file", "path": str(replacement)})
+    mutate("kxcapture_pinned_replace", source={"kind": "file", "path": str(replacement)})
     replaced_path = directory / "pin-replaced.png"
-    mutate("snow_shot_pinned_export", output="save", original=True, path=str(replaced_path))
+    mutate("kxcapture_pinned_export", output="save", original=True, path=str(replaced_path))
     assert dimensions(replaced_path) == (100, 70)
-    mutate("snow_shot_pinned_action", action="destroy")
+    mutate("kxcapture_pinned_action", action="destroy")
     def mutate_group(action, group_id):
         for _ in range(5):
-            groups = client.tool("snow_shot_group_list")
-            response = client.request("tools/call", {"name": "snow_shot_group_update", "arguments": {
+            groups = client.tool("kxcapture_group_list")
+            response = client.request("tools/call", {"name": "kxcapture_group_update", "arguments": {
                 "expected_revision": groups["revision"], "action": action, "group_id": group_id}})
             if not response.get("isError"):
                 return response["structuredContent"]
@@ -614,14 +614,14 @@ def exercise_animation(client, directory):
     for kind in ("gif", "webp", "apng"):
         source = directory / f"animation-source.{kind}"
         animated_image(source, kind, 320, 180)
-        pin = client.tool("snow_shot_pinned_create", {
+        pin = client.tool("kxcapture_pinned_create", {
             "source": {"kind": "file", "path": str(source)}})
         identifier = pin["result"]["id"]
         assert pin["result"]["ready"], pin
         source.unlink()
 
         def state():
-            return client.tool("snow_shot_pinned_get", {"id": identifier})
+            return client.tool("kxcapture_pinned_get", {"id": identifier})
 
         def mutate(tool, expected_error=None, **kwargs):
             deadline = time.monotonic() + 10
@@ -642,9 +642,9 @@ def exercise_animation(client, directory):
 
         # Disabling editing verifies that imports retained animation identity,
         # rather than silently pinning only the first decoded frame.
-        mutate("snow_shot_pinned_edit", expected_error="action_unavailable",
+        mutate("kxcapture_pinned_edit", expected_error="action_unavailable",
                action="editing", payload={"enabled": True})
-        mutate("snow_shot_pinned_update", properties={"rotation": "clockwise",
+        mutate("kxcapture_pinned_update", properties={"rotation": "clockwise",
                "show_border": False, "show_shadow": False})
         deadline = time.monotonic() + 10
         while state()["result"]["quarter_turns"] != 1:
@@ -652,21 +652,21 @@ def exercise_animation(client, directory):
             time.sleep(.025)
         original = directory / f"animation-original-{kind}.png"
         rendered = directory / f"animation-rendered-{kind}.png"
-        mutate("snow_shot_pinned_export", output="save", original=True, path=str(original))
-        mutate("snow_shot_pinned_export", output="save", path=str(rendered))
+        mutate("kxcapture_pinned_export", output="save", original=True, path=str(original))
+        mutate("kxcapture_pinned_export", output="save", path=str(rendered))
         assert_static_png(original, (320, 180))
         assert_static_png(rendered, (180, 320))
 
         # Management hide unloads the live window. Restoring must use the
         # retained encoded source after its input file has been removed.
-        mutate("snow_shot_pinned_action", action="hide")
+        mutate("kxcapture_pinned_action", action="hide")
         hidden = state()["result"]
         assert hidden["hidden"] and not hidden["open"], hidden
         replacement = directory / f"animation-replacement.{kind}"
         animated_image(replacement, kind, 400, 220)
-        mutate("snow_shot_pinned_replace", expected_error="window_closed",
+        mutate("kxcapture_pinned_replace", expected_error="window_closed",
                source={"kind": "file", "path": str(replacement)})
-        mutate("snow_shot_pinned_action", action="show")
+        mutate("kxcapture_pinned_action", action="show")
         deadline = time.monotonic() + 10
         while not state()["result"].get("ready", False):
             assert time.monotonic() < deadline, state()
@@ -676,19 +676,19 @@ def exercise_animation(client, directory):
 
         # Rotated replacement prepares its first display raster on the import
         # worker and retains the new animation independently of its input file.
-        mutate("snow_shot_pinned_replace", source={"kind": "file", "path": str(replacement)})
+        mutate("kxcapture_pinned_replace", source={"kind": "file", "path": str(replacement)})
         replacement.unlink()
         replaced = state()["result"]
         assert replaced["quarter_turns"] == 1 and replaced["visible"], replaced
-        mutate("snow_shot_pinned_edit", expected_error="action_unavailable",
+        mutate("kxcapture_pinned_edit", expected_error="action_unavailable",
                action="editing", payload={"enabled": True})
         original = directory / f"animation-replaced-original-{kind}.png"
         rendered = directory / f"animation-replaced-rendered-{kind}.png"
-        mutate("snow_shot_pinned_export", output="save", original=True, path=str(original))
-        mutate("snow_shot_pinned_export", output="save", path=str(rendered))
+        mutate("kxcapture_pinned_export", output="save", original=True, path=str(original))
+        mutate("kxcapture_pinned_export", output="save", path=str(rendered))
         assert_static_png(original, (400, 220))
         assert_static_png(rendered, (220, 400))
-        mutate("snow_shot_pinned_action", action="destroy")
+        mutate("kxcapture_pinned_action", action="destroy")
     return {"domains": ["animated_file_import", "animated_transform_worker",
                         "rotated_animation_replacement", "retained_encoded_source",
                          "hidden_record_restore", "unloaded_replacement_rejection",
@@ -702,18 +702,18 @@ def exercise_clipboard(client, directory):
     pins = []
     for kind, value in (("file", str(source)), ("text", "Scoped clipboard publication")):
         key = "path" if kind == "file" else kind
-        pin = client.tool("snow_shot_pinned_create", {"source": {"kind": kind, key: value}})
+        pin = client.tool("kxcapture_pinned_create", {"source": {"kind": kind, key: value}})
         identifier = pin["result"]["id"]
         pins.append(identifier)
 
         def arguments(original):
-            current = client.tool("snow_shot_pinned_get", {"id": identifier})
+            current = client.tool("kxcapture_pinned_get", {"id": identifier})
             return {"id": identifier, "expected_revision": current["revision"],
                     "output": "copy", "original": original}
 
         def copy(original):
             for _ in range(5):
-                response = client.request("tools/call", {"name": "snow_shot_pinned_export",
+                response = client.request("tools/call", {"name": "kxcapture_pinned_export",
                                           "arguments": arguments(original)})
                 result = response["structuredContent"]
                 if not response.get("isError", False):
@@ -733,15 +733,15 @@ def exercise_clipboard(client, directory):
             client.sequence += 1
             request_id = client.sequence
             client.send({"jsonrpc": "2.0", "id": request_id, "method": "tools/call", "params": {
-                "name": "snow_shot_pinned_export", "arguments": params}})
+                "name": "kxcapture_pinned_export", "arguments": params}})
             client.send({"jsonrpc": "2.0", "method": "notifications/cancelled",
                          "params": {"requestId": request_id}})
-            client.tool("snow_shot_pinned_get", {"id": identifier})
+            client.tool("kxcapture_pinned_get", {"id": identifier})
         copy(kind == "text")
 
     for identifier in pins:
-        current = client.tool("snow_shot_pinned_get", {"id": identifier})
-        client.tool("snow_shot_pinned_action", {"id": identifier,
+        current = client.tool("kxcapture_pinned_get", {"id": identifier})
+        client.tool("kxcapture_pinned_action", {"id": identifier,
                     "expected_revision": current["revision"], "action": "destroy"})
     return {"domains": ["scoped_mime_publication", "scoped_image_publication",
                         "clipboard_cancellation", "clipboard_scope_reuse", "quit_acknowledgement"],
@@ -799,10 +799,10 @@ def main():
                         report["domains"].append("native_recording_finalized_immutable_artifact")
                         report["scope"] = "Isolated storage, local HTTP provider, native region recording; no audio or external providers"
                     if args.disable_mcp:
-                        settings = client.tool("snow_shot_settings_get")
+                        settings = client.tool("kxcapture_settings_get")
                         mcp_field = next(field for field in settings["result"]["fields"]
                                          if field["id"].endswith("mcp-enabled"))
-                        response = client.tool("snow_shot_settings_update", {
+                        response = client.tool("kxcapture_settings_update", {
                             "expected_revision": settings["revision"],
                             "values": {mcp_field["id"]: False}})
                         assert mcp_field["id"] in response["result"]["applied_fields"], response
@@ -811,14 +811,14 @@ def main():
                             time.sleep(.025)
                         assert not descriptor.exists() and app.poll() is None
                         status_call = client.request("tools/call", {
-                            "name": "snow_shot_mcp_status", "arguments": {}})
+                            "name": "kxcapture_mcp_status", "arguments": {}})
                         status = status_call["structuredContent"]
                         assert status["reachable"] is False and \
                             status["error"]["code"] == "unavailable", status
                         report["domains"].remove("quit_acknowledgement")
                         report["domains"].append("disable_acknowledgement_before_teardown")
                     else:
-                        response = client.tool("snow_shot_app_action", {"action": "quit"})
+                        response = client.tool("kxcapture_app_action", {"action": "quit"})
                         assert response["result"]["accepted"]
                         assert app.wait(timeout=15) == 0, app.returncode
                     report["executed_tools"] = sorted(Client.executed_tools)

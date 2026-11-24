@@ -27,11 +27,11 @@ For native window recreation and mouse hover, run these QtTest functions with `-
 ## Local reproduction diagnostics
 
 Set `$env:QT_LOGGING_RULES='adqt.popup.debug=true'` in the launching shell, then start the current
-Snow Shot build. Open a capture, open a grouped toolbar popover, invoke Table, and move among
+KXCapture build. Open a capture, open a grouped toolbar popover, invoke Table, and move among
 sibling groups during preparation and after success/failure. Repeat after changing the selection
 and after cancelling capture. Check both drawing groups and recognition groups.
 
-The existing Snow Shot logs capture `adqt.popup` transitions. Geometry rejection details are:
+The existing KXCapture logs capture `adqt.popup` transitions. Geometry rejection details are:
 1 = missing in-window parent, 2 = hidden/clipped anchor, 3 = component bounds rejection.
 Messages include requested/actual visibility, anchor/scope rectangles, cursor/buttons/grabber,
 and native creation/release. No per-monitor-tick logging is enabled. Remove the shell environment

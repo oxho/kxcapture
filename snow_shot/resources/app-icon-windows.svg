@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" fill="none">
+  <defs>
+    
+  <filter id="plateSh" x="-20%" y="-20%" width="140%" height="150%">
+    <feDropShadow dx="0" dy="18" stdDeviation="16" flood-color="#000000" flood-opacity="0.32"/>
+  </filter>
+  <filter id="objSh" x="-40%" y="-40%" width="180%" height="190%">
+    <feDropShadow dx="4" dy="16" stdDeviation="14" flood-color="#000000" flood-opacity="0.38"/>
+  </filter>
+  <filter id="softSh" x="-40%" y="-40%" width="180%" height="180%">
+    <feDropShadow dx="2" dy="8" stdDeviation="8" flood-color="#000000" flood-opacity="0.26"/>
+  </filter>
+  <filter id="liftSh" x="-50%" y="-50%" width="200%" height="220%">
+    <feDropShadow dx="8" dy="22" stdDeviation="16" flood-color="#000000" flood-opacity="0.42"/>
+  </filter>
+
+    <linearGradient id="plate" x1="240" y1="40" x2="860" y2="960" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1EC9A8"/><stop offset="0.46" stop-color="#0D7A6B"/><stop offset="1" stop-color="#0A3F3A"/>
+    </linearGradient>
+    <radialGradient id="plateHi" cx="32%" cy="24%" r="68%">
+      <stop stop-color="#7EE8D4" stop-opacity="0.32"/><stop offset="1" stop-color="#7EE8D4" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="plateInnerSh" x1="512" y1="80" x2="512" y2="1024" gradientUnits="userSpaceOnUse">
+      <stop offset="0.52" stop-color="#000000" stop-opacity="0"/>
+      <stop offset="1" stop-color="#000000" stop-opacity="0.28"/>
+    </linearGradient>
+    <clipPath id="clipPlate"><path d="M 230.00,0.00 H 794.00 A 230.00,230.00 0 0 1 1024.00,230.00 V 794.00 A 230.00,230.00 0 0 1 794.00,1024.00 H 230.00 A 230.00,230.00 0 0 1 0.00,794.00 V 230.00 A 230.00,230.00 0 0 1 230.00,0.00 Z"/></clipPath>
+  </defs>
+  <path d="M 230.00,0.00 H 794.00 A 230.00,230.00 0 0 1 1024.00,230.00 V 794.00 A 230.00,230.00 0 0 1 794.00,1024.00 H 230.00 A 230.00,230.00 0 0 1 0.00,794.00 V 230.00 A 230.00,230.00 0 0 1 230.00,0.00 Z" fill="url(#plate)"/>
+  <g clip-path="url(#clipPlate)">
+    <rect width="1024" height="1024" fill="url(#plateHi)"/>
+    <path d="M 230.00,0.00 H 794.00 A 230.00,230.00 0 0 1 1024.00,230.00 V 794.00 A 230.00,230.00 0 0 1 794.00,1024.00 H 230.00 A 230.00,230.00 0 0 1 0.00,794.00 V 230.00 A 230.00,230.00 0 0 1 230.00,0.00 Z" fill="url(#plateInnerSh)"/>
+    <path d="M 230.00,0.00 H 794.00 A 230.00,230.00 0 0 1 1024.00,230.00 V 794.00 A 230.00,230.00 0 0 1 794.00,1024.00 H 230.00 A 230.00,230.00 0 0 1 0.00,794.00 V 230.00 A 230.00,230.00 0 0 1 230.00,0.00 Z" fill="none" stroke="#B8F5EA" stroke-opacity="0.36" stroke-width="8"/>
+    <g transform="translate(512,512) scale(1.24272) translate(-512,-512)">
+      
+    <defs>
+      <linearGradient id="well" x1="232" y1="248" x2="232" y2="588" gradientUnits="userSpaceOnUse">
+        <stop stop-color="#06302C" stop-opacity="0.45"/><stop offset="1" stop-color="#021614" stop-opacity="0.62"/>
+      </linearGradient>
+      <linearGradient id="glassD" x1="340" y1="344" x2="760" y2="684" gradientUnits="userSpaceOnUse">
+        <stop stop-color="#FFFFFF" stop-opacity="0.82"/>
+        <stop offset="0.45" stop-color="#E8F4FA" stop-opacity="0.62"/>
+        <stop offset="1" stop-color="#C5D8E6" stop-opacity="0.42"/>
+      </linearGradient>
+      <linearGradient id="specD" x1="340" y1="344" x2="760" y2="684" gradientUnits="userSpaceOnUse">
+        <stop offset="0.28" stop-color="#FFFFFF" stop-opacity="0"/>
+        <stop offset="0.42" stop-color="#FFFFFF" stop-opacity="0.7"/>
+        <stop offset="0.50" stop-color="#FFFFFF" stop-opacity="0.15"/>
+        <stop offset="0.62" stop-color="#FFFFFF" stop-opacity="0"/>
+      </linearGradient>
+      <filter id="glassShD" x="-40%" y="-40%" width="180%" height="210%">
+        <feDropShadow dx="6" dy="16" stdDeviation="13" flood-color="#042E2A" flood-opacity="0.40"/>
+      </filter>
+      <linearGradient id="hD0" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#7EF0DC"/><stop offset="1" stop-color="#0E8F7C"/></linearGradient>
+      <linearGradient id="hD1" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#7EF0DC"/><stop offset="1" stop-color="#0E8F7C"/></linearGradient>
+      <linearGradient id="hD2" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#5EE0CC"/><stop offset="1" stop-color="#0A6B5C"/></linearGradient>
+      <linearGradient id="hD3" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#5EE0CC"/><stop offset="1" stop-color="#0A6B5C"/></linearGradient>
+      <clipPath id="tileClip"><path d="M 396.00,344.00 H 704.00 A 56.00,56.00 0 0 1 760.00,400.00 V 628.00 A 56.00,56.00 0 0 1 704.00,684.00 H 396.00 A 56.00,56.00 0 0 1 340.00,628.00 V 400.00 A 56.00,56.00 0 0 1 396.00,344.00 Z"/></clipPath>
+    </defs>
+    <path d="M 288.00,248.00 H 596.00 A 56.00,56.00 0 0 1 652.00,304.00 V 532.00 A 56.00,56.00 0 0 1 596.00,588.00 H 288.00 A 56.00,56.00 0 0 1 232.00,532.00 V 304.00 A 56.00,56.00 0 0 1 288.00,248.00 Z" fill="url(#well)"/>
+    <path d="M 288.00,254.00 H 596.00 A 50.00,50.00 0 0 1 646.00,304.00 V 532.00 A 50.00,50.00 0 0 1 596.00,582.00 H 288.00 A 50.00,50.00 0 0 1 238.00,532.00 V 304.00 A 50.00,50.00 0 0 1 288.00,254.00 Z" fill="none" stroke="#4AD4BE" stroke-opacity="0.28" stroke-width="3"/>
+    <path d="M 288.00,248.00 H 596.00 A 56.00,56.00 0 0 1 652.00,304.00 V 532.00 A 56.00,56.00 0 0 1 596.00,588.00 H 288.00 A 56.00,56.00 0 0 1 232.00,532.00 V 304.00 A 56.00,56.00 0 0 1 288.00,248.00 Z" fill="none" stroke="#B8F5EA" stroke-opacity="0.9" stroke-width="7" stroke-dasharray="28 18" stroke-linecap="round"/>
+    <g filter="url(#glassShD)">
+      <path d="M 396.00,344.00 H 704.00 A 56.00,56.00 0 0 1 760.00,400.00 V 628.00 A 56.00,56.00 0 0 1 704.00,684.00 H 396.00 A 56.00,56.00 0 0 1 340.00,628.00 V 400.00 A 56.00,56.00 0 0 1 396.00,344.00 Z" fill="url(#glassD)"/>
+    </g>
+    <g clip-path="url(#tileClip)">
+      <rect x="340" y="344" width="420" height="340" fill="url(#specD)"/>
+    </g>
+    <path d="M 396.00,344.00 H 704.00 A 56.00,56.00 0 0 1 760.00,400.00 V 628.00 A 56.00,56.00 0 0 1 704.00,684.00 H 396.00 A 56.00,56.00 0 0 1 340.00,628.00 V 400.00 A 56.00,56.00 0 0 1 396.00,344.00 Z" fill="none" stroke="#FFFFFF" stroke-opacity="0.95" stroke-width="4"/>
+    <rect x="325.0" y="329.0" width="40" height="40" rx="8" fill="url(#hD0)"/><rect x="328.0" y="332.0" width="16.8" height="3" rx="1.2" fill="#FFFFFF" fill-opacity="0.75"/><rect x="735.0" y="329.0" width="40" height="40" rx="8" fill="url(#hD1)"/><rect x="738.0" y="332.0" width="16.8" height="3" rx="1.2" fill="#FFFFFF" fill-opacity="0.75"/><rect x="325.0" y="659.0" width="40" height="40" rx="8" fill="url(#hD2)"/><rect x="328.0" y="662.0" width="16.8" height="3" rx="1.2" fill="#FFFFFF" fill-opacity="0.75"/><rect x="735.0" y="659.0" width="40" height="40" rx="8" fill="url(#hD3)"/><rect x="738.0" y="662.0" width="16.8" height="3" rx="1.2" fill="#FFFFFF" fill-opacity="0.75"/>
+    
+    </g>
+  </g>
+</svg>

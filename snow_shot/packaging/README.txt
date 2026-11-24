@@ -1,14 +1,15 @@
-Snow Shot
+KXCapture
 
 Copyright (C) 2025-2026 mg-chao
+Modified by oxho, 2026.
 
-Snow Shot is a Windows screenshot utility for capturing, annotating, pinning,
-and recognizing screen content.
+KXCapture is a modified version of Snow Shot by mg-chao, licensed under the
+GNU General Public License, version 3 or (at your option) any later version.
+It is a screenshot utility for capturing, annotating, pinning, and recognizing
+screen content.
 
-Website: https://snowshot.top
-Support: chao@mgchao.top
+Website:
+Support:
 
-Snow Shot is free software distributed under the GNU General Public License,
-version 3 or (at your option) any later version. The complete license,
-copyright notice, and applicable third-party notices are included with the
-installed application.
+The complete license, the original copyright notice, and applicable
+third-party notices are included with the installed application.

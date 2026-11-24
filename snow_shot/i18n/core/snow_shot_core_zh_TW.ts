@@ -24,8 +24,8 @@
             <translation>關於 %1</translation>
         </message>
         <message>
-            <source>About Snow Shot</source>
-            <translation>關於 Snow Shot</translation>
+            <source>About KXCapture</source>
+            <translation>關於 KX截屏</translation>
         </message>
         <message>
             <source>Automatic updates are unavailable for this copy</source>
@@ -54,8 +54,8 @@ so every moment on screen can be expressed clearly and shared easily</source>
             <translation>檢查 %1 是否有新版本</translation>
         </message>
         <message>
-            <source>Check for a newer version of Snow Shot</source>
-            <translation>檢查是否有新版 Snow Shot</translation>
+            <source>Check for a newer version of KXCapture</source>
+            <translation>檢查是否有新版 KX截屏</translation>
         </message>
         <message>
             <source>Check for updates</source>
@@ -202,16 +202,16 @@ so every moment on screen can be expressed clearly and shared easily</source>
             <translation>截圖選取範圍、標註工具與辨識文字</translation>
         </message>
         <message>
-            <source>Snow Shot</source>
-            <translation>Snow Shot</translation>
+            <source>KXCapture</source>
+            <translation>KX截屏</translation>
         </message>
         <message>
-            <source>Snow Shot logo</source>
-            <translation>Snow Shot 標誌</translation>
+            <source>KXCapture logo</source>
+            <translation>KX截屏 標誌</translation>
         </message>
         <message>
-            <source>Snow Shot · make expression clearer</source>
-            <translation>Snow Shot · 讓表達更清晰</translation>
+            <source>KXCapture · make expression clearer</source>
+            <translation>KX截屏 · 讓表達更清晰</translation>
         </message>
         <message>
             <source>Text recognition</source>
@@ -429,12 +429,12 @@ so every moment on screen can be expressed clearly and shared easily</source>
     <context>
         <name>EditionMetadata</name>
         <message>
-            <source>Snow Shot</source>
-            <translation>Snow Shot</translation>
+            <source>KXCapture</source>
+            <translation>KX截屏</translation>
         </message>
         <message>
-            <source>Snow Shot Mini</source>
-            <translation>Snow Shot Mini</translation>
+            <source>KXCapture Mini</source>
+            <translation>KX截屏 Mini</translation>
         </message>
     </context>
     <context>
@@ -784,12 +784,12 @@ so every moment on screen can be expressed clearly and shared easily</source>
             <translation>帳號有欠款，付費呼叫已暫停。請前往「帳號」結清欠款後繼續</translation>
         </message>
         <message>
-            <source>Sign in to your Snow Shot account to use Expert Model</source>
-            <translation>請登入 Snow Shot 帳號以使用專家模型</translation>
+            <source>Sign in to your KXCapture account to use Expert Model</source>
+            <translation>請登入 KX截屏 帳號以使用專家模型</translation>
         </message>
         <message>
-            <source>Sign in to your Snow Shot account to use this service</source>
-            <translation>請登入 Snow Shot 帳號後使用此服務</translation>
+            <source>Sign in to your KXCapture account to use this service</source>
+            <translation>請登入 KX截屏 帳號後使用此服務</translation>
         </message>
         <message>
             <source>Table recognition failed</source>
@@ -888,8 +888,8 @@ so every moment on screen can be expressed clearly and shared easily</source>
             <translation>翻譯串流意外結束</translation>
         </message>
         <message>
-            <source>Your Snow Shot session is no longer valid. Sign in again</source>
-            <translation>Snow Shot 登入已失效，請重新登入</translation>
+            <source>Your KXCapture session is no longer valid. Sign in again</source>
+            <translation>KX截屏 登入已失效，請重新登入</translation>
         </message>
         <message>
             <source>Your available credits cannot cover this request. Purchase credits in Account</source>
@@ -957,8 +957,8 @@ so every moment on screen can be expressed clearly and shared easily</source>
             <translation>更新已就緒。請開啟「關於」重新啟動並更新 %1</translation>
         </message>
         <message>
-            <source>An update is ready. Open About to restart and update Snow Shot</source>
-            <translation>更新已準備就緒。請開啟「關於」頁面，重新啟動並更新 Snow Shot</translation>
+            <source>An update is ready. Open About to restart and update KXCapture</source>
+            <translation>更新已準備就緒。請開啟「關於」頁面，重新啟動並更新 KX截屏</translation>
         </message>
         <message>
             <source>Could not open the selected file: %1</source>
@@ -981,8 +981,8 @@ so every moment on screen can be expressed clearly and shared easily</source>
             <translation>重新啟動失敗</translation>
         </message>
         <message>
-            <source>Snow Shot %1 is available. Open About for update options</source>
-            <translation>Snow Shot %1 已推出。開啟「關於」查看更新選項</translation>
+            <source>KXCapture %1 is available. Open About for update options</source>
+            <translation>KX截屏 %1 已推出。開啟「關於」查看更新選項</translation>
         </message>
         <message>
             <source>The selected file path is invalid</source>

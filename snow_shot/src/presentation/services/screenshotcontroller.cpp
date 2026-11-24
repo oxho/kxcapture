@@ -29,6 +29,7 @@
 #include "snow_shot/presentation/screenshotcontentdrop.h"
 #include "snow_shot/presentation/screenshotoverlaycanvaspresenter.h"
 #include "snow_shot/presentation/screenshottoolbarpresentationstatefactory.h"
+#include "snow_shot/app/featureflags.h"
 #include "snow_shot/app/mcp/screenshotmcpselection.h"
 #include "snow_shot/app/mcp/mcpstylepatch.h"
 #include "snow_shot/platform/screenshotnative.h"
@@ -1281,6 +1282,8 @@ void ScreenshotController::Impl::createPresentationInfrastructure() {
 }
 
 bool ScreenshotController::Impl::ensureRecognitionFeature() {
+    if (!snow_shot::features::ocrEnabled())
+        return false;
     if (m_ocrController != nullptr) {
         return true;
     }
@@ -4108,7 +4111,7 @@ void ScreenshotController::Impl::pinSelectedFilesToScreen(
         case Error::None:
             return;
         case Error::PermissionDenied:
-            message = owner.tr("Allow Snow Shot to access Finder in System Settings > Privacy & "
+            message = owner.tr("Allow KXCapture to access Finder in System Settings > Privacy & "
                                "Security > Automation, then try again");
             break;
         case Error::Timeout:

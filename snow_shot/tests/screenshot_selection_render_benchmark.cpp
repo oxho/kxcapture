@@ -90,7 +90,7 @@ struct BenchmarkFixture {
     explicit BenchmarkFixture(const QSize& size, bool translucent = false)
         : canvas(std::make_unique<SnowCanvasWidget>(runtime, &window)),
           renderer(std::make_unique<ScreenshotCanvasRenderer>(*canvas)) {
-        window.setWindowTitle(QStringLiteral("Snow Shot selection benchmark"));
+        window.setWindowTitle(QStringLiteral("KXCapture selection benchmark"));
         // Match the screenshot overlay's native backing-store configuration before
         // WA_NativeWindow creates a platform window. An opaque child would bypass
         // the parent alpha surface and invalidate the presentation comparison.
@@ -583,7 +583,7 @@ QJsonObject writeReports(const QList<QJsonObject>& objects, const QString& jsonl
     }
     const QByteArray summaryJson = QJsonDocument(summary).toJson(QJsonDocument::Indented);
     const QByteArray htmlContent =
-        "<!doctype html><meta charset=\"utf-8\"><title>Snow Shot selection render benchmark</title>"
+        "<!doctype html><meta charset=\"utf-8\"><title>KXCapture selection render benchmark</title>"
         "<style>body{font:14px system-ui;margin:24px}pre{white-space:pre-wrap}</style>"
         "<h1>Selection render benchmark</h1><pre>" +
         summaryJson + "</pre>";
@@ -597,7 +597,7 @@ int main(int argc, char** argv) {
     QApplication application(argc, argv);
     snow_canvas_render_diagnostics::setEnabled(true);
     QCommandLineParser parser;
-    parser.setApplicationDescription(QStringLiteral("Snow Shot selection rendering benchmark"));
+    parser.setApplicationDescription(QStringLiteral("KXCapture selection rendering benchmark"));
     parser.addHelpOption();
     parser.addOption({QStringLiteral("jsonl"), QStringLiteral("JSONL output path"),
                       QStringLiteral("path"), QStringLiteral("selection-render-benchmark.jsonl")});

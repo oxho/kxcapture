@@ -10,14 +10,14 @@ import threading
 
 
 SCREENSHOT_TOOLS = {
-    "snow_shot_mcp_status", "snow_shot_screenshot_begin", "snow_shot_screenshot_state", "snow_shot_screenshot_set_selection",
-    "snow_shot_screenshot_set_tool", "snow_shot_screenshot_apply_annotations", "snow_shot_screenshot_undo", "snow_shot_screenshot_redo",
-    "snow_shot_screenshot_render", "snow_shot_screenshot_save", "snow_shot_screenshot_copy", "snow_shot_screenshot_pin", "snow_shot_screenshot_finish",
-    "snow_shot_screenshot_cancel", "snow_shot_screenshot_direct_capture", "snow_shot_screenshot_set_selection_style",
-    "snow_shot_screenshot_set_tool_style", "snow_shot_screenshot_edit_elements", "snow_shot_screenshot_recapture",
-    "snow_shot_screenshot_scrolling", "snow_shot_screenshot_scroll_once", "snow_shot_screenshot_recognize", "snow_shot_screenshot_translate",
-    "snow_shot_screenshot_auto_filter", "snow_shot_screenshot_operation", "snow_shot_screenshot_edit_recognition",
-    "snow_shot_screenshot_export_recognition", "snow_shot_screenshot_draw_template",
+    "kxcapture_mcp_status", "kxcapture_screenshot_begin", "kxcapture_screenshot_state", "kxcapture_screenshot_set_selection",
+    "kxcapture_screenshot_set_tool", "kxcapture_screenshot_apply_annotations", "kxcapture_screenshot_undo", "kxcapture_screenshot_redo",
+    "kxcapture_screenshot_render", "kxcapture_screenshot_save", "kxcapture_screenshot_copy", "kxcapture_screenshot_pin", "kxcapture_screenshot_finish",
+    "kxcapture_screenshot_cancel", "kxcapture_screenshot_direct_capture", "kxcapture_screenshot_set_selection_style",
+    "kxcapture_screenshot_set_tool_style", "kxcapture_screenshot_edit_elements", "kxcapture_screenshot_recapture",
+    "kxcapture_screenshot_scrolling", "kxcapture_screenshot_scroll_once", "kxcapture_screenshot_recognize", "kxcapture_screenshot_translate",
+    "kxcapture_screenshot_auto_filter", "kxcapture_screenshot_operation", "kxcapture_screenshot_edit_recognition",
+    "kxcapture_screenshot_export_recognition", "kxcapture_screenshot_draw_template",
 }
 SUPPORTED_VERSIONS = ["2026-07-28", "2025-11-25"]
 
@@ -71,26 +71,26 @@ def exercise(executable, recognition_only=False):
             tools = listed["tools"]
             names = {tool["name"] for tool in tools}
             assert SCREENSHOT_TOOLS <= names and len(names) == len(tools), names
-            assert {"snow_shot_document_open", "snow_shot_recording_start", "snow_shot_settings_update"} <= names
+            assert {"kxcapture_document_open", "kxcapture_recording_start", "kxcapture_settings_update"} <= names
             assert listed["ttlMs"] == 300000 and listed["cacheScope"] == "public", listed
             assert all("outputSchema" in tool for tool in tools)
             schemas = {tool["name"]:tool["inputSchema"] for tool in tools}
-            assert "expected_revision" in schemas["snow_shot_screenshot_apply_annotations"]["required"]
-            assert "operations" in schemas["snow_shot_screenshot_apply_annotations"]["required"]
-            for name in ("snow_shot_screenshot_recognize", "snow_shot_document_recognize"):
+            assert "expected_revision" in schemas["kxcapture_screenshot_apply_annotations"]["required"]
+            assert "operations" in schemas["kxcapture_screenshot_apply_annotations"]["required"]
+            for name in ("kxcapture_screenshot_recognize", "kxcapture_document_recognize"):
                 kind_schema = schemas[name]["properties"]["kind"]
                 if "$ref" in kind_schema:
                     kind_schema = schemas[name]["$defs"][kind_schema["$ref"].rsplit("/", 1)[1]]
                 assert kind_schema["enum"] == [
                     "text", "table", "qr", "markdown", "html", "latex", "document"], schemas[name]
             for identifier, name, arguments in (
-                    (16, "snow_shot_screenshot_recognize",
+                    (16, "kxcapture_screenshot_recognize",
                      {"session_id":"s", "expected_revision":1, "kind":"latex"}),
-                    (17, "snow_shot_document_recognize",
+                    (17, "kxcapture_document_recognize",
                      {"document_id":"d", "expected_revision":1, "kind":"latex"}),
-                    (18, "snow_shot_screenshot_recognize",
+                    (18, "kxcapture_screenshot_recognize",
                      {"session_id":"s", "expected_revision":1, "kind":"document"}),
-                    (19, "snow_shot_document_recognize",
+                    (19, "kxcapture_document_recognize",
                      {"document_id":"d", "expected_revision":1, "kind":"document"})):
                 send({"jsonrpc":"2.0", "id":identifier, "method":"tools/call",
                       "params":{"name":name, "arguments":arguments}})
@@ -103,15 +103,15 @@ def exercise(executable, recognition_only=False):
                 print("MCP recognition schemas and dispatch passed through the stdio bridge.")
                 return
             send({"jsonrpc":"2.0","id":3,"method":"tools/call","params":{
-                "name":"snow_shot_mcp_status","arguments":{}}})
+                "name":"kxcapture_mcp_status","arguments":{}}})
             status = response(3)
             assert not status.get("isError", False), status
             assert status["structuredContent"]["reachable"] is False, status
             assert status["structuredContent"]["error"]["code"] == "unavailable", status
-            assert "Snow Shot is not running" in status["content"][0]["text"], status
+            assert "KXCapture is not running" in status["content"][0]["text"], status
             send({"jsonrpc":"2.0","id":4,"method":"resources/list","params":{}})
             assert len(response(4)["resources"]) >= 3
-            send({"jsonrpc":"2.0","id":5,"method":"resources/read","params":{"uri":"snow-shot://capabilities"}})
+            send({"jsonrpc":"2.0","id":5,"method":"resources/read","params":{"uri":"kxcapture://capabilities"}})
             capabilities = response(5)
             catalog = json.loads(capabilities["contents"][0]["text"])
             assert {tool["name"] for tool in catalog["tools"]} == names
@@ -121,7 +121,7 @@ def exercise(executable, recognition_only=False):
             assert "document_id" in response(7)["messages"][0]["content"]["text"]
             send({"jsonrpc":"2.0","id":8,"method":"completion/complete","params":{"ref":{"type":"ref/prompt","name":"background_image_workflow"},"argument":{"name":"output_format","value":"p"}}})
             assert response(8)["completion"]["values"] == ["png","pdf"]
-            send({"jsonrpc":"2.0","id":9,"method":"tools/call","params":{"name":"snow_shot_document_close","arguments":{"document_id":"example"}}})
+            send({"jsonrpc":"2.0","id":9,"method":"tools/call","params":{"name":"kxcapture_document_close","arguments":{"document_id":"example"}}})
             assert response(9,True)["code"] == -32602
             send({"jsonrpc":"2.0","id":10,"method":"resources/read","params":{"uri":"file:///should-not-open"}})
             assert response(10,True)["code"] == -32602
@@ -129,12 +129,12 @@ def exercise(executable, recognition_only=False):
             assert response(11,True)["code"] == -32602
             secret = "fixture-secret-never-in-diagnostics-72619"
             send({"jsonrpc":"2.0","id":12,"method":"tools/call","params":{
-                "name":"snow_shot_credentials_set","arguments":{
+                "name":"kxcapture_credentials_set","arguments":{
                     "provider":"fixture-model","secret":secret,"expected_revision":1}}})
             assert response(12)["isError"] is True
             invalid_secret = "fixture-invalid-secret-never-in-diagnostics-91374"
             send({"jsonrpc":"2.0","id":13,"method":"tools/call","params":{
-                "name":"snow_shot_screenshot_set_tool","arguments":{
+                "name":"kxcapture_screenshot_set_tool","arguments":{
                     "session_id":"s","expected_revision":1,"tool":invalid_secret}}})
             assert response(13, True)["code"] == -32602
             for identifier, prompt, expected in ((14, "screenshot_workflow", "session_id"),
@@ -164,7 +164,7 @@ def main():
     assert invalid_result.returncode != 0 and not invalid_result.stdout
     startup_secret = "fixture-startup-secret-never-in-diagnostics-18735"
     premature_call = {"jsonrpc":"2.0","id":1,"method":"tools/call","params":{
-        "name":"snow_shot_credentials_set","arguments":{"secret":startup_secret}}}
+        "name":"kxcapture_credentials_set","arguments":{"secret":startup_secret}}}
     premature_result = subprocess.run([str(executable)], input=(json.dumps(premature_call) + "\n").encode(),
                                       capture_output=True, timeout=5)
     assert premature_result.returncode != 0

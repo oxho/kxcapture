@@ -96,7 +96,7 @@ class ClipboardResourcePolicyTests(unittest.TestCase):
         policy = re.search(r'if\(SNOW_SHOT_BUILD_TESTS\)\n\s*'
                            r'include\(SnowShotTestResources\)\nendif\(\)', workspace)
         if policy is None:
-            raise AssertionError('Snow Shot must enable its shared test resource policy')
+            raise AssertionError('KXCapture must enable its shared test resource policy')
         # Derive required aliases from their real executable binding, independently of
         # the name families used by the policy. A new oddly named alias must be covered.
         hosts = ('clipboard-roundtrip', 'export-coordinator', 'pinned-window',

@@ -192,7 +192,7 @@ arrow-text, and application angle integration CTests passed again.
 The final Smart Erase extraction change passed 29 filtered engine angle tests, five engine
 Smart Erase tests, two sparse scene-cache tests, and the 4,096-angle cache counter regression.
 Strict editor, scene, and engine Clippy and Rust formatting checks passed.
-Snow Shot and the Qt consumers rebuilt successfully with that change; the final angle,
+KXCapture and the Qt consumers rebuilt successfully with that change; the final angle,
 distance, arrow-text, Smart Erase, and application angle integration CTests all passed.
 The final 10,000-angle warm-visible patch regression and strict engine Clippy passed
 without further production changes, so the benchmark measurements above remain current.

@@ -223,7 +223,7 @@ void officialHttpErrorsDescribeTheFailure() {
         QString expected;
     } cases[]{
         {Kind::Table, 401, R"({"code":"account_required","detail":"Unauthorized"})",
-         QStringLiteral("account_required"), QStringLiteral("Sign in to your Snow Shot account")},
+         QStringLiteral("account_required"), QStringLiteral("Sign in to your KXCapture account")},
         {Kind::Latex, 401, R"({"code":"invalid_session"})", QStringLiteral("invalid_session"),
          QStringLiteral("session is no longer valid")},
         {Kind::Translation, 402, R"({"error":{"code":"insufficient_credits"}})",
@@ -238,7 +238,7 @@ void officialHttpErrorsDescribeTheFailure() {
         {Kind::Translation, 503, R"({"code":"operator_budget_exhausted"})",
          QStringLiteral("operator_budget_exhausted"),
          QStringLiteral("service has reached its usage limit")},
-        {Kind::Translation, 401, {}, {}, QStringLiteral("Sign in to your Snow Shot account")},
+        {Kind::Translation, 401, {}, {}, QStringLiteral("Sign in to your KXCapture account")},
         {Kind::Latex, 402, {}, {}, QStringLiteral("This request requires payment")},
         {Kind::Table, 422, R"({"code":"future_error","title":"Image cannot be processed"})",
          QStringLiteral("future_error"), QStringLiteral("Image cannot be processed")},
@@ -1818,12 +1818,12 @@ void latexResponseContracts() {
 }
 
 void customServerDefaultsAndValidation() {
-    const QByteArray previous = qgetenv("SNOW_SHOT_API_BASE_URL");
-    const bool wasSet = qEnvironmentVariableIsSet("SNOW_SHOT_API_BASE_URL");
-    qunsetenv("SNOW_SHOT_API_BASE_URL");
+    const QByteArray previous = qgetenv("KXCAPTURE_API_BASE_URL");
+    const bool wasSet = qEnvironmentVariableIsSet("KXCAPTURE_API_BASE_URL");
+    qunsetenv("KXCAPTURE_API_BASE_URL");
     const QString buildDefault = SnowShotApiClient::configuredBaseUrl();
     require(!buildDefault.isEmpty(), "build provides a server default");
-    qputenv("SNOW_SHOT_API_BASE_URL", " http://localhost:9876/dev/// ");
+    qputenv("KXCAPTURE_API_BASE_URL", " http://localhost:9876/dev/// ");
     require(SnowShotApiClient::configuredBaseUrl() == QStringLiteral("http://localhost:9876/dev"),
             "environment overrides build default and normalizes it");
     require(SnowShotApiClient::configuredBaseUrl(QStringLiteral("https://example.test/service/")) ==
@@ -1841,9 +1841,9 @@ void customServerDefaultsAndValidation() {
     require(client.setBaseUrl(QStringLiteral("https://example.test/prefix/")) && changes == 1,
             "equivalent server does not invalidate models");
     if (wasSet)
-        qputenv("SNOW_SHOT_API_BASE_URL", previous);
+        qputenv("KXCAPTURE_API_BASE_URL", previous);
     else
-        qunsetenv("SNOW_SHOT_API_BASE_URL");
+        qunsetenv("KXCAPTURE_API_BASE_URL");
 }
 
 void requestsKeepTheirOriginalServer() {

@@ -12,7 +12,7 @@
 
 namespace snow_shot::platform::windows::explorer {
 
-// Package registration must use this CLSID and bin/SnowShotExplorerCommand.dll.
+// Package registration must use this CLSID and bin/KXCaptureExplorerCommand.dll.
 inline constexpr CLSID kEditCommandClsid = {
     0x3f1e90a2, 0x7d4b, 0x4f21, {0x9d, 0x8a, 0x6b, 0x0c, 0x5e, 0x2f, 0x70, 0x93}};
 

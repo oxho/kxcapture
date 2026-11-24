@@ -1,5 +1,7 @@
 #include "snow_shot/presentation/screenshottoolbarwindow.h"
 
+#include "snow_shot/app/featureflags.h"
+
 #include "../tools/screenshottoolbarperfinstrumentation.h"
 #include "snow_shot/presentation/screenshotcanvastoolstyles.h"
 #include "snow_shot/presentation/screenshotstylebinding.h"
@@ -42,8 +44,8 @@ ScreenshotToolPalette::Options screenshotToolbarOptions() {
     options.showWatermarkTool = true;
     options.showTextTool = true;
     options.showSequenceNumberTool = true;
-    options.showOcrTool = true;
-    options.showTextTranslationTool = true;
+    options.showOcrTool = snow_shot::features::ocrEnabled();
+    options.showTextTranslationTool = snow_shot::features::translationEnabled();
     options.showTableTool = true;
     options.showQrTool = true;
     options.showImageConversionTools = true;

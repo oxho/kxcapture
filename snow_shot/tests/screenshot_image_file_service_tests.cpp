@@ -89,7 +89,7 @@ void namingAndFormatSelection() {
                 QStringLiteral("Capture_20260814_090706_000"),
             "filename formats must expand arbitrary date-time patterns inside braces");
     require(ScreenshotImageFileService::suggestedBaseName(
-                QStringLiteral("SnowShot_{YYYY-MM-DD_HH-mm-ss}"), timestamp) ==
+                QStringLiteral("KXCapture_{YYYY-MM-DD_HH-mm-ss}"), timestamp) ==
                 QStringLiteral("SnowShot_2026-08-14_09-07-06"),
             "documented uppercase date tokens must map to Qt date-time fields");
     require(ScreenshotImageFileService::extension(ScreenshotImageFileFormat::Jpeg) ==
@@ -250,7 +250,7 @@ void jpegUsesTheCodecTransparencyPolicy() {
     const QColor pixel = decoded.pixelColor(decoded.width() / 2, decoded.height() / 2);
     const auto near = [](int actual, int expected) { return std::abs(actual - expected) <= 4; };
     require(near(pixel.red(), 80) && near(pixel.green(), 40) && near(pixel.blue(), 20),
-            "the Snow Shot bridge must delegate JPEG alpha removal to the codec's black matte");
+            "the KXCapture bridge must delegate JPEG alpha removal to the codec's black matte");
 }
 
 void streamsRowsToAtomicFileAndCancelsWithoutPublishing() {

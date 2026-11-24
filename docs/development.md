@@ -1,6 +1,6 @@
-# Developing Snow Shot
+# Developing KXCapture
 
-Snow Shot uses C++ / Qt for its desktop interface and Rust for native services.
+KXCapture uses C++ / Qt for its desktop interface and Rust for native services.
 Start with the platform instructions below, and follow [AGENTS.md](../AGENTS.md)
 and the [contribution guidelines](../CONTRIBUTING.md) when preparing a change.
 

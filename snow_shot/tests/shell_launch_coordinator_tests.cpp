@@ -38,7 +38,7 @@ void classificationPreservesLaunchPolicy() {
                 request.unsupportedPaths == QStringList{unsupported},
             "classification preserves ordered repeated supported files and individual errors");
     const auto invalid = Coordinator::parse(
-        {QStringLiteral("--edit-with-snow-shot"), image, QStringLiteral("--edit-with-snow-shot")});
+        {QStringLiteral("--edit-with-kxcapture"), image, QStringLiteral("--edit-with-kxcapture")});
     require(invalid.filesRequested && !invalid.valid && invalid.paths.isEmpty() &&
                 invalid.unsupportedPaths.isEmpty(),
             "malformed operands reject the whole file request before suffix feedback");
@@ -67,7 +67,7 @@ void prospectiveAdmissionAndReplayOwnDifferentStates() {
     require(transfer.paths == QStringList{first, second} && transfer.foreground &&
                 !coordinator.acceptsUpdate(firstRequest, true, fitsTwo),
             "cumulative capacity rejects only new intent while retaining the accepted batch");
-    const auto invalid = Coordinator::parse({QStringLiteral("--edit-with-snow-shot")});
+    const auto invalid = Coordinator::parse({QStringLiteral("--edit-with-kxcapture")});
     require(coordinator.acceptsUpdate(invalid, true, fitsTwo) &&
                 !coordinator.acceptsUpdate(invalid, false, fitsTwo),
             "malformed requests reach validation feedback until terminal transfer closes input");

@@ -1,6 +1,6 @@
 # Capture exclusion
 
-Snow Shot keeps capture controls visible while omitting them from captured display
+KXCapture keeps capture controls visible while omitting them from captured display
 or region pixels. The scrolling overlay and toolbar follow the scrolling UI
 capture setting; the recording toolbar follows the recording toolbar setting.
 Toolbar exclusion failures are best effort. All toolbar overlay popovers use a
@@ -18,7 +18,7 @@ obsolete completions cannot authorize a replacement or reopen a cancelled popup.
 
 Windows uses `WDA_EXCLUDEFROMCAPTURE`. macOS 15+ saves the actual NSWindow sharing
 policy and temporarily sets it to `NSWindowSharingNone`; **ScreenCaptureKit content
-filters enforce omission in Snow Shot's captures**. Changing an NSWindow sharing
+filters enforce omission in KXCapture's captures**. Changing an NSWindow sharing
 policy alone does not guarantee omission from third-party ScreenCaptureKit apps.
 Restoration preserves the original policy, including a pre-existing `None` policy.
 The native state retains the original NSWindow until restoration and is also

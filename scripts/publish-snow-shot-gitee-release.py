@@ -18,8 +18,8 @@ from urllib.parse import urlencode
 from urllib.request import urlopen
 
 
-GITHUB_REPOSITORY = "mg-chao/snow-shot"
-GITEE_REPOSITORY = "mg-chao/snow-apps"
+GITHUB_REPOSITORY = "oxho/kxcapture"
+GITEE_REPOSITORY = ""
 GITEE_API = f"https://gitee.com/api/v5/repos/{GITEE_REPOSITORY}/releases"
 GITEE_GIT = f"https://gitee.com/{GITEE_REPOSITORY}.git"
 # Use decimal GB so the publication fits either a GB or GiB quota.
@@ -60,7 +60,7 @@ def checked_tag(tag: str) -> str:
     if not match or (match[4] and any(part.isascii() and part.isdigit() and
                                       len(part) > 1 and part[0] == "0"
                                       for part in match[4].split("."))):
-        raise ValueError(f"Invalid Snow Shot release tag: {tag}")
+        raise ValueError(f"Invalid KXCapture release tag: {tag}")
     return tag
 
 
@@ -101,13 +101,13 @@ def release_marker(tag: str, commit: str, directory: Path) -> str:
     tree = subprocess.check_output(("git", "-C", str(directory), "mktree"),
                                    input=f"100644 blob {blob}\trelease.json\n".encode('ascii')).decode('ascii').strip()
     environment = dict(os.environ,
-                       GIT_AUTHOR_NAME="Snow Shot releases", GIT_COMMITTER_NAME="Snow Shot releases",
-                       GIT_AUTHOR_EMAIL="releases@snowshot.top", GIT_COMMITTER_EMAIL="releases@snowshot.top",
+                       GIT_AUTHOR_NAME="KXCapture releases", GIT_COMMITTER_NAME="KXCapture releases",
+                       GIT_AUTHOR_EMAIL="", GIT_COMMITTER_EMAIL="",
                        GIT_AUTHOR_DATE="2000-01-01T00:00:00+00:00",
                        GIT_COMMITTER_DATE="2000-01-01T00:00:00+00:00")
     return subprocess.check_output(("git", "-C", str(directory), "-c", "commit.gpgSign=false",
                                     "-c", "i18n.commitEncoding=UTF-8",
-                                    "commit-tree", tree), input=f"Snow Shot {tag}\n".encode('ascii'),
+                                    "commit-tree", tree), input=f"KXCapture {tag}\n".encode('ascii'),
                                    env=environment).decode('ascii').strip()
 
 
@@ -652,7 +652,10 @@ if __name__ == "__main__":
                     token = load_token()
                 if token:
                     check_auth(token)
-                publish(release, assets, token, os.environ.get("GITEE_USERNAME", "mg-chao"),
-                        arguments.verify_only)
+                username = os.environ.get("GITEE_USERNAME", "")
+                if not arguments.verify_only and not username:
+                    raise ValueError(
+                        "GITEE_USERNAME is not configured. This publisher does not default to the upstream account.")
+                publish(release, assets, token, username, arguments.verify_only)
     except (ValueError, OSError, KeyError, subprocess.CalledProcessError) as error:
         parser.exit(1, f"Gitee publication failed: {error}\n")

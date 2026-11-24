@@ -54,7 +54,7 @@ if ([string]::IsNullOrWhiteSpace($LinkMap)) {
     $LinkMap = Join-Path $repoRoot "build/$preset/snow_shot/Release/snow_shot.map"
 }
 if (Select-String -LiteralPath $LinkMap -Pattern 'x265_(?:10|12)bit|x265-main(?:10|12)\.lib' -Quiet) {
-    throw 'The Snow Shot link map retains an unsupported software HEVC bit depth.'
+    throw 'The KXCapture link map retains an unsupported software HEVC bit depth.'
 }
 $linked = @(Select-String -LiteralPath $LinkMap -Pattern (
     '^\s+[0-9A-Fa-f]+:[0-9A-Fa-f]+\s+(ff_[A-Za-z0-9_]+_(?:bsf|decoder|encoder|hwaccel|parser|demuxer|muxer|protocol)|ff_(?:af|asrc|asink|vf|vsrc|vsink|avf|vaf)_[A-Za-z0-9_]+)\s+[0-9A-Fa-f]+\s{2,}\S'

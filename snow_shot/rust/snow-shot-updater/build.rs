@@ -36,7 +36,7 @@ fn compile_windows_resources(output: &std::path::Path) {
     let patch = parts.next().expect("patch version");
     assert!(
         parts.next().is_none(),
-        "Snow Shot version must be major.minor.patch[-suffix]"
+        "KXCapture version must be major.minor.patch[-suffix]"
     );
     for part in [major, minor, patch] {
         part.parse::<u16>()
@@ -44,11 +44,11 @@ fn compile_windows_resources(output: &std::path::Path) {
     }
 
     let mini = env::var_os("CARGO_FEATURE_MINI").is_some();
-    let product = if mini { "Snow Shot Mini" } else { "Snow Shot" };
+    let product = if mini { "KXCapture Mini" } else { "KXCapture" };
     let updater = if mini {
-        "snow-shot-mini-updater"
+        "kxcapture-mini-updater"
     } else {
-        "snow-shot-updater"
+        "kxcapture-updater"
     };
     let resource_path = output.join(format!("{updater}.rc"));
     // Normal startup runs --transaction-state through CreateProcess. Declare
@@ -87,11 +87,11 @@ BEGIN
     BEGIN
         BLOCK "000004b0"
         BEGIN
-            VALUE "CompanyName", "Snow Apps\0"
+            VALUE "CompanyName", "oxho\0"
             VALUE "FileDescription", "{product} update service\0"
             VALUE "FileVersion", "{numeric}.0\0"
             VALUE "InternalName", "{updater}\0"
-            VALUE "LegalCopyright", "Copyright (C) 2025-2026 mg-chao\0"
+            VALUE "LegalCopyright", "Copyright (C) 2025-2026 mg-chao. Modified by oxho, 2026.\0"
             VALUE "OriginalFilename", "{updater}.exe\0"
             VALUE "ProductName", "{product}\0"
             VALUE "ProductVersion", "{version}\0"

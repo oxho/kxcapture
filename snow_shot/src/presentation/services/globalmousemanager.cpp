@@ -1,3 +1,4 @@
+#include "snow_shot/app/featureflags.h"
 #include "snow_shot/presentation/globalmousemanager.h"
 #include "snow_shot/storage/applicationstorage.h"
 
@@ -39,6 +40,8 @@ struct GlobalMouseManager::Impl {
             std::pair{Action::ScreenRecording, "global_mouse/screen_recording"}};
         auto& store = storage::ApplicationStorage::instance().configuration();
         for (const auto& [action, key] : pairs) {
+            if (!features::configurationKeyEnabled(QString::fromLatin1(key)))
+                continue;
             const auto value = store.value(QString::fromLatin1(key)).toObject();
             const auto binding = globalMouseBinding(
                 action, {value.value(QStringLiteral("activation_key")).toVariant().toStringList(),
@@ -326,10 +329,10 @@ QString globalMousePermissionMessage(const GlobalMousePermissionState& state) {
     case Status::Ready:
         return GlobalMouseManager::tr("Global mouse gestures are ready");
     case Status::ListenRequired:
-        return GlobalMouseManager::tr("Allow Snow Shot in System Settings > Privacy & Security > "
+        return GlobalMouseManager::tr("Allow KXCapture in System Settings > Privacy & Security > "
                                       "Input Monitoring to use global mouse gestures");
     case Status::AccessibilityRequired:
-        return GlobalMouseManager::tr("Allow Snow Shot in System Settings > Privacy & Security > "
+        return GlobalMouseManager::tr("Allow KXCapture in System Settings > Privacy & Security > "
                                       "Accessibility to use global mouse gestures");
     case Status::Unavailable:
         return GlobalMouseManager::tr(

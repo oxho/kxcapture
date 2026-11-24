@@ -81,7 +81,7 @@ for Release preset commands, before/after results, and exact-output validation.
 ## Pinned filter rendering
 
 A host can override `SnowCanvasCustomRenderer::filterRenderReference()` with its full
-canvas rectangle and original pixel density. Snow Shot enables this for materialized
+canvas rectangle and original pixel density. KXCapture enables this for materialized
 pinned results, including Retina sources. The engine renders the background and ordered
 scene once on that fixed grid, then presents the resulting image at every zoom and DPR.
 Editor overlays, spotlight, and watermark remain in the live viewport path.
