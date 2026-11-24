@@ -8,7 +8,7 @@
 !define SNOW_SHOT_INSTALLER_EXECUTABLE "kxcapture"
 !endif
 !ifndef SNOW_SHOT_INSTALLER_UPDATER
-!define SNOW_SHOT_INSTALLER_UPDATER "snow-shot-updater"
+!define SNOW_SHOT_INSTALLER_UPDATER "kxcapture-updater"
 !endif
 !ifndef SNOW_SHOT_INSTALLER_MCP
 !searchreplace SNOW_SHOT_INSTALLER_MCP "${SNOW_SHOT_INSTALLER_UPDATER}" "-updater" "-mcp"

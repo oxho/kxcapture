@@ -636,10 +636,10 @@ include([==[{(ROOT / 'cmake/SnowShotMiniMacOS.cmake').as_posix()}]==])
             bundle = Path(directory) / 'snow_shot_mini.app'
             runtime = bundle / 'Contents/MacOS'
             assets = bundle / 'Contents/Resources/assets'
-            files = [runtime / name for name in ('snow_shot_mini', 'snow-shot-mini-mcp',
+            files = [runtime / name for name in ('kxcapture_mini', 'kxcapture-mini-mcp',
                                                 'kxcapture-ocr', 'crashpad_handler')]
             files.extend([assets / 'ocr/asset-manifest.json',
-                          bundle / 'Contents/Resources/snow-shot.icns'])
+                          bundle / 'Contents/Resources/kxcapture.icns'])
             files.extend(bundle / ('Contents/Resources/' + language + '.lproj/InfoPlist.strings')
                          for language in ('en', 'zh-Hans', 'zh-Hant'))
             files.extend(bundle / ('Contents/Resources/kxcapture-mini/licenses/' + relative)
@@ -650,16 +650,32 @@ include([==[{(ROOT / 'cmake/SnowShotMiniMacOS.cmake').as_posix()}]==])
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_text('fixture')
 
-            def verify(static=True):
+            def verify(static=True, ocr=True):
                 return subprocess.run([
                     cmake, '-DSNOW_SHOT_MINI_APP=' + str(bundle),
                     '-DSNOW_SHOT_MINI_STATIC=' + ('ON' if static else 'OFF'),
-                    '-DSNOW_SHOT_MINI_MCP=ON', '-P',
+                    '-DSNOW_SHOT_MINI_MCP=ON',
+                    '-DKXCAPTURE_ENABLE_OCR=' + ('ON' if ocr else 'OFF'), '-P',
                     str(ROOT / 'cmake/AssertSnowShotMiniMacOSPayload.cmake')],
                     text=True, capture_output=True)
 
             result = verify()
             self.assertEqual(result.returncode, 0, result.stderr)
+            ocr_off = verify(ocr=False)
+            self.assertNotEqual(ocr_off.returncode, 0, ocr_off.stderr)
+            self.assertIn('kxcapture-ocr', ocr_off.stderr)
+            worker = runtime / 'kxcapture-ocr'
+            manifest = assets / 'ocr/asset-manifest.json'
+            worker_bytes = worker.read_bytes()
+            manifest_bytes = manifest.read_bytes()
+            worker.unlink()
+            manifest.unlink()
+            manifest.parent.rmdir()
+            ocr_off_clean = verify(ocr=False)
+            worker.write_bytes(worker_bytes)
+            manifest.parent.mkdir()
+            manifest.write_bytes(manifest_bytes)
+            self.assertEqual(ocr_off_clean.returncode, 0, ocr_off_clean.stderr)
             for relative in ('Contents/MacOS/snow_shot', 'Contents/MacOS/snow-shot-mcp',
                              'Contents/Frameworks/Unused.framework/Unused',
                              'Contents/PlugIns/imageformats/unused.dylib',

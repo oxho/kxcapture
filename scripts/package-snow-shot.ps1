@@ -6,6 +6,8 @@ param(
     [string]$OcrRuntimeArchive,
     [ValidateRange(1, 256)][int]$Parallelism = 4,
     [switch]$SkipBuild,
+    [switch]$BuildOnly,
+    [switch]$DisableOcr,
     [ValidateSet('standalone', 'store')][string]$DistributionChannel = 'standalone',
     [switch]$StageOnly,
     [switch]$PrepareOcrRuntimeOnly
@@ -434,6 +436,7 @@ if (-not $SkipBuild) {
     $configureArguments = @(Get-SnowConfigureArguments -Preset $releasePreset `
         -BuildDirectory $buildDirectory)
     $configureArguments += "-DSNOW_SHOT_OCR_ASSET_MANIFEST=$($ocrAssetManifestPath.Replace('\', '/'))"
+    if ($DisableOcr) { $configureArguments += '-DKXCAPTURE_ENABLE_OCR=OFF' }
     & cmake @configureArguments
     if ($LASTEXITCODE -ne 0) {
         throw "KXCapture release configuration failed."
@@ -482,6 +485,10 @@ if (-not $SkipBuild) {
     if ($LASTEXITCODE -ne 0) {
         throw "KXCapture release build failed."
     }
+}
+if ($BuildOnly) {
+    Write-Output "KXCapture build finished; packaging was not run."
+    return
 }
 
 $updaterSizeReporter = Join-Path $PSScriptRoot 'report-snow-shot-updater-size.ps1'
@@ -795,7 +802,7 @@ $symbolOptions = @{
 }
 & (Join-Path $PSScriptRoot "collect-snow-shot-symbols.ps1") -BuildDirectory $buildDirectory -InstallDirectory $installDirectory @symbolOptions
 
-$linkMapPath = Join-Path $buildDirectory "snow_shot\Release\snow_shot.map"
+$linkMapPath = Join-Path $buildDirectory "snow_shot\Release\kxcapture.map"
 if (-not (Test-Path -LiteralPath $linkMapPath -PathType Leaf)) {
     throw "The KXCapture Release link map was not found: $linkMapPath"
 }
@@ -896,15 +903,17 @@ if ($versionInfo.FileVersion -ne "$packageVersionNumeric.0" -or
     throw "KXCapture binary version '$($versionInfo.FileVersion)'/'$($versionInfo.ProductVersion)' does not match package version '$packageVersion'."
 }
 
-$pinnedRuntime = (Get-Content -LiteralPath $ocrAssetManifestPath -Raw | ConvertFrom-Json).runtime
+$checkedInOcrManifest = Get-Content -LiteralPath $ocrAssetManifestPath -Raw | ConvertFrom-Json
+$pinnedRuntime = $checkedInOcrManifest.runtime
 $ocrRuntimeVersion = $pinnedRuntime.version
 $ocrPlatform = $windowsTarget.Platform
 $ocrDefaultModelType = "small"
 $ocrDefaultModelId = "ppocrv6-small-463ea9f"
-$ocrModelRootUrl = ""
 $ocrRuntimeFileName = "snow-ocr-process-$ocrRuntimeVersion-$ocrPlatform.exe"
 $ocrRuntimeArchiveName = "snow-ocr-runtime-$ocrRuntimeVersion-$ocrPlatform.zip"
-$ocrRuntimeUrl = ""
+# The checked-in manifest currently carries the temporary ModelScope URLs.
+# The release identity check below requires this value to match that manifest.
+$ocrRuntimeUrl = [string]$pinnedRuntime.archive.url
 $ocrModels = @(
     [ordered]@{
         Type = "extra_small"
@@ -1081,6 +1090,7 @@ function Assert-ZipMatchesFileManifest {
     finally { $stream.Dispose() }
 }
 
+if (-not $DisableOcr) {
 $runtimeWork = Join-Path $artifactRoot "snow-ocr-runtime-$ocrRuntimeVersion"
 Reset-ReleaseDirectory -Path $runtimeWork
 $runtimeArchivePath = Join-Path $buildDirectory $ocrRuntimeArchiveName
@@ -1176,7 +1186,15 @@ foreach ($model in $ocrModels) {
     $files = @()
     foreach ($file in $model.Files) {
         $path = Join-Path $modelCache $file.Name
-        $url = "$ocrModelRootUrl/$($model.Directory)/$($file.Name)"
+        $manifestModel = @($checkedInOcrManifest.models | Where-Object { $_.id -ceq $model.Id })
+        if ($manifestModel.Count -ne 1) {
+            throw "The checked-in OCR manifest has no model $($model.Id)."
+        }
+        $manifestFile = @($manifestModel[0].files | Where-Object { $_.name -ceq $file.Name })
+        if ($manifestFile.Count -ne 1) {
+            throw "The checked-in OCR manifest has no file $($file.Name) for $($model.Id)."
+        }
+        $url = [string]$manifestFile[0].url
         $valid = $false
         if (Test-Path -LiteralPath $path -PathType Leaf) {
             try {
@@ -1339,6 +1357,12 @@ if ($manifestDrift) {
 if (-not $OcrRuntimeArchive) {
     $runtimeArchive.sha256 | Set-Content -LiteralPath $runtimePublishedMarker -Encoding ascii
 }
+} else {
+    Write-Output "OCR packaging is off (-DisableOcr, KXCAPTURE_ENABLE_OCR=OFF)."
+    $runtimeArchivePath = ""
+    $runtimeArchiveChecksum = ""
+    $runtimeReleaseManifest = ""
+}
 
 $variantStages = [ordered]@{
     online = Join-Path $artifactRoot "snow-shot-$packageVersion-online-stage"
@@ -1357,6 +1381,9 @@ foreach ($variant in $variantStages.Keys) {
         Remove-Item -LiteralPath $compiledOcrWorker -Force
     }
     $assetRoot = Join-Path $stage "bin\assets\ocr"
+    if ($DisableOcr) {
+        if (Test-Path -LiteralPath $assetRoot) { Remove-Item -LiteralPath $assetRoot -Recurse -Force }
+    } else {
     Reset-ReleaseDirectory -Path $assetRoot
     Copy-Item -LiteralPath $assetManifestSource -Destination (Join-Path $assetRoot "asset-manifest.json")
     if ($variant -in @("offline", "portable")) {
@@ -1380,6 +1407,7 @@ foreach ($variant in $variantStages.Keys) {
         [ordered]@{ schema = 1; component = $ocrDefaultModelId } |
             ConvertTo-Json -Compress | Set-Content -LiteralPath (Join-Path $modelDestination ".complete.json") -Encoding utf8
     }
+    }
     if ($variant -eq "portable") {
         "portable" | Set-Content -LiteralPath (Join-Path $stage "bin\__data_directory") `
             -Encoding ascii -NoNewline
@@ -1391,6 +1419,20 @@ foreach ($variant in $variantStages.Keys) {
     })
     [ordered]@{ schema = 1; platform = $ocrPlatform; version = $packageVersion; variant = $variant; files = $owned } |
         ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $stage 'snow-shot-installation.json') -Encoding utf8NoBOM
+}
+if ($DisableOcr) {
+    foreach ($variant in $variantStages.Keys) {
+        $ocrStage = $variantStages[$variant]
+        $ocrHits = @(Get-ChildItem -LiteralPath $ocrStage -Recurse -Force | ForEach-Object {
+            $relative = [IO.Path]::GetRelativePath($ocrStage, $_.FullName).Replace('\', '/')
+            if ($relative -match '(?i)kxcapture-ocr|snow-ocr-process' -or
+                $relative -match '(?i)(^|/)assets/ocr(/|$)' -or
+                $relative -match '(?i)\.onnx$') { $relative }
+        })
+        if ($ocrHits.Count -gt 0) {
+            throw "OCR-off stage '$variant' still contains OCR files: $($ocrHits -join ', ')"
+        }
+    }
 }
 
 if ($StageOnly) {
@@ -1409,6 +1451,7 @@ if ($StageOnly) {
     return
 }
 
+if (-not $DisableOcr) {
 $onlineAssetFiles = @(Get-ChildItem -LiteralPath (Join-Path $variantStages.online "bin\assets\ocr") -Recurse -File)
 if ($onlineAssetFiles.Count -ne 1 -or $onlineAssetFiles[0].Name -ne "asset-manifest.json") {
     throw "The online installer stage must contain only the trusted OCR asset manifest."
@@ -1456,6 +1499,7 @@ if (($offlineOcrManifest | ConvertTo-Json -Depth 4 -Compress) -cne
     ($portableOcrManifest | ConvertTo-Json -Depth 4 -Compress)) {
     throw "The portable package OCR resources do not match the offline installer resources."
 }
+}
 $portableDataMarker = Join-Path $variantStages.portable "bin\__data_directory"
 if (-not (Test-Path -LiteralPath $portableDataMarker -PathType Leaf) -or
     (Get-Content -LiteralPath $portableDataMarker -Raw) -cne "portable") {
@@ -1466,7 +1510,7 @@ $producedPackages = @()
 Assert-SnowNativeStartup -Stage $variantStages.online -Executable kxcapture -Updater kxcapture-updater -Version $packageVersion
 $nativeProbesPassed = $nativeTarget
 foreach ($variant in @('online', 'offline')) {
-    $updateName = "snow-shot-$packageVersion-$ocrPlatform-$variant-update"
+    $updateName = "kxcapture-$packageVersion-$ocrPlatform-$variant-update"
     $updatePath = Join-Path $buildDirectory "$updateName.zip"
     New-DeterministicZip -SourceDirectory $variantStages[$variant] -Destination $updatePath
     $files = Get-ReleaseTreeFileManifest -Root $variantStages[$variant]
@@ -1484,7 +1528,11 @@ foreach ($variant in @('online', 'offline')) {
 $nsisWorkDirectory = Join-Path $repoRoot "build\nsis-$Architecture"
 New-Item -ItemType Directory -Path $nsisWorkDirectory -Force | Out-Null
 foreach ($variant in @("online", "offline")) {
-    $packageBaseName = "snow-shot-$packageVersion-$ocrPlatform-$variant"
+    $packageBaseName = if ($variant -eq 'online') {
+        "kxcapture-$packageVersion-$ocrPlatform-setup"
+    } else {
+        "kxcapture-$packageVersion-$ocrPlatform-offline"
+    }
     $variantConfig = Join-Path $buildDirectory "CPackConfig-$variant.cmake"
     $baseConfigPath = $cpackConfig.Replace('\', '/')
     $stagePath = $variantStages[$variant].Replace('\', '/')
@@ -1498,7 +1546,7 @@ set(CPACK_INSTALL_CMAKE_PROJECTS "")
 set(CPACK_INSTALLED_DIRECTORIES "$stagePath;/")
 set(CPACK_PACKAGE_DIRECTORY "$packageDirectory")
 set(CPACK_PACKAGE_FILE_NAME "$packageBaseName")
-string(REPLACE "snow-shot-$packageVersion-$ocrPlatform.exe" "$packageBaseName.exe" CPACK_NSIS_DEFINES "`${CPACK_NSIS_DEFINES}")
+string(REPLACE "kxcapture-$packageVersion-$ocrPlatform.exe" "$packageBaseName.exe" CPACK_NSIS_DEFINES "`${CPACK_NSIS_DEFINES}")
 "@ | Set-Content -LiteralPath $variantConfig -Encoding utf8
     Add-Content -LiteralPath $variantConfig -Value $nsisPayload.CPackDefinitions -Encoding utf8
     $packagePath = Join-Path $buildDirectory "$packageBaseName.exe"
@@ -1521,7 +1569,7 @@ string(REPLACE "snow-shot-$packageVersion-$ocrPlatform.exe" "$packageBaseName.ex
         CompanyName = "oxho"
         FileDescription = "KXCapture installer"
         FileVersion = "$packageVersionNumeric.0"
-        InternalName = "snow-shot-installer"
+        InternalName = "kxcapture-installer"
         LegalCopyright = "Copyright (C) 2025-2026 mg-chao. Modified by oxho, 2026."
         OriginalFilename = "$packageBaseName.exe"
         ProductName = "KXCapture"
@@ -1571,7 +1619,7 @@ string(REPLACE "snow-shot-$packageVersion-$ocrPlatform.exe" "$packageBaseName.ex
     Write-Output "KXCapture $variant release manifest: $manifestPath"
 }
 
-$portableBaseName = "snow-shot-$packageVersion-$ocrPlatform-portable"
+$portableBaseName = "kxcapture-$packageVersion-$ocrPlatform-portable"
 $portableArchivePath = Join-Path $buildDirectory "$portableBaseName.zip"
 New-DeterministicZip -SourceDirectory $variantStages.portable -Destination $portableArchivePath
 $portableArchiveHash =
@@ -1619,7 +1667,7 @@ Write-Output "OCR runtime manifest: $runtimeReleaseManifest"
 . (Join-Path $PSScriptRoot "package-snow-shot-mini.ps1")
 
 # Store staging returns above; it must never invoke this release step recursively.
-if (-not $store -and -not $StageOnly -and $Architecture -eq 'x64') {
+if (-not $DisableOcr -and -not $store -and -not $StageOnly -and $Architecture -eq 'x64') {
     if ($packageVersion -ceq $packageVersionNumeric) {
         & (Join-Path $PSScriptRoot 'package-snow-shot-msix.ps1') -Architecture x64 `
             -OutputDirectory (Join-Path $repoRoot "artifacts/msix/$packageVersion") `

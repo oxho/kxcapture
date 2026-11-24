@@ -51,7 +51,7 @@ if ($ComponentsOnly) {
 }
 if ([string]::IsNullOrWhiteSpace($LinkMap)) {
     $preset = if ($Architecture -eq 'arm64') { 'snow-shot-msvc-arm64-release' } else { 'snow-shot-msvc-release' }
-    $LinkMap = Join-Path $repoRoot "build/$preset/snow_shot/Release/snow_shot.map"
+    $LinkMap = Join-Path $repoRoot "build/$preset/snow_shot/Release/kxcapture.map"
 }
 if (Select-String -LiteralPath $LinkMap -Pattern 'x265_(?:10|12)bit|x265-main(?:10|12)\.lib' -Quiet) {
     throw 'The KXCapture link map retains an unsupported software HEVC bit depth.'

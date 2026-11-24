@@ -1,0 +1,439 @@
+# macOS arm64 test DMG. Separate workflow so a runner retry does not cancel
+# the Windows job. macos-latest is the current free arm64 image; macos-15
+# was not acquired ("hosted even after multiple attempts").
+# Disk images are KXCapture-<version>-macos-arm64.dmg and
+# KXCapture-Mini-<version>-macos-arm64.dmg. Volume names are KXCapture
+# and KXCapture Mini.
+name: KXCapture test installers (macOS)
+
+on:
+  push:
+    branches:
+      - cursor/package-kxcapture-af5e
+  workflow_dispatch:
+    inputs:
+      stage:
+        description: all compiles then packages. package-only reruns signing and DMG creation from a previous build artifact.
+        type: choice
+        options:
+          - all
+          - package-only
+        default: all
+      build_run_id:
+        description: Run ID whose kxcapture-macos-arm64-build artifact to package. Required for package-only.
+        required: false
+        type: string
+
+concurrency:
+  group: kxcapture-test-installers-macos-${{ github.ref }}
+  # Leave the in-progress macOS package running when a Windows-only retry is pushed.
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  cert-script:
+    name: macOS self-signed cert script
+    runs-on: macos-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Prove the certificate script
+        run: bash scripts/ci/test-create-selfsigned-cert.sh
+
+  gate:
+    name: macOS workflow gate
+    if: ${{ !contains(github.event.head_commit.message, '[skip-macos]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo ok
+
+  build:
+    name: macOS arm64 build
+    needs: gate
+    # A commit message containing [skip-macos] retries Windows only.
+    # [package-macos] reuses a saved build artifact, so this job stays skipped.
+    if: ${{ (github.event_name != 'workflow_dispatch' || inputs.stage != 'package-only') && !contains(github.event.head_commit.message, '[skip-macos]') && !contains(github.event.head_commit.message, '[package-macos]') }}
+    # xcode-27 is the free arm64 image that carries Xcode 27. The OCR Metal
+    # archive was qualified on Xcode 27.1; contention_relief is a Metal
+    # pipeline field that Xcode 26's metal-tt rejects.
+    runs-on: xcode-27
+    timeout-minutes: 360
+    env:
+      VCPKG_MAX_CONCURRENCY: "2"
+      VCPKG_DISABLE_METRICS: "1"
+      MACOSX_DEPLOYMENT_TARGET: "15.0"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 1
+
+      - name: Show disk space
+        run: df -h /
+
+      - name: Install CMake 4.2.3, Ninja, pkg-config, and NASM
+        run: |
+          set -euo pipefail
+          cmake_root="$RUNNER_TEMP/cmake"
+          mkdir -p "$cmake_root"
+          curl --fail --location --retry 3 --output "$RUNNER_TEMP/cmake.tar.gz" \
+            https://github.com/Kitware/CMake/releases/download/v4.2.3/cmake-4.2.3-macos-universal.tar.gz
+          tar -xzf "$RUNNER_TEMP/cmake.tar.gz" -C "$cmake_root"
+          echo "$cmake_root/cmake-4.2.3-macos-universal/CMake.app/Contents/bin" >> "$GITHUB_PATH"
+          # Bash 5: macOS /bin/bash 3.2 treats an empty "${array[@]}" as unbound
+          # under set -u, and build-static-qt.sh expands qt_apple_options that way
+          # on native arm64 with full Xcode.
+          # clang-format is required when CMake regenerates the icon pack.
+          brew install bash ninja pkgconf nasm clang-format ccache
+          # pkgconf's executable is pkgconf; the build scripts require pkg-config.
+          if ! command -v pkg-config >/dev/null; then
+            brew_bin="$(brew --prefix)/bin"
+            ln -sf "$(command -v pkgconf)" "$brew_bin/pkg-config"
+          fi
+          # Homebrew's /opt/homebrew/lib symlink farm is on CMake's default
+          # search path. The release binary then links cellar dylibs such as
+          # liblzma.5.dylib and libzstd.1.dylib, and static packaging rejects
+          # them. Installed tools keep absolute cellar install names, so
+          # hiding the farm does not stop bash, ninja, or pkgconf.
+          if [[ -d /opt/homebrew/lib && ! -e /opt/homebrew/lib.kxcapture-hidden ]]; then
+            mv /opt/homebrew/lib /opt/homebrew/lib.kxcapture-hidden
+          fi
+          printf 'PKG_CONFIG_LIBDIR=/usr/lib/pkgconfig\n' >> "$GITHUB_ENV"
+          printf 'PKG_CONFIG_PATH=\n' >> "$GITHUB_ENV"
+          printf 'CMAKE_C_COMPILER_LAUNCHER=ccache\n' >> "$GITHUB_ENV"
+          printf 'CMAKE_CXX_COMPILER_LAUNCHER=ccache\n' >> "$GITHUB_ENV"
+          printf 'CCACHE_DIR=%s\n' "$HOME/.cache/ccache" >> "$GITHUB_ENV"
+          ccache --set-config=max_size=2G
+          ccache --zero-stats || true
+
+      - name: Install Rust 1.97.1
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.97.1
+
+      - name: Prepare Xcode and the Metal toolchain
+        run: |
+          set -euo pipefail
+          # simd-paddle-ocr-rs writes contention_relief into ocr.mtlp-json and
+          # passes that file to metal-tt. That field is absent from Xcode 26
+          # and was added to the Metal pipeline schema for Xcode 27.3. The
+          # author's Metal notes name Xcode 27.1. Try the installed Xcode 27
+          # apps newest first and keep the first whose metal-tt parses the field.
+          probe="$RUNNER_TEMP/contention-relief-probe.mtlp-json"
+          printf '%s\n' '{"libraries":{"paths":[]},"pipelines":{"compute_pipelines":[{"compute_function":"alias:OCR#probe_0","threadgroup_size_is_multiple_of_thread_execution_width":false,"max_total_threads_per_threadgroup":0,"max_call_stack_depth":1,"support_indirect_command_buffers":false,"support_adding_binary_functions":false,"optimize_for_persistent_kernel":false,"forward_progress_usage":"Automatic","contention_relief":"Automatic"}]}}' >"$probe"
+          printf 'Installed Xcode apps:\n'
+          ls -d /Applications/Xcode*.app
+          selected=''
+          for app in \
+            /Applications/Xcode_27.3_beta.app \
+            /Applications/Xcode_27.3.app \
+            /Applications/Xcode_27.2.app \
+            /Applications/Xcode_27.1.app \
+            /Applications/Xcode_27.app \
+            /Applications/Xcode.app
+          do
+            if [[ ! -d "$app" ]]; then
+              continue
+            fi
+            printf '\n===== probing %s =====\n' "$app"
+            sudo xcode-select -s "$app"
+            xcodebuild -version || true
+            help="$(xcodebuild -help 2>&1 || true)"
+            if grep -q -- '-downloadComponent' <<<"$help"; then
+              xcodebuild -downloadComponent MetalToolchain || true
+            fi
+            printf 'metal: '; xcrun metal --version || true
+            if ! xcrun --find metal-tt; then
+              printf 'metal-tt is missing for %s\n' "$app"
+              continue
+            fi
+            err="$RUNNER_TEMP/metal-tt-probe.err"
+            xcrun metal-tt "$probe" -target air64-apple-macos27.0 -arch applegpu_g16g \
+              -no-pack-sources -o "$RUNNER_TEMP/contention-relief-probe.metallib" \
+              >"$RUNNER_TEMP/metal-tt-probe.out" 2>"$err" || true
+            if grep -q 'unknown field: contention_relief' "$err"; then
+              printf 'metal-tt on %s does not understand contention_relief\n' "$app"
+              cat "$err"
+              continue
+            fi
+            printf 'metal-tt on %s accepts contention_relief\n' "$app"
+            cat "$err" || true
+            selected="$app"
+            break
+          done
+          if [[ -z "$selected" ]]; then
+            printf 'No installed Xcode metal-tt accepts contention_relief.\n' >&2
+            exit 1
+          fi
+          sudo xcode-select -s "$selected"
+          sudo xcodebuild -runFirstLaunch
+          xcodebuild -version
+          xcrun --show-sdk-path
+          xcrun metal --version
+          cmake --version
+          rustc --version
+          developer_dir="$selected/Contents/Developer"
+          printf 'DEVELOPER_DIR=%s\n' "$developer_dir" >>"$GITHUB_ENV"
+          export DEVELOPER_DIR="$developer_dir"
+
+      - name: Create a job-local signing identity
+        run: bash scripts/ci/macos-test-identity.sh create
+
+      - name: Restore ccache
+        uses: actions/cache/restore@v4
+        continue-on-error: true
+        with:
+          path: /Users/runner/.cache/ccache
+          key: kxcapture-macos-arm64-ccache
+
+      - name: Restore static Qt and vcpkg
+        id: qt-cache
+        uses: actions/cache/restore@v4
+        continue-on-error: true
+        with:
+          path: |
+            ${{ github.workspace }}/.tools/macos/installed/static
+            ${{ github.workspace }}/.tools/sparkle
+            /Users/runner/Qt/6.12.0/macos-static-arm64
+          key: kxcapture-macos-arm64-no-homebrew-lib-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json', 'scripts/qt-toolchain.json', 'scripts/static-qt-features.json', 'scripts/build-static-qt.sh', 'cmake/vcpkg-overlay-ports/**', 'cmake/vcpkg-overlay-triplets/**', 'snow_shot/packaging/macos/sparkle.json') }}
+
+      - name: Bootstrap static macOS dependencies
+        run: |
+          set -euo pipefail
+          scripts/bootstrap-macos.sh snow-shot-macos-arm64-release --skip-qt-validation
+
+      - name: Build static Qt 6.12.0
+        run: |
+          set -euo pipefail
+          # The official builder extracts qt-everywhere-src-6.12.0 next to the
+          # archive and requires --source-dir to be that directory name.
+          # Homebrew bash avoids the Bash 3.2 empty-array failure in that script.
+          "$(brew --prefix)/bin/bash" scripts/build-static-qt.sh \
+            --arch arm64 \
+            --install-prefix "$HOME/Qt/6.12.0/macos-static-arm64" \
+            --source-dir "$RUNNER_TEMP/qt-everywhere-src-6.12.0" \
+            --build-dir "$RUNNER_TEMP/qt-build-6.12.0-macos-arm64-static" \
+            --parallel 2
+          rm -rf "$RUNNER_TEMP/qt-everywhere-src-6.12.0" \
+            "$RUNNER_TEMP/qt-build-6.12.0-macos-arm64-static" \
+            "$RUNNER_TEMP/qt-everywhere-src-6.12.0.tar.xz"
+          df -h /
+
+      - name: Save static Qt and vcpkg
+        if: steps.qt-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ${{ github.workspace }}/.tools/macos/installed/static
+            ${{ github.workspace }}/.tools/sparkle
+            /Users/runner/Qt/6.12.0/macos-static-arm64
+          key: kxcapture-macos-arm64-no-homebrew-lib-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json', 'scripts/qt-toolchain.json', 'scripts/static-qt-features.json', 'scripts/build-static-qt.sh', 'cmake/vcpkg-overlay-ports/**', 'cmake/vcpkg-overlay-triplets/**', 'snow_shot/packaging/macos/sparkle.json') }}
+
+      - name: Build KXCapture
+        run: |
+          set -euo pipefail
+          export SNOW_QT_STATIC_DIR="$HOME/Qt/6.12.0/macos-static-arm64/lib/cmake/Qt6"
+          "$(brew --prefix)/bin/bash" scripts/build.sh snow-shot-macos-arm64-release --parallel 2 -- \
+            -DSNOW_APPS_PACKAGE_SNOW_SHOT=OFF \
+            -DSNOW_MACOS_CODESIGN_IDENTITY="$KXCAPTURE_CODESIGN_SHA1"
+          grep -E '^(SNOW_APPS_PACKAGE_SNOW_SHOT|SNOW_MACOS_CODESIGN_IDENTITY|SNOW_APPS_QT_STATIC):' \
+            build/snow-shot-macos-arm64-release/CMakeCache.txt
+          ccache --show-stats || true
+
+      - name: Save ccache
+        if: success()
+        uses: actions/cache/save@v4
+        continue-on-error: true
+        with:
+          path: /Users/runner/.cache/ccache
+          key: kxcapture-macos-arm64-ccache
+
+      - name: List OCR files in the built apps
+        if: success()
+        run: |
+          set -euo pipefail
+          root=build/snow-shot-macos-arm64-release
+          printf '===== OCR-related files in the macOS build tree =====\n'
+          find "$root" \
+            \( -name 'kxcapture-ocr' -o -name 'kxcapture-ocr.exe' -o -name 'snow-ocr-process' \
+               -o -name 'snow-ocr-process*' -o -name '*.onnx' -o -name 'asset-manifest.json' \
+               -o -path '*/assets/ocr/*' \) -print | sort
+          if ! find "$root" \( -name 'kxcapture-ocr' -o -name 'kxcapture-ocr.exe' \) -print | grep -q .; then
+            printf 'FATAL: OCR-on macOS build does not contain kxcapture-ocr\n' >&2
+            exit 1
+          fi
+          printf 'Bundled OCR worker: kxcapture-ocr. The upstream runtime name snow-ocr-process-<version>-<platform> is the downloaded Windows runtime, not a separate Mac bundle file.\n'
+
+      - name: Archive macOS build
+        if: success()
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          # -p keeps modes, symlinks, and framework layout. upload-artifact does not.
+          tar -cpf artifacts/kxcapture-macos-arm64-build.tar \
+            --exclude='*.o' --exclude='*.obj' \
+            -C build snow-shot-macos-arm64-release
+
+      - name: Upload macOS build
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kxcapture-macos-arm64-build
+          retention-days: 14
+          if-no-files-found: error
+          include-hidden-files: true
+          path: artifacts/kxcapture-macos-arm64-build.tar
+
+      - name: Delete the temporary signing keychain
+        if: always()
+        run: bash scripts/ci/macos-test-identity.sh delete
+
+  package:
+    name: macOS arm64 DMG
+    needs: [gate, build]
+    if: ${{ always() && needs.gate.result == 'success' && (needs.build.result == 'success' || contains(github.event.head_commit.message, '[package-macos]') || (github.event_name == 'workflow_dispatch' && inputs.stage == 'package-only')) }}
+    # Packaging does not compile Metal. macos-latest is easier to acquire than
+    # the xcode-27 image, which left this job queued until it was cancelled.
+    # Retry: the previous macos-latest queue was also cancelled before a runner
+    # was assigned.
+    runs-on: macos-latest
+    timeout-minutes: 120
+    env:
+      VCPKG_DISABLE_METRICS: "1"
+      MACOSX_DEPLOYMENT_TARGET: "15.0"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 1
+
+      - name: Require a build artifact
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.stage == 'package-only' && inputs.build_run_id == '' }}
+        run: |
+          echo 'package-only requires build_run_id' >&2
+          exit 1
+
+      - name: Install packaging tools
+        run: |
+          set -euo pipefail
+          cmake_root="$RUNNER_TEMP/cmake"
+          mkdir -p "$cmake_root"
+          curl --fail --location --retry 3 --output "$RUNNER_TEMP/cmake.tar.gz" \
+            https://github.com/Kitware/CMake/releases/download/v4.2.3/cmake-4.2.3-macos-universal.tar.gz
+          tar -xzf "$RUNNER_TEMP/cmake.tar.gz" -C "$cmake_root"
+          echo "$cmake_root/cmake-4.2.3-macos-universal/CMake.app/Contents/bin" >> "$GITHUB_PATH"
+          brew install bash ninja pkgconf
+          if ! command -v pkg-config >/dev/null; then
+            ln -sf "$(command -v pkgconf)" "$(brew --prefix)/bin/pkg-config"
+          fi
+          if [[ -d /opt/homebrew/lib && ! -e /opt/homebrew/lib.kxcapture-hidden ]]; then
+            mv /opt/homebrew/lib /opt/homebrew/lib.kxcapture-hidden
+          fi
+
+      - name: Install Rust 1.97.1
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.97.1
+
+      - name: Import the long-lived signing identity
+        env:
+          KXCAPTURE_MAC_CERT_P12_BASE64: ${{ secrets.KXCAPTURE_MAC_CERT_P12_BASE64 }}
+          KXCAPTURE_MAC_CERT_P12_PASSWORD: ${{ secrets.KXCAPTURE_MAC_CERT_P12_PASSWORD }}
+        run: bash scripts/ci/macos-import-signing-cert.sh
+
+      - name: Restore static Qt and vcpkg
+        uses: actions/cache/restore@v4
+        continue-on-error: true
+        with:
+          path: |
+            ${{ github.workspace }}/.tools/macos/installed/static
+            ${{ github.workspace }}/.tools/sparkle
+            /Users/runner/Qt/6.12.0/macos-static-arm64
+          key: kxcapture-macos-arm64-no-homebrew-lib-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json', 'scripts/qt-toolchain.json', 'scripts/static-qt-features.json', 'scripts/build-static-qt.sh', 'cmake/vcpkg-overlay-ports/**', 'cmake/vcpkg-overlay-triplets/**', 'snow_shot/packaging/macos/sparkle.json') }}
+
+      - name: Download the build from this run
+        if: ${{ !(github.event_name == 'workflow_dispatch' && inputs.stage == 'package-only') && !contains(github.event.head_commit.message, '[package-macos]') }}
+        uses: actions/download-artifact@v4
+        with:
+          name: kxcapture-macos-arm64-build
+          path: build-transfer
+
+      - name: Download a previous macOS build
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.stage == 'package-only' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: kxcapture-macos-arm64-build
+          path: build-transfer
+          run-id: ${{ inputs.build_run_id }}
+          github-token: ${{ github.token }}
+
+      - name: Download the macOS build from run 45438505949
+        if: ${{ contains(github.event.head_commit.message, '[package-macos]') }}
+        uses: actions/download-artifact@v4
+        with:
+          name: kxcapture-macos-arm64-build
+          path: build-transfer
+          run-id: 45438505949
+          github-token: ${{ github.token }}
+
+      - name: Package and verify DMGs
+        run: |
+          set -euo pipefail
+          mkdir -p build
+          shopt -s nullglob dotglob
+          tars=(build-transfer/*.tar)
+          if (( ${#tars[@]} > 0 )); then
+            tar -xpf "${tars[0]}" -C build
+          elif [[ -f build-transfer/CMakeCache.txt ]]; then
+            mkdir -p build/snow-shot-macos-arm64-release
+            mv build-transfer/* build/snow-shot-macos-arm64-release/
+          elif [[ -d build-transfer/snow-shot-macos-arm64-release ]]; then
+            mv build-transfer/snow-shot-macos-arm64-release build/
+          else
+            printf 'Downloaded build artifact was not a permission-preserving tar or a CMake build tree.\n' >&2
+            exit 1
+          fi
+          cache="build/snow-shot-macos-arm64-release/CMakeCache.txt"
+          old="$(sed -n 's/^SNOW_MACOS_CODESIGN_IDENTITY:STRING=//p' "$cache")"
+          if [[ -n "$old" && "$old" != "$KXCAPTURE_CODESIGN_SHA1" ]]; then
+            # The build job's keychain is already gone. Point the generated
+            # install scripts at this job's certificate before signing.
+            find build/snow-shot-macos-arm64-release -type f \
+              \( -name 'DeploySnowShot*.cmake' -o -name 'CMakeCache.txt' \) -print0 |
+              xargs -0 perl -pi -e "s/\\Q${old}\\E/${KXCAPTURE_CODESIGN_SHA1}/g"
+          fi
+          cargo fetch --locked --manifest-path snow-crates/Cargo.toml
+          cargo fetch --locked --manifest-path snow_rust_ffi/Cargo.toml
+          cargo fetch --locked --manifest-path snow_shot/rust/snow-shot-mcp/Cargo.toml
+          # cmake install copies WeChat QR models from artifacts/qr-models-wechat
+          # using the absolute path recorded on the build runner.
+          cmake -P scripts/ci/fetch-qr-models.cmake
+          # The built app already contains Sparkle. A second install then tries
+          # to place header symlinks onto directories created by that copy.
+          find build/snow-shot-macos-arm64-release -type d -name Sparkle.framework -print0 |
+            xargs -0 rm -rf
+          python3 scripts/ci/write-ocr-complete-markers.py build/snow-shot-macos-arm64-release
+          bash scripts/ci/package-macos-test-dmg.sh snow-shot-macos-arm64-release artifacts/macos
+
+      - name: Delete the temporary signing keychain
+        if: always()
+        run: bash scripts/ci/macos-test-identity.sh delete
+
+      - name: Upload macOS artifacts
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kxcapture-macos-arm64
+          retention-days: 14
+          path: artifacts/macos/
+          if-no-files-found: error
+

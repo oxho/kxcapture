@@ -75,6 +75,7 @@ string(APPEND _mini_deploy [==[
 set(SNOW_SHOT_MINI_APP "${_app}")
 set(SNOW_SHOT_MINI_STATIC @SNOW_SHOT_RELEASE_STATIC@)
 set(SNOW_SHOT_MINI_MCP @SNOW_SHOT_ENABLE_MCP@)
+set(KXCAPTURE_ENABLE_OCR @KXCAPTURE_ENABLE_OCR@)
 include("@CMAKE_CURRENT_LIST_DIR@/AssertSnowShotMiniMacOSPayload.cmake")
 ]==])
 string(CONFIGURE "${_mini_deploy}" _mini_deploy @ONLY)
