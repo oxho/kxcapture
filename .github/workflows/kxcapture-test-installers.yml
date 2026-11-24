@@ -218,6 +218,15 @@ jobs:
           }
           ./scripts/package-snow-shot.ps1 @packageArgs
 
+      - name: Archive Windows build
+        if: success()
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          New-Item -ItemType Directory -Path artifacts -Force | Out-Null
+          tar -cpf artifacts/kxcapture-windows-x64-build.tar --exclude=*.obj --exclude=*.ilk --exclude=*.ipdb -C build snow-shot-msvc-release
+          if ($LASTEXITCODE -ne 0) { throw 'tar failed while archiving the Windows build' }
+
       - name: Upload Windows build
         if: success()
         uses: actions/upload-artifact@v4
@@ -225,11 +234,7 @@ jobs:
           name: kxcapture-windows-x64-build
           retention-days: 14
           if-no-files-found: error
-          path: |
-            build/snow-shot-msvc-release
-            !build/snow-shot-msvc-release/**/*.obj
-            !build/snow-shot-msvc-release/**/*.ilk
-            !build/snow-shot-msvc-release/**/*.ipdb
+          path: artifacts/kxcapture-windows-x64-build.tar
 
   package:
     name: Windows x64 installer
@@ -289,14 +294,14 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: kxcapture-windows-x64-build
-          path: build/snow-shot-msvc-release
+          path: build-transfer
 
       - name: Download a previous Windows build
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.stage == 'package-only' }}
         uses: actions/download-artifact@v4
         with:
           name: kxcapture-windows-x64-build
-          path: build/snow-shot-msvc-release
+          path: build-transfer
           run-id: ${{ inputs.build_run_id }}
           github-token: ${{ github.token }}
 
@@ -305,7 +310,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: kxcapture-windows-x64-build
-          path: build/snow-shot-msvc-release
+          path: build-transfer
           run-id: 45368826766
           github-token: ${{ github.token }}
 
@@ -313,6 +318,19 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
+          New-Item -ItemType Directory -Path build -Force | Out-Null
+          $tar = Get-ChildItem -LiteralPath build-transfer -Filter *.tar -File -ErrorAction SilentlyContinue | Select-Object -First 1
+          if ($tar) {
+            tar -xpf $tar.FullName -C build
+            if ($LASTEXITCODE -ne 0) { throw 'tar failed while extracting the Windows build' }
+          } elseif (Test-Path -LiteralPath 'build-transfer\CMakeCache.txt') {
+            New-Item -ItemType Directory -Path 'build\snow-shot-msvc-release' -Force | Out-Null
+            Get-ChildItem -LiteralPath build-transfer -Force | Move-Item -Destination 'build\snow-shot-msvc-release'
+          } elseif (Test-Path -LiteralPath 'build-transfer\snow-shot-msvc-release') {
+            Move-Item -LiteralPath 'build-transfer\snow-shot-msvc-release' -Destination 'build\snow-shot-msvc-release'
+          } else {
+            throw 'Downloaded build artifact was not a permission-preserving tar or a CMake build tree.'
+          }
           cargo fetch --locked --manifest-path snow-crates/Cargo.toml
           if ($LASTEXITCODE -ne 0) { throw 'cargo fetch failed' }
           # Updater and MCP have their own lockfiles. Offline cargo tree and

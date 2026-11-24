@@ -243,6 +243,16 @@ jobs:
           path: /Users/runner/.cache/ccache
           key: kxcapture-macos-arm64-ccache
 
+      - name: Archive macOS build
+        if: success()
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          # -p keeps modes, symlinks, and framework layout. upload-artifact does not.
+          tar -cpf artifacts/kxcapture-macos-arm64-build.tar \
+            --exclude='*.o' --exclude='*.obj' \
+            -C build snow-shot-macos-arm64-release
+
       - name: Upload macOS build
         if: success()
         uses: actions/upload-artifact@v4
@@ -251,10 +261,7 @@ jobs:
           retention-days: 14
           if-no-files-found: error
           include-hidden-files: true
-          path: |
-            build/snow-shot-macos-arm64-release
-            !build/snow-shot-macos-arm64-release/**/*.o
-            !build/snow-shot-macos-arm64-release/**/*.obj
+          path: artifacts/kxcapture-macos-arm64-build.tar
 
       - name: Delete the temporary signing keychain
         if: always()
@@ -326,14 +333,14 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: kxcapture-macos-arm64-build
-          path: build/snow-shot-macos-arm64-release
+          path: build-transfer
 
       - name: Download a previous macOS build
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.stage == 'package-only' }}
         uses: actions/download-artifact@v4
         with:
           name: kxcapture-macos-arm64-build
-          path: build/snow-shot-macos-arm64-release
+          path: build-transfer
           run-id: ${{ inputs.build_run_id }}
           github-token: ${{ github.token }}
 
@@ -342,13 +349,27 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: kxcapture-macos-arm64-build
-          path: build/snow-shot-macos-arm64-release
+          path: build-transfer
           run-id: 45387141314
           github-token: ${{ github.token }}
 
       - name: Package and verify DMGs
         run: |
           set -euo pipefail
+          mkdir -p build
+          shopt -s nullglob dotglob
+          tars=(build-transfer/*.tar)
+          if (( ${#tars[@]} > 0 )); then
+            tar -xpf "${tars[0]}" -C build
+          elif [[ -f build-transfer/CMakeCache.txt ]]; then
+            mkdir -p build/snow-shot-macos-arm64-release
+            mv build-transfer/* build/snow-shot-macos-arm64-release/
+          elif [[ -d build-transfer/snow-shot-macos-arm64-release ]]; then
+            mv build-transfer/snow-shot-macos-arm64-release build/
+          else
+            printf 'Downloaded build artifact was not a permission-preserving tar or a CMake build tree.\n' >&2
+            exit 1
+          fi
           cache="build/snow-shot-macos-arm64-release/CMakeCache.txt"
           old="$(sed -n 's/^SNOW_MACOS_CODESIGN_IDENTITY:STRING=//p' "$cache")"
           if [[ -n "$old" && "$old" != "$KXCAPTURE_CODESIGN_SHA1" ]]; then
