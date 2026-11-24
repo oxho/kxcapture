@@ -350,21 +350,7 @@ jobs:
           cmake -P scripts/ci/fetch-qr-models.cmake
           # actions/cache turns Sparkle's header symlinks into directories.
           # cmake then refuses to install the original symlink over that directory.
-          python3 - <<'PY'
-import shutil
-from pathlib import Path
-root = Path('.tools/sparkle')
-if root.is_dir():
-    links = [p for p in root.rglob('*') if p.is_symlink()]
-    links.sort(key=lambda p: len(p.parts), reverse=True)
-    for link in links:
-        target = link.resolve()
-        link.unlink()
-        if target.is_dir():
-            shutil.copytree(target, link, symlinks=False)
-        elif target.is_file():
-            shutil.copy2(target, link)
-PY
+          python3 scripts/ci/materialize-sparkle-symlinks.py .tools/sparkle
           bash scripts/ci/package-macos-test-dmg.sh snow-shot-macos-arm64-release artifacts/macos
 
       - name: Delete the temporary signing keychain
