@@ -197,7 +197,7 @@ jobs:
             Copy-Item -LiteralPath $plainTargets -Destination $releaseTargets
           }
           $packageArgs = @{ Architecture = 'x64'; Parallelism = 2; BuildOnly = $true }
-          if ('${{ inputs.ocr }}' -eq 'off') {
+          if ('${{ inputs.ocr }}' -eq 'off' -or '${{ contains(github.event.head_commit.message, '[ocr-off]') }}' -eq 'True') {
             if ('${{ inputs.stage }}' -eq 'package-only') { throw 'ocr=off needs stage=all so the binaries are rebuilt.' }
             $packageArgs.DisableOcr = $true
           }
@@ -327,7 +327,9 @@ jobs:
             throw 'ocr=off needs stage=all so the binaries are rebuilt with -DKXCAPTURE_ENABLE_OCR=OFF.'
           }
           $packageArgs = @{ Architecture = 'x64'; Parallelism = 2; SkipBuild = $true }
-          if ('${{ inputs.ocr }}' -eq 'off') { $packageArgs.DisableOcr = $true }
+          if ('${{ inputs.ocr }}' -eq 'off' -or '${{ contains(github.event.head_commit.message, '[ocr-off]') }}' -eq 'True') {
+            $packageArgs.DisableOcr = $true
+          }
           ./scripts/package-snow-shot.ps1 @packageArgs
 
       - name: Record version resources and checksums
