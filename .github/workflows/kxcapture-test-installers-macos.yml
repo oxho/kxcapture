@@ -361,9 +361,10 @@ jobs:
           # cmake install copies WeChat QR models from artifacts/qr-models-wechat
           # using the absolute path recorded on the build runner.
           cmake -P scripts/ci/fetch-qr-models.cmake
-          # actions/cache turns Sparkle's header symlinks into directories.
-          # cmake then refuses to install the original symlink over that directory.
-          python3 scripts/ci/materialize-sparkle-symlinks.py .tools/sparkle
+          # The built app already contains Sparkle. A second install then tries
+          # to place header symlinks onto directories created by that copy.
+          find build/snow-shot-macos-arm64-release -type d -name Sparkle.framework -print0 |
+            xargs -0 rm -rf
           bash scripts/ci/package-macos-test-dmg.sh snow-shot-macos-arm64-release artifacts/macos
 
       - name: Delete the temporary signing keychain
