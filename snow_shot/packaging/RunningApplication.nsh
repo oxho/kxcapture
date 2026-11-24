@@ -5,10 +5,10 @@
 !include "${__FILEDIR__}\InstallerStrings.nsh"
 
 !ifndef SNOW_SHOT_INSTALLER_EXECUTABLE
-!define SNOW_SHOT_INSTALLER_EXECUTABLE "snow_shot"
+!define SNOW_SHOT_INSTALLER_EXECUTABLE "kxcapture"
 !endif
 !ifndef SNOW_SHOT_INSTALLER_UPDATER
-!define SNOW_SHOT_INSTALLER_UPDATER "snow-shot-updater"
+!define SNOW_SHOT_INSTALLER_UPDATER "kxcapture-updater"
 !endif
 !ifndef SNOW_SHOT_INSTALLER_MCP
 !searchreplace SNOW_SHOT_INSTALLER_MCP "${SNOW_SHOT_INSTALLER_UPDATER}" "-updater" "-mcp"
@@ -217,7 +217,7 @@ Function ${Prefix}SnowShotEnsureInstallationClosed
   Call ${Prefix}SnowShotEnsureAppClosed
   Push "$0\bin\${SNOW_SHOT_INSTALLER_UPDATER}.exe"
   Call ${Prefix}SnowShotEnsureAppClosed
-!if "${SNOW_SHOT_INSTALLER_EXECUTABLE}" == "snow_shot"
+!if "${SNOW_SHOT_INSTALLER_EXECUTABLE}" == "kxcapture"
   Push "$0\bin\snow-ocr-process.exe"
   Call ${Prefix}SnowShotEnsureAppClosed
 !endif

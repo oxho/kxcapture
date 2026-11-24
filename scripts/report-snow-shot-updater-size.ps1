@@ -14,7 +14,7 @@ $repoRoot = Split-Path -Parent $PSScriptRoot
 . (Join-Path $PSScriptRoot 'snow-build-environment.ps1')
 . (Join-Path $PSScriptRoot 'snow-shot-ocr-release-runtime.ps1')
 $target = Get-SnowWindowsTarget -Architecture $Architecture
-if (-not $Executable) { $Executable = "build/$($target.ReleasePreset)/snow_shot/Release/snow-shot-updater.exe" }
+if (-not $Executable) { $Executable = "build/$($target.ReleasePreset)/snow_shot/Release/kxcapture-updater.exe" }
 if (-not $CargoProfileDirectory) { $CargoProfileDirectory = "build/$($target.ReleasePreset)/cargo/$($target.RustTarget)/release-size" }
 
 function Resolve-RepositoryPath([string]$Path) {

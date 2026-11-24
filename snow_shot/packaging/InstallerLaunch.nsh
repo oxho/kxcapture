@@ -1,7 +1,7 @@
 !ifndef SNOW_SHOT_INSTALLER_LAUNCH_INCLUDED
 !define SNOW_SHOT_INSTALLER_LAUNCH_INCLUDED
 !ifndef SNOW_SHOT_INSTALLER_UPDATER
-!define SNOW_SHOT_INSTALLER_UPDATER "snow-shot-updater"
+!define SNOW_SHOT_INSTALLER_UPDATER "kxcapture-updater"
 !endif
 
 ; Use the desktop shell through the installed helper so an elevated installer

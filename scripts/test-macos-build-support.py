@@ -636,10 +636,10 @@ include([==[{(ROOT / 'cmake/SnowShotMiniMacOS.cmake').as_posix()}]==])
             bundle = Path(directory) / 'snow_shot_mini.app'
             runtime = bundle / 'Contents/MacOS'
             assets = bundle / 'Contents/Resources/assets'
-            files = [runtime / name for name in ('snow_shot_mini', 'snow-shot-mini-mcp',
+            files = [runtime / name for name in ('kxcapture_mini', 'kxcapture-mini-mcp',
                                                 'snow-ocr-process', 'crashpad_handler')]
             files.extend([assets / 'ocr/asset-manifest.json',
-                          bundle / 'Contents/Resources/snow-shot.icns'])
+                          bundle / 'Contents/Resources/kxcapture.icns'])
             files.extend(bundle / ('Contents/Resources/' + language + '.lproj/InfoPlist.strings')
                          for language in ('en', 'zh-Hans', 'zh-Hant'))
             files.extend(bundle / ('Contents/Resources/snow-shot-mini/licenses/' + relative)

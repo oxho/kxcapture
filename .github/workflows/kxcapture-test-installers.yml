@@ -12,6 +12,13 @@
 #
 # Windows follows scripts/bootstrap.ps1, scripts/build-static-qt.ps1, and
 # scripts/package-snow-shot.ps1. There is no Authenticode signature.
+#
+# The compile and the installer are separate jobs. A packaging failure can be
+# rerun with workflow_dispatch stage=package-only and the build run id.
+# If an OCR runtime or model download, hash, or URL check fails, dispatch
+# stage=all and ocr=off. That configures -DKXCAPTURE_ENABLE_OCR=OFF and skips
+# OCR asset packaging. package-only cannot flip that flag: the binaries are
+# already compiled. sccache is not used; Release LTCG does not cache cleanly.
 name: KXCapture test installers
 
 on:
@@ -19,6 +26,25 @@ on:
     branches:
       - cursor/package-kxcapture-af5e
   workflow_dispatch:
+    inputs:
+      stage:
+        description: all compiles then packages. package-only reruns the installer from a previous build artifact.
+        type: choice
+        options:
+          - all
+          - package-only
+        default: all
+      build_run_id:
+        description: Run ID whose kxcapture-windows-x64-build artifact to package. Required for package-only.
+        required: false
+        type: string
+      ocr:
+        description: off rebuilds with -DKXCAPTURE_ENABLE_OCR=OFF and skips OCR asset packaging. Use this after an OCR download, hash, or URL failure. Requires stage=all.
+        type: choice
+        options:
+          - "on"
+          - "off"
+        default: "on"
 
 concurrency:
   group: kxcapture-test-installers-${{ github.ref }}
@@ -27,12 +53,13 @@ concurrency:
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
-  windows-x64:
-    name: Windows x64 installer
+  build:
+    name: Windows x64 build
     # [skip-main] or [skip-windows] retries macOS without starting another Windows build.
-    if: ${{ !contains(github.event.head_commit.message, '[skip-main]') && !contains(github.event.head_commit.message, '[skip-windows]') }}
+    if: ${{ (github.event_name != 'workflow_dispatch' || inputs.stage != 'package-only') && !contains(github.event.head_commit.message, '[skip-main]') && !contains(github.event.head_commit.message, '[skip-windows]') }}
     runs-on: windows-latest
     timeout-minutes: 360
     env:
@@ -113,13 +140,14 @@ jobs:
           & $vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationVersion
 
       - name: Restore static Qt and vcpkg
-        uses: actions/cache@v4
+        id: qt-cache
+        uses: actions/cache/restore@v4
         continue-on-error: true
         with:
           path: |
             ${{ github.workspace }}/.tools/qt/6.12.0
             ${{ github.workspace }}/.tools/vcpkg/installed/static
-          key: kxcapture-windows-x64-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json', 'scripts/qt-toolchain.json', 'scripts/static-qt-features.json', 'scripts/build-static-qt.ps1', 'scripts/static-qt-features.json', 'cmake/vcpkg-overlay-ports/**', 'cmake/vcpkg-overlay-triplets/**') }}
+          key: kxcapture-windows-x64-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json', 'scripts/qt-toolchain.json', 'scripts/static-qt-features.json', 'scripts/build-static-qt.ps1', 'cmake/vcpkg-overlay-ports/**', 'cmake/vcpkg-overlay-triplets/**') }}
 
       - name: Bootstrap static Windows dependencies
         shell: pwsh
@@ -139,12 +167,19 @@ jobs:
           $disk = Get-CimInstance Win32_LogicalDisk -Filter "DeviceID='C:'"
           Write-Output ("C: free_gb={0:N1}" -f ($disk.FreeSpace / 1GB))
 
-      - name: Package installer and portable archive
+      - name: Save static Qt and vcpkg
+        if: steps.qt-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ${{ github.workspace }}/.tools/qt/6.12.0
+            ${{ github.workspace }}/.tools/vcpkg/installed/static
+          key: kxcapture-windows-x64-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json', 'scripts/qt-toolchain.json', 'scripts/static-qt-features.json', 'scripts/build-static-qt.ps1', 'cmake/vcpkg-overlay-ports/**', 'cmake/vcpkg-overlay-triplets/**') }}
+
+      - name: Build KXCapture
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
-          # License collection runs cargo metadata --offline. The compile does
-          # not download every locked crate (anes, aligned), so fetch them first.
           cargo fetch --locked --manifest-path snow-crates/Cargo.toml
           if ($LASTEXITCODE -ne 0) { throw 'cargo fetch failed' }
           $prefix = Join-Path (Get-Location) '.tools\qt\6.12.0\msvc2026_64-static-system-codecs'
@@ -153,18 +188,123 @@ jobs:
           $env:Qt6_DIR = $qt
           $env:QTDIR = $prefix
           $core = Join-Path $qt '..\Qt6Core'
-          Write-Host "Qt6Config=$(Test-Path (Join-Path $qt 'Qt6Config.cmake')) prefix=$prefix"
-          Get-ChildItem -LiteralPath $core -Filter 'Qt6CoreTargets*' -ErrorAction SilentlyContinue |
-            ForEach-Object { Write-Host "target-file $($_.Name)" }
           $releaseTargets = Join-Path $core 'Qt6CoreTargets-release.cmake'
           $plainTargets = Join-Path $core 'Qt6CoreTargets.cmake'
-          # Ninja's single-config install can omit the -release export the
-          # release preset requires. Point that name at the installed export.
           if ((Test-Path -LiteralPath $plainTargets) -and -not (Test-Path -LiteralPath $releaseTargets)) {
             Copy-Item -LiteralPath $plainTargets -Destination $releaseTargets
-            Write-Host 'Added Qt6CoreTargets-release.cmake from Qt6CoreTargets.cmake'
           }
-          ./scripts/package-snow-shot.ps1 -Architecture x64 -Parallelism 2
+          $packageArgs = @{ Architecture = 'x64'; Parallelism = 2; BuildOnly = $true }
+          if ('${{ inputs.ocr }}' -eq 'off') {
+            if ('${{ inputs.stage }}' -eq 'package-only') { throw 'ocr=off needs stage=all so the binaries are rebuilt.' }
+            $packageArgs.DisableOcr = $true
+          }
+          ./scripts/package-snow-shot.ps1 @packageArgs
+
+      - name: Upload Windows build
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kxcapture-windows-x64-build
+          retention-days: 14
+          if-no-files-found: error
+          path: |
+            build/snow-shot-msvc-release
+            !build/snow-shot-msvc-release/**/*.obj
+            !build/snow-shot-msvc-release/**/*.ilk
+            !build/snow-shot-msvc-release/**/*.ipdb
+
+  package:
+    name: Windows x64 installer
+    needs: build
+    if: ${{ always() && !contains(github.event.head_commit.message, '[skip-main]') && !contains(github.event.head_commit.message, '[skip-windows]') && (needs.build.result == 'success' || (github.event_name == 'workflow_dispatch' && inputs.stage == 'package-only')) }}
+    runs-on: windows-latest
+    timeout-minutes: 180
+    env:
+      VCPKG_DISABLE_METRICS: "1"
+    steps:
+      - name: Enable long paths
+        shell: pwsh
+        run: git config --system core.longpaths true
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 1
+
+      - name: Require a build artifact
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.stage == 'package-only' && inputs.build_run_id == '' }}
+        shell: pwsh
+        run: throw 'package-only requires build_run_id'
+
+      - name: Install CMake 4.2.3, NSIS, and clang-format
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $cmakeRoot = Join-Path $env:RUNNER_TEMP 'cmake'
+          New-Item -ItemType Directory -Path $cmakeRoot -Force | Out-Null
+          $archive = Join-Path $env:RUNNER_TEMP 'cmake.zip'
+          Invoke-WebRequest -Uri 'https://github.com/Kitware/CMake/releases/download/v4.2.3/cmake-4.2.3-windows-x86_64.zip' -OutFile $archive
+          Expand-Archive -LiteralPath $archive -DestinationPath $cmakeRoot
+          Add-Content -Path $env:GITHUB_PATH -Value (Join-Path $cmakeRoot 'cmake-4.2.3-windows-x86_64\bin')
+          choco install nsis llvm -y --no-progress
+          $nsis = 'C:\Program Files (x86)\NSIS'
+          if (Test-Path -LiteralPath $nsis) { Add-Content -Path $env:GITHUB_PATH -Value $nsis }
+          $llvm = 'C:\Program Files\LLVM\bin'
+          if (Test-Path -LiteralPath $llvm) { Add-Content -Path $env:GITHUB_PATH -Value $llvm }
+
+      - name: Install Rust 1.97.1
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.97.1
+
+      - name: Restore static Qt and vcpkg
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            ${{ github.workspace }}/.tools/qt/6.12.0
+            ${{ github.workspace }}/.tools/vcpkg/installed/static
+          key: kxcapture-windows-x64-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json', 'scripts/qt-toolchain.json', 'scripts/static-qt-features.json', 'scripts/build-static-qt.ps1', 'cmake/vcpkg-overlay-ports/**', 'cmake/vcpkg-overlay-triplets/**') }}
+
+      - name: Download the build from this run
+        if: ${{ !(github.event_name == 'workflow_dispatch' && inputs.stage == 'package-only') }}
+        uses: actions/download-artifact@v4
+        with:
+          name: kxcapture-windows-x64-build
+          path: build/snow-shot-msvc-release
+
+      - name: Download a previous Windows build
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.stage == 'package-only' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: kxcapture-windows-x64-build
+          path: build/snow-shot-msvc-release
+          run-id: ${{ inputs.build_run_id }}
+          github-token: ${{ github.token }}
+
+      - name: Package installer and portable archive
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          cargo fetch --locked --manifest-path snow-crates/Cargo.toml
+          if ($LASTEXITCODE -ne 0) { throw 'cargo fetch failed' }
+          $prefix = Join-Path (Get-Location) '.tools\qt\6.12.0\msvc2026_64-static-system-codecs'
+          $qt = Join-Path $prefix 'lib\cmake\Qt6'
+          $env:SNOW_QT_STATIC_DIR = $qt
+          $env:Qt6_DIR = $qt
+          $env:QTDIR = $prefix
+          $core = Join-Path $qt '..\Qt6Core'
+          $releaseTargets = Join-Path $core 'Qt6CoreTargets-release.cmake'
+          $plainTargets = Join-Path $core 'Qt6CoreTargets.cmake'
+          if ((Test-Path -LiteralPath $plainTargets) -and -not (Test-Path -LiteralPath $releaseTargets)) {
+            Copy-Item -LiteralPath $plainTargets -Destination $releaseTargets
+          }
+          if ('${{ inputs.ocr }}' -eq 'off' -and '${{ inputs.stage }}' -eq 'package-only') {
+            throw 'ocr=off needs stage=all so the binaries are rebuilt with -DKXCAPTURE_ENABLE_OCR=OFF.'
+          }
+          $packageArgs = @{ Architecture = 'x64'; Parallelism = 2; SkipBuild = $true }
+          if ('${{ inputs.ocr }}' -eq 'off') { $packageArgs.DisableOcr = $true }
+          ./scripts/package-snow-shot.ps1 @packageArgs
 
       - name: Record version resources and checksums
         if: success()

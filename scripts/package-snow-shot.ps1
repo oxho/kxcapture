@@ -6,6 +6,8 @@ param(
     [string]$OcrRuntimeArchive,
     [ValidateRange(1, 256)][int]$Parallelism = 4,
     [switch]$SkipBuild,
+    [switch]$BuildOnly,
+    [switch]$DisableOcr,
     [ValidateSet('standalone', 'store')][string]$DistributionChannel = 'standalone',
     [switch]$StageOnly,
     [switch]$PrepareOcrRuntimeOnly
@@ -434,6 +436,7 @@ if (-not $SkipBuild) {
     $configureArguments = @(Get-SnowConfigureArguments -Preset $releasePreset `
         -BuildDirectory $buildDirectory)
     $configureArguments += "-DSNOW_SHOT_OCR_ASSET_MANIFEST=$($ocrAssetManifestPath.Replace('\', '/'))"
+    if ($DisableOcr) { $configureArguments += '-DKXCAPTURE_ENABLE_OCR=OFF' }
     & cmake @configureArguments
     if ($LASTEXITCODE -ne 0) {
         throw "KXCapture release configuration failed."
@@ -482,6 +485,10 @@ if (-not $SkipBuild) {
     if ($LASTEXITCODE -ne 0) {
         throw "KXCapture release build failed."
     }
+}
+if ($BuildOnly) {
+    Write-Output "KXCapture build finished; packaging was not run."
+    return
 }
 
 $updaterSizeReporter = Join-Path $PSScriptRoot 'report-snow-shot-updater-size.ps1'
@@ -1075,6 +1082,7 @@ function Assert-ZipMatchesFileManifest {
     finally { $stream.Dispose() }
 }
 
+if (-not $DisableOcr) {
 $runtimeWork = Join-Path $artifactRoot "snow-ocr-runtime-$ocrRuntimeVersion"
 Reset-ReleaseDirectory -Path $runtimeWork
 $runtimeArchivePath = Join-Path $buildDirectory $ocrRuntimeArchiveName
@@ -1341,6 +1349,12 @@ if ($manifestDrift) {
 if (-not $OcrRuntimeArchive) {
     $runtimeArchive.sha256 | Set-Content -LiteralPath $runtimePublishedMarker -Encoding ascii
 }
+} else {
+    Write-Output "OCR packaging is off (-DisableOcr, KXCAPTURE_ENABLE_OCR=OFF)."
+    $runtimeArchivePath = ""
+    $runtimeArchiveChecksum = ""
+    $runtimeReleaseManifest = ""
+}
 
 $variantStages = [ordered]@{
     online = Join-Path $artifactRoot "snow-shot-$packageVersion-online-stage"
@@ -1354,8 +1368,11 @@ foreach ($variant in $variantStages.Keys) {
     $stage = $variantStages[$variant]
     Reset-ReleaseDirectory -Path $stage
     Copy-Item -Path (Join-Path $installDirectory "*") -Destination $stage -Recurse -Force
-    Remove-Item -LiteralPath (Join-Path $stage "bin\snow-ocr-process.exe") -Force
+    Remove-Item -LiteralPath (Join-Path $stage "bin\snow-ocr-process.exe") -Force -ErrorAction SilentlyContinue
     $assetRoot = Join-Path $stage "bin\assets\ocr"
+    if ($DisableOcr) {
+        if (Test-Path -LiteralPath $assetRoot) { Remove-Item -LiteralPath $assetRoot -Recurse -Force }
+    } else {
     Reset-ReleaseDirectory -Path $assetRoot
     Copy-Item -LiteralPath $assetManifestSource -Destination (Join-Path $assetRoot "asset-manifest.json")
     if ($variant -in @("offline", "portable")) {
@@ -1378,6 +1395,7 @@ foreach ($variant in $variantStages.Keys) {
             ConvertTo-Json -Compress | Set-Content -LiteralPath (Join-Path $runtimeDestination ".complete.json") -Encoding utf8
         [ordered]@{ schema = 1; component = $ocrDefaultModelId } |
             ConvertTo-Json -Compress | Set-Content -LiteralPath (Join-Path $modelDestination ".complete.json") -Encoding utf8
+    }
     }
     if ($variant -eq "portable") {
         "portable" | Set-Content -LiteralPath (Join-Path $stage "bin\__data_directory") `
@@ -1408,6 +1426,7 @@ if ($StageOnly) {
     return
 }
 
+if (-not $DisableOcr) {
 $onlineAssetFiles = @(Get-ChildItem -LiteralPath (Join-Path $variantStages.online "bin\assets\ocr") -Recurse -File)
 if ($onlineAssetFiles.Count -ne 1 -or $onlineAssetFiles[0].Name -ne "asset-manifest.json") {
     throw "The online installer stage must contain only the trusted OCR asset manifest."
@@ -1454,6 +1473,7 @@ $portableOcrManifest = Get-ReleaseTreeFileManifest `
 if (($offlineOcrManifest | ConvertTo-Json -Depth 4 -Compress) -cne
     ($portableOcrManifest | ConvertTo-Json -Depth 4 -Compress)) {
     throw "The portable package OCR resources do not match the offline installer resources."
+}
 }
 $portableDataMarker = Join-Path $variantStages.portable "bin\__data_directory"
 if (-not (Test-Path -LiteralPath $portableDataMarker -PathType Leaf) -or
@@ -1618,7 +1638,7 @@ Write-Output "OCR runtime manifest: $runtimeReleaseManifest"
 . (Join-Path $PSScriptRoot "package-snow-shot-mini.ps1")
 
 # Store staging returns above; it must never invoke this release step recursively.
-if (-not $store -and -not $StageOnly -and $Architecture -eq 'x64') {
+if (-not $DisableOcr -and -not $store -and -not $StageOnly -and $Architecture -eq 'x64') {
     if ($packageVersion -ceq $packageVersionNumeric) {
         & (Join-Path $PSScriptRoot 'package-snow-shot-msix.ps1') -Architecture x64 `
             -OutputDirectory (Join-Path $repoRoot "artifacts/msix/$packageVersion") `
