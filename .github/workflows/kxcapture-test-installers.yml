@@ -22,7 +22,8 @@ on:
 
 concurrency:
   group: kxcapture-test-installers-${{ github.ref }}
-  cancel-in-progress: true
+  # Do not cancel a Windows package that is already past the Qt build.
+  cancel-in-progress: false
 
 permissions:
   contents: read
@@ -30,8 +31,8 @@ permissions:
 jobs:
   windows-x64:
     name: Windows x64 installer
-    # A commit message containing [skip-main] retries macOS without a second Windows build.
-    if: ${{ !contains(github.event.head_commit.message, '[skip-main]') }}
+    # [skip-main] or [skip-windows] retries macOS without starting another Windows build.
+    if: ${{ !contains(github.event.head_commit.message, '[skip-main]') && !contains(github.event.head_commit.message, '[skip-windows]') }}
     runs-on: windows-latest
     timeout-minutes: 360
     env:

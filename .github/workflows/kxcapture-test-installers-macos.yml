@@ -178,6 +178,9 @@ jobs:
       - name: Package and verify DMGs
         run: |
           set -euo pipefail
+          # License collection runs cargo metadata --offline. Fetch the locked
+          # workspace crates first so that query does not need the network.
+          cargo fetch --locked --manifest-path snow-crates/Cargo.toml
           bash scripts/ci/package-macos-test-dmg.sh snow-shot-macos-arm64-release artifacts/macos
 
       - name: Delete the temporary signing keychain
