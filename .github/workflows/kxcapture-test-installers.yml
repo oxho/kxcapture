@@ -305,13 +305,13 @@ jobs:
           run-id: ${{ inputs.build_run_id }}
           github-token: ${{ github.token }}
 
-      - name: Download the Windows build from run 45368826766
+      - name: Download the Windows build from run 45438505925
         if: ${{ contains(github.event.head_commit.message, '[package-windows]') }}
         uses: actions/download-artifact@v4
         with:
           name: kxcapture-windows-x64-build
           path: build-transfer
-          run-id: 45368826766
+          run-id: 45438505925
           github-token: ${{ github.token }}
 
       - name: Package installer and portable archive

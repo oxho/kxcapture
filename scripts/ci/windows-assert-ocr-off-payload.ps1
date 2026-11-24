@@ -24,19 +24,44 @@ function Get-SevenZip {
     return $null
 }
 
+function Get-SevenZipPaths([string]$Seven, [string]$Path) {
+    $listing = & $Seven l -slt -ba $Path
+    if ($LASTEXITCODE -ne 0) { throw "7z could not list $Path" }
+    return @($listing | Where-Object { $_ -like 'Path = *' } | ForEach-Object { $_.Substring(7) } | Where-Object { $_ })
+}
+
 function Get-ArchivePaths([string]$Path) {
     $seven = Get-SevenZip
-    if ($seven) {
-        $listing = & $seven l -slt -ba $Path
-        if ($LASTEXITCODE -ne 0) { throw "7z could not list $Path" }
-        return @($listing | Where-Object { $_ -like 'Path = *' } | ForEach-Object { $_.Substring(7) })
+    if (-not $seven) {
+        if ($Path.EndsWith('.zip', [StringComparison]::OrdinalIgnoreCase)) {
+            $archive = [IO.Compression.ZipFile]::OpenRead($Path)
+            try { return @($archive.Entries | ForEach-Object { $_.FullName }) }
+            finally { $archive.Dispose() }
+        }
+        throw "7z is required to list the NSIS installer $Path"
     }
-    if ($Path.EndsWith('.zip', [StringComparison]::OrdinalIgnoreCase)) {
-        $archive = [IO.Compression.ZipFile]::OpenRead($Path)
-        try { return @($archive.Entries | ForEach-Object { $_.FullName }) }
-        finally { $archive.Dispose() }
+    $paths = @(Get-SevenZipPaths $seven $Path)
+    $nested = @($paths | Where-Object { $_ -match '(?i)\.7z$' })
+    if ($nested.Count -eq 0) { return $paths }
+    $temp = Join-Path ([IO.Path]::GetTempPath()) ("kxcapture-nsis-" + [guid]::NewGuid().ToString('N'))
+    New-Item -ItemType Directory -Path $temp | Out-Null
+    try {
+        & $seven x "-o$temp" -y $Path | Out-Null
+        if ($LASTEXITCODE -ne 0) { throw "7z could not extract $Path" }
+        $expanded = [System.Collections.Generic.List[string]]::new()
+        foreach ($entry in $paths) { $expanded.Add($entry) }
+        foreach ($entry in $nested) {
+            $inner = Join-Path $temp ($entry.Replace('/', '\'))
+            if (-not (Test-Path -LiteralPath $inner -PathType Leaf)) { continue }
+            foreach ($innerPath in (Get-SevenZipPaths $seven $inner)) {
+                $expanded.Add("$entry!$innerPath")
+            }
+        }
+        return @($expanded)
     }
-    throw "7z is required to list the NSIS installer $Path"
+    finally {
+        Remove-Item -LiteralPath $temp -Recurse -Force
+    }
 }
 
 function Test-OcrPayloadPath([string]$Path) {
