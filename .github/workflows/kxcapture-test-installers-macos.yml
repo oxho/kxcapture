@@ -250,6 +250,7 @@ jobs:
           name: kxcapture-macos-arm64-build
           retention-days: 14
           if-no-files-found: error
+          include-hidden-files: true
           path: |
             build/snow-shot-macos-arm64-release
             !build/snow-shot-macos-arm64-release/**/*.o
@@ -365,6 +366,7 @@ jobs:
           # to place header symlinks onto directories created by that copy.
           find build/snow-shot-macos-arm64-release -type d -name Sparkle.framework -print0 |
             xargs -0 rm -rf
+          python3 scripts/ci/write-ocr-complete-markers.py build/snow-shot-macos-arm64-release
           bash scripts/ci/package-macos-test-dmg.sh snow-shot-macos-arm64-release artifacts/macos
 
       - name: Delete the temporary signing keychain
