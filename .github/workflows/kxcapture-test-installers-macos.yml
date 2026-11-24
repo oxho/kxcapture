@@ -357,6 +357,7 @@ jobs:
           fi
           cargo fetch --locked --manifest-path snow-crates/Cargo.toml
           cargo fetch --locked --manifest-path snow_rust_ffi/Cargo.toml
+          cargo fetch --locked --manifest-path snow_shot/rust/snow-shot-mcp/Cargo.toml
           # cmake install copies WeChat QR models from artifacts/qr-models-wechat
           # using the absolute path recorded on the build runner.
           cmake -P scripts/ci/fetch-qr-models.cmake
