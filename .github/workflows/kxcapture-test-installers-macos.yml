@@ -37,7 +37,7 @@ jobs:
   build:
     name: macOS arm64 build
     # A commit message containing [skip-macos] retries Windows only.
-    if: ${{ (github.event_name != 'workflow_dispatch' || inputs.stage != 'package-only') && !contains(github.event.head_commit.message, '[skip-macos]') }}
+    if: ${{ (github.event_name != 'workflow_dispatch' || inputs.stage != 'package-only') && !contains(github.event.head_commit.message, '[skip-macos]') && !contains(github.event.head_commit.message, '[package-macos]') }}
     # xcode-27 is the free arm64 image that carries Xcode 27. The OCR Metal
     # archive was qualified on Xcode 27.1; contention_relief is a Metal
     # pipeline field that Xcode 26's metal-tt rejects.
@@ -253,7 +253,7 @@ jobs:
   package:
     name: macOS arm64 DMG
     needs: build
-    if: ${{ always() && !contains(github.event.head_commit.message, '[skip-macos]') && (needs.build.result == 'success' || (github.event_name == 'workflow_dispatch' && inputs.stage == 'package-only')) }}
+    if: ${{ always() && !contains(github.event.head_commit.message, '[skip-macos]') && (needs.build.result == 'success' || contains(github.event.head_commit.message, '[package-macos]') || (github.event_name == 'workflow_dispatch' && inputs.stage == 'package-only')) }}
     runs-on: xcode-27
     timeout-minutes: 120
     env:
@@ -308,7 +308,7 @@ jobs:
           key: kxcapture-macos-arm64-no-homebrew-lib-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json', 'scripts/qt-toolchain.json', 'scripts/static-qt-features.json', 'scripts/build-static-qt.sh', 'cmake/vcpkg-overlay-ports/**', 'cmake/vcpkg-overlay-triplets/**', 'snow_shot/packaging/macos/sparkle.json') }}
 
       - name: Download the build from this run
-        if: ${{ !(github.event_name == 'workflow_dispatch' && inputs.stage == 'package-only') }}
+        if: ${{ !(github.event_name == 'workflow_dispatch' && inputs.stage == 'package-only') && !contains(github.event.head_commit.message, '[package-macos]') }}
         uses: actions/download-artifact@v4
         with:
           name: kxcapture-macos-arm64-build
@@ -321,6 +321,15 @@ jobs:
           name: kxcapture-macos-arm64-build
           path: build/snow-shot-macos-arm64-release
           run-id: ${{ inputs.build_run_id }}
+          github-token: ${{ github.token }}
+
+      - name: Download the macOS build from run 45387141314
+        if: ${{ contains(github.event.head_commit.message, '[package-macos]') }}
+        uses: actions/download-artifact@v4
+        with:
+          name: kxcapture-macos-arm64-build
+          path: build/snow-shot-macos-arm64-release
+          run-id: 45387141314
           github-token: ${{ github.token }}
 
       - name: Package and verify DMGs
@@ -339,6 +348,23 @@ jobs:
           # cmake install copies WeChat QR models from artifacts/qr-models-wechat
           # using the absolute path recorded on the build runner.
           cmake -P scripts/ci/fetch-qr-models.cmake
+          # actions/cache turns Sparkle's header symlinks into directories.
+          # cmake then refuses to install the original symlink over that directory.
+          python3 - <<'PY'
+import shutil
+from pathlib import Path
+root = Path('.tools/sparkle')
+if root.is_dir():
+    links = [p for p in root.rglob('*') if p.is_symlink()]
+    links.sort(key=lambda p: len(p.parts), reverse=True)
+    for link in links:
+        target = link.resolve()
+        link.unlink()
+        if target.is_dir():
+            shutil.copytree(target, link, symlinks=False)
+        elif target.is_file():
+            shutil.copy2(target, link)
+PY
           bash scripts/ci/package-macos-test-dmg.sh snow-shot-macos-arm64-release artifacts/macos
 
       - name: Delete the temporary signing keychain
