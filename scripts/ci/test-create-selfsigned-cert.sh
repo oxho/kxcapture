@@ -7,8 +7,8 @@ set -euo pipefail
 root="$(cd "$(dirname "$0")/../.." && pwd)"
 secret_dir="$(mktemp -d "${TMPDIR:-/tmp}/kxcapture-secret-sink.XXXXXX")"
 shim="$(mktemp -d "${TMPDIR:-/tmp}/kxcapture-gh-shim.XXXXXX")"
-backup="$(mktemp "${TMPDIR:-/tmp}/kxcapture-cert-backup.XXXXXX")"
-rm -f "$backup"
+backup_dir="$(mktemp -d "${TMPDIR:-/tmp}/kxcapture-cert-backup.XXXXXX")"
+backup="$backup_dir/kxcapture.p12"
 keychain="${RUNNER_TEMP:-${TMPDIR:-/tmp}}/kxcapture-cert-test.keychain-db"
 backup_keychain="${RUNNER_TEMP:-${TMPDIR:-/tmp}}/kxcapture-backup-cert-test.keychain-db"
 
@@ -19,13 +19,10 @@ cleanup() {
     if [[ -n "${backup_keychain:-}" && -f "$backup_keychain" ]]; then
         security delete-keychain "$backup_keychain" >/dev/null 2>&1 || rm -f "$backup_keychain"
     fi
-    rm -rf "$secret_dir" "$shim" "${dummy_dir:-}"
-    if [[ -n "${backup:-}" && -f "$backup" ]]; then
-        rm -P "$backup" >/dev/null 2>&1 || rm -f "$backup"
-    fi
     if [[ -n "${backup:-}" && -f "${backup}.password" ]]; then
         rm -P "${backup}.password" >/dev/null 2>&1 || rm -f "${backup}.password"
     fi
+    rm -rf "$secret_dir" "$shim" "${dummy_dir:-}" "${backup_dir:-}"
 }
 trap cleanup EXIT
 
@@ -94,7 +91,7 @@ backup_password="$(cat "${backup}.password")"
 security create-keychain -p "$backup_password" "$backup_keychain"
 security set-keychain-settings -lut 28800 "$backup_keychain"
 security unlock-keychain -p "$backup_password" "$backup_keychain"
-security import "$backup" -k "$backup_keychain" -P "$backup_password" -T /usr/bin/codesign -T /usr/bin/security >/dev/null
+security import "$backup" -k "$backup_keychain" -f pkcs12 -P "$backup_password" -T /usr/bin/codesign -T /usr/bin/security >/dev/null
 security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$backup_password" "$backup_keychain" >/dev/null
 security list-keychains -d user -s "$backup_keychain" "$keychain" login.keychain-db
 backup_sha1="$(security find-certificate -c 'KXCapture Self-Signed' -p "$backup_keychain" | /usr/bin/openssl x509 -noout -fingerprint -sha1)"

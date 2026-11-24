@@ -49,7 +49,11 @@ fi
 
 if [[ -n "$backup" ]]; then
     case "$backup" in
-        /*) ;;
+        /*.p12|/*.pfx) ;;
+        /*)
+            printf 'The --keep-backup path must end in .p12 so macOS security import recognizes the file.\n' >&2
+            exit 2
+            ;;
         *)
             printf 'The --keep-backup path must be absolute and outside the repository.\n' >&2
             exit 2
