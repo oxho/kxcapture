@@ -55,6 +55,10 @@ jobs:
           # on native arm64 with full Xcode.
           # clang-format is required when CMake regenerates the icon pack.
           brew install bash ninja pkgconf nasm clang-format
+          # Homebrew xz otherwise satisfies pkg-config and the release binary
+          # links /opt/homebrew/opt/xz/lib/liblzma.5.dylib, which static
+          # packaging rejects.
+          brew unlink xz || true
           # pkgconf's executable is pkgconf; the build scripts require pkg-config.
           if ! command -v pkg-config >/dev/null; then
             brew_bin="$(brew --prefix)/bin"
@@ -142,11 +146,12 @@ jobs:
             ${{ github.workspace }}/.tools/macos/installed/static
             ${{ github.workspace }}/.tools/sparkle
             /Users/runner/Qt/6.12.0/macos-static-arm64
-          key: kxcapture-macos-arm64-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json', 'scripts/qt-toolchain.json', 'scripts/static-qt-features.json', 'scripts/build-static-qt.sh', 'cmake/vcpkg-overlay-ports/**', 'cmake/vcpkg-overlay-triplets/**', 'snow_shot/packaging/macos/sparkle.json') }}
+          key: kxcapture-macos-arm64-no-homebrew-xz-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json', 'scripts/qt-toolchain.json', 'scripts/static-qt-features.json', 'scripts/build-static-qt.sh', 'cmake/vcpkg-overlay-ports/**', 'cmake/vcpkg-overlay-triplets/**', 'snow_shot/packaging/macos/sparkle.json') }}
 
       - name: Bootstrap static macOS dependencies
         run: |
           set -euo pipefail
+          brew unlink xz || true
           scripts/bootstrap-macos.sh snow-shot-macos-arm64-release --skip-qt-validation
 
       - name: Build static Qt 6.12.0
