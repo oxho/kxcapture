@@ -12,6 +12,9 @@
 #
 # Windows follows scripts/bootstrap.ps1, scripts/build-static-qt.ps1, and
 # scripts/package-snow-shot.ps1. There is no Authenticode signature.
+# Installer outputs are kxcapture-<version>-windows-x64-setup.exe,
+# kxcapture-<version>-windows-x64-offline.exe, and
+# kxcapture-<version>-windows-x64-portable.zip. Mini uses kxcapture-mini-.
 #
 # The compile and the installer are separate jobs. A packaging failure can be
 # rerun with workflow_dispatch stage=package-only and the build run id.

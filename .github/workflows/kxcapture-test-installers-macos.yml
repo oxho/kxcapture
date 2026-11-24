@@ -1,6 +1,9 @@
 # macOS arm64 test DMG. Separate workflow so a runner retry does not cancel
 # the Windows job. macos-latest is the current free arm64 image; macos-15
 # was not acquired ("hosted even after multiple attempts").
+# Disk images are KXCapture-<version>-macos-arm64.dmg and
+# KXCapture-Mini-<version>-macos-arm64.dmg. Volume names are KXCapture
+# and KXCapture Mini.
 name: KXCapture test installers (macOS)
 
 on:
