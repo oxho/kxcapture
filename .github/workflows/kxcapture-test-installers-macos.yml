@@ -263,7 +263,9 @@ jobs:
     name: macOS arm64 DMG
     needs: [gate, build]
     if: ${{ always() && needs.gate.result == 'success' && (needs.build.result == 'success' || contains(github.event.head_commit.message, '[package-macos]') || (github.event_name == 'workflow_dispatch' && inputs.stage == 'package-only')) }}
-    runs-on: xcode-27
+    # Packaging does not compile Metal. macos-latest is easier to acquire than
+    # the xcode-27 image, which left this job queued until it was cancelled.
+    runs-on: macos-latest
     timeout-minutes: 120
     env:
       VCPKG_DISABLE_METRICS: "1"
