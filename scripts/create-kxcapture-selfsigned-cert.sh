@@ -132,24 +132,34 @@ EOF
     -out "$work/certificate.pem" >/dev/null
 
 password="$("$openssl_bin" rand -hex 32)"
-"$openssl_bin" pkcs12 -export \
+# The password is passed in the environment. It is not placed on the openssl
+# command line, where ps would show it.
+KX_P12_PASS="$password" "$openssl_bin" pkcs12 -export \
     $pkcs12_legacy \
     -inkey "$work/private.pem" \
     -in "$work/certificate.pem" \
     -out "$work/identity.p12" \
-    -passout "pass:${password}" >/dev/null
+    -passout env:KX_P12_PASS >/dev/null
+unset KX_P12_PASS
 secure_rm "$work/private.pem"
 
 if [[ -n "$backup" ]]; then
     install -m 600 "$work/identity.p12" "$backup"
+    (umask 077; printf '%s' "$password" >"${backup}.password")
+    chmod 600 "${backup}.password"
 fi
 
 p12_b64="$("$openssl_bin" base64 -in "$work/identity.p12" | tr -d '\n')"
 printf '%s' "$p12_b64" | gh secret set "$secret_p12" -R "$repo" >/dev/null
 printf '%s' "$password" | gh secret set "$secret_password" -R "$repo" >/dev/null
-unset p12_b64 password
+unset p12_b64
 
 fingerprint="$("$openssl_bin" x509 -in "$work/certificate.pem" -noout -fingerprint -sha256)"
 not_after="$("$openssl_bin" x509 -in "$work/certificate.pem" -noout -enddate)"
 printf '%s\n' "$fingerprint"
 printf '%s\n' "$not_after"
+if [[ -n "$backup" ]]; then
+    printf 'backup p12: %s\n' "$backup"
+    printf 'backup password: %s\n' "${backup}.password"
+fi
+unset password
