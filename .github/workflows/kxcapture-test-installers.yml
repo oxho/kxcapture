@@ -143,6 +143,10 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
+          # License collection runs cargo metadata --offline. The compile does
+          # not download every locked crate (anes, aligned), so fetch them first.
+          cargo fetch --locked --manifest-path snow-crates/Cargo.toml
+          if ($LASTEXITCODE -ne 0) { throw 'cargo fetch failed' }
           $prefix = Join-Path (Get-Location) '.tools\qt\6.12.0\msvc2026_64-static-system-codecs'
           $qt = Join-Path $prefix 'lib\cmake\Qt6'
           $env:SNOW_QT_STATIC_DIR = $qt

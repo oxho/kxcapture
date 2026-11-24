@@ -11,7 +11,8 @@ on:
 
 concurrency:
   group: kxcapture-test-installers-macos-${{ github.ref }}
-  cancel-in-progress: true
+  # Leave the in-progress macOS package running when a Windows-only retry is pushed.
+  cancel-in-progress: false
 
 permissions:
   contents: read
