@@ -336,6 +336,9 @@ jobs:
               xargs -0 perl -pi -e "s/\\Q${old}\\E/${KXCAPTURE_CODESIGN_SHA1}/g"
           fi
           cargo fetch --locked --manifest-path snow-crates/Cargo.toml
+          # cmake install copies WeChat QR models from artifacts/qr-models-wechat
+          # using the absolute path recorded on the build runner.
+          cmake -P scripts/ci/fetch-qr-models.cmake
           bash scripts/ci/package-macos-test-dmg.sh snow-shot-macos-arm64-release artifacts/macos
 
       - name: Delete the temporary signing keychain
