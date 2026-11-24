@@ -114,7 +114,7 @@ classify_gatekeeper() {
         return 0
     fi
     if printf '%s\n' "$output" | grep -Eiq \
-        'notar|not trusted|untrusted|no usable signature|CSSMERR_TP_NOT_TRUSTED|SecTrust|Unnotarized|source=Unnotarized'; then
+        'notar|not trusted|untrusted|no usable signature|CSSMERR_TP_NOT_TRUSTED|SecTrust|Unnotarized|source=Unnotarized|Self-Signed|origin='; then
         printf 'NON-FATAL: %s rejected only because the identity is self-signed or not notarized\n' "$tool"
         return 0
     fi
