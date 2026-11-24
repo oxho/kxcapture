@@ -62,7 +62,7 @@ jobs:
   build:
     name: Windows x64 build
     # [skip-main] or [skip-windows] retries macOS without starting another Windows build.
-    if: ${{ (github.event_name != 'workflow_dispatch' || inputs.stage != 'package-only') && !contains(github.event.head_commit.message, '[skip-main]') && !contains(github.event.head_commit.message, '[skip-windows]') }}
+    if: ${{ (github.event_name != 'workflow_dispatch' || inputs.stage != 'package-only') && !contains(github.event.head_commit.message, '[skip-main]') && !contains(github.event.head_commit.message, '[skip-windows]') && !contains(github.event.head_commit.message, '[package-windows]') }}
     runs-on: windows-latest
     timeout-minutes: 360
     env:
@@ -219,7 +219,7 @@ jobs:
   package:
     name: Windows x64 installer
     needs: build
-    if: ${{ always() && !contains(github.event.head_commit.message, '[skip-main]') && !contains(github.event.head_commit.message, '[skip-windows]') && (needs.build.result == 'success' || (github.event_name == 'workflow_dispatch' && inputs.stage == 'package-only')) }}
+    if: ${{ always() && !contains(github.event.head_commit.message, '[skip-main]') && !contains(github.event.head_commit.message, '[skip-windows]') && (needs.build.result == 'success' || contains(github.event.head_commit.message, '[package-windows]') || (github.event_name == 'workflow_dispatch' && inputs.stage == 'package-only')) }}
     runs-on: windows-latest
     timeout-minutes: 180
     env:
@@ -270,7 +270,7 @@ jobs:
           key: kxcapture-windows-x64-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json', 'scripts/qt-toolchain.json', 'scripts/static-qt-features.json', 'scripts/build-static-qt.ps1', 'cmake/vcpkg-overlay-ports/**', 'cmake/vcpkg-overlay-triplets/**') }}
 
       - name: Download the build from this run
-        if: ${{ !(github.event_name == 'workflow_dispatch' && inputs.stage == 'package-only') }}
+        if: ${{ !(github.event_name == 'workflow_dispatch' && inputs.stage == 'package-only') && !contains(github.event.head_commit.message, '[package-windows]') }}
         uses: actions/download-artifact@v4
         with:
           name: kxcapture-windows-x64-build
@@ -285,12 +285,29 @@ jobs:
           run-id: ${{ inputs.build_run_id }}
           github-token: ${{ github.token }}
 
+      - name: Download the Windows build from run 45368826766
+        if: ${{ contains(github.event.head_commit.message, '[package-windows]') }}
+        uses: actions/download-artifact@v4
+        with:
+          name: kxcapture-windows-x64-build
+          path: build/snow-shot-msvc-release
+          run-id: 45368826766
+          github-token: ${{ github.token }}
+
       - name: Package installer and portable archive
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
           cargo fetch --locked --manifest-path snow-crates/Cargo.toml
           if ($LASTEXITCODE -ne 0) { throw 'cargo fetch failed' }
+          # Updater and MCP have their own lockfiles. Offline cargo tree and
+          # license collection fail when only the snow-crates workspace was fetched.
+          cargo fetch --locked --manifest-path snow_shot/rust/snow-shot-updater/Cargo.toml
+          if ($LASTEXITCODE -ne 0) { throw 'updater cargo fetch failed' }
+          cargo fetch --locked --manifest-path snow_shot/rust/snow-shot-mcp/Cargo.toml
+          if ($LASTEXITCODE -ne 0) { throw 'mcp cargo fetch failed' }
+          cargo fetch --locked --manifest-path snow_rust_ffi/Cargo.toml
+          if ($LASTEXITCODE -ne 0) { throw 'rust ffi cargo fetch failed' }
           $prefix = Join-Path (Get-Location) '.tools\qt\6.12.0\msvc2026_64-static-system-codecs'
           $qt = Join-Path $prefix 'lib\cmake\Qt6'
           $env:SNOW_QT_STATIC_DIR = $qt
