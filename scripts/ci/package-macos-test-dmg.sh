@@ -185,6 +185,26 @@ assert_signing_lifetime() {
     rm -rf "$dir"
 }
 
+report_ocr_files() {
+    local app="$1"
+    local found=0 path
+    printf '\n===== OCR files in %s =====\n' "$(basename "$app")"
+    while IFS= read -r path; do
+        printf '%s\n' "$path"
+        case "$(basename "$path")" in
+            kxcapture-ocr|kxcapture-ocr.exe) found=1 ;;
+        esac
+    done < <(find "$app" \
+        \( -name 'kxcapture-ocr' -o -name 'kxcapture-ocr.exe' -o -name 'snow-ocr-process' \
+           -o -name 'snow-ocr-process*' -o -name '*.onnx' -o -name 'asset-manifest.json' \
+           -o -path '*/assets/ocr/*' -o -path '*/ocr/*' \) -print | sort)
+    if [[ "$found" -ne 1 ]]; then
+        printf 'FATAL: OCR-on bundle %s does not contain kxcapture-ocr\n' "$(basename "$app")" >&2
+        return 1
+    fi
+    printf 'Bundled OCR worker: kxcapture-ocr. The downloaded upstream runtime keeps the name snow-ocr-process-<version>-<platform> and is not a separate Mac bundle file.\n'
+}
+
 verify_image() {
     local image="$1"
     local mount app
@@ -213,6 +233,7 @@ verify_image() {
     printf '\n===== codesign -dvv %s =====\n' "$(basename "$app")"
     codesign -dvv "$app"
     assess_gatekeeper "$app"
+    report_ocr_files "$app"
     python3 - "$app/Contents/Info.plist" <<'PY'
 import plistlib
 import sys

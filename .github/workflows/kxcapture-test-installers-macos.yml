@@ -256,6 +256,22 @@ jobs:
           path: /Users/runner/.cache/ccache
           key: kxcapture-macos-arm64-ccache
 
+      - name: List OCR files in the built apps
+        if: success()
+        run: |
+          set -euo pipefail
+          root=build/snow-shot-macos-arm64-release
+          printf '===== OCR-related files in the macOS build tree =====\n'
+          find "$root" \
+            \( -name 'kxcapture-ocr' -o -name 'kxcapture-ocr.exe' -o -name 'snow-ocr-process' \
+               -o -name 'snow-ocr-process*' -o -name '*.onnx' -o -name 'asset-manifest.json' \
+               -o -path '*/assets/ocr/*' \) -print | sort
+          if ! find "$root" \( -name 'kxcapture-ocr' -o -name 'kxcapture-ocr.exe' \) -print | grep -q .; then
+            printf 'FATAL: OCR-on macOS build does not contain kxcapture-ocr\n' >&2
+            exit 1
+          fi
+          printf 'Bundled OCR worker: kxcapture-ocr. The upstream runtime name snow-ocr-process-<version>-<platform> is the downloaded Windows runtime, not a separate Mac bundle file.\n'
+
       - name: Archive macOS build
         if: success()
         run: |

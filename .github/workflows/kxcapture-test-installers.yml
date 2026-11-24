@@ -365,6 +365,11 @@ jobs:
           }
           ./scripts/package-snow-shot.ps1 @packageArgs
 
+      - name: Assert OCR-off installer contents
+        if: ${{ success() && (inputs.ocr == 'off' || contains(github.event.head_commit.message, '[ocr-off]')) }}
+        shell: pwsh
+        run: ./scripts/ci/windows-assert-ocr-off-payload.ps1
+
       - name: Record version resources and checksums
         if: success()
         shell: pwsh

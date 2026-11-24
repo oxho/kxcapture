@@ -1420,6 +1420,20 @@ foreach ($variant in $variantStages.Keys) {
     [ordered]@{ schema = 1; platform = $ocrPlatform; version = $packageVersion; variant = $variant; files = $owned } |
         ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $stage 'snow-shot-installation.json') -Encoding utf8NoBOM
 }
+if ($DisableOcr) {
+    foreach ($variant in $variantStages.Keys) {
+        $ocrStage = $variantStages[$variant]
+        $ocrHits = @(Get-ChildItem -LiteralPath $ocrStage -Recurse -Force | ForEach-Object {
+            $relative = [IO.Path]::GetRelativePath($ocrStage, $_.FullName).Replace('\', '/')
+            if ($relative -match '(?i)kxcapture-ocr|snow-ocr-process' -or
+                $relative -match '(?i)(^|/)assets/ocr(/|$)' -or
+                $relative -match '(?i)\.onnx$') { $relative }
+        })
+        if ($ocrHits.Count -gt 0) {
+            throw "OCR-off stage '$variant' still contains OCR files: $($ocrHits -join ', ')"
+        }
+    }
+}
 
 if ($StageOnly) {
     $stage = $variantStages.offline

@@ -2,7 +2,8 @@
 param([switch]$FunctionsOnly)
 
 function Assert-SnowShotMiniPayload([string]$Stage,
-    [ValidateSet('x64', 'arm64')][string]$Architecture = 'x64', [string]$OcrAssetManifest) {
+    [ValidateSet('x64', 'arm64')][string]$Architecture = 'x64', [string]$OcrAssetManifest,
+    [switch]$OcrDisabled) {
     $files = @(Get-ChildItem -LiteralPath $Stage -Recurse -File -Force)
     $binaries = @($files | Where-Object { $_.Extension -in @('.exe', '.dll') } |
         ForEach-Object { [IO.Path]::GetRelativePath($Stage, $_.FullName).Replace('\', '/') })
@@ -11,10 +12,14 @@ function Assert-SnowShotMiniPayload([string]$Stage,
     if ((($binaries | Sort-Object) -join "`n") -cne (($expected | Sort-Object) -join "`n")) {
         throw 'Mini must contain exactly its application, updater, MCP bridge, and crash collector.'
     }
-    $allowedBinFiles = $expected + @('bin/assets/ocr/asset-manifest.json',
-        'bin/audios/camera_shutter.mp3', 'bin/__mini_data_directory')
+    $allowedBinFiles = $expected + @('bin/audios/camera_shutter.mp3', 'bin/__mini_data_directory')
+    if (-not $OcrDisabled) { $allowedBinFiles += 'bin/assets/ocr/asset-manifest.json' }
     foreach ($file in $files) {
         $relative = [IO.Path]::GetRelativePath($Stage, $file.FullName).Replace('\', '/')
+        if ($OcrDisabled -and ($relative -match '(?i)kxcapture-ocr|snow-ocr-process' -or
+                $relative -match '(?i)(^|/)assets/ocr(/|$)')) {
+            throw "Mini OCR-off payload contains an OCR executable or OCR assets: $relative"
+        }
         if ($relative.StartsWith('bin/assets/qrcode/') -or
             ($relative.StartsWith('bin/assets/ocr/') -and $relative -cne 'bin/assets/ocr/asset-manifest.json')) {
             throw "Mini Windows must not bundle OCR or QR payloads: $relative"
@@ -30,6 +35,7 @@ function Assert-SnowShotMiniPayload([string]$Stage,
         }
     }
     $manifest = Join-Path $Stage 'bin/assets/ocr/asset-manifest.json'
+    if (-not $OcrDisabled) {
     if (-not (Test-Path -LiteralPath $manifest -PathType Leaf)) { throw 'Mini is missing its trusted OCR descriptor.' }
     if ($OcrAssetManifest) {
         $trusted = Get-Content -LiteralPath $OcrAssetManifest -Raw | ConvertFrom-Json
@@ -40,6 +46,7 @@ function Assert-SnowShotMiniPayload([string]$Stage,
                 (Get-FileHash -LiteralPath $OcrAssetManifest -Algorithm SHA256).Hash) {
             throw 'Mini OCR descriptor must match the selected trusted target manifest exactly.'
         }
+    }
     }
     if (-not (Test-Path -LiteralPath (Join-Path $Stage 'share/kxcapture-mini/licenses/LICENSES.txt') -PathType Leaf)) {
         throw 'Mini is missing its license bundle.'
@@ -55,7 +62,9 @@ function Invoke-SnowShotMiniPackaging {
     Reset-ReleaseDirectory $miniInstall
     & cmake --install $buildDirectory --config Release --component SnowShotMini --prefix $miniInstall
     if ($LASTEXITCODE -ne 0) { throw 'KXCapture Mini install failed.' }
-    Assert-SnowShotMiniPayload -Stage $miniInstall -Architecture $Architecture -OcrAssetManifest $ocrAssetManifestPath
+    $miniAssert = @{ Stage = $miniInstall; Architecture = $Architecture }
+    if ($DisableOcr) { $miniAssert.OcrDisabled = $true } else { $miniAssert.OcrAssetManifest = $ocrAssetManifestPath }
+    Assert-SnowShotMiniPayload @miniAssert
     $main = Join-Path $miniInstall 'bin/kxcapture_mini.exe'
     $metadata = (Get-Item -LiteralPath $main).VersionInfo
     if ($metadata.ProductName -cne 'KXCapture Mini' -or $metadata.OriginalFilename -cne 'kxcapture_mini.exe' -or
@@ -89,7 +98,9 @@ function Invoke-SnowShotMiniPackaging {
         if ($variant -eq 'portable') {
             [IO.File]::WriteAllText((Join-Path $stage 'bin/__mini_data_directory'), 'portable', [Text.UTF8Encoding]::new($false))
         }
-        Assert-SnowShotMiniPayload -Stage $stage -Architecture $Architecture -OcrAssetManifest $ocrAssetManifestPath
+        $stageAssert = @{ Stage = $stage; Architecture = $Architecture }
+        if ($DisableOcr) { $stageAssert.OcrDisabled = $true } else { $stageAssert.OcrAssetManifest = $ocrAssetManifestPath }
+        Assert-SnowShotMiniPayload @stageAssert
         Assert-SnowArm64StackCookieSafety -Path $stage -BuildDirectory $buildDirectory -Architecture $Architecture
         $owned = @(Get-ReleaseTreeFileManifest $stage | ForEach-Object {
             [ordered]@{ path = $_.Path; size = $_.Bytes; sha256 = $_.Sha256 }
