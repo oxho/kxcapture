@@ -253,7 +253,7 @@ std::optional<Descriptor> loadDescriptor(const QString& root, QString* error) {
     result.bundled = true;
 #endif
     result.executable = result.bundled
-                            ? QStringLiteral("snow-ocr-process")
+                            ? QStringLiteral("kxcapture-ocr")
                             : QStringLiteral("snow-ocr-process-%1-%2.exe")
                                   .arg(result.runtimeVersion, QString::fromLatin1(kPlatform));
     const auto defaultModel =

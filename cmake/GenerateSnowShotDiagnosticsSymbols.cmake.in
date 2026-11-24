@@ -12,5 +12,5 @@ endif()
 # Cargo exposes this as a symlink to the hashed dSYM under deps/. Copy its
 # contents so the archived symbols remain usable after cleaning the Cargo tree.
 file(REAL_PATH "${_worker_symbols}" _worker_symbols_source)
-file(REMOVE_RECURSE "${_symbols}/snow-ocr-process.dSYM")
-file(COPY "${_worker_symbols_source}/" DESTINATION "${_symbols}/snow-ocr-process.dSYM")
+file(REMOVE_RECURSE "${_symbols}/kxcapture-ocr.dSYM")
+file(COPY "${_worker_symbols_source}/" DESTINATION "${_symbols}/kxcapture-ocr.dSYM")

@@ -19,13 +19,13 @@ def digest(path):
 
 
 def symbols_inventory(build, products):
-    names = ['snow_shot', 'snow-ocr-process']
+    names = ['snow_shot', 'kxcapture-ocr']
     if 'snow-shot-mini' in products:
         names.append('snow_shot_mini')
     symbols = []
     for name in names:
         path = build / 'symbols' / (name + '.dSYM') / 'Contents/Resources/DWARF' / name
-        if name == 'snow-ocr-process':
+        if name == 'kxcapture-ocr':
             # Cargo's packed dSYM retains its hashed executable filename when
             # copied out of deps/. Record that actual file without renaming it.
             files = list(path.parent.glob('*'))

@@ -50,11 +50,11 @@ function Start-Headless([string]$Path, [string]$HeldFile) {
 }
 
 foreach ($edition in 'Full', 'Mini') {
-    $appName = if ($edition -eq 'Mini') { 'snow_shot_mini' } else { 'snow_shot' }
+    $appName = if ($edition -eq 'Mini') { 'kxcapture_mini' } else { 'kxcapture' }
     $updaterName = if ($edition -eq 'Mini') { 'snow-shot-mini-updater' } else { 'snow-shot-updater' }
     $mcpName = if ($edition -eq 'Mini') { 'snow-shot-mini-mcp' } else { 'snow-shot-mcp' }
     $helpers = @($mcpName, $updaterName, 'crashpad_handler')
-    if ($edition -eq 'Full') { $helpers += 'snow-ocr-process' }
+    if ($edition -eq 'Full') { $helpers += 'kxcapture-ocr' }
     foreach ($helper in $helpers) {
         $destination = Join-Path $testRoot "$edition $helper 安"
         $binaries = Join-Path $destination 'bin'

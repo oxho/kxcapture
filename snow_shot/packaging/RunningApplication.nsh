@@ -218,7 +218,7 @@ Function ${Prefix}SnowShotEnsureInstallationClosed
   Push "$0\bin\${SNOW_SHOT_INSTALLER_UPDATER}.exe"
   Call ${Prefix}SnowShotEnsureAppClosed
 !if "${SNOW_SHOT_INSTALLER_EXECUTABLE}" == "kxcapture"
-  Push "$0\bin\snow-ocr-process.exe"
+  Push "$0\bin\kxcapture-ocr.exe"
   Call ${Prefix}SnowShotEnsureAppClosed
 !endif
   Push "$0\bin\crashpad_handler.exe"

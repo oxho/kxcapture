@@ -24,7 +24,7 @@ function Write-Pe([string]$Path, [string]$Architecture) {
 function New-Fixture([string]$Stage, [string]$Architecture) {
     $files = @('bin/kxcapture.exe', 'bin/kxcapture-mcp.exe', 'bin/crashpad_handler.exe',
         'bin/KXCaptureExplorerCommand.dll',
-        'bin/audios/camera_shutter.mp3', 'share/snow-shot/licenses/LICENSES.txt',
+        'bin/audios/camera_shutter.mp3', 'share/kxcapture/licenses/LICENSES.txt',
         'bin/assets/qrcode/detect.prototxt', 'bin/assets/qrcode/detect.caffemodel',
         'bin/assets/qrcode/sr.prototxt', 'bin/assets/qrcode/sr.caffemodel',
         "bin/assets/ocr/runtimes/1.2.0/windows-$Architecture/snow-ocr-process-1.2.0-windows-$Architecture.exe",
@@ -257,7 +257,7 @@ endif()
         'SNOW_APPS_BUILD_SNOW_SHOT_MINI' -in $compatibility.Differences.Name) 'Store cache reuse must reject standalone channel and Mini.'
     $stage = Join-Path $testRoot $architecture
     New-Fixture $stage $architecture
-    $noticePath = Join-Path $stage 'share/snow-shot/licenses/LICENSES.txt'
+    $noticePath = Join-Path $stage 'share/kxcapture/licenses/LICENSES.txt'
     [IO.File]::WriteAllText($noticePath, 'legitimate third-party license notice for test-helpers/benchmark')
     $audit = Join-Path $testRoot "$architecture-audit.json"
     Write-Audit $stage $audit arm64
@@ -271,7 +271,7 @@ endif()
     Write-Audit $stage $audit $architecture
     Reject { Assert-SnowMsixAuditedStage $stage $audit $architecture } 'Missing consolidated notices must fail.'
     [IO.File]::WriteAllText($noticePath, 'legitimate third-party license notice')
-    $legacyNotice = Join-Path $stage 'share/snow-shot/licenses/LICENSE'
+    $legacyNotice = Join-Path $stage 'share/kxcapture/licenses/LICENSE'
     [IO.File]::WriteAllText($legacyNotice, 'legacy loose notice')
     Write-Audit $stage $audit $architecture
     Reject { Assert-SnowMsixAuditedStage $stage $audit $architecture } 'Loose license files must fail.'
@@ -301,7 +301,7 @@ endif()
     Reject { Assert-SnowMsixAuditedStage $stage $audit $architecture } 'Standalone updater must never enter a Store package.'
     Remove-Item -LiteralPath $updater
     foreach ($relative in @('bin/assets/nested/unexpected.dat', 'bin/assets/nested/extra.com',
-            'bin/assets/nested/extra.scr', 'share/snow-shot/licenses/third-party/native-LICENSE.txt')) {
+            'bin/assets/nested/extra.scr', 'share/kxcapture/licenses/third-party/native-LICENSE.txt')) {
         $disguised = Join-Path $stage $relative
         $null = New-Item -ItemType Directory -Path (Split-Path -Parent $disguised) -Force
         Write-Pe $disguised $architecture
@@ -366,7 +366,7 @@ endif()
     $minimum = $manifest.SelectSingleNode('//m:TargetDeviceFamily', $ns).MinVersion
     Require ($minimum -ceq '10.0.19041.0') 'The x64 Store package must retain its Windows 10 baseline.'
     $manifestText = $manifest.OuterXml
-    Require ($manifestText.Contains('--autostart') -and $manifestText.Contains('SnowShotStartup') -and
+    Require ($manifestText.Contains('--autostart') -and $manifestText.Contains('KXCaptureStartup') -and
         $manifestText.Contains('snow-shot-store-mcp.exe') -and $manifestText.Contains('mediumIL') -and
         $manifestText.Contains('runFullTrust') -and $manifestText.Contains('microphone') -and
         $manifestText.Contains('webcam')) 'Packaged launch integrations/capabilities must be declared.'

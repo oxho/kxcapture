@@ -271,7 +271,7 @@ int runMcpApplicationLifecycleTests(int argc, char** argv) try {
             ScreenshotMcpRequest request;
             request.connectionId = 1;
             request.requestId = QStringLiteral("status");
-            request.method = QStringLiteral("snow_shot_mcp_status");
+            request.method = QStringLiteral("kxcapture_mcp_status");
             bool completed = false;
             session->request(request, [&](auto response) {
                 require(response.ok, "screenshot tools remain available after MCP restarts");
@@ -299,7 +299,7 @@ int runMcpApplicationLifecycleTests(int argc, char** argv) try {
         delayed.connectionId = 17;
         delayed.requestId = QStringLiteral("delayed-capture-before-disable");
         delayed.idempotencyKey = delayed.requestId;
-        delayed.method = QStringLiteral("snow_shot_document_open");
+        delayed.method = QStringLiteral("kxcapture_document_open");
         delayed.params = {{QStringLiteral("source"), QStringLiteral("capture")},
                           {QStringLiteral("delay_seconds"), 10}};
         bool admitted = false;

@@ -7,12 +7,12 @@
 namespace snow_shot::app::mcp {
 inline bool editionMethodEnabled(const QString& method) {
     if (!edition::textTranslation &&
-        (method == u"snow_shot_screenshot_translate" ||
-         method == u"snow_shot_translation_catalog" || method == u"snow_shot_translation_start"))
+        (method == u"kxcapture_screenshot_translate" ||
+         method == u"kxcapture_translation_catalog" || method == u"kxcapture_translation_start"))
         return false;
     if (!edition::apiConfiguration &&
-        (method == u"snow_shot_models_list" || method == u"snow_shot_models_update" ||
-         method == u"snow_shot_credentials_set"))
+        (method == u"kxcapture_models_list" || method == u"kxcapture_models_update" ||
+         method == u"kxcapture_credentials_set"))
         return false;
     return true;
 }
@@ -32,12 +32,12 @@ inline bool editionRecognitionKindEnabled(const QString& kind) {
 inline bool editionRequestEnabled(const QString& method, const QJsonObject& params) {
     if (!editionMethodEnabled(method))
         return false;
-    if (method == u"snow_shot_screenshot_recognize" || method == u"snow_shot_document_recognize")
+    if (method == u"kxcapture_screenshot_recognize" || method == u"kxcapture_document_recognize")
         return editionRecognitionKindEnabled(params.value(QStringLiteral("kind")).toString());
-    if (method == u"snow_shot_app_action" &&
+    if (method == u"kxcapture_app_action" &&
         params.value(QStringLiteral("action")).toString() == u"show_translation")
         return edition::textTranslation;
-    if (method == u"snow_shot_pinned_edit") {
+    if (method == u"kxcapture_pinned_edit") {
         const auto action = params.value(QStringLiteral("action")).toString();
         if (action == u"translate")
             return edition::textTranslation;
@@ -47,16 +47,16 @@ inline bool editionRequestEnabled(const QString& method, const QJsonObject& para
                                                      .value(QStringLiteral("kind"))
                                                      .toString());
     }
-    if ((method == u"snow_shot_screenshot_edit_recognition" ||
-         method == u"snow_shot_document_edit_recognition") &&
+    if ((method == u"kxcapture_screenshot_edit_recognition" ||
+         method == u"kxcapture_document_edit_recognition") &&
         !edition::tableRecognition) {
         const auto action = params.value(QStringLiteral("action")).toString();
         if (action == u"select_cells" || action == u"set_cell" || action == u"merge_cells" ||
             action == u"split_cells" || action == u"reset_table" || action == u"show_original")
             return false;
     }
-    if ((method == u"snow_shot_screenshot_export_recognition" ||
-         method == u"snow_shot_document_export_recognition") &&
+    if ((method == u"kxcapture_screenshot_export_recognition" ||
+         method == u"kxcapture_document_export_recognition") &&
         !edition::imageConversion) {
         const auto format = params.value(QStringLiteral("format")).toString();
         if (format == u"html" || format == u"markdown")

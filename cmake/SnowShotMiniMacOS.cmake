@@ -35,33 +35,35 @@ if(NOT SNOW_MACOS_CODESIGN_IDENTITY STREQUAL "-")
         COMMAND "${CMAKE_COMMAND}" -E rm -f "$<TARGET_FILE:snow_shot_mini>.snow-signing"
         VERBATIM)
 endif()
-add_custom_target(snow_shot_mini-ocr-assets
-    COMMAND "${Python3_EXECUTABLE}" "${SNOW_MACOS_OCR_TOOL}" stage
-        --arch "${SNOW_MACOS_OCR_ARCH}"
-        --manifest "${SNOW_MACOS_OCR_MANIFEST}"
-        --runtime-dir "$<TARGET_FILE_DIR:snow_shot_mini>"
-        --worker "$<TARGET_FILE:snow_ocr_process>" --runtime-only
-        ${_snow_macos_ocr_runtime_arguments}
-    DEPENDS snow_ocr_process VERBATIM)
-add_dependencies(snow_shot_mini snow_shot_mini-ocr-assets)
-install(PROGRAMS "$<TARGET_FILE:snow_ocr_process>" DESTINATION "${_mini_bindir}" COMPONENT SnowShotMini)
-install(DIRECTORY "$<TARGET_FILE_DIR:snow_shot_mini>/assets/ocr"
-    DESTINATION "${_mini_bindir}/assets" COMPONENT SnowShotMini PATTERN models EXCLUDE)
+if(TARGET snow_ocr_process)
+    add_custom_target(snow_shot_mini-ocr-assets
+        COMMAND "${Python3_EXECUTABLE}" "${SNOW_MACOS_OCR_TOOL}" stage
+            --arch "${SNOW_MACOS_OCR_ARCH}"
+            --manifest "${SNOW_MACOS_OCR_MANIFEST}"
+            --runtime-dir "$<TARGET_FILE_DIR:snow_shot_mini>"
+            --worker "$<TARGET_FILE:snow_ocr_process>" --runtime-only
+            ${_snow_macos_ocr_runtime_arguments}
+        DEPENDS snow_ocr_process VERBATIM)
+    add_dependencies(snow_shot_mini snow_shot_mini-ocr-assets)
+    install(PROGRAMS "$<TARGET_FILE:snow_ocr_process>" DESTINATION "${_mini_bindir}" COMPONENT SnowShotMini)
+    install(DIRECTORY "$<TARGET_FILE_DIR:snow_shot_mini>/assets/ocr"
+        DESTINATION "${_mini_bindir}/assets" COMPONENT SnowShotMini PATTERN models EXCLUDE)
+endif()
 if(NOT SNOW_SHOT_QT_STATIC)
     install(FILES "$<TARGET_FILE:Qt6::QOffscreenIntegrationPlugin>"
         DESTINATION "kxcapture_mini.app/Contents/PlugIns/platforms" COMPONENT SnowShotMini)
 endif()
 if(SNOW_SHOT_RELEASE_STATIC)
     install(DIRECTORY "${_snow_static_qt_licenses}/"
-        DESTINATION "${_mini_datadir}/snow-shot-mini/licenses/third-party/qt" COMPONENT SnowShotMini)
+        DESTINATION "${_mini_datadir}/kxcapture-mini/licenses/third-party/qt" COMPONENT SnowShotMini)
     install(DIRECTORY "${SNOW_FFMPEG_ROOT}/share/"
-        DESTINATION "${_mini_datadir}/snow-shot-mini/licenses/third-party/vcpkg"
+        DESTINATION "${_mini_datadir}/kxcapture-mini/licenses/third-party/vcpkg"
         COMPONENT SnowShotMini FILES_MATCHING PATTERN copyright)
 endif()
 include("${CMAKE_CURRENT_LIST_DIR}/SnowRustLicenses.cmake")
 snow_install_rust_licenses(
     COMPONENT SnowShotMini
-    DESTINATION "kxcapture_mini.app/Contents/Resources/snow-shot-mini/licenses/third-party/cargo"
+    DESTINATION "kxcapture_mini.app/Contents/Resources/kxcapture-mini/licenses/third-party/cargo"
     TARGETS snow_shot_rust_ffi_bundle snow_ocr_process snow_shot_mini_mcp)
 file(READ "${CMAKE_CURRENT_LIST_DIR}/DeploySnowShotMacOS.cmake.in" _mini_deploy)
 string(REPLACE "@SNOW_MACOS_OCR_RUNTIME_ONLY@" "ON" _mini_deploy "${_mini_deploy}")

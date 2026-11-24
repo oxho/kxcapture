@@ -148,8 +148,8 @@ function Assert-SnowMsixAuditedStage {
         } elseif ($binaryExtension) {
             throw "Invalid or unsupported executable in Store payload: $($file.Path)"
         }
-        $license = $file.Path.StartsWith('share/snow-shot/licenses/', [StringComparison]::OrdinalIgnoreCase)
-        if ($license -and ($file.Path -cne 'share/snow-shot/licenses/LICENSES.txt' -or $file.Bytes -eq 0)) {
+        $license = $file.Path.StartsWith('share/kxcapture/licenses/', [StringComparison]::OrdinalIgnoreCase)
+        if ($license -and ($file.Path -cne 'share/kxcapture/licenses/LICENSES.txt' -or $file.Bytes -eq 0)) {
             throw 'Store releases must contain one nonempty consolidated LICENSES.txt.'
         }
         if (-not $license -and $extension -in @('.msi', '.msp', '.mst', '.msix', '.appx', '.msixbundle', '.appxbundle', '.appinstaller', '.lnk', '.url',
@@ -163,7 +163,7 @@ function Assert-SnowMsixAuditedStage {
             'bin/audios/camera_shutter.mp3', 'bin/assets/ocr/asset-manifest.json',
             'bin/assets/qrcode/detect.prototxt', 'bin/assets/qrcode/detect.caffemodel',
             'bin/assets/qrcode/sr.prototxt', 'bin/assets/qrcode/sr.caffemodel',
-            'share/snow-shot/licenses/LICENSES.txt')) {
+            'share/kxcapture/licenses/LICENSES.txt')) {
         if ($required -cnotin $actual.Path) { throw "Missing Store payload: $required" }
     }
     $manifest = Get-Content -LiteralPath (Join-Path $Stage 'bin/assets/ocr/asset-manifest.json') -Raw | ConvertFrom-Json

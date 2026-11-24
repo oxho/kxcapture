@@ -32,13 +32,13 @@
 namespace snow_shot::app::mcp {
 namespace {
 const QStringList methods{
-    QStringLiteral("snow_shot_recording_state"),   QStringLiteral("snow_shot_recording_start"),
-    QStringLiteral("snow_shot_recording_control"), QStringLiteral("snow_shot_pinned_list"),
-    QStringLiteral("snow_shot_pinned_get"),        QStringLiteral("snow_shot_pinned_create"),
-    QStringLiteral("snow_shot_pinned_replace"),    QStringLiteral("snow_shot_pinned_update"),
-    QStringLiteral("snow_shot_pinned_action"),     QStringLiteral("snow_shot_pinned_export"),
-    QStringLiteral("snow_shot_pinned_edit"),       QStringLiteral("snow_shot_group_list"),
-    QStringLiteral("snow_shot_group_update")};
+    QStringLiteral("kxcapture_recording_state"),   QStringLiteral("kxcapture_recording_start"),
+    QStringLiteral("kxcapture_recording_control"), QStringLiteral("kxcapture_pinned_list"),
+    QStringLiteral("kxcapture_pinned_get"),        QStringLiteral("kxcapture_pinned_create"),
+    QStringLiteral("kxcapture_pinned_replace"),    QStringLiteral("kxcapture_pinned_update"),
+    QStringLiteral("kxcapture_pinned_action"),     QStringLiteral("kxcapture_pinned_export"),
+    QStringLiteral("kxcapture_pinned_edit"),       QStringLiteral("kxcapture_group_list"),
+    QStringLiteral("kxcapture_group_update")};
 QString uuid() {
     return QUuid::createUuid().toString(QUuid::WithoutBraces);
 }
@@ -341,7 +341,7 @@ class McpMediaService::Impl {
         auto content = std::make_shared<std::optional<ScreenshotClipboardContent>>();
         const QString token = uuid();
         const auto id = r.params.value(QStringLiteral("id")).toString();
-        const bool replace = r.method == QStringLiteral("snow_shot_pinned_replace");
+        const bool replace = r.method == QStringLiteral("kxcapture_pinned_replace");
         const QPointer<ScreenshotPinnedWindow> replacementWindow =
             replace ? groups.liveWindow(id) : nullptr;
         if (replace && !replacementWindow) {
@@ -558,11 +558,11 @@ void McpMediaService::request(const ScreenshotMcpRequest& r,
         return true;
     };
     const auto& p = r.params;
-    if (r.method == QStringLiteral("snow_shot_recording_state")) {
+    if (r.method == QStringLiteral("kxcapture_recording_state")) {
         reply(s.recordingState(r.connectionId), {});
         return;
     }
-    if (r.method == QStringLiteral("snow_shot_recording_start")) {
+    if (r.method == QStringLiteral("kxcapture_recording_start")) {
         QRect region;
         if (!parseRect(p.value(QStringLiteral("region")), &region)) {
             reply({}, QStringLiteral("invalid_region"));
@@ -583,7 +583,7 @@ void McpMediaService::request(const ScreenshotMcpRequest& r,
         reply(s.recordingState(r.connectionId), {});
         return;
     }
-    if (r.method == QStringLiteral("snow_shot_recording_control")) {
+    if (r.method == QStringLiteral("kxcapture_recording_control")) {
         if (!s.recording || p.value(QStringLiteral("recording_id")).toString() != s.recordingId) {
             reply({}, QStringLiteral("recording_not_found"));
             return;
@@ -601,11 +601,11 @@ void McpMediaService::request(const ScreenshotMcpRequest& r,
         reply(s.recordingState(r.connectionId), ok ? QString() : error);
         return;
     }
-    if (r.method == QStringLiteral("snow_shot_group_list")) {
+    if (r.method == QStringLiteral("kxcapture_group_list")) {
         reply(s.groupState(), {});
         return;
     }
-    if (r.method == QStringLiteral("snow_shot_group_update")) {
+    if (r.method == QStringLiteral("kxcapture_group_update")) {
         if (!current(s.groupState()))
             return;
         const auto action = p.value(QStringLiteral("action")).toString();
@@ -638,7 +638,7 @@ void McpMediaService::request(const ScreenshotMcpRequest& r,
         reply(state, ok ? QString() : QStringLiteral("action_unavailable"));
         return;
     }
-    if (r.method == QStringLiteral("snow_shot_pinned_list")) {
+    if (r.method == QStringLiteral("kxcapture_pinned_list")) {
         const int offset = p.value(QStringLiteral("offset")).toInt(0);
         const int limit = p.value(QStringLiteral("limit")).toInt(50);
         if (offset < 0 || limit < 1 || limit > 200) {
@@ -666,14 +666,14 @@ void McpMediaService::request(const ScreenshotMcpRequest& r,
               {});
         return;
     }
-    if (r.method == QStringLiteral("snow_shot_pinned_create")) {
+    if (r.method == QStringLiteral("kxcapture_pinned_create")) {
         s.decode(r, reply);
         return;
     }
     const auto id = p.value(QStringLiteral("id")).toString();
     auto state = s.pinState(id);
     const auto action = p.value(QStringLiteral("action")).toString();
-    if (r.method == QStringLiteral("snow_shot_pinned_action") &&
+    if (r.method == QStringLiteral("kxcapture_pinned_action") &&
         action == QStringLiteral("restore_last")) {
         if (!current(s.groupState()))
             return;
@@ -685,13 +685,13 @@ void McpMediaService::request(const ScreenshotMcpRequest& r,
         reply({}, QStringLiteral("pinned_not_found"));
         return;
     }
-    if (r.method == QStringLiteral("snow_shot_pinned_get")) {
+    if (r.method == QStringLiteral("kxcapture_pinned_get")) {
         reply(state, {});
         return;
     }
     if (!current(state))
         return;
-    if (r.method == QStringLiteral("snow_shot_pinned_action") &&
+    if (r.method == QStringLiteral("kxcapture_pinned_action") &&
         (action == QStringLiteral("show") || action == QStringLiteral("destroy"))) {
         if (action == QStringLiteral("show"))
             s.controller.showPinnedRecord(id);
@@ -705,24 +705,24 @@ void McpMediaService::request(const ScreenshotMcpRequest& r,
         reply(state, QStringLiteral("window_closed"));
         return;
     }
-    if (r.method == QStringLiteral("snow_shot_pinned_replace")) {
+    if (r.method == QStringLiteral("kxcapture_pinned_replace")) {
         s.decode(r, reply);
         return;
     }
-    if (r.method == QStringLiteral("snow_shot_pinned_update")) {
+    if (r.method == QStringLiteral("kxcapture_pinned_update")) {
         QString error;
         const bool ok =
             window->automationUpdate(p.value(QStringLiteral("properties")).toObject(), &error);
         reply(s.pinState(id), ok ? QString() : error);
         return;
     }
-    if (r.method == QStringLiteral("snow_shot_pinned_action")) {
+    if (r.method == QStringLiteral("kxcapture_pinned_action")) {
         const bool ok = window->automationAction(action);
         reply({{QStringLiteral("accepted"), ok}, {QStringLiteral("id"), id}},
               ok ? QString() : QStringLiteral("invalid_parameters"));
         return;
     }
-    if (r.method == QStringLiteral("snow_shot_pinned_edit")) {
+    if (r.method == QStringLiteral("kxcapture_pinned_edit")) {
         const bool startsJob = action == QStringLiteral("recognize") ||
                                action == QStringLiteral("translate") ||
                                action == QStringLiteral("auto_filter");
@@ -748,7 +748,7 @@ void McpMediaService::request(const ScreenshotMcpRequest& r,
         reply(updatedState, error);
         return;
     }
-    if (r.method == QStringLiteral("snow_shot_pinned_export")) {
+    if (r.method == QStringLiteral("kxcapture_pinned_export")) {
         if (s.cancellations.size() >= 8) {
             reply({}, QStringLiteral("queue_full"));
             return;

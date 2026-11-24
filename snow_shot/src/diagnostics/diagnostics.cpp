@@ -449,7 +449,7 @@ struct DiagnosticsService::Impl {
                     QT_TRANSLATE_NOOP("DiagnosticsService", "The log directory is not writable")));
                 return;
             }
-            output.setFileName(QDir(directory).filePath(QStringLiteral("snow-shot-%1-%2.log")
+            output.setFileName(QDir(directory).filePath(QStringLiteral("kxcapture-%1-%2.log")
                                                             .arg(state.sessionId)
                                                             .arg(++part, 6, 10, u'0')));
             outputLock = std::make_unique<QLockFile>(output.fileName() + QStringLiteral(".lock"));
@@ -493,7 +493,7 @@ struct DiagnosticsService::Impl {
     QVector<Artifact> artifacts() {
         QVector<Artifact> result;
         static const QRegularExpression logName(
-            QStringLiteral("^snow-shot-([a-f0-9]{32})-[0-9]{6,}\\.log$"));
+            QStringLiteral("^(?:kxcapture|snow-shot)-([a-f0-9]{32})-[0-9]{6,}\\.log$"));
         static const QRegularExpression emergencyName(
             QStringLiteral("^emergency-([a-f0-9]{32})\\.log$"));
         for (const QString& root : roots) {
@@ -564,7 +564,9 @@ struct DiagnosticsService::Impl {
                         continue;
                     }
                     const QStringList names{
+                        QStringLiteral("kxcapture-%1.log").arg(date.toString(Qt::ISODate)),
                         QStringLiteral("snow-shot-%1.log").arg(date.toString(Qt::ISODate)),
+                        QStringLiteral("kxcapture-logs-*.zip"),
                         QStringLiteral("snow-shot-logs-*.zip")};
                     for (const QFileInfo& snapshot :
                          QDir(folder.absoluteFilePath()).entryInfoList(names, QDir::Files)) {
@@ -857,7 +859,7 @@ struct DiagnosticsService::Impl {
                         "DiagnosticsService", "The log snapshot directory could not be created"))};
         }
         const QString path = QDir(directory).filePath(
-            QStringLiteral("snow-shot-%1.log").arg(date.toString(Qt::ISODate)));
+            QStringLiteral("kxcapture-%1.log").arg(date.toString(Qt::ISODate)));
         snapshotLock = std::make_unique<QLockFile>(path + QStringLiteral(".lock"));
         snapshotLock->setStaleLockTime(0);
         if (!snapshotLock->tryLock(0))
@@ -906,7 +908,7 @@ struct DiagnosticsService::Impl {
             return failure(QT_TRANSLATE_NOOP("DiagnosticsService",
                                              "The log archive directory could not be created"));
         const QString path =
-            QDir(directory).filePath(QStringLiteral("snow-shot-logs-%1.zip")
+            QDir(directory).filePath(QStringLiteral("kxcapture-logs-%1.zip")
                                          .arg(now.toString(QStringLiteral("yyyyMMdd-HHmmss"))));
         const QString temporary = path + QStringLiteral(".tmp");
         auto archiveLock = std::make_unique<QLockFile>(path + QStringLiteral(".lock"));

@@ -13,19 +13,19 @@ try {
     foreach ($name in @('bin/kxcapture_mini.exe', 'bin/kxcapture-mini-updater.exe',
             'bin/kxcapture-mini-mcp.exe', 'bin/crashpad_handler.exe',
             'bin/assets/ocr/asset-manifest.json', 'bin/audios/camera_shutter.mp3',
-            'bin/__mini_data_directory', 'share/snow-shot-mini/licenses/LICENSES.txt')) {
+            'bin/__mini_data_directory', 'share/kxcapture-mini/licenses/LICENSES.txt')) {
         $path = Join-Path $fixture $name
         $null = New-Item -ItemType Directory -Force (Split-Path $path)
         [IO.File]::WriteAllText($path, 'fixture')
     }
     Assert-SnowShotMiniPayload $fixture
-    $license = Join-Path $fixture 'share/snow-shot-mini/licenses/LICENSES.txt'
+    $license = Join-Path $fixture 'share/kxcapture-mini/licenses/LICENSES.txt'
     [IO.File]::WriteAllText($license, '')
     Must-Fail { Assert-SnowShotMiniPayload $fixture }
     Remove-Item -LiteralPath $license
     Must-Fail { Assert-SnowShotMiniPayload $fixture }
     [IO.File]::WriteAllText($license, 'fixture')
-    $legacyLicense = Join-Path $fixture 'share/snow-shot-mini/licenses/LICENSE'
+    $legacyLicense = Join-Path $fixture 'share/kxcapture-mini/licenses/LICENSE'
     [IO.File]::WriteAllText($legacyLicense, 'legacy loose notice')
     Must-Fail { Assert-SnowShotMiniPayload $fixture }
     Remove-Item -LiteralPath $legacyLicense
@@ -38,8 +38,8 @@ try {
     # They must also be rejected when accidentally staged elsewhere inside bin.
     foreach ($name in @('bin/snow-ocr-runtime-1.0.9-windows-x64.zip',
             'bin/runtime-manifest.json', 'bin/.complete.json',
-            'share/snow-shot/assets/qrcode/detect.prototxt',
-            'share/snow-shot-mini/assets/ocr/models/engine.onnx',
+            'share/kxcapture/assets/qrcode/detect.prototxt',
+            'share/kxcapture-mini/assets/ocr/models/engine.onnx',
             'snow-ocr-runtime.zip')) {
         $forbidden = Join-Path $fixture $name
         $null = New-Item -ItemType Directory -Force (Split-Path $forbidden)

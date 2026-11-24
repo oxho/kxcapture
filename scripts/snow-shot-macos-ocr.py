@@ -13,7 +13,7 @@ import urllib.request
 
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / 'snow_shot/packaging/snow-shot-ocr-asset-manifest.json'
-RUNTIME_FILES = ('snow-ocr-process',)
+RUNTIME_FILES = ('kxcapture-ocr',)
 ARM64_HEADER = bytes.fromhex('cffaedfe0c000001')
 X64_HEADER = bytes.fromhex('cffaedfe07000001')
 ARCHITECTURES = {

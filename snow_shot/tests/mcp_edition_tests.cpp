@@ -29,14 +29,14 @@ int main(int argc, char** argv) {
     using namespace snow_shot::app;
     using namespace snow_shot::app::mcp;
     for (const auto* method :
-         {"snow_shot_models_list", "snow_shot_models_update", "snow_shot_credentials_set"})
+         {"kxcapture_models_list", "kxcapture_models_update", "kxcapture_credentials_set"})
         require(editionMethodEnabled(QString::fromLatin1(method)) == edition::apiConfiguration,
                 "API configuration tools must match the compiled edition");
-    for (const auto* method : {"snow_shot_screenshot_translate", "snow_shot_translation_catalog",
-                               "snow_shot_translation_start"})
+    for (const auto* method : {"kxcapture_screenshot_translate", "kxcapture_translation_catalog",
+                               "kxcapture_translation_start"})
         require(editionMethodEnabled(QString::fromLatin1(method)) == edition::textTranslation,
                 "Translation tools must match the compiled edition");
-    for (const auto* method : {"snow_shot_document_recognize", "snow_shot_screenshot_recognize"}) {
+    for (const auto* method : {"kxcapture_document_recognize", "kxcapture_screenshot_recognize"}) {
         const auto name = QString::fromLatin1(method);
         require(editionRequestEnabled(name, {{QStringLiteral("kind"), QStringLiteral("text")}}),
                 "Manual text recognition must remain available");
@@ -48,24 +48,24 @@ int main(int argc, char** argv) {
         }
     }
     require(
-        editionRequestEnabled(QStringLiteral("snow_shot_pinned_edit"),
+        editionRequestEnabled(QStringLiteral("kxcapture_pinned_edit"),
                               {{QStringLiteral("action"), QStringLiteral("recognize")},
                                {QStringLiteral("payload"),
                                 QJsonObject{{QStringLiteral("kind"), QStringLiteral("text")}}}}),
         "Pinned manual OCR must remain available");
-    require(editionRequestEnabled(QStringLiteral("snow_shot_pinned_edit"),
+    require(editionRequestEnabled(QStringLiteral("kxcapture_pinned_edit"),
                                   {{QStringLiteral("action"), QStringLiteral("translate")}}) ==
                 edition::textTranslation,
             "Pinned translation must respect feature flags");
-    require(editionRequestEnabled(QStringLiteral("snow_shot_document_edit_recognition"),
+    require(editionRequestEnabled(QStringLiteral("kxcapture_document_edit_recognition"),
                                   {{QStringLiteral("action"), QStringLiteral("set_cell")}}) ==
                 edition::tableRecognition,
             "Table editing cannot bypass disabled recognition");
-    require(editionRequestEnabled(QStringLiteral("snow_shot_screenshot_export_recognition"),
+    require(editionRequestEnabled(QStringLiteral("kxcapture_screenshot_export_recognition"),
                                   {{QStringLiteral("format"), QStringLiteral("markdown")}}) ==
                 edition::imageConversion,
             "Image conversion cannot bypass disabled recognition");
-    require(editionRequestEnabled(QStringLiteral("snow_shot_document_save"), {}),
+    require(editionRequestEnabled(QStringLiteral("kxcapture_document_save"), {}),
             "Unaffected document export must remain available");
     return EXIT_SUCCESS;
 }

@@ -91,10 +91,10 @@ if(SNOW_SHOT_RELEASE_STATIC)
             "The audited static Qt license bundle is missing: ${_snow_static_qt_licenses}")
     endif()
     install(DIRECTORY "${_snow_static_qt_licenses}/"
-        DESTINATION "kxcapture.app/Contents/Resources/snow-shot/licenses/third-party/qt"
+        DESTINATION "kxcapture.app/Contents/Resources/kxcapture/licenses/third-party/qt"
         COMPONENT SnowShot)
     install(DIRECTORY "${SNOW_FFMPEG_ROOT}/share/"
-        DESTINATION "kxcapture.app/Contents/Resources/snow-shot/licenses/third-party/vcpkg"
+        DESTINATION "kxcapture.app/Contents/Resources/kxcapture/licenses/third-party/vcpkg"
         COMPONENT SnowShot FILES_MATCHING PATTERN "copyright")
 endif()
 
@@ -238,7 +238,7 @@ endif()
 include("${CMAKE_CURRENT_LIST_DIR}/SnowRustLicenses.cmake")
 snow_install_rust_licenses(
     COMPONENT SnowShot
-    DESTINATION "kxcapture.app/Contents/Resources/snow-shot/licenses/third-party/cargo"
+    DESTINATION "kxcapture.app/Contents/Resources/kxcapture/licenses/third-party/cargo"
     TARGETS snow_shot_full_rust_ffi_bundle snow_selected_text_c snow_ocr_process snow_shot_mcp)
 # Full includes its default model; Mini supplies its own runtime-only policy.
 set(SNOW_MACOS_OCR_RUNTIME_ONLY OFF)
